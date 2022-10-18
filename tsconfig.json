@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmit": true,
+    "strict": true,
+    "jsx": "react",
+    "target": "esnext",
+    "module": "esnext",
+    "lib": ["ESNext", "DOM"],
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "removeComments": true,
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@ettawallet/*": ["packages/*/src"]
+    }
+  },
+  "awesomeTypescriptLoaderOptions": {
+    "useBabel": true,
+    "babelCore": "@babel/core"
+  },
+  "include": ["packages", "jest-dom/extend-expect"],
+  "exclude": ["node_modules", "**/dist/**/*", "**/*.stories.*"],
+  "typeRoots": ["./node_modules/@types"]
+}

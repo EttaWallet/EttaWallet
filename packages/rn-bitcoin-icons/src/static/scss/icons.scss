@@ -1,0 +1,338 @@
+/* --------------------------------
+
+Bitcoin Web Font
+Generated using nucleoapp.com
+
+-------------------------------- */
+$icon-font-path: "../fonts" !default;
+
+@font-face {
+  font-family: 'Bitcoin';
+  src: url('#{$icon-font-path}/Bitcoin.eot');
+  src: url('#{$icon-font-path}/Bitcoin.eot') format('embedded-opentype'),
+    url('#{$icon-font-path}/Bitcoin.woff2') format('woff2'),
+    url('#{$icon-font-path}/Bitcoin.woff') format('woff'),
+    url('#{$icon-font-path}/Bitcoin.ttf') format('truetype'),
+    url('#{$icon-font-path}/Bitcoin.svg') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/*------------------------
+	base class definition
+-------------------------*/
+
+.icon {
+  display: inline-block;
+  font: normal normal normal 1em/1 'Bitcoin';
+  color: inherit;
+  flex-shrink: 0;
+  speak: none;
+  text-transform: none;
+  /* Better Font Rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/*------------------------
+  change icon size
+-------------------------*/
+
+/* relative units */
+.icon-sm {
+  font-size: 0.8em;
+}
+.icon-lg {
+  font-size: 1.2em;
+}
+/* absolute units */
+.icon-16 {
+  font-size: 16px;
+}
+.icon-32 {
+  font-size: 32px;
+}
+
+/*------------------------
+  spinning icons
+-------------------------*/
+
+.icon-is-spinning {
+  animation: icon-spin 1s infinite linear;
+}
+
+@keyframes icon-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/*------------------------
+  rotated/flipped icons
+-------------------------*/
+
+.icon-rotate-90  {
+	transform: rotate(90deg);
+}
+
+.icon-rotate-180 {
+	transform: rotate(180deg);
+}
+
+.icon-rotate-270 {
+	transform: rotate(270deg);
+}
+
+.icon-flip-y {
+	transform: scaleY(-1);
+}
+.icon-flip-x {
+	transform: scaleX(-1);
+}
+
+/*------------------------
+	icons
+-------------------------*/
+$icons: (
+  address-book-2: 'ea01',
+  address-book: 'ea02',
+  alert-2: 'ea03',
+  alert: 'ea04',
+  arrow-down-2: 'ea05',
+  arrow-down: 'ea06',
+  arrow-left-2: 'ea07',
+  arrow-left: 'ea08',
+  arrow-right-2: 'ea09',
+  arrow-right: 'ea0a',
+  arrow-up-2: 'ea0b',
+  arrow-up: 'ea0c',
+  bell-2: 'ea0e',
+  bell: 'ea0d',
+  bitcoin-2: 'ea10',
+  bitcoin-circle-2: 'ea0f',
+  bitcoin-circle: 'ea11',
+  bitcoin: 'ea15',
+  block-2: 'ea12',
+  block: 'ea13',
+  brush-2: 'ea14',
+  brush: 'ea16',
+  calendar-2: 'ea17',
+  calendar: 'ea18',
+  car-2: 'ea19',
+  car: 'ea1a',
+  caret-down-2: 'ea1b',
+  caret-down: 'ea1c',
+  caret-left-2: 'ea1d',
+  caret-left: 'ea20',
+  caret-right-2: 'ea1e',
+  caret-right: 'ea1f',
+  caret-up-2: 'ea21',
+  caret-up: 'ea22',
+  cart-2: 'ea23',
+  cart: 'ea24',
+  channel-2: 'ea25',
+  channel: 'ea26',
+  channels-2: 'ea28',
+  channels: 'ea27',
+  check-2: 'ea29',
+  check: 'ea2a',
+  clear-character-2: 'ea2b',
+  clear-character: 'ea2c',
+  clock-2: 'ea2d',
+  clock: 'ea2e',
+  cloud-2: 'ea2f',
+  cloud: 'ea30',
+  code-2: 'ea31',
+  code: 'ea32',
+  coins-2: 'ea33',
+  coins: 'ea34',
+  confirmations-0-2: 'ea35',
+  confirmations-0: 'ea37',
+  confirmations-1-2: 'ea36',
+  confirmations-1: 'ea38',
+  confirmations-2-2: 'ea39',
+  confirmations-2: 'ea3a',
+  confirmations-3-2: 'ea3b',
+  confirmations-3: 'ea3c',
+  confirmations-4-2: 'ea3e',
+  confirmations-4: 'ea3d',
+  confirmations-5-2: 'ea40',
+  confirmations-5: 'ea3f',
+  confirmations-6-2: 'ea41',
+  confirmations-6: 'ea42',
+  console-2: 'ea43',
+  console: 'ea44',
+  contacts-2: 'ea45',
+  contacts: 'ea46',
+  copy-2: 'ea47',
+  copy: 'ea48',
+  credit-card-2: 'ea49',
+  credit-card: 'ea4a',
+  cross-2: 'ea4b',
+  cross: 'ea4c',
+  devices-2: 'ea4e',
+  devices: 'ea4d',
+  edit-2: 'ea4f',
+  edit: 'ea50',
+  ellipsis-2: 'ea54',
+  ellipsis: 'ea51',
+  exchange-2: 'ea52',
+  exchange: 'ea53',
+  exit-2: 'ea55',
+  exit: 'ea56',
+  export-2: 'ea57',
+  export: 'ea58',
+  file-2: 'ea5a',
+  file: 'ea59',
+  flip-horizontal-2: 'ea5b',
+  flip-horizontal: 'ea5c',
+  flip-vertical-2: 'ea5d',
+  flip-vertical: 'ea5e',
+  gear-2: 'ea5f',
+  gear: 'ea60',
+  globe-2: 'ea61',
+  globe: 'ea62',
+  graph-2: 'ea63',
+  graph: 'ea64',
+  grid-2: 'ea65',
+  grid: 'ea67',
+  hidden-2: 'ea66',
+  hidden: 'ea68',
+  home-2: 'ea69',
+  home: 'ea6a',
+  info-2: 'ea6b',
+  info: 'ea6c',
+  invoice-2: 'ea6d',
+  invoice: 'ea6e',
+  key-2: 'ea6f',
+  key: 'ea70',
+  lightning-2: 'ea71',
+  lightning: 'ea73',
+  link-2: 'ea74',
+  link: 'ea72',
+  lock-2: 'ea75',
+  lock: 'ea76',
+  magic-wand-2: 'ea77',
+  magic-wand: 'ea78',
+  menu-2: 'ea79',
+  menu: 'ea7a',
+  milk-2: 'ea7b',
+  milk: 'ea7c',
+  miner-2: 'ea7d',
+  miner: 'ea7f',
+  mining-2: 'ea7e',
+  mining: 'ea80',
+  minus-2: 'ea81',
+  minus: 'ea83',
+  mixed-2: 'ea82',
+  mixed: 'ea84',
+  mnemonic-2: 'ea85',
+  mnemonic: 'ea87',
+  moon-2: 'ea86',
+  moon: 'ea88',
+  no-dollars-2: 'ea8a',
+  no-dollars: 'ea89',
+  node-0-connections-2: 'ea8b',
+  node-0-connections: 'ea8c',
+  node-1-connection-2: 'ea8d',
+  node-1-connection: 'ea8e',
+  node-2-connections-2: 'ea8f',
+  node-2-connections: 'ea90',
+  node-2: 'ea91',
+  node-3-connections-2: 'ea92',
+  node-3-connections: 'ea93',
+  node-hardware-2: 'ea94',
+  node-hardware: 'ea95',
+  node: 'ea96',
+  pantheon-2: 'ea97',
+  pantheon: 'ea98',
+  password-2: 'ea99',
+  password: 'ea9a',
+  photo-2: 'ea9b',
+  photo: 'ea9c',
+  pie-chart-2: 'ea9d',
+  pie-chart: 'ea9e',
+  plus-2: 'ea9f',
+  plus: 'eaa0',
+  point-of-sale-2: 'eaa1',
+  point-of-sale: 'eaa3',
+  proxy-2: 'eaa2',
+  proxy: 'eaa4',
+  qr-code-2: 'eaa6',
+  qr-code: 'eaa5',
+  question-2: 'eaa7',
+  question: 'eaa8',
+  receive-2: 'eaa9',
+  receive: 'eaaa',
+  refresh-2: 'eaac',
+  refresh: 'eaab',
+  relay-2: 'eaae',
+  relay: 'eaad',
+  rocket-2: 'eaaf',
+  rocket: 'eab0',
+  safe-2: 'eab1',
+  safe: 'eab2',
+  satoshi-v1-2: 'eab3',
+  satoshi-v1: 'eab4',
+  satoshi-v2-2: 'eab5',
+  satoshi-v2: 'eab6',
+  satoshi-v3-2: 'eab7',
+  satoshi-v3: 'eab8',
+  scan-2: 'eab9',
+  scan: 'eabb',
+  sd-card-2: 'eaba',
+  sd-card: 'eabc',
+  search-2: 'eabd',
+  search: 'eabe',
+  send-2: 'eabf',
+  send: 'eac0',
+  share-2: 'eac1',
+  share: 'eac2',
+  shared-wallet-2: 'eac3',
+  shared-wallet: 'eac4',
+  shield-2: 'eac5',
+  shield: 'eac6',
+  sign-2: 'eac7',
+  sign: 'eac8',
+  snowflake-2: 'eac9',
+  snowflake: 'eaca',
+  sofa-2: 'eacc',
+  sofa: 'eacb',
+  sun-2: 'eacd',
+  sun: 'eace',
+  tag-2: 'eacf',
+  tag: 'ead0',
+  transactions-2: 'ead1',
+  transactions: 'ead2',
+  transfer-2: 'ead3',
+  transfer: 'ead4',
+  trash-2: 'ead5',
+  trash: 'ead6',
+  two-keys-2: 'ead7',
+  two-keys: 'ead8',
+  unlock-2: 'ead9',
+  unlock: 'eada',
+  unmixed-2: 'eadb',
+  unmixed: 'eadd',
+  usb-2: 'eadc',
+  usb: 'eade',
+  verify-2: 'eadf',
+  verify: 'eae0',
+  visible-2: 'eae1',
+  visible: 'eae2',
+  wallet-2: 'eae3',
+  wallet: 'eae4',
+);
+
+@function unicode($str) {
+  @return unquote("\"\\#{$str}\"");
+}
+
+@each $name, $code in $icons {
+  .icon-#{"" +$name}::before {
+    content: unicode($code);
+  }
+}
