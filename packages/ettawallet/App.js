@@ -11,6 +11,7 @@ import FundWallet from './src/screens/FundWalletScreen';
 import DepositBitcoin from './src/screens/DepositBitcoinScreen';
 import Transact from './src/screens/TransactScreen';
 import TransactionDetail from './src/screens/TransactionDetailScreen';
+import WalletGenerator from './src/screens/WalletGenerationScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -83,6 +84,7 @@ const App = () => {
         >
           <Stack.Screen name="Welcome" component={WelcomeScreen} />
           <Stack.Screen name="SanityCheck" component={SanityCheck} />
+          <Stack.Screen name="WalletGenerator" component={WalletGenerator} />
           <Stack.Screen name="Backup" component={Backup} />
           <Stack.Screen name="ImproveSecurity" component={ImproveSecurity} />
           <Stack.Screen name="FundWallet" component={FundWallet} />

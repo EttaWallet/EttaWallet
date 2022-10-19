@@ -18,7 +18,7 @@ const WelcomeScreen = ({ navigation }) => {
         fontWeight="bold"
         fontColor="dark"
       >
-        Bitcoin wallet
+        EttaWallet
       </Text>
       <Text
         style={styles.text}
@@ -26,7 +26,7 @@ const WelcomeScreen = ({ navigation }) => {
         fontWeight="light"
         fontColor="dark"
       >
-        A simple bitcoin wallet for your enjoyment
+        Bitcoin is for all of us!
       </Text>
       <Button
         style={styles.button}
@@ -51,7 +51,8 @@ const WelcomeScreen = ({ navigation }) => {
         </Text>
       </Button>
       <Text style={styles.footer} fontWeight="light">
-        Your wallet, your coins. {'\n'} 100% open-source & open-design
+        Your wallet, your coins. {'\n'} 100% open-source & open-design.
+        {'\n'} Built with ❤️ in Uganda
       </Text>
     </View>
   );

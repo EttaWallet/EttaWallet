@@ -47,7 +47,7 @@ const SanityCheck = ({ navigation }) => {
         variant="filled"
         tone="neutral4"
         // disabled  disabled state removed once both switches are validated
-        onPress={() => navigation.navigate('Backup')}
+        onPress={() => navigation.navigate('WalletGenerator')}
       >
         <Text fontWeight="normal" fontColor="light">
           Next
