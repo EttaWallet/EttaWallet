@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import WelcomeScreen from './src/screens/WelcomeScreen';
-import SanityCheck from './src/screens/SanityCheckScreen';
+import RecoveryPhraseSlides from './src/screens/RecoveryPhraseSlides';
 import Backup from './src/screens/BackUpScreen';
 import ImproveSecurity from './src/screens/ImproveSecurityScreen';
 import FundWallet from './src/screens/FundWalletScreen';
@@ -83,7 +83,10 @@ const App = () => {
           screenOptions={{ headerShown: false }}
         >
           <Stack.Screen name="Welcome" component={WelcomeScreen} />
-          <Stack.Screen name="SanityCheck" component={SanityCheck} />
+          <Stack.Screen
+            name="RecoveryPhraseSlides"
+            component={RecoveryPhraseSlides}
+          />
           <Stack.Screen name="WalletGenerator" component={WalletGenerator} />
           <Stack.Screen name="Backup" component={Backup} />
           <Stack.Screen name="ImproveSecurity" component={ImproveSecurity} />

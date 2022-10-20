@@ -33,7 +33,7 @@ const WelcomeScreen = ({ navigation }) => {
         color="primary"
         variant="filled"
         tone="orange"
-        onPress={() => navigation.navigate('SanityCheck')}
+        onPress={() => navigation.navigate('RecoveryPhraseSlides')}
       >
         <Text fontWeight="normal" fontColor="light">
           Create a new wallet

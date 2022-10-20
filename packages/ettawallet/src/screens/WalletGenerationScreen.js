@@ -1,7 +1,7 @@
 import BdkRn from 'bdk-rn';
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import { Text, Button } from '@ettawallet/react-native-kit';
-import { View, StyleSheet, TextInput } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
 const WalletGenerator = ({ navigation }) => {
   const [mnemonic, setMnemonic] = useState('');
@@ -10,9 +10,6 @@ const WalletGenerator = ({ navigation }) => {
   const [wallet, setWallet] = useState();
   const [syncResponse, setSyncResponse] = useState();
   const [address, setAddress] = useState();
-  const [transaction, setTransaction] = useState();
-  const [recipient, setRecipient] = useState('');
-  const [amount, setAmount] = useState();
 
   // Methods
 
