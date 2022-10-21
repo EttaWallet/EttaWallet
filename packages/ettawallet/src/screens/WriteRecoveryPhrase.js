@@ -51,8 +51,8 @@ const WriteRecoveryPhrase = ({ navigation }) => {
               fontColor="dark"
               typography="h5"
             >
-              Write down your Recovery Phrase some place safe. Do not save this
-              on your phone
+              Write it down some place safe. You might be tempted to but do not
+              save this on your phone!
             </Text>
           </>
         ) : null}

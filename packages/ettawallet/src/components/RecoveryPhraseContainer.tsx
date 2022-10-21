@@ -41,7 +41,6 @@ export class RecoveryPhraseContainer extends React.Component<Props> {
               <Text style={styles.writeDownKey}>
                 Please write down your recovery phrase
               </Text>
-              <Text style={fontStyles.label}>Recovery Phrase</Text>
             </View>
           )}
         </View>
