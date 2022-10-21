@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import RecoveryPhraseSlides from './src/screens/RecoveryPhraseSlides';
+import WriteRecoveryPhrase from './src/screens/WriteRecoveryPhrase';
 import Backup from './src/screens/BackUpScreen';
 import ImproveSecurity from './src/screens/ImproveSecurityScreen';
 import FundWallet from './src/screens/FundWalletScreen';
@@ -86,6 +87,10 @@ const App = () => {
           <Stack.Screen
             name="RecoveryPhraseSlides"
             component={RecoveryPhraseSlides}
+          />
+          <Stack.Screen
+            name="WriteRecoveryPhrase"
+            component={WriteRecoveryPhrase}
           />
           <Stack.Screen name="WalletGenerator" component={WalletGenerator} />
           <Stack.Screen name="Backup" component={Backup} />

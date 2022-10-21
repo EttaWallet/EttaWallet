@@ -1,12 +1,15 @@
-import React from 'react';
-import { TouchableOpacity, View, StyleSheet, Text, Image } from 'react-native';
+import React, { useContext } from 'react';
+import { TouchableOpacity, View, StyleSheet, Text } from 'react-native';
 import { Cross, Safe } from '@ettawallet/rn-bitcoin-icons/dist/filled';
 import GenericSlider from '../components/Slider';
 import { testImage } from '../images/Images';
 import colors from '../styles/colors';
 import progressDots from '../styles/progressDots';
+import { EttaStorageContext } from '../../storage/context';
 
 const RecoveryPhraseSlides = ({ navigation, props }) => {
+  const { getMnemonic } = useContext(EttaStorageContext);
+
   const slides = [
     {
       key: 'slide-one',
@@ -37,7 +40,7 @@ const RecoveryPhraseSlides = ({ navigation, props }) => {
         {index < 2 && (
           <TouchableOpacity
             style={styles.skip}
-            onPress={() => navigation.navigate()}
+            onPress={() => navigation.navigate('Welcome')}
           >
             <Cross width={30} height={30} color="#000000" />
           </TouchableOpacity>
@@ -55,16 +58,22 @@ const RecoveryPhraseSlides = ({ navigation, props }) => {
   };
   const _keyExtractor = item => item.key;
 
+  const generateRecoveryPhrase = () => {
+    // generate mnemonic and redirect. Added 1s delay
+    setTimeout(() => {
+      getMnemonic();
+    }, 1000);
+    navigation.navigate('WriteRecoveryPhrase');
+  };
+
   return (
     <GenericSlider
       keyExtractor={_keyExtractor}
       data={slides}
-      showSkipButton
       showNextButton={true}
       showDoneButton={true}
       doneLabel="I understand ✅"
-      onSkip={() => navigation.navigate()}
-      onDone={() => navigation.navigate()}
+      onDone={generateRecoveryPhrase}
       dotStyle={progressDots.circlePassive}
       activeDotStyle={progressDots.circleActive}
       renderItem={_renderItem}
