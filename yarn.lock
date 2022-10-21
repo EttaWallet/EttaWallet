@@ -12388,6 +12388,11 @@ react-native-modal@^11.0.2:
     prop-types "^15.6.2"
     react-native-animatable "1.3.3"
 
+react-native-platform-touchable@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-platform-touchable/-/react-native-platform-touchable-1.1.1.tgz#fde4acc65eea585d28b164d0c3716a42129a68e4"
+  integrity sha512-0ZHv2DtJZHPfDY4ltd2WkeFs2SE7ROB31DbQx1163UdbfolqDpOYFAYOaOQKyQW0Z2TpV6zjhzTRGPmYH6TYcg==
+
 react-native-qrcode-svg@^6.1.2:
   version "6.1.2"
   resolved "https://registry.yarnpkg.com/react-native-qrcode-svg/-/react-native-qrcode-svg-6.1.2.tgz#a7cb6c10199ab01418a7f7700ce17a6a014f544e"

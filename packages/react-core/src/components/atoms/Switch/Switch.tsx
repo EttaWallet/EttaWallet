@@ -22,6 +22,7 @@ import { StyledSwitch, StyledSwitchContent, SWITCH_PIN_WIDTH } from './styled';
 
 export interface SwitchProps {
   onChange: (active: boolean) => void;
+  onValueChange: (active: boolean) => void;
   active: boolean;
   activeColor?: ColorType;
   activeColorTone?: ColorGradationType;
@@ -34,6 +35,7 @@ export interface SwitchProps {
 
 const Switch: FC<SwitchProps> = ({
   onChange,
+  onValueChange,
   activeColor = 'primary',
   activeColorTone = 'orange',
   inactiveColor = 'secondary',
