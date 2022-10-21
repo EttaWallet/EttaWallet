@@ -13,22 +13,23 @@ const RecoveryPhraseSlides = ({ navigation, props }) => {
   const slides = [
     {
       key: 'slide-one',
-      title: 'Your recovery phrase is a special kind of password',
-      text: 'Your recovery phrase is the only way you can ever access your wallet',
+      title: 'Your recovery phrase is a group of 12 random words',
+      text: 'Your recovery phrase is the only way to access your wallet if your phone is lost or stolen.',
       image: testImage, // will replace the icon placeholder
       backgroundColor: '#59b2ab',
     },
     {
       key: 'slide-two',
-      title: 'Your recovery phrase is a special kind of password',
-      text: 'Your recovery phrase is the only way you can ever access your wallet',
+      title:
+        'If you lose your recovery phrase, you will no longer be able to access your wallet',
+      text: 'Never share your recovery phrase with anyone. Anyone who has it can access your funds.',
       image: testImage, // will replace the icon placeholder
       backgroundColor: '#febe29',
     },
     {
       key: 'slide-three',
-      title: 'Your recovery phrase is a special kind of password',
-      text: 'Your recovery phrase is the only way you can ever access your wallet',
+      title: 'Keep your recovery phrase safe!',
+      text: 'We recommend writing these words down in order on a piece of paper and storing it somewhere safe that you will remember.',
       image: testImage, // will replace the icon placeholder
       backgroundColor: '#22bcb5',
     },

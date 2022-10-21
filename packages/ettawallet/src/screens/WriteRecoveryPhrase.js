@@ -10,8 +10,8 @@ import RecoveryPhraseContainer, {
   RecoveryPhraseType,
 } from '../components/RecoveryPhraseContainer';
 import fontStyles from '../styles/fonts';
-import { ScrollView, View, StyleSheet, Dimensions } from 'react-native';
-import PageHeader from '../navigation/headers/Header';
+import { ScrollView, View, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const WriteRecoveryPhrase = ({ navigation }) => {
   const { mnemonic } = useContext(EttaStorageContext);
@@ -51,8 +51,8 @@ const WriteRecoveryPhrase = ({ navigation }) => {
               fontColor="dark"
               typography="h5"
             >
-              Write it down some place safe. You might be tempted to but do not
-              save this on your phone!
+              Write it down some place safe. We will verify this on the next
+              page. You might be tempted to, but do not save this on your phone!
             </Text>
           </>
         ) : null}
@@ -64,7 +64,7 @@ const WriteRecoveryPhrase = ({ navigation }) => {
             onPress={onPressConfirmArea}
             style={styles.confirmationSwitchLabel}
           >
-            Yes, I have written down my Recovery Phrase
+            Yes, I have written down my recovery phrase
           </Text>
         </View>
         <Button
@@ -80,7 +80,8 @@ const WriteRecoveryPhrase = ({ navigation }) => {
 };
 
 function HeaderRight() {
-  const onMoreInfoPressed = ({ navigation }) => {
+  const navigation = useNavigation();
+  const onMoreInfoPressed = () => {
     navigation.push('RecoveryPhraseSlides');
   };
   return <TopBarTextButton onPress={onMoreInfoPressed} title="Learn more" />;

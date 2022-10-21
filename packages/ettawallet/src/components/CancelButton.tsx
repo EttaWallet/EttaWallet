@@ -6,9 +6,9 @@ import {
   TopBarTextButton,
 } from '../navigation/headers/TopBarButton';
 import colors from '../styles/colors';
+import { useNavigation } from '@react-navigation/native';
 
 interface Props {
-  navigation;
   onCancel?: () => void;
   style?: StyleProp<TextStyle>;
   buttonType?: 'text' | 'icon';
@@ -18,9 +18,9 @@ interface Props {
 export default function CancelButton({
   onCancel,
   style,
-  navigation,
   buttonType = 'text',
 }: Props) {
+  const navigation = useNavigation();
   function onPressCancel() {
     if (onCancel) {
       onCancel();
