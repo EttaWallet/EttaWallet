@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import React, { useContext, useState } from 'react';
 import { EttaStorageContext } from '../../storage/context';
 import { Text } from '@ettawallet/react-native-kit';
@@ -13,7 +14,7 @@ import fontStyles from '../styles/fonts';
 import { ScrollView, View, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const WriteRecoveryPhrase = ({ navigation }) => {
+const WriteRecoveryPhrase = () => {
   const { mnemonic } = useContext(EttaStorageContext);
   const [checked, setChecked] = useState(false);
 

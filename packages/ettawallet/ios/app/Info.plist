@@ -39,6 +39,8 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>$(PRODUCT_NAME) Authentication with TouchID or FaceID</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Bitcoin.ttf</string>
