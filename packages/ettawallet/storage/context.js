@@ -14,7 +14,8 @@ export const EttaStorageProvider = ({ children }) => {
       length: 12,
     });
     console.log(data);
-    setMnemonic(data);
+    setMnemonic(data); // update mnemonic in state
+    // @todo: encrypt and save the mnemonic to device
   };
 
   const createWallet = async () => {

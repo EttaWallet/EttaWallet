@@ -38,9 +38,7 @@ export class RecoveryPhraseContainer extends React.Component<Props> {
         <View style={styles.headerContainer}>
           {type === RecoveryPhraseType.BACKUP_KEY && includeHeader !== false && (
             <View style={styles.writeDownKeyContainer}>
-              <Text style={styles.writeDownKey}>
-                Please write down your recovery phrase
-              </Text>
+              <Text style={styles.writeDownKey}>Your recovery phrase</Text>
             </View>
           )}
         </View>
