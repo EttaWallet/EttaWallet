@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 const CACHE_TIMEOUT = 300000; // 5 minutes
 
 interface SecretCache {
@@ -12,7 +13,6 @@ let passwordHashCache: SecretCache = {};
 let passwordCache: SecretCache = {};
 
 function getCachedValue(cache: SecretCache, account: string) {
-  // TODO(Rossy) use a monotonic clock here?
   const value = cache[account];
   if (
     value &&

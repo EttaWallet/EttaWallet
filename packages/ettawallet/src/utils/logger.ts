@@ -134,8 +134,6 @@ class Logger {
     this.debug('Toast', message);
   };
 
-  // TODO(Rossy) Remove this. We should be using the error banner instead.
-  // Do not add new code that uses this.
   showError = (error: string | Error) => {
     const errorMsg = this.getErrorMessage(error);
     Toast.showWithGravity(errorMsg, Toast.SHORT, Toast.BOTTOM);
