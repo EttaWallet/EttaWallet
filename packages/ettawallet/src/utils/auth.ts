@@ -22,6 +22,25 @@ export const DEFAULT_CACHE_ACCOUNT = 'default';
 export const CANCELLED_PIN_INPUT = 'CANCELLED_PIN_INPUT';
 export const BIOMETRY_VERIFICATION_DELAY = 800;
 
+const PIN_BLOCKLIST = [
+  '000000',
+  '111111',
+  '222222',
+  '333333',
+  '444444',
+  '555555',
+  '666666',
+  '777777',
+  '888888',
+  '999999',
+  '123456',
+  '654321',
+];
+
+export const isPinValid = pin => {
+  return /^\d{6}$/.test(pin) && !PIN_BLOCKLIST.includes(pin);
+};
+
 type PinCallback = (pin: string) => void;
 
 export async function getPincodeWithBiometry() {

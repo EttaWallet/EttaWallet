@@ -13,7 +13,9 @@ import DepositBitcoin from './src/screens/DepositBitcoinScreen';
 import Transact from './src/screens/TransactScreen';
 import TransactionDetail from './src/screens/TransactionDetailScreen';
 import WalletGenerator from './src/screens/WalletGenerationScreen';
-import SetPinCode from './src/screens/SetPinCodeScreen';
+import SetPinCode, {
+  SetPinCodeNavigationOptions,
+} from './src/screens/SetPinCodeScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -85,7 +87,11 @@ const App = () => {
           screenOptions={{ headerShown: false }}
         >
           <Stack.Screen name="Welcome" component={WelcomeScreen} />
-          <Stack.Screen name="SetPin" component={SetPinCode} />
+          <Stack.Screen
+            name="SetPin"
+            component={SetPinCode}
+            // options={SetPinCode.navigationOptions}
+          />
           <Stack.Screen
             name="RecoveryPhraseSlides"
             component={RecoveryPhraseSlides}

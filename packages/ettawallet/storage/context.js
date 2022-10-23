@@ -9,6 +9,7 @@ export const EttaStorageProvider = ({ children }) => {
   const [wallet, setWallet] = useState('');
   const [path, setPath] = useState("m/84'/0'/0'");
   const [pinType, setPinType] = useState(PincodeType.Unset);
+  const [connected, setIsConnected] = useState(false); // True if the phone thinks it has a data connection (cellular/Wi-Fi), false otherwise.
 
   const getMnemonic = async () => {
     const { data } = await BdkRn.generateMnemonic({
@@ -30,7 +31,15 @@ export const EttaStorageProvider = ({ children }) => {
 
   return (
     <EttaStorageContext.Provider
-      value={{ mnemonic, wallet, path, getMnemonic, createWallet, pinType }}
+      value={{
+        mnemonic,
+        wallet,
+        path,
+        getMnemonic,
+        createWallet,
+        pinType,
+        connected,
+      }}
     >
       {children}
     </EttaStorageContext.Provider>

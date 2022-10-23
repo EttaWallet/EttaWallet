@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /**
  * This is a VIEW. We use it everwhere we need to show PIN pad
  * with an input, e.g. get/ensure/set pincode.

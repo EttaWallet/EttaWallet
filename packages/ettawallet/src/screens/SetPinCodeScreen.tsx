@@ -4,41 +4,51 @@ import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Pincode from '../components/Pincode/Pincode';
 import colors from '../styles/colors';
+import {
+  HeaderTitleWithSubtitle,
+  extraNavigationOptions,
+} from '../navigation/headers/Headers';
+import {
+  navigate,
+  navigateClearingStack,
+  navigateHome,
+} from '../navigation/NavigationService';
+import { isPinValid } from '../utils/auth';
+import { Screens } from '../navigation/Screens';
 
-const PIN_BLOCKLIST = [
-  '000000',
-  '111111',
-  '222222',
-  '333333',
-  '444444',
-  '555555',
-  '666666',
-  '777777',
-  '888888',
-  '999999',
-  '123456',
-  '654321',
-];
-
-export const isPinValid = pin => {
-  return /^\d{6}$/.test(pin) && !PIN_BLOCKLIST.includes(pin);
+export const navOptions = ({ route }) => {
+  const changePin = route.params?.changePin;
+  const showGuidedOnboarding = route.params?.showGuidedOnboarding;
+  let title = 'Create a PIN';
+  if (changePin) {
+    title = 'Change PIN';
+  } else if (showGuidedOnboarding) {
+    title = 'Select PIN';
+  }
+  return {
+    ...extraNavigationOptions,
+    headerTitle: () => <HeaderTitleWithSubtitle title={title} subTitle="" />,
+  };
 };
+
 const SetPinCode = ({ navigation }) => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [errorText, setErrorText] = useState('');
   const [pin1, setPin1] = useState('');
   const [pin2, setPin2] = useState('');
 
-  const isChangingPin = () => {
-    return true;
+  const navigateToNextScreen = () => {
+    navigateHome();
   };
 
   const onChangePin1 = pin1 => {
     setPin1(pin1);
+    setErrorText('');
   };
 
   const onChangePin2 = pin2 => {
     setPin2(pin2);
+    setErrorText('');
   };
 
   const isPin1Valid = pin => {
@@ -46,52 +56,47 @@ const SetPinCode = ({ navigation }) => {
   };
 
   const isPin2Valid = pin => {
-    return pin1 === pin;
+    return pin1 === pin; // check whether true that pin1 equals pin2
   };
 
   const onCompletePin1 = () => {
     if (isPin1Valid(pin1)) {
       setIsVerifying(true);
-      setPin1('');
-      setPin2('');
-      setErrorText('Please use a stronger PIN');
     }
   };
 
   const onCompletePin2 = async pin2 => {
-    // const { pin1 } = this.state;
     if (isPin1Valid(pin1) && isPin2Valid(pin2)) {
-      this.navigateToNextScreen();
+      navigation.navigate('RecoveryPhraseSlides'); // ideally, user would set up biometrics first, but lets setup seed phrase first.
     } else {
       setIsVerifying(false);
+      // reset all other PINs if no match
       setPin1('');
       setPin2('');
-      setErrorText('The PINs did not match, lol. Try again');
+      setErrorText('The PINs did not match');
     }
   };
 
-  const changingPin = isChangingPin();
-
-  //   const errorText = "The PINs didn't match, lol. Try again";
   return (
     <SafeAreaView style={styles.container}>
       {isVerifying ? (
         <Pincode
-          title="Create a new PIN"
+          title="Enter your PIN again to confirm"
           errorText={errorText}
           pin={pin2}
           onChangePin={onChangePin2}
           onCompletePin={onCompletePin2}
-          onBoardingSetPin={!changingPin}
+          onBoardingSetPin={false}
           verifyPin={true}
         />
       ) : (
         <Pincode
-          title=""
+          title="Create a new PIN"
           errorText={errorText}
           pin={pin1}
           onChangePin={onChangePin1}
           onCompletePin={onCompletePin1}
+          onBoardingSetPin={false}
         />
       )}
     </SafeAreaView>
@@ -112,3 +117,5 @@ const styles = StyleSheet.create({
 });
 
 export default SetPinCode;
+
+SetPinCode.navigationOptions = navOptions;

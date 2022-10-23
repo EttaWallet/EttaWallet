@@ -173,7 +173,6 @@ const getActiveRouteState = function (route: NavigationState): NavigationState {
     route.routes.length === 0 ||
     route.index >= route.routes.length
   ) {
-    // TODO: React Navigation types are hard :(
     // @ts-ignore
     return route.state;
   }
@@ -191,8 +190,6 @@ export async function isScreenOnForeground(screen: Screens) {
     return false;
   }
   const activeRouteState = getActiveRouteState(state);
-  // Note: The '?' in the following line shouldn't be necessary, but are there anyways to be defensive
-  // because of the ts-ignore on getActiveRouteState.
   return (
     activeRouteState?.routes[activeRouteState?.routes.length - 1]?.name ===
     screen

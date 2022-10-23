@@ -13,8 +13,8 @@ const RecoveryPhraseSlides = ({ navigation, props }) => {
   const slides = [
     {
       key: 'slide-one',
-      title: 'Your recovery phrase is a group of 12 random words',
-      text: 'Your recovery phrase is the only way to access your wallet if your phone is lost or stolen.',
+      title: "Good job! Now let's create your recovery phrase",
+      text: 'Your recovery phrase is a group of 12 random words. It is the only way to access your wallet if your phone is lost or stolen.',
       image: testImage, // will replace the icon placeholder
       backgroundColor: '#59b2ab',
     },
@@ -28,7 +28,7 @@ const RecoveryPhraseSlides = ({ navigation, props }) => {
     },
     {
       key: 'slide-three',
-      title: 'Keep your recovery phrase safe!',
+      title: 'Keep your recovery phrase in a safe place',
       text: 'We recommend writing these words down in order on a piece of paper and storing it somewhere safe that you will remember.',
       image: testImage, // will replace the icon placeholder
       backgroundColor: '#22bcb5',
