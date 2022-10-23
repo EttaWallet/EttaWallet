@@ -12,13 +12,17 @@ export const EttaStorageProvider = ({ children }) => {
   const [connected, setIsConnected] = useState(false); // True if the phone thinks it has a data connection (cellular/Wi-Fi), false otherwise.
 
   const getMnemonic = async () => {
-    const { data } = await BdkRn.generateMnemonic({
-      network: 'testnet',
-      length: 12,
-    });
-    console.log(data);
-    setMnemonic(data); // update mnemonic in state
-    // @todo: encrypt and save the mnemonic to device
+    if (mnemonic) {
+      return;
+    } else {
+      const { data } = await BdkRn.generateMnemonic({
+        network: 'testnet',
+        length: 12,
+      });
+      console.log(data);
+      setMnemonic(data); // update mnemonic in state
+      // @todo: encrypt and save the mnemonic to device
+    }
   };
 
   const createWallet = async () => {
