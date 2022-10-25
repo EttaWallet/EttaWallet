@@ -13,9 +13,10 @@ import DepositBitcoin from './src/screens/DepositBitcoinScreen';
 import Transact from './src/screens/TransactScreen';
 import TransactionDetail from './src/screens/TransactionDetailScreen';
 import WalletGenerator from './src/screens/WalletGenerationScreen';
-import SetPinCode, {
-  SetPinCodeNavigationOptions,
-} from './src/screens/SetPinCodeScreen';
+import ManualBackupQuiz, {
+  navOptionsForQuiz,
+} from './src/screens/ManualBackupQuizScreen';
+import SetPinCode from './src/screens/SetPinCodeScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -99,6 +100,11 @@ const App = () => {
           <Stack.Screen
             name="WriteRecoveryPhrase"
             component={WriteRecoveryPhrase}
+          />
+          <Stack.Screen
+            name="ManualBackupQuiz"
+            component={ManualBackupQuiz}
+            options={navOptionsForQuiz}
           />
           <Stack.Screen name="WalletGenerator" component={WalletGenerator} />
           <Stack.Screen name="Backup" component={Backup} />

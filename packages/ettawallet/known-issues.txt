@@ -1,0 +1,6 @@
+// Cipher-base error
+currently cipher-base, a dependency of create-hash requires stream. 
+Was able to install the necessary cryptographic utilities but app fails at runtime.
+To fix the issue, I directly edited ../node_module/cipher-base/index.js, changing 'stream' to 'readable-stream'.
+
+I have patch-packages installed, but for some reason, I can't get it to work in the lerna workspace, ergo @TODO

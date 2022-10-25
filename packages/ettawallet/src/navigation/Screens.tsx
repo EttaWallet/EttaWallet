@@ -4,5 +4,6 @@ export enum Screens {
   SetPin = 'SetPin',
   RecoveryPhraseSlides = 'RecoveryPhraseSlides',
   WriteRecoveryPhrase = 'WriteRecoveryPhrase',
+  ManualBackupQuiz = 'ManualBackupQuiz',
   DrawerNavigator = 'DrawerNavigator',
 }

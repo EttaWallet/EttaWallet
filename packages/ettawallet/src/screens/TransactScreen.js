@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Text, IconTextButton, Chip } from '@ettawallet/react-native-kit';
 import { View, StyleSheet, Image } from 'react-native';
-import VirtualKeyboard from 'react-native-virtual-keyboard';
 
 const Transact = ({ navigation }) => {
   const [satsAmount, setSatsAmount] = useState(0);
@@ -38,7 +37,7 @@ const Transact = ({ navigation }) => {
       >
         10,000 UGX
       </Text>
-      <VirtualKeyboard
+      {/* <VirtualKeyboard
         color="#48484a"
         pressMode="string"
         decimal
@@ -46,7 +45,7 @@ const Transact = ({ navigation }) => {
         clearOnLongPress
         onPress={val => updateAmount(val)}
         rowStyle={{ marginTop: 50 }}
-      />
+      /> */}
       <View style={styles.btnGroup}>
         <IconTextButton
           style={styles.button}

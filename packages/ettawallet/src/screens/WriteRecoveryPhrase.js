@@ -14,7 +14,7 @@ import fontStyles from '../styles/fonts';
 import { ScrollView, View, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const WriteRecoveryPhrase = () => {
+const WriteRecoveryPhrase = ({ navigation }) => {
   const { mnemonic } = useContext(EttaStorageContext);
   const [checked, setChecked] = useState(false);
 
@@ -28,8 +28,7 @@ const WriteRecoveryPhrase = () => {
   };
 
   const onPressContinue = () => {
-    // navigation.navigate('');
-    console.log('Clicked continue');
+    navigation.navigate('ManualBackupQuiz');
   };
 
   return (

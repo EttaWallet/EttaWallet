@@ -3,3 +3,14 @@ export enum PincodeType {
   CustomPin = 'CustomPin',
   PhoneAuth = 'PhoneAuth',
 }
+
+export enum Mode {
+  Entering,
+  Checking,
+  Failed,
+}
+
+export interface Content {
+  word: string;
+  index: number;
+}

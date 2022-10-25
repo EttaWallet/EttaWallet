@@ -8,6 +8,11 @@ type NestedNavigatorParams<ParamList> = {
 }[keyof ParamList];
 
 export type StackParamList = {
+  [Screens.ManualBackupQuiz]:
+    | undefined
+    | {
+        navigatedFromSettings: boolean;
+      };
   [Screens.SetPin]:
     | {
         changePin?: boolean;
