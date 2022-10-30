@@ -17,6 +17,7 @@ import ManualBackupQuiz, {
   navOptionsForQuiz,
 } from './src/screens/ManualBackupQuizScreen';
 import SetPinCode from './src/screens/SetPinCodeScreen';
+import SplashScreen from 'react-native-splash-screen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -80,6 +81,7 @@ const MainScreenNavigation = () => {
 };
 
 const App = () => {
+  SplashScreen.hide(); // hide the splash screen as soon as main component loads
   return (
     <ThemeProvider theme={lightTheme}>
       <NavigationContainer>

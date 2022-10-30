@@ -9,6 +9,18 @@
 
 # Add any project specific keep options here:
 
+# Hermes
 -keep class com.facebook.hermes.unicode.** { *; }
 -keep class com.facebook.jni.** { *; }
+
+# SVG stuff
 -keep public class com.horcrux.svg.** {*;}
+
+# Keychain
+-keep class com.facebook.crypto.** {
+   *;
+}
+
+# react-native-reanimated
+-keep class com.swmansion.reanimated.** { *; }
+-keep class com.facebook.react.turbomodule.** { *; }

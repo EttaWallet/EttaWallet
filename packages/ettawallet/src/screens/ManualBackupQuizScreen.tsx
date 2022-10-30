@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { StackScreenProps } from '@react-navigation/stack';
-import { Trans, useTranslation, withTranslation } from 'react-i18next';
+import { Trans, WithTranslation } from 'react-i18next';
 import { chunk, flatMap, shuffle, times } from 'lodash';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TextButton from '../components/TextButton';
 import Touchable from '../components/Touchable';
+import i18n, { withTranslation } from '../../i18n';
 import colors from '../styles/colors';
 import fontStyles from '../styles/fonts';
 import Logger from '../utils/logger';
@@ -78,7 +79,7 @@ interface StateProps {
 
 type OwnProps = StackScreenProps<StackParamList, Screens.ManualBackupQuiz>;
 
-type Props = StateProps & OwnProps;
+type Props = WithTranslation & StateProps & OwnProps;
 
 export const navOptionsForQuiz = ({ route }: OwnProps) => {
   const navigatedFromSettings = route.params?.navigatedFromSettings;
@@ -211,7 +212,7 @@ export class ManualBackupQuiz extends React.Component<Props, State> {
   };
 
   render() {
-    const { t } = useTranslation();
+    const { t } = this.props;
     const {
       mnemonicWords: mnemonicWordButtons,
       userChosenWords,
@@ -443,4 +444,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withTranslation()(ManualBackupQuiz);
+export default ManualBackupQuiz;
