@@ -1,5 +1,5 @@
 {
-    "backupQuizWordCount": "What's the <0>{{ordinal}}</0> word of your Recovery Phrase?",
+    "backupQuizWordCount": "Select the <0>{{ordinal}}</0> word of your recovery phrase?",
     "ordinals": [
         "zeroth",
         "first",

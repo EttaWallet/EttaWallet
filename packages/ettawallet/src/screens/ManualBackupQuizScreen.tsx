@@ -261,7 +261,6 @@ export class ManualBackupQuiz extends React.Component<Props, State> {
                   i18nKey={'backupQuizWordCount'}
                   tOptions={{ ordinal: t(`ordinals.${currentWordIndex}`) }}
                 />
-                <Text style={styles.bodyTextBold}>X</Text>
               </Text>
             )}
             <View style={styles.mnemonicButtonsContainer}>
@@ -444,4 +443,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ManualBackupQuiz;
+export default withTranslation<Props>()(ManualBackupQuiz);

@@ -1,8 +1,10 @@
 import React from 'react';
+import { StatusBar } from 'react-native';
 import { lightTheme, ThemeProvider, Icon } from '@ettawallet/react-native-kit';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { enableScreens } from 'react-native-screens';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import RecoveryPhraseSlides from './src/screens/RecoveryPhraseSlides';
 import WriteRecoveryPhrase from './src/screens/WriteRecoveryPhrase';
@@ -18,6 +20,15 @@ import ManualBackupQuiz, {
 } from './src/screens/ManualBackupQuizScreen';
 import SetPinCode from './src/screens/SetPinCodeScreen';
 import SplashScreen from 'react-native-splash-screen';
+import i18n from './i18n';
+import I18nGate from './i18n/Gate';
+import Logger from './src/utils/logger';
+import AppLoading from './AppLoading';
+
+Logger.debug('App/init', 'Current Language: ' + i18n.language);
+
+// Explicitly enable screens for react-native-screens
+enableScreens(true);
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -84,42 +95,45 @@ const App = () => {
   SplashScreen.hide(); // hide the splash screen as soon as main component loads
   return (
     <ThemeProvider theme={lightTheme}>
-      <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName="Welcome"
-          screenOptions={{ headerShown: false }}
-        >
-          <Stack.Screen name="Welcome" component={WelcomeScreen} />
-          <Stack.Screen
-            name="SetPin"
-            component={SetPinCode}
-            // options={SetPinCode.navigationOptions}
-          />
-          <Stack.Screen
-            name="RecoveryPhraseSlides"
-            component={RecoveryPhraseSlides}
-          />
-          <Stack.Screen
-            name="WriteRecoveryPhrase"
-            component={WriteRecoveryPhrase}
-          />
-          <Stack.Screen
-            name="ManualBackupQuiz"
-            component={ManualBackupQuiz}
-            options={navOptionsForQuiz}
-          />
-          <Stack.Screen name="WalletGenerator" component={WalletGenerator} />
-          <Stack.Screen name="Backup" component={Backup} />
-          <Stack.Screen name="ImproveSecurity" component={ImproveSecurity} />
-          <Stack.Screen name="FundWallet" component={FundWallet} />
-          <Stack.Screen name="DepositBitcoin" component={DepositBitcoin} />
-          <Stack.Screen name="MainArea" component={MainScreenNavigation} />
-          <Stack.Screen
-            name="TransactionDetail"
-            component={TransactionDetail}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <I18nGate loading={<AppLoading />}>
+        <StatusBar backgroundColor="transparent" barStyle="dark-content" />
+        <NavigationContainer>
+          <Stack.Navigator
+            initialRouteName="Welcome"
+            screenOptions={{ headerShown: false }}
+          >
+            <Stack.Screen name="Welcome" component={WelcomeScreen} />
+            <Stack.Screen
+              name="SetPin"
+              component={SetPinCode}
+              // options={SetPinCode.navigationOptions}
+            />
+            <Stack.Screen
+              name="RecoveryPhraseSlides"
+              component={RecoveryPhraseSlides}
+            />
+            <Stack.Screen
+              name="WriteRecoveryPhrase"
+              component={WriteRecoveryPhrase}
+            />
+            <Stack.Screen
+              name="ManualBackupQuiz"
+              component={ManualBackupQuiz}
+              options={navOptionsForQuiz}
+            />
+            <Stack.Screen name="WalletGenerator" component={WalletGenerator} />
+            <Stack.Screen name="Backup" component={Backup} />
+            <Stack.Screen name="ImproveSecurity" component={ImproveSecurity} />
+            <Stack.Screen name="FundWallet" component={FundWallet} />
+            <Stack.Screen name="DepositBitcoin" component={DepositBitcoin} />
+            <Stack.Screen name="MainArea" component={MainScreenNavigation} />
+            <Stack.Screen
+              name="TransactionDetail"
+              component={TransactionDetail}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </I18nGate>
     </ThemeProvider>
   );
 };
