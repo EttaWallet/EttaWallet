@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import * as React from 'react';
-import { StackScreenProps } from '@react-navigation/stack';
 import { Trans, WithTranslation } from 'react-i18next';
 import { chunk, flatMap, shuffle, times } from 'lodash';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -15,47 +15,9 @@ import { onGetMnemonicFail } from '../utils/backup';
 import { EttaStorageContext } from '../../storage/context';
 import { ArrowLeft } from '@ettawallet/rn-bitcoin-icons/dist/filled';
 import QuizChecker from '../components/QuizChecker';
-import { Screens } from '../navigation/Screens';
 import { navigate } from '../navigation/NavigationService';
-import { StackParamList } from '../navigation/Params';
-import CancelButton from '../components/CancelButton';
-import { emptyHeader } from '../navigation/headers/Headers';
 
-const TAG = 'backup/BackupQuiz';
-
-const ordinals = [
-  'zeroth',
-  'first',
-  'second',
-  'third',
-  'fourth',
-  'fifth',
-  'sixth',
-  'seventh',
-  'eighth',
-  'ninth',
-  'tenth',
-  'eleventh',
-  'twelfth',
-  'thirteenth',
-  'fourteenth',
-  'fifteenth',
-  'sixteenth',
-  'seventeenth',
-  'eighteenth',
-  'nineteenth',
-  'twentieth',
-  'twenty-first',
-  'twenty-second',
-  'twenty-third',
-  'twenty-fourth',
-  'twenty-fifth',
-  'twenty-sixth',
-  'twenty-seventh',
-  'twenty-eighth',
-  'twenty-ninth',
-  'thirtieth',
-];
+const TAG = 'backup/ManualBackupQuiz';
 
 const MNEMONIC_BUTTONS_TO_DISPLAY = 6;
 
@@ -77,25 +39,7 @@ interface StateProps {
   account: string | null;
 }
 
-type OwnProps = StackScreenProps<StackParamList, Screens.ManualBackupQuiz>;
-
-type Props = WithTranslation & StateProps & OwnProps;
-
-export const navOptionsForQuiz = ({ route }: OwnProps) => {
-  const navigatedFromSettings = route.params?.navigatedFromSettings;
-  const onCancel = () => {
-    navigate(Screens.Settings);
-  };
-  return {
-    ...emptyHeader,
-    headerLeft: () => {
-      return navigatedFromSettings ? (
-        <CancelButton onCancel={onCancel} style={styles.cancelButton} />
-      ) : null;
-    },
-    headerTitle: 'Recovery Phrase',
-  };
-};
+type Props = WithTranslation & StateProps;
 
 export class ManualBackupQuiz extends React.Component<Props, State> {
   state: State = {
@@ -188,13 +132,11 @@ export class ManualBackupQuiz extends React.Component<Props, State> {
   afterCheck = async () => {
     const { userChosenWords, mnemonicLength } = this.state;
     const lengthsMatch = userChosenWords.length === mnemonicLength;
-    const { mnemonic } = this.context;
+    const { mnemonic, setBackupComplete } = this.context;
     if (lengthsMatch && contentMatches(userChosenWords, mnemonic)) {
       Logger.debug(TAG, 'Backup quiz passed');
-      this.props.setBackupCompleted();
-      const navigatedFromSettings =
-        this.props.route.params?.navigatedFromSettings ?? false;
-      navigate(Screens.BackupComplete, { navigatedFromSettings });
+      setBackupComplete(true); // update state through context
+      navigate('ManualBackupComplete');
     } else {
       Logger.debug(TAG, 'Backup quiz failed, reseting words');
       this.setState({ mode: Mode.Failed });
@@ -207,8 +149,9 @@ export class ManualBackupQuiz extends React.Component<Props, State> {
   };
 
   onScreenSkip = () => {
+    const { setBackupComplete } = this.context;
     Logger.debug(TAG, 'Skipping backup quiz');
-    this.props.setBackupCompleted();
+    setBackupComplete(false); // maintain manual backup completion state as false
   };
 
   render() {

@@ -8,7 +8,6 @@ import { PincodeType } from '../utils/types';
 import { ErrorMessages } from './errors';
 import { getStoredMnemonic, storeMnemonic } from './backup';
 import { navigate, navigateBack } from '../navigation/NavigationService';
-import { Screens } from '../navigation/Screens';
 import {
   clearPasswordCaches,
   getCachedPassword,
@@ -301,7 +300,7 @@ export async function requestPincodeInput(
 ) {
   const pin = await new Promise(
     (resolve: PinCallback, reject: (error: string) => void) => {
-      navigate(Screens.PincodeEnter, {
+      navigate('EnterPin', {
         onSuccess: resolve,
         onCancel: () => reject(CANCELLED_PIN_INPUT),
         withVerification,

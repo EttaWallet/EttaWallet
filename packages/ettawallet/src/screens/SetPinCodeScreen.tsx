@@ -18,12 +18,9 @@ import { Screens } from '../navigation/Screens';
 
 export const navOptions = ({ route }) => {
   const changePin = route.params?.changePin;
-  const showGuidedOnboarding = route.params?.showGuidedOnboarding;
   let title = 'Create a PIN';
   if (changePin) {
     title = 'Change PIN';
-  } else if (showGuidedOnboarding) {
-    title = 'Select PIN';
   }
   return {
     ...extraNavigationOptions,

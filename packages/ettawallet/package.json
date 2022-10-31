@@ -53,6 +53,7 @@
     "react-async-hook": "^3.4.0",
     "react-i18next": "^11.2.7",
     "react-native-crypto": "2.2.0",
+    "react-native-device-info": "^10.2.0",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-linear-gradient": "^2.5.6",
     "react-native-localize": "^2.1.7",

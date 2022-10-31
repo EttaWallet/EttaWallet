@@ -2,8 +2,9 @@ import React from 'react';
 import { Text, Button } from '@ettawallet/react-native-kit';
 import { View, StyleSheet } from 'react-native';
 import { BitcoinCircle } from '@ettawallet/rn-bitcoin-icons/dist/filled';
+import { navigate } from '../navigation/NavigationService';
 
-const WelcomeScreen = ({ navigation }) => {
+const WelcomeScreen = () => {
   return (
     <View style={styles.container}>
       <BitcoinCircle
@@ -33,7 +34,7 @@ const WelcomeScreen = ({ navigation }) => {
         color="primary"
         variant="filled"
         tone="orange"
-        onPress={() => navigation.navigate('SetPin')}
+        onPress={() => navigate('SetPin')}
       >
         <Text fontWeight="normal" fontColor="light">
           Create a new wallet
@@ -44,7 +45,7 @@ const WelcomeScreen = ({ navigation }) => {
         color="primary"
         variant="text"
         tone="orange"
-        onPress={() => navigation.navigate('Restore Wallet')}
+        onPress={() => navigate('Restore Wallet')}
       >
         <Text fontWeight="normal" fontColor="orange">
           Restore existing wallet

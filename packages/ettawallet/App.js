@@ -5,133 +5,27 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { enableScreens } from 'react-native-screens';
-import WelcomeScreen from './src/screens/WelcomeScreen';
-import RecoveryPhraseSlides from './src/screens/RecoveryPhraseSlides';
-import WriteRecoveryPhrase from './src/screens/WriteRecoveryPhrase';
-import Backup from './src/screens/BackUpScreen';
-import ImproveSecurity from './src/screens/ImproveSecurityScreen';
-import FundWallet from './src/screens/FundWalletScreen';
-import DepositBitcoin from './src/screens/DepositBitcoinScreen';
-import Transact from './src/screens/TransactScreen';
-import TransactionDetail from './src/screens/TransactionDetailScreen';
-import WalletGenerator from './src/screens/WalletGenerationScreen';
-import ManualBackupQuiz, {
-  navOptionsForQuiz,
-} from './src/screens/ManualBackupQuizScreen';
-import SetPinCode from './src/screens/SetPinCodeScreen';
+import { navigationRef } from './src/navigation/NavigationService';
 import SplashScreen from 'react-native-splash-screen';
 import i18n from './i18n';
 import I18nGate from './i18n/Gate';
 import Logger from './src/utils/logger';
 import AppLoading from './AppLoading';
+import InitRoot from './src/navigation/Navigation';
 
 Logger.debug('App/init', 'Current Language: ' + i18n.language);
 
 // Explicitly enable screens for react-native-screens
 enableScreens(true);
-
-const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
-
-const MainScreenNavigation = () => {
-  return (
-    <Tab.Navigator
-      initialRouteName="Transact"
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: '#F7931A',
-        tabBarInactiveTintColor: '#777777',
-        tabBarStyle: { height: 60, paddingVertical: 10 },
-        tabBarLabelStyle: { fontSize: 12, paddingBottom: 8 },
-      }}
-    >
-      <Tab.Screen
-        name="Transact"
-        component={Transact}
-        options={{
-          tabBarLabel: 'Transact',
-          tabBarIcon: ({ focused }) => (
-            <Icon
-              name="icon-flip-vertical-2"
-              size="kilo"
-              fontColor={focused ? 'orange' : 'dark'}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Activity"
-        component={Transact} // change component
-        options={{
-          tabBarLabel: 'Activity',
-          tabBarIcon: ({ focused }) => (
-            <Icon
-              name="icon-transactions-2"
-              size="kilo"
-              fontColor={focused ? 'orange' : 'dark'}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Settings"
-        component={Transact} // change component
-        options={{
-          tabBarLabel: 'Settings',
-          tabBarIcon: ({ focused }) => (
-            <Icon
-              name="icon-gear"
-              size="kilo"
-              fontColor={focused ? 'orange' : 'dark'}
-            />
-          ),
-        }}
-      />
-    </Tab.Navigator>
-  );
-};
+SplashScreen.hide(); // hide the splash screen as soon as main component loads
 
 const App = () => {
-  SplashScreen.hide(); // hide the splash screen as soon as main component loads
   return (
     <ThemeProvider theme={lightTheme}>
       <I18nGate loading={<AppLoading />}>
         <StatusBar backgroundColor="transparent" barStyle="dark-content" />
-        <NavigationContainer>
-          <Stack.Navigator
-            initialRouteName="Welcome"
-            screenOptions={{ headerShown: false }}
-          >
-            <Stack.Screen name="Welcome" component={WelcomeScreen} />
-            <Stack.Screen
-              name="SetPin"
-              component={SetPinCode}
-              // options={SetPinCode.navigationOptions}
-            />
-            <Stack.Screen
-              name="RecoveryPhraseSlides"
-              component={RecoveryPhraseSlides}
-            />
-            <Stack.Screen
-              name="WriteRecoveryPhrase"
-              component={WriteRecoveryPhrase}
-            />
-            <Stack.Screen
-              name="ManualBackupQuiz"
-              component={ManualBackupQuiz}
-              options={navOptionsForQuiz}
-            />
-            <Stack.Screen name="WalletGenerator" component={WalletGenerator} />
-            <Stack.Screen name="Backup" component={Backup} />
-            <Stack.Screen name="ImproveSecurity" component={ImproveSecurity} />
-            <Stack.Screen name="FundWallet" component={FundWallet} />
-            <Stack.Screen name="DepositBitcoin" component={DepositBitcoin} />
-            <Stack.Screen name="MainArea" component={MainScreenNavigation} />
-            <Stack.Screen
-              name="TransactionDetail"
-              component={TransactionDetail}
-            />
-          </Stack.Navigator>
+        <NavigationContainer ref={navigationRef}>
+          <InitRoot />
         </NavigationContainer>
       </I18nGate>
     </ThemeProvider>
