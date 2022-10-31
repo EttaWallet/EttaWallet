@@ -14,12 +14,15 @@ import { Mode } from '../utils/types';
 import { onGetMnemonicFail } from '../utils/backup';
 import { EttaStorageContext } from '../../storage/context';
 import { ArrowLeft } from '@ettawallet/rn-bitcoin-icons/dist/filled';
+import Backspace from '../icons/Backspace';
 import QuizChecker from '../components/QuizChecker';
 import { navigate } from '../navigation/NavigationService';
+import { emptyHeader } from '../navigation/headers/Headers';
+import CancelConfirm from '../components/CancelConfirm';
 
 const TAG = 'backup/ManualBackupQuiz';
 
-const MNEMONIC_BUTTONS_TO_DISPLAY = 6;
+const MNEMONIC_BUTTONS_TO_DISPLAY = 4;
 
 // miliseconds to wait until showing success or failure
 const CHECKING_DURATION = 1.8 * 1000;
@@ -37,9 +40,24 @@ interface State {
 
 interface StateProps {
   account: string | null;
+  navigation: any;
+  showError: any;
 }
 
 type Props = WithTranslation & StateProps;
+
+export const navOptionsForQuiz = () => {
+  const onCancel = () => {
+    navigate('Settings');
+  };
+  return {
+    ...emptyHeader,
+    headerLeft: () => {
+      return <CancelConfirm screen={TAG} />;
+    },
+    headerTitle: i18n.t(`headerTitle`),
+  };
+};
 
 export class ManualBackupQuiz extends React.Component<Props, State> {
   state: State = {
@@ -283,7 +301,7 @@ function DeleteWord({
       onPress={onPressBackspace}
       style={styles.backWord}
     >
-      <ArrowLeft width={20} height={20} color={colors.greenUI} />
+      <Backspace color={colors.greenUI} />
     </Touchable>
   );
 }
@@ -325,12 +343,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     maxWidth: 288,
     alignSelf: 'center',
+    marginTop: 20,
   },
   chosenWordWrapper: {
     paddingVertical: 4,
     paddingHorizontal: 8,
     marginHorizontal: 3,
-    marginVertical: 4,
+    marginVertical: 8,
     minWidth: 55,
     borderWidth: 1,
     borderColor: colors.gray2,

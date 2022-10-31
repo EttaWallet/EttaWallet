@@ -1,8 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import Animated from 'react-native-reanimated';
 import { Text, IconTextButton, Chip } from '@ettawallet/react-native-kit';
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Touchable } from '../components/Touchable';
+import WalletHeader from '../navigation/headers/WalletHeader';
+import {
+  BitcoinCircle,
+  QrCode,
+} from '@ettawallet/rn-bitcoin-icons/dist/filled';
+import { navigate } from '../navigation/NavigationService';
+
+const onPressQrCode = () => {
+  navigate('QRNavigator');
+};
+
+export const QRCodeButton = () => {
+  return (
+    <Touchable borderless={true} onPress={onPressQrCode}>
+      <QrCode width={32} height={32} color="#000000" />
+    </Touchable>
+  );
+};
 
 const Transact = ({ navigation }) => {
+  const scrollPosition = useRef(new Animated.Value(0)).current;
+  const onScroll = Animated.event([
+    { nativeEvent: { contentOffset: { y: scrollPosition } } },
+  ]);
+
   const [satsAmount, setSatsAmount] = useState(0);
 
   const updateAmount = newAmount => {
@@ -11,6 +36,11 @@ const Transact = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <WalletHeader
+        middleElement={<BitcoinCircle width={30} height={30} color="#000000" />}
+        scrollPosition={scrollPosition}
+        rightElement={<QrCode width={32} height={32} color="#000000" />}
+      />
       <Chip
         mode="outlined"
         icon="icon-bitcoin-circle"

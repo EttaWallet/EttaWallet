@@ -75,6 +75,11 @@ const InitRoot = () => (
       options={{ headerShown: false }}
     />
     <InitStack.Screen
+      name="TabsRoot"
+      component={TabsRoot}
+      options={{ headerShown: false }}
+    />
+    <InitStack.Screen
       name="Navigation"
       component={Navigation}
       options={{ headerShown: false }}

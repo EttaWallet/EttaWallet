@@ -2,8 +2,6 @@ import React from 'react';
 import { StatusBar } from 'react-native';
 import { lightTheme, ThemeProvider, Icon } from '@ettawallet/react-native-kit';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { enableScreens } from 'react-native-screens';
 import { navigationRef } from './src/navigation/NavigationService';
 import SplashScreen from 'react-native-splash-screen';
