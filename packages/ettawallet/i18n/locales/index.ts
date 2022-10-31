@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 interface Locales {
   [key: string]:
     | {
@@ -14,6 +15,17 @@ const locales: Locales = {
     get strings() {
       return {
         translation: require('./base/translation.json'),
+      };
+    },
+    get dateFns() {
+      return require('date-fns/locale/en-US');
+    },
+  },
+  'sw-SW': {
+    name: 'Swahili',
+    get strings() {
+      return {
+        translation: require('./sw/translation.json'),
       };
     },
     get dateFns() {

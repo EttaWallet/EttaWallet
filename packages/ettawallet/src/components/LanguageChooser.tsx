@@ -58,19 +58,12 @@ const LanguageChooser = ({ route }) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <SafeAreaView edges={['bottom']}>
-        <Text style={styles.title} testID={'ChooseLanguageTitle'}>
-          {t('selectLanguage')}
-        </Text>
-        <FlatList
-          data={localesList}
-          extraData={i18n.language}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-        />
-      </SafeAreaView>
-    </ScrollView>
+    <FlatList
+      data={localesList}
+      extraData={i18n.language}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
+    />
   );
 };
 

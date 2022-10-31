@@ -34,7 +34,8 @@ const WelcomeScreen = () => {
         color="primary"
         variant="filled"
         tone="orange"
-        onPress={() => navigate('SetPin')}
+        // onPress={() => navigate('SetPin')}
+        onPress={() => navigate('Language')}
       >
         <Text fontWeight="normal" fontColor="light">
           Create a new wallet

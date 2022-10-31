@@ -24,6 +24,11 @@ const OnboardingRoot = () => {
     >
       <OnboardingStack.Screen name="WelcomeScreen" component={WelcomeScreen} />
       <OnboardingStack.Screen
+        name="Language"
+        component={LanguageChooser}
+        options={LanguageChooser.navigationOptions(true)}
+      />
+      <OnboardingStack.Screen
         name="SetPin"
         component={SetPinCode}
         options={SetPinCode.navOpts}
