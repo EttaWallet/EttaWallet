@@ -4,23 +4,21 @@ import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Pincode from '../components/Pincode/Pincode';
 import colors from '../styles/colors';
+import { useTranslation } from 'react-i18next';
 import {
   HeaderTitleWithSubtitle,
   extraNavigationOptions,
 } from '../navigation/headers/Headers';
-import {
-  navigate,
-  navigateClearingStack,
-  navigateHome,
-} from '../navigation/NavigationService';
-import { isPinValid } from '../utils/auth';
-import { Screens } from '../navigation/Screens';
+import { navigate } from '../navigation/NavigationService';
+import { isPinValid, updatePin, DEFAULT_CACHE_ACCOUNT } from '../utils/auth';
 
 export const navOptions = ({ route }) => {
+  const { t } = useTranslation();
+
   const changePin = route.params?.changePin;
-  let title = 'Create a PIN';
+  let title = t('pinCode.create');
   if (changePin) {
-    title = 'Change PIN';
+    title = t('pinCode.changePIN');
   }
   return {
     ...extraNavigationOptions,
@@ -28,15 +26,13 @@ export const navOptions = ({ route }) => {
   };
 };
 
-const SetPinCode = ({ navigation }) => {
+const SetPinCode = () => {
+  const { t } = useTranslation();
+
   const [isVerifying, setIsVerifying] = useState(false);
   const [errorText, setErrorText] = useState('');
   const [pin1, setPin1] = useState('');
   const [pin2, setPin2] = useState('');
-
-  const navigateToNextScreen = () => {
-    navigateHome();
-  };
 
   const onChangePin1 = pin1 => {
     setPin1(pin1);
@@ -64,13 +60,13 @@ const SetPinCode = ({ navigation }) => {
 
   const onCompletePin2 = async pin2 => {
     if (isPin1Valid(pin1) && isPin2Valid(pin2)) {
-      navigation.navigate('RecoveryPhraseSlides'); // ideally, user would set up biometrics first, but lets setup seed phrase first.
+      navigate('RecoveryPhraseSlides'); // ideally, user would set up biometrics first, but lets setup seed phrase first.
     } else {
       setIsVerifying(false);
       // reset all other PINs if no match
       setPin1('');
       setPin2('');
-      setErrorText('The PINs did not match');
+      setErrorText(t('pinCode.pinsDontMatch'));
     }
   };
 
@@ -78,7 +74,7 @@ const SetPinCode = ({ navigation }) => {
     <SafeAreaView style={styles.container}>
       {isVerifying ? (
         <Pincode
-          title="Enter your PIN again to confirm"
+          title={t('pinCode.verify')}
           errorText={errorText}
           pin={pin2}
           onChangePin={onChangePin2}
@@ -88,7 +84,7 @@ const SetPinCode = ({ navigation }) => {
         />
       ) : (
         <Pincode
-          title="Create a new PIN"
+          title={t('pinCode.createNew')}
           errorText={errorText}
           pin={pin1}
           onChangePin={onChangePin1}

@@ -21,11 +21,22 @@ const locales: Locales = {
       return require('date-fns/locale/en-US');
     },
   },
+  'fr-FR': {
+    name: 'French',
+    get strings() {
+      return {
+        translation: require('./fr-FR/translation.json'),
+      };
+    },
+    get dateFns() {
+      return require('date-fns/locale/en-US');
+    },
+  },
   'sw-SW': {
     name: 'Swahili',
     get strings() {
       return {
-        translation: require('./sw/translation.json'),
+        translation: require('./sw-SW/translation.json'),
       };
     },
     get dateFns() {

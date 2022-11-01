@@ -82,6 +82,9 @@ export const emptyHeader: StackNavigationOptions = {
       height: 0,
       width: 0,
     },
+    elevation: 0, // remove shadow on Android
+    shadowOpacity: 0, // remove shadow on iOS
+    borderBottomWidth: 0,
   },
 };
 

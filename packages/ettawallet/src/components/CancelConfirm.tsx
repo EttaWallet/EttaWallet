@@ -14,8 +14,8 @@ export default function CancelConfirm({ screen }: Props) {
   const [isOpen, setOpenState] = React.useState(false);
   const { t } = useTranslation();
 
-  const actionText = t('cancelDialog.action');
-  const secondaryText = t('cancelDialog.secondary');
+  const actionText = t('manualBackupQuiz.cancelDialog.action');
+  const secondaryText = t('manualBackupQuiz.cancelDialog.secondary');
 
   const onCancel = React.useCallback(() => {
     setOpenState(true);
@@ -33,14 +33,14 @@ export default function CancelConfirm({ screen }: Props) {
   return (
     <>
       <Dialog
-        title={t('cancelDialog.title')}
+        title={t('manualBackupQuiz.cancelDialog.title')}
         isVisible={isOpen}
         actionText={actionText}
         actionPress={onComplete}
         secondaryActionPress={onProcrastinate}
         secondaryActionText={secondaryText}
       >
-        {t('cancelDialog.body')}
+        {t('manualBackupQuiz.cancelDialog.body')}
       </Dialog>
       <CancelButton onCancel={onCancel} style={styles.button} />
     </>

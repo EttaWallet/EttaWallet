@@ -14,6 +14,8 @@ export default function useChangeLanguage() {
       .catch((reason: any) =>
         Logger.error(TAG, 'Failed to change i18n language', reason)
       );
+
+    setLanguage(language);
   };
 
   return handleChangeLanguage;

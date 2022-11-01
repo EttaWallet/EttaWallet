@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, Button } from '@ettawallet/react-native-kit';
 import { View, StyleSheet } from 'react-native';
 import { Check } from '@ettawallet/rn-bitcoin-icons/dist/filled';
@@ -12,6 +13,7 @@ import { navigate } from '../navigation/NavigationService';
 import { EttaStorageContext } from '../../storage/context';
 
 const ManualBackupComplete = () => {
+  const { t } = useTranslation();
   const { backupCompleted } = useContext(EttaStorageContext);
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -39,7 +41,7 @@ const ManualBackupComplete = () => {
         fontWeight="bold"
         fontColor="dark"
       >
-        Back Up Verified
+        {t('manualBackupQuiz.backupVerified.title')}
       </Text>
       <Text
         style={styles.text}
@@ -47,8 +49,7 @@ const ManualBackupComplete = () => {
         fontWeight="light"
         fontColor="dark"
       >
-        Well done!. {'\n'}Please keep your recovery phrase safe. Memorize it if
-        you can.
+        {t('manualBackupQuiz.backupVerified.text')}
       </Text>
     </View>
   );

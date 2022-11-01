@@ -1,10 +1,12 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, Button } from '@ettawallet/react-native-kit';
 import { View, StyleSheet } from 'react-native';
 import { BitcoinCircle } from '@ettawallet/rn-bitcoin-icons/dist/filled';
 import { navigate } from '../navigation/NavigationService';
 
 const WelcomeScreen = () => {
+  const { t } = useTranslation();
   return (
     <View style={styles.container}>
       <BitcoinCircle
@@ -27,18 +29,17 @@ const WelcomeScreen = () => {
         fontWeight="light"
         fontColor="dark"
       >
-        Bitcoin is for all of us!
+        {t('welcome.subtitle')}
       </Text>
       <Button
         style={styles.button}
         color="primary"
         variant="filled"
         tone="orange"
-        // onPress={() => navigate('SetPin')}
-        onPress={() => navigate('Language')}
+        onPress={() => navigate('SetPin')}
       >
         <Text fontWeight="normal" fontColor="light">
-          Create a new wallet
+          {t('welcome.createNewWallet')}
         </Text>
       </Button>
       <Button
@@ -46,15 +47,14 @@ const WelcomeScreen = () => {
         color="primary"
         variant="text"
         tone="orange"
-        onPress={() => navigate('Restore Wallet')}
+        onPress={() => navigate('RestoreWallet')}
       >
         <Text fontWeight="normal" fontColor="orange">
-          Restore existing wallet
+          {t('welcome.restoreWallet')}
         </Text>
       </Button>
       <Text style={styles.footer} fontWeight="light">
-        Your wallet, your coins. {'\n'} 100% open-source & open-design.
-        {'\n'} Built with ❤️ in Uganda
+        {t('welcome.footer')}
       </Text>
     </View>
   );

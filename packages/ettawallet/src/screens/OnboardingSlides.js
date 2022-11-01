@@ -6,30 +6,30 @@ import { testImage } from '../images/Images';
 import colors from '../styles/colors';
 import progressDots from '../styles/progressDots';
 import { EttaStorageContext } from '../../storage/context';
+import { navigate } from '../navigation/NavigationService';
+import { useTranslation } from 'react-i18next';
 
-const OnboardingSlides = ({ navigation, props }) => {
-  const { getMnemonic } = useContext(EttaStorageContext);
-
+const OnboardingSlides = () => {
+  const { t } = useTranslation();
   const slides = [
     {
       key: 'slide-one',
-      title: "Good job! Now let's create your recovery phrase",
-      text: 'Your recovery phrase is a group of 12 random words. It is the only way to access your wallet if your phone is lost or stolen.',
+      title: t('onboardingSlides.slide1.title'),
+      text: t('onboardingSlides.slide1.text'),
       image: testImage, // will replace the icon placeholder
       backgroundColor: '#59b2ab',
     },
     {
       key: 'slide-two',
-      title:
-        'If you lose your recovery phrase, you will no longer be able to access your wallet',
-      text: 'Never share your recovery phrase with anyone. Anyone who has it can access your funds.',
+      title: t('onboardingSlides.slide2.title'),
+      text: t('onboardingSlides.slide2.text'),
       image: testImage, // will replace the icon placeholder
       backgroundColor: '#febe29',
     },
     {
       key: 'slide-three',
-      title: 'Keep your recovery phrase in a safe place',
-      text: 'We recommend writing these words down in order on a piece of paper and storing it somewhere safe that you will remember.',
+      title: t('onboardingSlides.slide3.title'),
+      text: t('onboardingSlides.slide3.text'),
       image: testImage, // will replace the icon placeholder
       backgroundColor: '#22bcb5',
     },
@@ -41,7 +41,7 @@ const OnboardingSlides = ({ navigation, props }) => {
         {index < 2 && (
           <TouchableOpacity
             style={styles.skip}
-            onPress={() => navigation.navigate('Welcome')}
+            onPress={() => navigate('Welcome')}
           >
             <Cross width={30} height={30} color="#000000" />
           </TouchableOpacity>
@@ -59,22 +59,16 @@ const OnboardingSlides = ({ navigation, props }) => {
   };
   const _keyExtractor = item => item.key;
 
-  const generateRecoveryPhrase = () => {
-    // generate mnemonic and redirect. Added 1s delay
-    setTimeout(() => {
-      getMnemonic();
-    }, 1000);
-    navigation.navigate('WriteRecoveryPhrase');
-  };
-
   return (
     <GenericSlider
       keyExtractor={_keyExtractor}
       data={slides}
       showNextButton={true}
       showDoneButton={true}
-      doneLabel="I understand ✅"
-      onDone={generateRecoveryPhrase}
+      doneLabel={t('onboardingSlides.labels.done')}
+      prevLabel={t('onboardingSlides.labels.previous')}
+      nextLabel={t('onboardingSlides.labels.next')}
+      onDone={() => navigate('WelcomeScreen')}
       dotStyle={progressDots.circlePassive}
       activeDotStyle={progressDots.circleActive}
       renderItem={_renderItem}

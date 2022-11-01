@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Touchable from './Touchable';

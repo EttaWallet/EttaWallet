@@ -9,9 +9,10 @@ import ManualBackupQuiz, {
   navOptionsForQuiz,
 } from '../screens/ManualBackupQuizScreen';
 import ManualBackupComplete from '../screens/ManualBackupComplete';
+import OnboardingSlides from '../screens/OnboardingSlides';
 import SetPinCode from '../screens/SetPinCodeScreen';
 import EnterPinCode from '../screens/EnterPinCodeScreen';
-import LanguageChooser from '../components/LanguageChooser';
+import LanguageChooser from '../screens/LanguageChooser';
 import Transact from '../screens/TransactScreen';
 
 const OnboardingStack = createNativeStackNavigator();
@@ -19,15 +20,20 @@ const OnboardingStack = createNativeStackNavigator();
 const OnboardingRoot = () => {
   return (
     <OnboardingStack.Navigator
-      initialRouteName="Welcome"
+      initialRouteName="Language"
       screenOptions={{ headerShown: false }}
     >
-      <OnboardingStack.Screen name="WelcomeScreen" component={WelcomeScreen} />
       <OnboardingStack.Screen
         name="Language"
         component={LanguageChooser}
         options={LanguageChooser.navigationOptions(true)}
       />
+      <OnboardingStack.Screen
+        name="OnboardingSlides"
+        component={OnboardingSlides}
+        options={OnboardingSlides.navigationOptions}
+      />
+      <OnboardingStack.Screen name="WelcomeScreen" component={WelcomeScreen} />
       <OnboardingStack.Screen
         name="SetPin"
         component={SetPinCode}
@@ -183,7 +189,7 @@ const RootStack = createNativeStackNavigator();
 const Navigation = () => {
   return (
     <RootStack.Navigator
-      initialRouteName="WelcomeScreen"
+      initialRouteName="Language"
       screenOptions={{ headerHideShadow: true }}
     >
       <RootStack.Screen name="OnboardingRoot" component={OnboardingRoot} />

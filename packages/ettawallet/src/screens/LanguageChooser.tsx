@@ -10,7 +10,7 @@ import {
   Text,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import SelectionOption from './SelectOption';
+import SelectOption from '../components/SelectOption';
 import useChangeLanguage from '../../i18n/useChangeLanguage';
 import {
   emptyHeader,
@@ -38,13 +38,13 @@ const LanguageChooser = ({ route }) => {
     // Wait for next frame before navigating
     // so the user can see the changed selection briefly
     requestAnimationFrame(() => {
-      navigate(nextScreen || 'OnboardingSlides');
+      navigate(nextScreen || 'OnboardingSlides'); // on change go to onboarding slides/straight to main CTA screen.
     });
   };
 
   const renderItem = ({ item: language }: ListRenderItemInfo<Language>) => {
     return (
-      <SelectionOption
+      <SelectOption
         // nextScreen is not set when the language screen is the first seen in the app
         // for when the best language couldn't be determined
         hideCheckboxes={!nextScreen}
@@ -58,12 +58,15 @@ const LanguageChooser = ({ route }) => {
   };
 
   return (
-    <FlatList
-      data={localesList}
-      extraData={i18n.language}
-      renderItem={renderItem}
-      keyExtractor={keyExtractor}
-    />
+    <SafeAreaView edges={['bottom']} style={styles.container}>
+      <Text style={styles.title}>{t('selectLanguage')}</Text>
+      <FlatList
+        data={localesList}
+        extraData={i18n.language}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+      />
+    </SafeAreaView>
   );
 };
 
@@ -74,6 +77,7 @@ LanguageChooser.navigationOptions =
       ? {
           ...headerWithBackButton,
           ...(withAnimation ? TransitionPresets.ModalTransition : {}),
+          headerShadowVisible: false,
         }
       : emptyHeader;
   };
@@ -81,6 +85,7 @@ LanguageChooser.navigationOptions =
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white',
   },
   title: {
     ...fontStyles.h2,

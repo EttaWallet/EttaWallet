@@ -4,6 +4,7 @@
  * with an input, e.g. get/ensure/set pincode.
  */
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Keyboard, ScrollView, StyleSheet, Text, View } from 'react-native';
 import NumericKeyPad from '../NumericKeypad';
 import { PIN_LENGTH } from '../../config';
@@ -33,6 +34,8 @@ const Pincode = ({
   onChangePin,
   onCompletePin,
 }: Props) => {
+  const { t } = useTranslation();
+
   const onDigitPress = (digit: number) => {
     if (pin.length >= maxLength) {
       return;
@@ -67,11 +70,11 @@ const Pincode = ({
         <ScrollView contentContainerStyle={styles.contentContainer}>
           <Text style={styles.guidedOnboardingHeader}>
             {verifyPin
-              ? 'Enter your PIN again to confirm'
-              : 'Choose a 6 digit PIN you will remember'}
+              ? t('pincodeSet.guideConfirm')
+              : t('pincodeSet.guideTitle')}
           </Text>
           <Text style={styles.guidedOnboardingCopy}>
-            Your PIN is how you’ll secure your wallet.
+            {t('pincodeSet.pinCodeGuide')}
           </Text>
         </ScrollView>
       )}

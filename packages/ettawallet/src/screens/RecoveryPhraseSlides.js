@@ -6,30 +6,33 @@ import { testImage } from '../images/Images';
 import colors from '../styles/colors';
 import progressDots from '../styles/progressDots';
 import { EttaStorageContext } from '../../storage/context';
+import { useTranslation } from 'react-i18next';
+import { navigate } from '../navigation/NavigationService';
 
 const RecoveryPhraseSlides = ({ navigation, props }) => {
+  const { t } = useTranslation();
+
   const { getMnemonic } = useContext(EttaStorageContext);
 
   const slides = [
     {
       key: 'slide-one',
-      title: "Good job! Now let's create your recovery phrase",
-      text: 'Your recovery phrase is a group of 12 random words. It is the only way to access your wallet if your phone is lost or stolen.',
+      title: t('recoveryPhraseSlides.slide1.title'),
+      text: t('recoveryPhraseSlides.slide1.text'),
       image: testImage, // will replace the icon placeholder
       backgroundColor: '#59b2ab',
     },
     {
       key: 'slide-two',
-      title:
-        'If you lose your recovery phrase, you will no longer be able to access your wallet',
-      text: 'Never share your recovery phrase with anyone. Anyone who has it can access your funds.',
+      title: t('recoveryPhraseSlides.slide2.title'),
+      text: t('recoveryPhraseSlides.slide2.text'),
       image: testImage, // will replace the icon placeholder
       backgroundColor: '#febe29',
     },
     {
       key: 'slide-three',
-      title: 'Keep your recovery phrase in a safe place',
-      text: 'We recommend writing these words down in order on a piece of paper and storing it somewhere safe that you will remember.',
+      title: t('recoveryPhraseSlides.slide3.title'),
+      text: t('recoveryPhraseSlides.slide3.text'),
       image: testImage, // will replace the icon placeholder
       backgroundColor: '#22bcb5',
     },
@@ -64,7 +67,7 @@ const RecoveryPhraseSlides = ({ navigation, props }) => {
     setTimeout(() => {
       getMnemonic();
     }, 1000);
-    navigation.navigate('WriteRecoveryPhrase');
+    navigate('WriteRecoveryPhrase');
   };
 
   return (
@@ -73,7 +76,9 @@ const RecoveryPhraseSlides = ({ navigation, props }) => {
       data={slides}
       showNextButton={true}
       showDoneButton={true}
-      doneLabel="I understand ✅"
+      doneLabel={t('recoveryPhraseSlides.labels.done')}
+      prevLabel={t('recoveryPhraseSlides.labels.previous')}
+      nextLabel={t('recoveryPhraseSlides.labels.next')}
       onDone={generateRecoveryPhrase}
       dotStyle={progressDots.circlePassive}
       activeDotStyle={progressDots.circleActive}

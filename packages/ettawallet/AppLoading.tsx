@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import * as React from 'react';
 import { WithTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
@@ -13,7 +14,7 @@ interface State {
   showRestartButton: boolean;
 }
 
-type Props = {} & WithTranslation;
+type Props = WithTranslation;
 export class AppLoading extends React.Component<Props, State> {
   showRestartButtonTimer: number | null = null;
 

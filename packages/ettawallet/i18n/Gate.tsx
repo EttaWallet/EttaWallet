@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { useContext } from 'react';
 import locales from './locales';
 import { useAsync } from 'react-async-hook';
 import { findBestAvailableLanguage } from 'react-native-localize';
 import { DEFAULT_APP_LANGUAGE } from '../src/config';
-import { initI18n } from './index';
+import { initI18n } from './';
 import { EttaStorageContext } from '../storage/context';
 import useChangeLanguage from './useChangeLanguage';
 import { navigateToError } from '../src/navigation/NavigationService';
@@ -37,7 +38,6 @@ const I18nGate = ({ loading, children }: Props) => {
     }
   );
 
-  // type assertion here because https://github.com/DefinitelyTyped/DefinitelyTyped/issues/44572
   return i18nInitResult.loading
     ? (loading as JSX.Element)
     : (children as JSX.Element);

@@ -6,6 +6,7 @@ import Button, { BtnSizes, BtnTypes } from '../components/Button';
 import LoadingSpinner from '../images/LoadingSpinner';
 import colors from '../styles/colors';
 import fontStyles from '../styles/fonts';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   onPressSubmit: () => void;
@@ -14,6 +15,8 @@ interface Props {
 }
 
 const QuizChecker = ({ onPressSubmit, isQuizComplete, mode }: Props) => {
+  const { t } = useTranslation();
+
   if (!isQuizComplete) {
     return null;
   }
@@ -27,16 +30,14 @@ const QuizChecker = ({ onPressSubmit, isQuizComplete, mode }: Props) => {
     case Mode.Failed:
       return (
         <View>
-          <Text style={styles.incorrect}>
-            The Recovery Phrase you entered is incorrect. Please try again.
-          </Text>
+          <Text style={styles.incorrect}>{t('manualBackupQuiz.failed')}</Text>
         </View>
       );
     default:
       return (
         <Button
           onPress={onPressSubmit}
-          text="Submit"
+          text={t('manualBackupQuiz.verifyBtn')}
           size={BtnSizes.FULL}
           type={BtnTypes.PRIMARY}
         />

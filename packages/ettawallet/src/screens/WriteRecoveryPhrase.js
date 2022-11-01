@@ -13,8 +13,11 @@ import RecoveryPhraseContainer, {
 import fontStyles from '../styles/fonts';
 import { ScrollView, View, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
+import { navigate } from '../navigation/NavigationService';
 
-const WriteRecoveryPhrase = ({ navigation }) => {
+const WriteRecoveryPhrase = () => {
+  const { t } = useTranslation();
   const { mnemonic } = useContext(EttaStorageContext);
   const [checked, setChecked] = useState(false);
 
@@ -28,7 +31,7 @@ const WriteRecoveryPhrase = ({ navigation }) => {
   };
 
   const onPressContinue = () => {
-    navigation.navigate('ManualBackupQuiz');
+    navigate('ManualBackupQuiz');
   };
 
   return (
@@ -51,8 +54,7 @@ const WriteRecoveryPhrase = ({ navigation }) => {
               fontColor="dark"
               typography="h5"
             >
-              Write it down some place safe. We will verify this on the next
-              page. You might be tempted to, but do not save this on your phone!
+              {t('manualBackup.warning')}
             </Text>
           </>
         ) : null}
@@ -64,12 +66,12 @@ const WriteRecoveryPhrase = ({ navigation }) => {
             onPress={onPressConfirmArea}
             style={styles.confirmationSwitchLabel}
           >
-            Yes, I have written down my recovery phrase
+            {t('manualBackup.writtenConfirmation')}
           </Text>
         </View>
         <Button
           disabled={!checked}
-          text="Continue"
+          text={t('manualBackup.continueBtn')}
           size={BtnSizes.FULL}
           type={BtnTypes.PRIMARY}
           onPress={onPressContinue}
@@ -79,13 +81,19 @@ const WriteRecoveryPhrase = ({ navigation }) => {
   );
 };
 
-function HeaderRight() {
+const HeaderRight = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const onMoreInfoPressed = () => {
     navigation.push('RecoveryPhraseSlides');
   };
-  return <TopBarTextButton onPress={onMoreInfoPressed} title="Learn more" />;
-}
+  return (
+    <TopBarTextButton
+      onPress={onMoreInfoPressed}
+      title={t('manualBackup.topLearnMoreBtn')}
+    />
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

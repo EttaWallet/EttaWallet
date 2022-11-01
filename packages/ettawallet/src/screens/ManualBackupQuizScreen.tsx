@@ -13,7 +13,6 @@ import Logger from '../utils/logger';
 import { Mode } from '../utils/types';
 import { onGetMnemonicFail } from '../utils/backup';
 import { EttaStorageContext } from '../../storage/context';
-import { ArrowLeft } from '@ettawallet/rn-bitcoin-icons/dist/filled';
 import Backspace from '../icons/Backspace';
 import QuizChecker from '../components/QuizChecker';
 import { navigate } from '../navigation/NavigationService';
@@ -55,7 +54,7 @@ export const navOptionsForQuiz = () => {
     headerLeft: () => {
       return <CancelConfirm screen={TAG} />;
     },
-    headerTitle: i18n.t(`headerTitle`),
+    headerTitle: i18n.t(`manualBackupQuiz.headerTitle`),
   };
 };
 
@@ -212,15 +211,19 @@ export class ManualBackupQuiz extends React.Component<Props, State> {
           </View>
           {this.state.mode === Mode.Failed && (
             <View style={styles.resetButton}>
-              <TextButton onPress={this.onPressReset}>Reset</TextButton>
+              <TextButton onPress={this.onPressReset}>
+                {t('manualBackupQuiz.resetBtn')}
+              </TextButton>
             </View>
           )}
           <View style={styles.bottomHalf}>
             {!isQuizComplete && (
               <Text style={styles.bodyText}>
                 <Trans
-                  i18nKey={'backupQuizWordCount'}
-                  tOptions={{ ordinal: t(`ordinals.${currentWordIndex}`) }}
+                  i18nKey={'manualBackupQuiz.backupQuizWordCount'}
+                  tOptions={{
+                    ordinal: t(`manualBackupQuiz.ordinals.${currentWordIndex}`),
+                  }}
                 />
               </Text>
             )}

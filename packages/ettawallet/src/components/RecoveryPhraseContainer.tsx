@@ -1,4 +1,7 @@
 import * as React from 'react';
+
+import { WithTranslation } from 'react-i18next';
+import { withTranslation } from '../../i18n';
 import { StyleSheet, Text, TextInput, View, ViewStyle } from 'react-native';
 import colors from '../styles/colors';
 import fontStyles from '../styles/fonts';
@@ -21,7 +24,7 @@ type Props = {
   style?: ViewStyle;
   onChangeText?: (value: string) => void;
   includeHeader?: boolean;
-};
+} & WithTranslation;
 
 export class RecoveryPhraseContainer extends React.Component<Props> {
   onPhraseInputChange = (value: string) => {
@@ -31,14 +34,16 @@ export class RecoveryPhraseContainer extends React.Component<Props> {
   };
 
   render() {
-    const { value: words, style, mode, type, includeHeader } = this.props;
+    const { t, value: words, style, mode, type, includeHeader } = this.props;
 
     return (
       <View style={style}>
         <View style={styles.headerContainer}>
           {type === RecoveryPhraseType.BACKUP_KEY && includeHeader !== false && (
             <View style={styles.writeDownKeyContainer}>
-              <Text style={styles.writeDownKey}>Your recovery phrase</Text>
+              <Text style={styles.writeDownKey}>
+                {t('manualBackup.inputHeader')}
+              </Text>
             </View>
           )}
         </View>
@@ -53,7 +58,7 @@ export class RecoveryPhraseContainer extends React.Component<Props> {
             <TextInput
               style={[styles.phraseInputText]}
               value={words || ''}
-              placeholder="Seed or Recovery Phrase"
+              placeholder={t('manualBackup.inputPlaceholder')}
               onChangeText={this.onPhraseInputChange}
               underlineColorAndroid="transparent"
               placeholderTextColor={colors.gray4}
@@ -112,4 +117,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RecoveryPhraseContainer;
+export default withTranslation<Props>()(RecoveryPhraseContainer);
