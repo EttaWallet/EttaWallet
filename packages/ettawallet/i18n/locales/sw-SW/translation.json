@@ -96,5 +96,6 @@
             "title": "Back Up Verified",
             "text": "Well done!. \n Please keep your recovery phrase safe. Memorize it if you can."
         }
-    }
+    },
+    "reviewSendTransaction": "Review transaction"
 }

@@ -2,9 +2,10 @@ import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { processColor, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { cond, greaterThan } from 'react-native-reanimated';
-import { Contacts } from '@ettawallet/rn-bitcoin-icons/dist/filled';
+import { QrCode } from '@ettawallet/rn-bitcoin-icons/dist/filled';
+import { Contacts } from '@ettawallet/rn-bitcoin-icons/dist/outline';
 import colors from '../../styles/colors';
-import { iconHitslop } from '../../styles/variables';
+import { TopBarIconButton } from '../headers/TopBarButton';
 
 interface Props {
   middleElement?: React.ReactNode;
@@ -32,27 +33,28 @@ const WalletHeader = ({
     [scrollPosition]
   );
 
-  const onPressContactBtn = () => {
-    // @ts-ignore
-    return navigation.toggleDrawer();
+  const onPressContactsBtn = () => {
+    return null;
+  };
+
+  const onPressQrCodeBtn = () => {
+    return null;
   };
 
   return (
     <Animated.View style={viewStyle}>
-      <TouchableOpacity
+      <TopBarIconButton
         style={styles.contactsBtn}
-        onPress={onPressContactBtn}
-        hitSlop={iconHitslop}
-      >
-        <Contacts
-          width={35}
-          height={35}
-          color={colors.gray3}
-          style={{ marginBottom: 20, alignSelf: 'center' }}
-        />
-      </TouchableOpacity>
+        onPress={onPressContactsBtn}
+        icon={<Contacts width={35} height={35} color={colors.dark} />}
+      />
+      {/* should probably add a logo in the middle??? */}
       {middleElement}
-      {rightElement && <View style={styles.rightElement}>{rightElement}</View>}
+      <TopBarIconButton
+        style={styles.rightElement}
+        onPress={onPressQrCodeBtn}
+        icon={<QrCode width={35} height={35} color={colors.dark} />}
+      />
     </Animated.View>
   );
 };

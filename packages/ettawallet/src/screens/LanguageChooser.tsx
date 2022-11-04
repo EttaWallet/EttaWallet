@@ -1,14 +1,9 @@
-import { StackScreenProps, TransitionPresets } from '@react-navigation/stack';
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import { TransitionPresets } from '@react-navigation/stack';
 import { localesList } from '../../i18n/locales';
-import React from 'react';
+import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  FlatList,
-  ListRenderItemInfo,
-  ScrollView,
-  StyleSheet,
-  Text,
-} from 'react-native';
+import { FlatList, ListRenderItemInfo, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SelectOption from '../components/SelectOption';
 import useChangeLanguage from '../../i18n/useChangeLanguage';
@@ -18,6 +13,7 @@ import {
 } from '../navigation/headers/Headers';
 import { navigate } from '../navigation/NavigationService';
 import fontStyles from '../styles/fonts';
+import { EttaStorageContext } from '../../storage/context';
 
 interface Language {
   code: string;
@@ -29,6 +25,8 @@ function keyExtractor(item: Language) {
 }
 
 const LanguageChooser = ({ route }) => {
+  const { completedOnboardingSlides, phonePin } =
+    useContext(EttaStorageContext);
   const changeLanguage = useChangeLanguage();
   const { t, i18n } = useTranslation();
   const nextScreen = route.params?.nextScreen;
@@ -38,7 +36,11 @@ const LanguageChooser = ({ route }) => {
     // Wait for next frame before navigating
     // so the user can see the changed selection briefly
     requestAnimationFrame(() => {
-      navigate(nextScreen || 'OnboardingSlides'); // on change go to onboarding slides/straight to main CTA screen.
+      !completedOnboardingSlides // check if all slides seen
+        ? navigate(nextScreen || 'OnboardingSlides')
+        : !phonePin
+        ? navigate(nextScreen || 'SetPin')
+        : navigate(nextScreen || 'RecoveryPhraseSlides');
     });
   };
 

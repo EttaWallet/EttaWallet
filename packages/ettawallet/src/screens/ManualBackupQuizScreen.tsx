@@ -304,7 +304,7 @@ function DeleteWord({
       onPress={onPressBackspace}
       style={styles.backWord}
     >
-      <Backspace color={colors.greenUI} />
+      <Backspace color={colors.error} />
     </Touchable>
   );
 }

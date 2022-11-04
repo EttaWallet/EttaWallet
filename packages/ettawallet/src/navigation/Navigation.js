@@ -13,7 +13,8 @@ import OnboardingSlides from '../screens/OnboardingSlides';
 import SetPinCode from '../screens/SetPinCodeScreen';
 import EnterPinCode from '../screens/EnterPinCodeScreen';
 import LanguageChooser from '../screens/LanguageChooser';
-import Transact from '../screens/TransactScreen';
+import SendBitcoin from '../screens/SendBitcoinScreen';
+import ReceiveBitcoin from '../screens/ReceiveBitcoinScreen';
 
 const OnboardingStack = createNativeStackNavigator();
 
@@ -129,7 +130,7 @@ const TabsStack = createBottomTabNavigator();
 const TabsRoot = () => {
   return (
     <TabsStack.Navigator
-      initialRouteName="Transact"
+      initialRouteName="SendBitcoin"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#F7931A',
@@ -139,10 +140,24 @@ const TabsRoot = () => {
       }}
     >
       <TabsStack.Screen
-        name="Transact"
-        component={Transact}
+        name="SendBitcoin"
+        component={SendBitcoin}
         options={{
-          tabBarLabel: 'Transact',
+          tabBarLabel: 'Send',
+          tabBarIcon: ({ focused }) => (
+            <Icon
+              name="icon-flip-vertical-2"
+              size="kilo"
+              fontColor={focused ? 'orange' : 'dark'}
+            />
+          ),
+        }}
+      />
+      <TabsStack.Screen
+        name="ReceiveBitcoin"
+        component={ReceiveBitcoin}
+        options={{
+          tabBarLabel: 'Receive',
           tabBarIcon: ({ focused }) => (
             <Icon
               name="icon-flip-vertical-2"
@@ -154,7 +169,7 @@ const TabsRoot = () => {
       />
       <TabsStack.Screen
         name="Activity"
-        component={Transact} // change component
+        component={SendBitcoin} // change component
         options={{
           tabBarLabel: 'Activity',
           tabBarIcon: ({ focused }) => (
@@ -168,7 +183,7 @@ const TabsRoot = () => {
       />
       <TabsStack.Screen
         name="Settings"
-        component={Transact} // change component
+        component={ReceiveBitcoin} // change component
         options={{
           tabBarLabel: 'Settings',
           tabBarIcon: ({ focused }) => (

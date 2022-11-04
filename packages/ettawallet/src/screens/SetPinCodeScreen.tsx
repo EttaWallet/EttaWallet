@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Pincode from '../components/Pincode/Pincode';
@@ -9,8 +9,9 @@ import {
   HeaderTitleWithSubtitle,
   extraNavigationOptions,
 } from '../navigation/headers/Headers';
+import { EttaStorageContext } from '../../storage/context';
 import { navigate } from '../navigation/NavigationService';
-import { isPinValid, updatePin, DEFAULT_CACHE_ACCOUNT } from '../utils/auth';
+import { isPinValid } from '../utils/auth';
 
 export const navOptions = ({ route }) => {
   const { t } = useTranslation();
@@ -28,6 +29,7 @@ export const navOptions = ({ route }) => {
 
 const SetPinCode = () => {
   const { t } = useTranslation();
+  const { setPhonePin } = useContext(EttaStorageContext);
 
   const [isVerifying, setIsVerifying] = useState(false);
   const [errorText, setErrorText] = useState('');
@@ -60,6 +62,7 @@ const SetPinCode = () => {
 
   const onCompletePin2 = async pin2 => {
     if (isPin1Valid(pin1) && isPin2Valid(pin2)) {
+      setPhonePin(pin2); // update context
       navigate('RecoveryPhraseSlides'); // ideally, user would set up biometrics first, but lets setup seed phrase first.
     } else {
       setIsVerifying(false);

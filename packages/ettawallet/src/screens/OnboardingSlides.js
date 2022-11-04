@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { TouchableOpacity, View, StyleSheet, Text } from 'react-native';
 import { Cross, Safe } from '@ettawallet/rn-bitcoin-icons/dist/filled';
 import GenericSlider from '../components/Slider';
@@ -10,6 +10,8 @@ import { navigate } from '../navigation/NavigationService';
 import { useTranslation } from 'react-i18next';
 
 const OnboardingSlides = () => {
+  const { completedOnboardingSlides, setCompletedOnboardingSlides } =
+    useContext(EttaStorageContext);
   const { t } = useTranslation();
   const slides = [
     {
@@ -59,6 +61,13 @@ const OnboardingSlides = () => {
   };
   const _keyExtractor = item => item.key;
 
+  const finishedSlides = () => {
+    if (!completedOnboardingSlides) {
+      setCompletedOnboardingSlides(true);
+    } // update context
+    navigate('WelcomeScreen');
+  };
+
   return (
     <GenericSlider
       keyExtractor={_keyExtractor}
@@ -68,7 +77,7 @@ const OnboardingSlides = () => {
       doneLabel={t('onboardingSlides.labels.done')}
       prevLabel={t('onboardingSlides.labels.previous')}
       nextLabel={t('onboardingSlides.labels.next')}
-      onDone={() => navigate('WelcomeScreen')}
+      onDone={finishedSlides}
       dotStyle={progressDots.circlePassive}
       activeDotStyle={progressDots.circleActive}
       renderItem={_renderItem}

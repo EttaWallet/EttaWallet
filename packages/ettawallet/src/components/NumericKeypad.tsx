@@ -2,7 +2,9 @@ import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Touchable from '../components/Touchable';
 import { ArrowLeft } from '@ettawallet/rn-bitcoin-icons/dist/filled';
+import Backspace from '../icons/Backspace';
 import fontStyles from '../styles/fonts';
+import colors from '../styles/colors';
 
 interface Props {
   onDigitPress: (digit: number) => void;
@@ -62,7 +64,7 @@ const NumericKeypad = (props: Props) => {
           onLongPress={props.onBackspaceLongPress}
         >
           <View style={styles.digit}>
-            <ArrowLeft width={20} height={20} color="#000" />
+            <Backspace color={colors.error} />
           </View>
         </Touchable>
       </View>

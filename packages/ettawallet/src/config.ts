@@ -10,3 +10,5 @@ export const UNLOCK_DURATION = 600;
 export const DEFAULT_APP_LANGUAGE = 'en-US';
 
 export const APP_NAME = 'Etta Wallet';
+
+export const DEFAULT_CURRENCY_CODE = 'UGX';
