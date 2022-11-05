@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { processColor, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { cond, greaterThan } from 'react-native-reanimated';
-import { QrCode } from '@ettawallet/rn-bitcoin-icons/dist/filled';
+import { QrCode, Scan } from '@ettawallet/rn-bitcoin-icons/dist/filled';
 import { Contacts } from '@ettawallet/rn-bitcoin-icons/dist/outline';
 import colors from '../../styles/colors';
 import { TopBarIconButton } from '../headers/TopBarButton';
@@ -53,7 +53,7 @@ const WalletHeader = ({
       <TopBarIconButton
         style={styles.rightElement}
         onPress={onPressQrCodeBtn}
-        icon={<QrCode width={35} height={35} color={colors.dark} />}
+        icon={<Scan width={35} height={35} color={colors.dark} />}
       />
     </Animated.View>
   );

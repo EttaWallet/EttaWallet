@@ -152,7 +152,7 @@ const TabsRoot = () => {
           tabBarLabel: 'Send',
           tabBarIcon: ({ focused }) => (
             <Icon
-              name="icon-flip-vertical-2"
+              name="icon-send-2"
               size="kilo"
               fontColor={focused ? 'orange' : 'dark'}
             />
@@ -166,7 +166,7 @@ const TabsRoot = () => {
           tabBarLabel: 'Receive',
           tabBarIcon: ({ focused }) => (
             <Icon
-              name="icon-flip-vertical-2"
+              name="icon-receive-2"
               size="kilo"
               fontColor={focused ? 'orange' : 'dark'}
             />
