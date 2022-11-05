@@ -1,6 +1,7 @@
 import React, { createContext, useState } from 'react';
 import BdkRn from 'bdk-rn';
 import { PincodeType } from '../src/utils/types';
+import * as Keychain from 'react-native-keychain';
 
 export const EttaStorageContext = createContext();
 
@@ -13,8 +14,10 @@ export const EttaStorageProvider = ({ children }) => {
   const [wallet, setWallet] = useState('');
   const [path, setPath] = useState("m/84'/0'/0'");
   const [pinType, setPinType] = useState(PincodeType.Unset);
+  const [biometricsEnabled, setBiometricsEnabled] = useState(false);
+  const [supportedBiometrics, setSupportedBiometrics] = useState(null);
   const [connected, setIsConnected] = useState(true); // True if the phone thinks it has a data connection (cellular/Wi-Fi), false otherwise. @todo
-  const [backupCompleted, setBackupComplete] = useState(false);
+  const [manualBackupCompleted, setManualBackupComplete] = useState(false);
   const [language, setLanguage] = useState('');
   const [showRecoveryPhraseInSettings, setShowRecoveryPhraseInSettings] =
     useState(true);
@@ -29,8 +32,8 @@ export const EttaStorageProvider = ({ children }) => {
         network: 'testnet',
         length: 12,
       });
-      console.log(data);
       setMnemonic(data); // update mnemonic in state
+      console.log('Seed phrase: ', data);
       // @todo: encrypt and save the mnemonic to device
     }
   };
@@ -38,9 +41,10 @@ export const EttaStorageProvider = ({ children }) => {
   const createWallet = async () => {
     const { data } = await BdkRn.createWallet({
       mnemonic: mnemonic,
-      network: 'mainnet',
+      network: 'testnet',
     });
     setWallet(data);
+    console.log('Wallet: ', data);
   };
 
   return (
@@ -55,8 +59,8 @@ export const EttaStorageProvider = ({ children }) => {
         createWallet,
         pinType,
         connected,
-        backupCompleted,
-        setBackupComplete,
+        manualBackupCompleted,
+        setManualBackupComplete,
         language,
         showRecoveryPhraseInSettings,
         minRequiredVersion,
@@ -67,6 +71,10 @@ export const EttaStorageProvider = ({ children }) => {
         setPreferredCurrency,
         btcCurrency,
         setBtcCurrency,
+        biometricsEnabled,
+        setBiometricsEnabled,
+        supportedBiometrics,
+        setSupportedBiometrics,
       }}
     >
       {children}

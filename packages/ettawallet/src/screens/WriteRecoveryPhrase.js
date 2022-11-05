@@ -11,7 +11,7 @@ import RecoveryPhraseContainer, {
   RecoveryPhraseType,
 } from '../components/RecoveryPhraseContainer';
 import fontStyles from '../styles/fonts';
-import { ScrollView, View, StyleSheet } from 'react-native';
+import { ScrollView, View, StyleSheet, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { navigate } from '../navigation/NavigationService';
@@ -30,7 +30,11 @@ const WriteRecoveryPhrase = () => {
     onPressConfirmSwitch(!checked);
   };
 
-  const onPressContinue = () => {
+  const onPressCloudBackup = () => {
+    // what happens when backup to cloud clicked
+  };
+
+  const onPressManualBackup = () => {
     navigate('ManualBackupQuiz');
   };
 
@@ -71,10 +75,23 @@ const WriteRecoveryPhrase = () => {
         </View>
         <Button
           disabled={!checked}
-          text={t('manualBackup.continueBtn')}
+          text={
+            Platform.OS === 'ios'
+              ? t('manualBackup.icloudBackupBtn')
+              : t('manualBackup.gdriveBackupBtn')
+          }
           size={BtnSizes.FULL}
           type={BtnTypes.PRIMARY}
-          onPress={onPressContinue}
+          onPress={onPressCloudBackup}
+          style={{ marginBottom: 10 }}
+        />
+        <Button
+          disabled={!checked}
+          text={t('manualBackup.manualBackupBtn')}
+          size={BtnSizes.FULL}
+          type={BtnTypes.TERTIARY}
+          onPress={onPressManualBackup}
+          style={{ marginBottom: 10 }}
         />
       </>
     </View>
@@ -111,7 +128,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   confirmationSwitchContainer: {
-    marginVertical: 16,
+    marginVertical: 30,
     flexDirection: 'row',
     alignItems: 'center',
   },

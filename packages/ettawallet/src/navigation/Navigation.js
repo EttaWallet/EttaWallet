@@ -15,6 +15,7 @@ import EnterPinCode from '../screens/EnterPinCodeScreen';
 import LanguageChooser from '../screens/LanguageChooser';
 import SendBitcoin from '../screens/SendBitcoinScreen';
 import ReceiveBitcoin from '../screens/ReceiveBitcoinScreen';
+import ProtectWallet from '../screens/ProtectWalletScreen';
 
 const OnboardingStack = createNativeStackNavigator();
 
@@ -36,11 +37,6 @@ const OnboardingRoot = () => {
       />
       <OnboardingStack.Screen name="WelcomeScreen" component={WelcomeScreen} />
       <OnboardingStack.Screen
-        name="SetPin"
-        component={SetPinCode}
-        options={SetPinCode.navOpts}
-      />
-      <OnboardingStack.Screen
         name="RecoveryPhraseSlides"
         component={RecoveryPhraseSlides}
         options={RecoveryPhraseSlides.navOps}
@@ -59,6 +55,16 @@ const OnboardingRoot = () => {
         name="ManualBackupComplete"
         component={ManualBackupComplete}
         options={ManualBackupComplete.navOps}
+      />
+      <OnboardingStack.Screen
+        name="ProtectWallet"
+        component={ProtectWallet}
+        options={ProtectWallet.navOps}
+      />
+      <OnboardingStack.Screen
+        name="SetPin"
+        component={SetPinCode}
+        options={SetPinCode.navOpts}
       />
     </OnboardingStack.Navigator>
   );

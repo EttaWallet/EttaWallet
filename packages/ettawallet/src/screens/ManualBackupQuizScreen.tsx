@@ -149,10 +149,10 @@ export class ManualBackupQuiz extends React.Component<Props, State> {
   afterCheck = async () => {
     const { userChosenWords, mnemonicLength } = this.state;
     const lengthsMatch = userChosenWords.length === mnemonicLength;
-    const { mnemonic, setBackupComplete } = this.context;
+    const { mnemonic, setManualBackupComplete } = this.context;
     if (lengthsMatch && contentMatches(userChosenWords, mnemonic)) {
       Logger.debug(TAG, 'Backup quiz passed');
-      setBackupComplete(true); // update state through context
+      setManualBackupComplete(true); // update state through context
       navigate('ManualBackupComplete');
     } else {
       Logger.debug(TAG, 'Backup quiz failed, reseting words');
@@ -166,9 +166,9 @@ export class ManualBackupQuiz extends React.Component<Props, State> {
   };
 
   onScreenSkip = () => {
-    const { setBackupComplete } = this.context;
+    const { setManualBackupComplete } = this.context;
     Logger.debug(TAG, 'Skipping backup quiz');
-    setBackupComplete(false); // maintain manual backup completion state as false
+    setManualBackupComplete(false); // maintain manual backup completion state as false
   };
 
   render() {

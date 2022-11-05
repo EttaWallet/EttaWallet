@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    ...fontStyles.regular,
+    ...fontStyles.regular600,
     textAlign: 'center',
     marginBottom: 24,
   },

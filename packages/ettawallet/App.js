@@ -1,6 +1,6 @@
 import React from 'react';
 import { StatusBar } from 'react-native';
-import { lightTheme, ThemeProvider, Icon } from '@ettawallet/react-native-kit';
+import { lightTheme, ThemeProvider } from '@ettawallet/react-native-kit';
 import { NavigationContainer } from '@react-navigation/native';
 import { enableScreens } from 'react-native-screens';
 import { navigationRef } from './src/navigation/NavigationService';

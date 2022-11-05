@@ -40,8 +40,8 @@
     },
     "recoveryPhraseSlides": {
         "slide1": {
-            "title": "Good job! Now let's create your recovery phrase",
-            "text": "Your recovery phrase is a group of 12 random words. It is the only way to access your wallet if your phone is lost or stolen."
+            "title": "Let's create your recovery phrase",
+            "text": "A recovery phrase is a group of 12 random words. It is the only way to access your wallet if your phone is lost or stolen."
         },
         "slide2": {
             "title": "If you lose your recovery phrase, you will no longer be able to access your wallet",
@@ -63,7 +63,9 @@
         "warning": "Write it down some place safe. We will verify this on the next page. You might be tempted to, but do not save this on your phone!",
         "writtenConfirmation": "Yes, I have written down my recovery phrase",
         "topLearnMoreBtn": "Learn more",
-        "continueBtn": "Continue"
+        "icloudBackupBtn": "Back up on iCloud",
+        "gdriveBackupBtn": "Back up on Google Drive",
+        "manualBackupBtn": "Back up manually"
     },
     "manualBackupQuiz": {
         "headerTitle": "Confirm Manual Backup",
@@ -97,5 +99,18 @@
             "text": "Well done!. \n Please keep your recovery phrase safe. Memorize it if you can."
         }
     },
-    "reviewSendTransaction": "Review transaction"
+    "protectWallet": {
+        "title": "Protect your wallet",
+        "subtitle": "Add an extra layer of security to prevent anyone from accessing your wallet and bitcoin",
+        "useBiometricsBtn": "Use {{biometryType}}",
+        "createPinBtn": "Create PIN",
+        "biometryType": {
+            "FaceID": "Face ID",
+            "TouchID": "Touch ID",
+            "Fingerprint": "Fingerprint recognition"
+        }
+    },
+    "sendBitcoin": {
+        "nextBtn": "Next"
+    }
 }

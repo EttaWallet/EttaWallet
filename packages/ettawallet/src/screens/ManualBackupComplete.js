@@ -5,7 +5,7 @@
 
 import React, { useEffect, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, Button } from '@ettawallet/react-native-kit';
+import { Text } from '@ettawallet/react-native-kit';
 import { View, StyleSheet } from 'react-native';
 import { Check } from '@ettawallet/rn-bitcoin-icons/dist/filled';
 import colors from '../styles/colors';
@@ -14,11 +14,20 @@ import { EttaStorageContext } from '../../storage/context';
 
 const ManualBackupComplete = () => {
   const { t } = useTranslation();
-  const { backupCompleted } = useContext(EttaStorageContext);
+  const { manualBackupCompleted, phonePin, supportedBiometrics } =
+    useContext(EttaStorageContext);
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (backupCompleted) {
-        navigate('TabsRoot'); // go to main screen
+      if (manualBackupCompleted) {
+        if (!phonePin && supportedBiometrics !== null) {
+          navigate('ProtectWallet'); // should go to protect wallet
+        } else if (!phonePin && supportedBiometrics === null) {
+          navigate('ProtectWallet'); // should go to protect wallet
+        } else if (phonePin && supportedBiometrics !== null) {
+          navigate('ProtectWallet'); // should go to protect wallet
+        } else {
+          navigate('TabsRoot'); // should go to wallet area
+        }
       } else {
         throw new Error(
           'Backup complete screen should not be reachable without completing backup'

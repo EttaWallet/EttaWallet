@@ -25,8 +25,7 @@ function keyExtractor(item: Language) {
 }
 
 const LanguageChooser = ({ route }) => {
-  const { completedOnboardingSlides, phonePin } =
-    useContext(EttaStorageContext);
+  const { completedOnboardingSlides } = useContext(EttaStorageContext);
   const changeLanguage = useChangeLanguage();
   const { t, i18n } = useTranslation();
   const nextScreen = route.params?.nextScreen;
@@ -38,8 +37,6 @@ const LanguageChooser = ({ route }) => {
     requestAnimationFrame(() => {
       !completedOnboardingSlides // check if all slides seen
         ? navigate(nextScreen || 'OnboardingSlides')
-        : !phonePin
-        ? navigate(nextScreen || 'SetPin')
         : navigate(nextScreen || 'RecoveryPhraseSlides');
     });
   };

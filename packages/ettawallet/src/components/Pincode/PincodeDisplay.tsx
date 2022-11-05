@@ -6,7 +6,7 @@ import fontStyles from '../../styles/fonts';
 // How long the last entered digit is visible
 const LAST_DIGIT_VISIBLE_INTERVAL = 2000; // 2secs
 
-const DOT_SIZE = 8;
+const DOT_SIZE = 20;
 
 interface Props {
   pin: string;
@@ -84,10 +84,10 @@ const styles = StyleSheet.create({
     height: DOT_SIZE,
     borderRadius: DOT_SIZE / 2,
     borderWidth: 1,
-    borderColor: colors.dark,
+    borderColor: colors.greenUI,
   },
   dotFilled: {
-    backgroundColor: colors.dark,
+    backgroundColor: colors.greenUI,
   },
 });
 

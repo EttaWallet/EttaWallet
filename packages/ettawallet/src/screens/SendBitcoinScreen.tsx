@@ -125,7 +125,7 @@ const SendBitcoin = props => {
     }
   }, [reviewButtonPressed]);
 
-  const onReviewButtonPressed = () => setReviewButtonPressed(true);
+  const onButtonPressed = () => setReviewButtonPressed(true);
 
   const isAmountValid =
     localAmount?.isGreaterThanOrEqualTo(MIN_BTC_AMOUNT) ?? true;
@@ -163,10 +163,10 @@ const SendBitcoin = props => {
       <Button
         style={styles.nextBtn}
         size={BtnSizes.FULL}
-        text={t('reviewSendTransaction')}
+        text={t('sendBitcoin.nextBtn')}
         showLoading={buttonLoading}
         type={BtnTypes.PRIMARY}
-        onPress={onReviewButtonPressed}
+        onPress={onButtonPressed}
         disabled={!isAmountValid || buttonLoading}
       />
     </SafeAreaView>
