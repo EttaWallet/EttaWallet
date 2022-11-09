@@ -47,3 +47,7 @@ export function useBtcToLocalAmount(btcAmount: BigNumber): BigNumber | null {
 
   return btcAmount.multipliedBy(btcUSDPrice).multipliedBy(usdExchangeRate);
 }
+
+export const getCurrencySymbol = (currency: string) => {
+  return LocalCurrencySymbol[currency];
+};

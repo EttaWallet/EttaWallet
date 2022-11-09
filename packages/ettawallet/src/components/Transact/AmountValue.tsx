@@ -8,9 +8,12 @@ import SwapInput from '../../icons/Swap';
 import colors from '../../styles/colors';
 import fontStyles from '../../styles/fonts';
 import { EttaStorageContext } from '../../../storage/context';
-import { LocalCurrencySymbol } from '../../utils/currency';
 import { DEFAULT_CURRENCY_CODE } from '../../config';
-import { useBtcToLocalAmount } from '../../utils/currency';
+import {
+  useBtcToLocalAmount,
+  getCurrencySymbol,
+  LocalCurrencySymbol,
+} from '../../utils/currency';
 
 const DEFAULT_DISPLAY_DECIMALS = 2;
 
@@ -53,10 +56,6 @@ const AmountValue = ({
   const { t } = useTranslation();
 
   const { prefferedCurrency, btcCurrency } = useContext(EttaStorageContext);
-
-  const getCurrencySymbol = currency => {
-    return LocalCurrencySymbol[currency];
-  };
 
   const localCurrencyCode = prefferedCurrency || DEFAULT_CURRENCY_CODE;
   const localCurrencySymbol = getCurrencySymbol(prefferedCurrency);

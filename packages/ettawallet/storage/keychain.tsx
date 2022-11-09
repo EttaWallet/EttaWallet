@@ -3,7 +3,6 @@ import * as Keychain from 'react-native-keychain';
 import Logger from '../src/utils/logger';
 
 const TAG = 'storage/keychain';
-// the user cancelled error strings are OS specific
 const KEYCHAIN_USER_CANCELLED_ERRORS = [
   'user canceled the operation',
   'error: code: 13, msg: cancel',
@@ -24,7 +23,7 @@ export function isUserCancelledError(error: Error) {
 
 export async function storeItem({ key, value, options = {} }: SecureStorage) {
   try {
-    const result = await Keychain.setGenericPassword('CELO', value, {
+    const result = await Keychain.setGenericPassword('ETTA', value, {
       service: key,
       accessible: Keychain.ACCESSIBLE.ALWAYS_THIS_DEVICE_ONLY,
       rules: Keychain.SECURITY_RULES.NONE,
@@ -34,7 +33,6 @@ export async function storeItem({ key, value, options = {} }: SecureStorage) {
       throw new Error('Store result false');
     }
 
-    // check that we can correctly read the keychain before proceeding
     const retrievedResult = await retrieveStoredItem(key);
     if (retrievedResult !== value) {
       await removeStoredItem(key);
@@ -69,7 +67,6 @@ export async function retrieveStoredItem(
     return item.password;
   } catch (error) {
     if (!isUserCancelledError(error)) {
-      // triggered when biometry verification fails and user cancels the action
       Logger.error(TAG, 'Error retrieving stored item', error, true);
     }
     throw error;

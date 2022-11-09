@@ -63,7 +63,7 @@ const SetPinCode = () => {
   const onCompletePin2 = async pin2 => {
     if (isPin1Valid(pin1) && isPin2Valid(pin2)) {
       setPhonePin(pin2); // update context
-      navigate('TabRoot'); // ideally, user would set up biometrics first, but lets setup seed phrase first.
+      navigate('TabsRoot'); // ideally, user would set up biometrics first, but lets setup seed phrase first.
     } else {
       setIsVerifying(false);
       // reset all other PINs if no match

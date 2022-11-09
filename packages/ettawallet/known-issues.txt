@@ -1,6 +1,15 @@
-// Cipher-base error
-currently cipher-base, a dependency of create-hash requires stream. 
-Was able to install the necessary cryptographic utilities but app fails at runtime.
-To fix the issue, I directly edited ../node_module/cipher-base/index.js, changing 'stream' to 'readable-stream'.
+General Issues
 
-I have patch-packages installed, but for some reason, I can't get it to work in the lerna workspace, ergo @TODO
+// Cipher-base error: currently cipher-base, a dependency of create-hash requires stream. 
+    Fix: Updated the node_module file, changing the requirement from "stream" to "readable-stream" and generated a patch
+
+
+IOS-only Issues
+
+// PhaseScriptExecution failed with a nonzero exit code within bdk-rn package causing Build failure in xcode
+    Fix: In Xcode: - Pods -> Targets -> bdk-rn -> Build Phases -> Copy XCFrameworks -> check "for install builds only"
+
+// Undefined symbols error from RNSecureRandom. 
+    - Fix: Inside react-native-securerandom folder in node_modules, find RNSecureRandom.podspec, change s.dependency from "React" to "React-Core". Then generated a patch and reinstalled Pods
+
+Android-only Issues

@@ -111,6 +111,21 @@
         }
     },
     "sendBitcoin": {
-        "nextBtn": "Next"
-    }
+        "nextBtn": "Next",
+        "confirmation": {
+            "headerTitle": "Confirm transaction",
+            "title": "Send Bitcoin",
+            "amountLabel": "Amount in BTC",
+            "localAmountLabel": "Amount in {{ localCurrency }}",
+            "addNote": "Add note to self",
+            "fees": "Fees",
+            "sendBtn": "Send Bitcoin"
+        }
+    },
+    "walletHome": {
+        "totalBalanceHeader": "Total balance",
+        "recentActivityHeader": "Recent Activity"
+    },
+    "addNote": "Add note to self",
+    "selectFees": "Select Fees"
 }

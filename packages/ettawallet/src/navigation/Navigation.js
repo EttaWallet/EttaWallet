@@ -16,6 +16,10 @@ import LanguageChooser from '../screens/LanguageChooser';
 import SendBitcoin from '../screens/SendBitcoinScreen';
 import ReceiveBitcoin from '../screens/ReceiveBitcoinScreen';
 import ProtectWallet from '../screens/ProtectWalletScreen';
+import SendBitcoinConfirmation, {
+  sendConfirmationScreenNavOptions,
+} from '../screens/SendBitcoinConfirmationScreen';
+import WalletHome from '../screens/WalletHomeScreen';
 
 const OnboardingStack = createNativeStackNavigator();
 
@@ -86,10 +90,15 @@ const UnlockAppRoot = () => (
 
 const InitStack = createNativeStackNavigator();
 const InitRoot = () => (
-  <InitStack.Navigator initialRouteName="OnboardingRoot">
+  <InitStack.Navigator initialRouteName="TabsRoot">
     <InitStack.Screen
       name="OnboardingRoot"
       component={OnboardingRoot}
+      options={{ headerShown: false }}
+    />
+    <InitStack.Screen
+      name="SendRoot"
+      component={SendRoot}
       options={{ headerShown: false }}
     />
     <InitStack.Screen
@@ -136,7 +145,7 @@ const TabsStack = createBottomTabNavigator();
 const TabsRoot = () => {
   return (
     <TabsStack.Navigator
-      initialRouteName="SendBitcoin"
+      initialRouteName="WalletHome"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#F7931A',
@@ -145,6 +154,20 @@ const TabsRoot = () => {
         tabBarLabelStyle: { fontSize: 12, paddingBottom: 8 },
       }}
     >
+      <TabsStack.Screen
+        name="WalletHome"
+        component={WalletHome}
+        options={{
+          tabBarLabel: 'Home',
+          tabBarIcon: ({ focused }) => (
+            <Icon
+              name="icon-home-2"
+              size="kilo"
+              fontColor={focused ? 'orange' : 'dark'}
+            />
+          ),
+        }}
+      />
       <TabsStack.Screen
         name="SendBitcoin"
         component={SendBitcoin}
@@ -202,6 +225,19 @@ const TabsRoot = () => {
         }}
       />
     </TabsStack.Navigator>
+  );
+};
+
+const SendStack = createNativeStackNavigator();
+const SendRoot = () => {
+  return (
+    <SendStack.Navigator screenOptions={{ headerHideShadow: true }}>
+      <SendStack.Screen
+        name="SendBitcoinConfirmation"
+        component={SendBitcoinConfirmation}
+        options={SendBitcoinConfirmation.navigationOptions}
+      />
+    </SendStack.Navigator>
   );
 };
 

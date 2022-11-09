@@ -38,12 +38,6 @@ class Logger {
     this.networkErrors = DEFAULT_SENTRY_NETWORK_ERRORS || [];
   }
 
-  /**
-   * Note: A good `tag` will consist of filename followed by the method name.
-   * For example, `CeloAnalytics/track`
-   * In case the file name is ambigous, add the parent directory name to it.
-   * For example, `send/actions/refreshGasPrice` since there are many actions.ts files.
-   */
   debug = (tag: string, ...messages: any[]) => {
     if (this.level < LoggerLevel.Debug) {
       return;
@@ -91,21 +85,12 @@ class Logger {
         level: 'error' as SeverityLevel,
         extra: {
           tag,
-          // TODO: the toString() can be removed after upgrading TS to v4. It is
-          // needed for now because the try/catch errors are typed as any, and we
-          // don't get warnings from calling this function like
-          // `Logger.error(TAG, error)`
           message: message?.toString(),
           errorMsg,
           source: 'Logger.error',
           networkConnected: this.isNetworkConnected,
         },
       };
-
-      // If we don't have an error object call Sentry.captureMessage. That will
-      // group events without an error by message (accounting for some parameters
-      // in the message). Sentry.captureException sentry will group all events
-      // without an error object together.
       if (error) {
         Sentry.captureException(error, captureContext);
       } else {
@@ -128,7 +113,6 @@ class Logger {
     this.networkErrors = errors;
   };
 
-  // TODO: see what to do with this on iOS since there's not native toast
   showMessage = (message: string) => {
     Toast.showWithGravity(message, Toast.SHORT, Toast.BOTTOM);
     this.debug('Toast', message);

@@ -12,3 +12,5 @@ export const DEFAULT_APP_LANGUAGE = 'en-US';
 export const APP_NAME = 'Etta Wallet';
 
 export const DEFAULT_CURRENCY_CODE = 'UGX';
+
+export const MAX_COMMENT_LENGTH = 70;

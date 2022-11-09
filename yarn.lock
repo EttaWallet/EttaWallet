@@ -2633,6 +2633,10 @@
     sudo-prompt "^9.0.0"
     wcwidth "^1.0.1"
 
+"@react-native-community/clipboard@git+https://github.com/crukundo/react-native-clipboard#5afb848":
+  version "1.2.3"
+  resolved "git+https://github.com/crukundo/react-native-clipboard#5afb8484215495bce475efb8da24e65339e21164"
+
 "@react-native-masked-view/masked-view@^0.2.6":
   version "0.2.8"
   resolved "https://registry.yarnpkg.com/@react-native-masked-view/masked-view/-/masked-view-0.2.8.tgz#34405a4361882dae7c81b1b771fe9f5fbd545a97"

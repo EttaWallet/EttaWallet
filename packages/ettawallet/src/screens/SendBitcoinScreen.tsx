@@ -2,7 +2,6 @@ import BigNumber from 'bignumber.js';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
-import { IconTextButton } from '@ettawallet/react-native-kit';
 import { getNumberFormatSettings } from 'react-native-localize';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AmountKeyPad from '../components/Transact/AmountKeyPad';
@@ -13,6 +12,7 @@ import variables from '../styles/variables';
 import { useBtcToLocalAmount, useLocalToBtcAmount } from '../utils/currency';
 import WalletHeader from '../navigation/headers/WalletHeader';
 import Button, { BtnSizes, BtnTypes } from '../components/Button';
+import { navigate } from '../navigation/NavigationService';
 
 const BTC_MAX_DECIMALS = 8;
 const NUMBER_INPUT_MAX_DECIMALS = 2;
@@ -84,8 +84,7 @@ const SendBitcoin = props => {
   const [amount, setAmount] = useState('');
   const [rawAmount, setRawAmount] = useState('');
   const [usingLocalAmount, setUsingLocalAmount] = useState(true);
-  const isOutgoingPaymentRequest = true;
-  const [reviewButtonPressed, setReviewButtonPressed] = useState(false);
+  const [nextButtonPressed, setNextButtonPressed] = useState(false);
 
   const showInputInLocalAmount = usingLocalAmount;
 
@@ -110,22 +109,20 @@ const SendBitcoin = props => {
     onAmountChange('');
   }, []);
 
-  const onSend = () => {
-    return 0;
-  };
-
-  const onRequest = () => {
-    return 0;
+  const onSend = transactionData => {
+    navigate('SendRoot', {
+      transactionData: transactionData as TransactionDataInput,
+    });
   };
 
   useEffect(() => {
-    if (reviewButtonPressed) {
-      isOutgoingPaymentRequest ? onRequest() : onSend();
-      setReviewButtonPressed(false);
+    if (nextButtonPressed) {
+      onSend();
+      setNextButtonPressed(false);
     }
-  }, [reviewButtonPressed]);
+  }, [nextButtonPressed]);
 
-  const onButtonPressed = () => setReviewButtonPressed(true);
+  const onButtonPressed = () => setNextButtonPressed(true);
 
   const isAmountValid =
     localAmount?.isGreaterThanOrEqualTo(MIN_BTC_AMOUNT) ?? true;
@@ -135,7 +132,7 @@ const SendBitcoin = props => {
     setRawAmount(updatedAmount);
   };
 
-  const buttonLoading = reviewButtonPressed;
+  const buttonLoading = nextButtonPressed;
 
   return (
     <SafeAreaView style={styles.container}>
