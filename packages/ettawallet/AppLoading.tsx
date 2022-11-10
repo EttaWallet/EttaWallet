@@ -50,7 +50,6 @@ export class AppLoading extends React.Component<Props, State> {
               onPress={restartApp}
               text={t(RESTART_APP_I18N_KEY)}
               type={BtnTypes.PRIMARY}
-              testID="RestartButton"
             />
           )}
         </View>

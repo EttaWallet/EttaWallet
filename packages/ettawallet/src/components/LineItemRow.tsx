@@ -29,30 +29,19 @@ const LineItemRow = ({
   titleIcon,
   isLoading,
   hasError,
-  testID,
 }: LineItemProps) => {
   const textStyle = [styles.text, textStyleProp];
 
   return (
     <View style={[styles.container, style]}>
       <View style={styles.description}>
-        <Text testID={`LineItemRowTitle/${testID}`} style={textStyle}>
-          {title}
-        </Text>
+        <Text style={textStyle}>{title}</Text>
         {titleIcon}
       </View>
-      {!!amount && (
-        <Text style={textStyle} testID={`LineItemRow/${testID}`}>
-          {amount}
-        </Text>
-      )}
-      {hasError && (
-        <Text style={textStyle} testID={`LineItemRow/${testID}`}>
-          ---
-        </Text>
-      )}
+      {!!amount && <Text style={textStyle}>{amount}</Text>}
+      {hasError && <Text style={textStyle}>---</Text>}
       {isLoading && (
-        <View style={styles.loadingContainer} testID="LineItemLoading">
+        <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color={colors.greenBrand} />
         </View>
       )}

@@ -85,12 +85,11 @@ const BottomSheet = ({ children, isVisible, onBackgroundPress }: Props) => {
   const paddingBottom = Math.max(safeAreaInsets.bottom, Spacing.Thick24);
 
   return (
-    <View style={styles.container} testID="BottomSheetContainer">
+    <View style={styles.container}>
       <Animated.View style={[styles.background, animatedOpacity]}>
         <TouchableWithoutFeedback
           style={styles.backgroundTouchable}
           onPress={onBackgroundPress}
-          testID={'BackgroundTouchable'}
         />
       </Animated.View>
       <Animated.ScrollView

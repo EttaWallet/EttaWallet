@@ -141,7 +141,6 @@ export const HeaderTitleWithSubtitle = ({
     <View style={styles.header}>
       {title && (
         <Text
-          testID="HeaderTitle"
           style={styles.headerTitle}
           numberOfLines={1}
           allowFontScaling={false}
@@ -151,7 +150,6 @@ export const HeaderTitleWithSubtitle = ({
       )}
       {subTitle && (
         <Text
-          testID="HeaderSubTitle"
           style={styles.headerSubTitle}
           numberOfLines={1}
           allowFontScaling={false}

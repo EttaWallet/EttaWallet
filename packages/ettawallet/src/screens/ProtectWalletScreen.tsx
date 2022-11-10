@@ -62,7 +62,6 @@ const ProtectWallet = () => {
           })}
           size={BtnSizes.MEDIUM}
           type={BtnTypes.ONBOARDING}
-          testID="EnableBiometryButton"
         />
       )}
       {!phonePin && (
