@@ -8,7 +8,6 @@ export enum LocalCurrencyCode {
   RWF = 'RWF',
   UGX = 'UGX',
   USD = 'USD',
-  XOF = 'XOF',
   XAF = 'XAF',
   ZAR = 'ZAR',
 }
@@ -21,7 +20,6 @@ export enum LocalCurrencySymbol {
   UGX = 'UGX',
   USD = '$',
   XAF = 'FCFA',
-  XOF = 'CFA',
   ZAR = 'R',
 }
 

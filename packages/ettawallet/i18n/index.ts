@@ -8,6 +8,8 @@ import {
 import { APP_NAME, DEFAULT_APP_LANGUAGE } from '../src/config';
 import locales from './locales';
 
+export const STORAGE_KEY = 'lang';
+
 function getAvailableResources(cachedTranslations: Resource) {
   const resources: Resource = {};
   for (const [language, value] of Object.entries(locales)) {

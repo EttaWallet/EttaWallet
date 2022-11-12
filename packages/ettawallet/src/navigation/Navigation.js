@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Icon } from '@ettawallet/react-native-kit';
 import WelcomeScreen from '../screens/WelcomeScreen';
-import RecoveryPhraseSlides from '../screens/RecoveryPhraseSlides';
+import RecoveryPhraseIntro from '../screens/RecoveryPhraseIntro';
 import WriteRecoveryPhrase from '../screens/WriteRecoveryPhrase';
 import ManualBackupQuiz, {
   navOptionsForQuiz,
@@ -41,9 +41,9 @@ const OnboardingRoot = () => {
       />
       <OnboardingStack.Screen name="WelcomeScreen" component={WelcomeScreen} />
       <OnboardingStack.Screen
-        name="RecoveryPhraseSlides"
-        component={RecoveryPhraseSlides}
-        options={RecoveryPhraseSlides.navOps}
+        name="RecoveryPhraseIntro"
+        component={RecoveryPhraseIntro}
+        options={RecoveryPhraseIntro.navOps}
       />
       <OnboardingStack.Screen
         name="WriteRecoveryPhrase"
@@ -90,7 +90,7 @@ const UnlockAppRoot = () => (
 
 const InitStack = createNativeStackNavigator();
 const InitRoot = () => (
-  <InitStack.Navigator initialRouteName="TabsRoot">
+  <InitStack.Navigator initialRouteName="OnboardingRoot">
     <InitStack.Screen
       name="OnboardingRoot"
       component={OnboardingRoot}
@@ -120,7 +120,7 @@ const SettingsRoot = () => {
     <SettingsStack.Screen
       name="Language"
       component={LanguageChooser}
-      options={LanguageChooser.navigationOptions(false)}
+      options={{ headerShown: false }}
     />
   </SettingsStack.Navigator>;
 };
@@ -134,8 +134,8 @@ const animatedModalRoot = () => {
       options={EnterPinCode.navigationOptions}
     />
     <AnimatedModalStack.Screen
-      name="RecoveryPhraseSlides"
-      component={RecoveryPhraseSlides}
+      name="RecoveryPhraseIntro"
+      component={RecoveryPhraseIntro}
     />
   </>;
 };

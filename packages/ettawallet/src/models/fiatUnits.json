@@ -1,0 +1,50 @@
+{
+    "USD": {
+        "endPointKey": "USD",
+        "locale": "en-US",
+        "source": "CoinDesk",
+        "symbol": "$"
+    },
+    "GHS": {
+        "endPointKey": "GHS",
+        "locale": "en-GH",
+        "source": "CoinDesk",
+        "symbol": "GH₵"
+    },
+    "KES": {
+        "endPointKey": "KES",
+        "locale": "en-KE",
+        "source": "CoinDesk",
+        "symbol": "Ksh"
+    },
+    "NGN": {
+        "endPointKey": "NGN",
+        "locale": "en-NG",
+        "source": "CoinDesk",
+        "symbol": "₦"
+    },
+    "RWF": {
+        "endPointKey": "RWF",
+        "locale": "en-RW",
+        "source": "CoinDesk",
+        "symbol": "FRw"
+    },
+    "TZS": {
+        "endPointKey": "TZS",
+        "locale": "en-TZ",
+        "source": "CoinDesk",
+        "symbol": "TSh"
+    },
+    "UGX": {
+        "endPointKey": "UGX",
+        "locale": "en-UG",
+        "source": "CoinDesk",
+        "symbol": "USh"
+    },
+    "ZAR": {
+        "endPointKey": "ZAR",
+        "locale": "en-ZA",
+        "source": "CoinDesk",
+        "symbol": "R"
+    }
+}

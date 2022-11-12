@@ -11,15 +11,24 @@ import RecoveryPhraseContainer, {
   RecoveryPhraseType,
 } from '../components/RecoveryPhraseContainer';
 import fontStyles from '../styles/fonts';
-import { ScrollView, View, StyleSheet, Platform } from 'react-native';
+import {
+  ScrollView,
+  View,
+  StyleSheet,
+  Platform,
+  ActivityIndicator,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { navigate } from '../navigation/NavigationService';
+import colors from '../styles/colors';
 
 const WriteRecoveryPhrase = () => {
   const { t } = useTranslation();
   const { mnemonic } = useContext(EttaStorageContext);
   const [checked, setChecked] = useState(false);
+
+  const showLoadingIndicator = !mnemonic;
 
   const onPressConfirmSwitch = value => {
     setChecked(value);
@@ -47,11 +56,16 @@ const WriteRecoveryPhrase = () => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {mnemonic ? (
           <>
-            <RecoveryPhraseContainer
-              value={mnemonic}
-              mode={RecoveryPhraseContainerMode.READONLY}
-              type={RecoveryPhraseType.BACKUP_KEY}
-            />
+            {showLoadingIndicator ? (
+              <ActivityIndicator size="small" color={colors.greenUI} />
+            ) : (
+              <RecoveryPhraseContainer
+                value={mnemonic}
+                mode={RecoveryPhraseContainerMode.READONLY}
+                type={RecoveryPhraseType.BACKUP_KEY}
+              />
+            )}
+
             <Text
               style={styles.body}
               fontWeight="normal"
@@ -102,7 +116,7 @@ const HeaderRight = () => {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const onMoreInfoPressed = () => {
-    navigation.push('RecoveryPhraseSlides');
+    navigation.push('RecoveryPhraseIntro');
   };
   return (
     <TopBarTextButton

@@ -1,4 +1,9 @@
 {
+  "cancel": "Cancel",
+  "ok": "Okay",
+  "badPassword": "Incorrect password. Please try again.",
+  "enterPassword": "Enter password",
+  "storageIsEncrypted": "Your storage is encrypted. Password is required to decrypt it.",
   "selectLanguage": "Select Language",
   "welcome": {
     "subtitle": "Bitcoin is for all of us",
@@ -38,24 +43,14 @@
     "pinCodeGuide": "Your PIN is how you’ll secure your wallet.",
     "selectPIN": "Select PIN"
   },
-  "recoveryPhraseSlides": {
-    "slide1": {
-      "title": "Good job! Now let's create your recovery phrase",
-      "text": "Your recovery phrase is a group of 12 random words. It is the only way to access your wallet if your phone is lost or stolen."
-    },
-    "slide2": {
-      "title": "If you lose your recovery phrase, you will no longer be able to access your wallet",
-      "text": "Never share your recovery phrase with anyone. Anyone who has it can access your funds."
-    },
-    "slide3": {
-      "title": "Keep your recovery phrase in a safe place",
-      "text": "We recommend writing these words down in order on a piece of paper and storing it somewhere safe that you will remember."
-    },
-    "labels": {
-      "done": "I understand ✅",
-      "previous": "Back",
-      "next": "Next"
-    }
+  "recoveryPhraseIntro": {
+    "title": "Let's create your recovery phrase",
+    "subtitle": "Pay attention, this is important!",
+    "fact1": "A recovery phrase is a group of 12 random words.",
+    "fact2": "It is the only way to access your wallet if your phone is lost or stolen.",
+    "fact3": "Never share your recovery phrase with anyone. Anyone who has it can access your funds.",
+    "fact4": "Write these words down in order on a piece of paper and store it somewhere safe that you will remember.",
+    "ctaBtn": "Continue"
   },
   "manualBackup": {
     "inputHeader": "Your recovery phrase",
@@ -63,7 +58,9 @@
     "warning": "Write it down some place safe. We will verify this on the next page. You might be tempted to, but do not save this on your phone!",
     "writtenConfirmation": "Yes, I have written down my recovery phrase",
     "topLearnMoreBtn": "Learn more",
-    "continueBtn": "Continue"
+    "icloudBackupBtn": "Back up on iCloud",
+    "gdriveBackupBtn": "Back up on Google Drive",
+    "manualBackupBtn": "Back up manually"
   },
   "manualBackupQuiz": {
     "headerTitle": "Confirm Manual Backup",
@@ -97,5 +94,43 @@
       "text": "Well done!. \n Please keep your recovery phrase safe. Memorize it if you can."
     }
   },
-  "reviewSendTransaction": "Review transaction"
+  "protectWallet": {
+    "title": "Protect your wallet",
+    "subtitle": "Add an extra layer of security to prevent anyone from accessing your wallet and bitcoin",
+    "useBiometricsBtn": "Use {{biometryType}}",
+    "createPinBtn": "Create PIN",
+    "biometryType": {
+      "FaceID": "Face ID",
+      "TouchID": "Touch ID",
+      "Fingerprint": "Fingerprint recognition"
+    }
+  },
+  "sendBitcoin": {
+    "nextBtn": "Next",
+    "confirmation": {
+      "headerTitle": "Confirm transaction",
+      "title": "Send Bitcoin",
+      "amountLabel": "Amount in BTC",
+      "localAmountLabel": "Amount in {{ localCurrency }}",
+      "addNote": "Add note to self",
+      "fees": "Fees",
+      "sendBtn": "Send Bitcoin"
+    }
+  },
+  "walletHome": {
+    "totalBalanceHeader": "Total balance",
+    "recentActivityHeader": "Recent Activity"
+  },
+  "addNote": "Add note to self",
+  "selectFees": "Select Fees",
+  "biometrics": {
+    "confirmIdentity": "Please confirm your identity",
+    "encryptStorage": "Storage",
+    "removeDecrypt": "All your wallets will be removed and your storage will be decrypted. Are you sure you want to proceed?",
+    "noPasscode": "Your device does not have a passcode. In order to proceed, please configure a passcode in the Settings app.",
+    "triedTenTimes": "You have attempted to enter your password 10 times. Would you like to reset your storage? This will remove all wallets and decrypt your storage."
+  },
+  "alerts": {
+    "default": "Alert"
+  }
 }

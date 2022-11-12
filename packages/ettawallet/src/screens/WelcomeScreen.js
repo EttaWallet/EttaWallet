@@ -36,7 +36,7 @@ const WelcomeScreen = () => {
         color="primary"
         variant="filled"
         tone="orange"
-        onPress={() => navigate('RecoveryPhraseSlides')}
+        onPress={() => navigate('RecoveryPhraseIntro')}
       >
         <Text fontWeight="normal" fontColor="light">
           {t('welcome.createNewWallet')}

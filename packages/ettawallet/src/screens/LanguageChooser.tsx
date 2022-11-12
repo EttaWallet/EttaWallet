@@ -37,7 +37,7 @@ const LanguageChooser = ({ route }) => {
     requestAnimationFrame(() => {
       !completedOnboardingSlides // check if all slides seen
         ? navigate(nextScreen || 'OnboardingSlides')
-        : navigate(nextScreen || 'RecoveryPhraseSlides');
+        : navigate(nextScreen || 'RecoveryPhraseIntro');
     });
   };
 
