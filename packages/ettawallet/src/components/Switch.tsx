@@ -16,5 +16,5 @@ export default function Switch(props: SwitchProps) {
 
 const SWITCH_TRACK = {
   false: colors.gray3,
-  true: colors.greenUI,
+  true: colors.orangeUI,
 };

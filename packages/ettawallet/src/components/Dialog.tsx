@@ -70,7 +70,7 @@ export default function Dialog({
           <ActivityIndicator
             style={styles.primary}
             size="small"
-            color={colors.greenUI}
+            color={colors.orangeUI}
           />
         ) : (
           <>

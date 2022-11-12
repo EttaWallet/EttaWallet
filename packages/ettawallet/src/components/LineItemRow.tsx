@@ -42,7 +42,7 @@ const LineItemRow = ({
       {hasError && <Text style={textStyle}>---</Text>}
       {isLoading && (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color={colors.greenBrand} />
+          <ActivityIndicator size="small" color={colors.orangeBrand} />
         </View>
       )}
     </View>

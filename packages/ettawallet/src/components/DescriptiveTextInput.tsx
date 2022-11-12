@@ -24,7 +24,7 @@ const DescriptiveTextInput = ({ onCommentChange, comment, onBlur }: Props) => {
       onChangeText={onCommentChange}
       value={comment}
       placeholder={t('addNote')}
-      placeholderTextColor={colors.greenUI}
+      placeholderTextColor={colors.orangeUI}
       returnKeyType={'done'}
       onBlur={onBlur}
       blurOnSubmit={true}

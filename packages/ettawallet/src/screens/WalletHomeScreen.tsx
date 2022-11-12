@@ -40,7 +40,7 @@ const WalletHome = () => {
     <RefreshControl
       refreshing={isLoading}
       onRefresh={onRefresh}
-      colors={[colors.greenUI]}
+      colors={[colors.orangeUI]}
     />
   ) as React.ReactElement<RefreshControlProps>;
 

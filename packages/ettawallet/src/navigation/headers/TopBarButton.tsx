@@ -67,7 +67,7 @@ export function TopBarTextButton(props: TopBarTextButtonProps) {
 const styles = StyleSheet.create({
   text: {
     ...fontStyles.regular,
-    color: colors.greenUI,
+    color: colors.orangeUI,
     paddingHorizontal: Spacing.Thick24,
   },
 });

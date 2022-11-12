@@ -5,7 +5,7 @@ import { Text } from '@ettawallet/react-native-kit';
 import Switch from '../components/Switch';
 import Button, { BtnSizes, BtnTypes } from '../components/Button';
 import CancelButton from '../components/CancelButton';
-import { TopBarTextButton } from '../navigation/headers/TopBarButton';
+import Pill from '../components/Pill';
 import RecoveryPhraseContainer, {
   RecoveryPhraseContainerMode,
   RecoveryPhraseType,
@@ -57,7 +57,7 @@ const WriteRecoveryPhrase = () => {
         {mnemonic ? (
           <>
             {showLoadingIndicator ? (
-              <ActivityIndicator size="small" color={colors.greenUI} />
+              <ActivityIndicator size="small" color={colors.orangeUI} />
             ) : (
               <RecoveryPhraseContainer
                 value={mnemonic}
@@ -103,7 +103,7 @@ const WriteRecoveryPhrase = () => {
           disabled={!checked}
           text={t('manualBackup.manualBackupBtn')}
           size={BtnSizes.FULL}
-          type={BtnTypes.TERTIARY}
+          type={BtnTypes.ONBOARDING_SECONDARY}
           onPress={onPressManualBackup}
           style={{ marginBottom: 10 }}
         />
@@ -119,9 +119,9 @@ const HeaderRight = () => {
     navigation.push('RecoveryPhraseIntro');
   };
   return (
-    <TopBarTextButton
+    <Pill
+      text={t('manualBackup.topLearnMoreBtn')}
       onPress={onMoreInfoPressed}
-      title={t('manualBackup.topLearnMoreBtn')}
     />
   );
 };

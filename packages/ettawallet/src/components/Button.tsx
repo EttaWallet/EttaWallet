@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   rounded: {
-    borderRadius: 100,
+    borderRadius: 5,
   },
   button: {
     alignItems: 'center',
@@ -147,7 +147,7 @@ function getColors(type: BtnTypes, disabled: boolean | undefined) {
   switch (type) {
     case BtnTypes.PRIMARY:
       textColor = colors.light;
-      backgroundColor = disabled ? colors.greenFaint : colors.greenUI;
+      backgroundColor = disabled ? colors.orangeFaint : colors.orangeUI;
       break;
     case BtnTypes.SECONDARY:
       textColor = disabled ? colors.gray4 : colors.dark;

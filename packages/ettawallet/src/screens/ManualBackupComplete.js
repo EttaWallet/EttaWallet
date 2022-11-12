@@ -42,7 +42,7 @@ const ManualBackupComplete = () => {
         style={{ alignSelf: 'center', marginTop: 50 }}
         width={100}
         height={100}
-        color={colors.greenUI}
+        color={colors.orangeUI}
       />
       <Text
         style={{ textAlign: 'center', marginBottom: 10 }}

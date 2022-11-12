@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   mnemonicWordButtonOutterRim: {
     borderRadius: 100,
     borderWidth: 1.5,
-    borderColor: colors.greenUI,
+    borderColor: colors.orangeUI,
     overflow: 'hidden',
     marginVertical: 4,
     marginHorizontal: 4,
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   },
   mnemonicWordButonText: {
     textAlign: 'center',
-    color: colors.greenUI,
+    color: colors.orangeUI,
   },
   backWord: {
     paddingRight: 24,

@@ -30,11 +30,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     borderRadius: 15,
-    backgroundColor: colors.greenBackground,
+    backgroundColor: colors.orangeBackground,
   },
   text: {
     ...fontStyles.small600,
-    color: colors.greenUI,
+    color: colors.dark,
   },
 });
 

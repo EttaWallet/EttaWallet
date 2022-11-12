@@ -1,8 +1,11 @@
 // Designer Created Figma Colors
 export enum Colors {
   greenFaint = '#97DFC1', // green disabled
+  orangeFaint = '#FAC898',
+  orangeBrand = '#F7931A',
   greenBrand = '#42D689',
   greenUI = '#1AB775',
+  orangeUI = '#F89B2A',
   goldFaint = '#E3C376', // gold disabled
   goldBrand = '#FBCC5C',
   goldUI = '#EEB93C',
@@ -30,6 +33,7 @@ export enum Colors {
   modalBackdrop = '#1B392F',
 
   greenBackground = '#DEF8EA',
+  orangeBackground = '#FAD6A5',
   greenStrong = '#08CB7A',
   lightGreen = '#E6F7EC',
 

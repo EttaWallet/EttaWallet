@@ -28,7 +28,7 @@ const FeeSelector = ({ feeOption, onChangeFee }: Props) => {
         <Text allowFontScaling={false} style={styles.fee}>
           {feeInfo?.label} - {feeInfo?.amount} sats
         </Text>
-        <DownArrowIcon height={16} color={colors.greenUI} />
+        <DownArrowIcon height={16} color={colors.orangeUI} />
       </View>
     </Touchable>
   );
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
   fee: {
     paddingVertical: 8,
     paddingLeft: 8,
-    color: colors.greenUI,
+    color: colors.orangeUI,
   },
 });
 
