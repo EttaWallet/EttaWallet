@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from '@ettawallet/react-native-kit';
 import Button, { BtnSizes, BtnTypes } from '../components/Button';
@@ -9,12 +9,24 @@ import * as Keychain from 'react-native-keychain';
 import { Spacing } from '../styles/styles';
 import Logger from '../utils/logger';
 import { EttaStorageContext } from '../../storage/context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { USER_PASSCODE_STORAGE_KEY } from '../../storage/consts';
 
 const ProtectWallet = () => {
   const [hasBiometrics, setHasBiometrics] = useState(false);
-  const { setSupportedBiometrics, supportedBiometrics, phonePin } =
+  const [userPasscode, setUserPasscode] = useState('');
+  const { setSupportedBiometrics, supportedBiometrics } =
     useContext(EttaStorageContext);
   const { t } = useTranslation();
+
+  const getPasscode = async () => {
+    const savedPasscode = await AsyncStorage.getItem(USER_PASSCODE_STORAGE_KEY);
+    setUserPasscode(savedPasscode || '');
+  };
+
+  useEffect(() => {
+    getPasscode();
+  }, []);
 
   const getSupportedBiometryType = async () => {
     const biometrics = await Keychain.getSupportedBiometryType();
@@ -64,7 +76,7 @@ const ProtectWallet = () => {
           type={BtnTypes.ONBOARDING}
         />
       )}
-      {!phonePin && (
+      {!userPasscode && (
         <Button
           text={t('protectWallet.createPinBtn')}
           size={BtnSizes.FULL}

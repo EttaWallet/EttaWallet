@@ -48,9 +48,14 @@ export class RecoveryPhraseContainer extends React.Component<Props> {
           )}
         </View>
         {mode === RecoveryPhraseContainerMode.READONLY && (
-          /* Convert this container into a well number list of words in 2 columns and 6 rows */
+          /* @TODO: Convert this container into a well number list of words in 2 columns and 6 rows */
           <View style={styles.phraseContainer}>
-            {!!words && <Text style={styles.phraseText}>{words}</Text>}
+            {!!words && (
+              <>
+                <Text>{words.length}</Text>
+                <Text style={styles.phraseText}>{words}</Text>
+              </>
+            )}
           </View>
         )}
         {mode === RecoveryPhraseContainerMode.INPUT && (

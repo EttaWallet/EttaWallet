@@ -8,6 +8,8 @@ import progressDots from '../styles/progressDots';
 import { EttaStorageContext } from '../../storage/context';
 import { navigate } from '../navigation/NavigationService';
 import { useTranslation } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ONBOARDING_SLIDES_COMPLETED } from '../../storage/consts';
 
 const OnboardingSlides = () => {
   const { completedOnboardingSlides, setCompletedOnboardingSlides } =
@@ -43,7 +45,7 @@ const OnboardingSlides = () => {
         {index < 2 && (
           <TouchableOpacity
             style={styles.skip}
-            onPress={() => navigate('Welcome')}
+            onPress={() => navigate('WelcomeScreen')}
           >
             <Cross width={30} height={30} color="#000000" />
           </TouchableOpacity>
@@ -61,10 +63,17 @@ const OnboardingSlides = () => {
   };
   const _keyExtractor = item => item.key;
 
+  const markSlidesSeen = async () => {
+    try {
+      await AsyncStorage.setItem(ONBOARDING_SLIDES_COMPLETED, 'true');
+    } catch (e) {
+      console.log('something went wrong here');
+    }
+  };
+
   const finishedSlides = () => {
-    if (!completedOnboardingSlides) {
-      setCompletedOnboardingSlides(true);
-    } // update context
+    setCompletedOnboardingSlides(true);
+    markSlidesSeen(); // save to disk
     navigate('WelcomeScreen');
   };
 

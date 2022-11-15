@@ -8,12 +8,13 @@ import AsyncStorage, {
 import { FiatUnit } from '../src/models/fiatUnit';
 const EttaApp = require('../EttaApp');
 const currency = require('./currency');
-import { LANG_STORAGE_KEY } from '../i18n/useChangeLanguage';
+import {
+  LANG_STORAGE_KEY,
+  MNEMONIC_STORAGE_KEY,
+  BDK_WALLET_STORAGE_KEY,
+} from './consts';
 
 export const EttaStorageContext = createContext();
-
-export const MNEMONIC_STORAGE_KEY = '@seed';
-export const BDK_WALLET_STORAGE_KEY = '@wallet0';
 
 export const EttaStorageProvider = ({ children }) => {
   const [minRequiredVersion, setMinRequiredVersion] = useState('0.1.0');
@@ -128,8 +129,11 @@ export const EttaStorageProvider = ({ children }) => {
   const cachedPassword = EttaApp.cachedPassword;
   const setDoNotTrack = EttaApp.setDoNotTrack;
   const isDoNotTrackEnabled = EttaApp.isDoNotTrackEnabled;
-  const getItem = EttaApp.getItem;
-  const setItem = EttaApp.setItem;
+  const areOnboardingSlidesCompleted = EttaApp.areOnboardingSlidesCompleted;
+  const isUserLanguageSet = EttaApp.isUserDefaultLanguageSet;
+  const isDefaultWalletAvailable = EttaApp.isDefaultWalletAvailable;
+  const getItemFromKeychain = EttaApp.getItem;
+  const setItemInKeychain = EttaApp.setItem;
 
   return (
     <EttaStorageContext.Provider
@@ -141,8 +145,8 @@ export const EttaStorageProvider = ({ children }) => {
         getMnemonic,
         createWallet,
         saveToDisk,
-        setItem,
-        getItem,
+        setItemInKeychain,
+        getItemFromKeychain,
         isStorageEncrypted,
         encryptStorage,
         startAndDecrypt,
@@ -172,6 +176,9 @@ export const EttaStorageProvider = ({ children }) => {
         setSupportedBiometrics,
         setDoNotTrack,
         isDoNotTrackEnabled,
+        areOnboardingSlidesCompleted,
+        isUserLanguageSet,
+        isDefaultWalletAvailable,
       }}
     >
       {children}

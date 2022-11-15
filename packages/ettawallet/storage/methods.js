@@ -2,6 +2,12 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  ONBOARDING_SLIDES_COMPLETED,
+  DEFAULT_LANGUAGE_IS_SET,
+  BDK_WALLET_STORAGE_KEY,
+} from './consts';
+
 const encryption = require('./encryption');
 
 let usedBucketNum = false;
@@ -9,6 +15,8 @@ let savingInProgress = 0;
 
 export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
+  static DO_NOT_TRACK = 'donottrack';
+
   constructor() {
     this.wallets = [];
     this.cachedPassword = false;
@@ -21,7 +29,7 @@ export class AppStorage {
    * @param value
    * @returns {Promise<any>|Promise<any> | Promise<void> | * | Promise | void}
    */
-  setItem = (key, value) => {
+  setItemInKeychain = (key, value) => {
     return RNSecureKeyStore.set(key, value, {
       accessible: ACCESSIBLE.WHEN_UNLOCKED,
     });
@@ -33,7 +41,7 @@ export class AppStorage {
    * @param key
    * @returns {Promise<any>|*}
    */
-  getItem = key => {
+  getItemFromKeychain = key => {
     return RNSecureKeyStore.get(key);
   };
 
@@ -249,6 +257,39 @@ export class AppStorage {
 
   setDoNotTrack = async value => {
     await AsyncStorage.setItem(AppStorage.DO_NOT_TRACK, value ? '1' : '');
+  };
+
+  /**
+   * Check whether user has seen all onboarding slides once
+   *
+   */
+  areOnboardingSlidesCompleted = async () => {
+    try {
+      return !!(await AsyncStorage.getItem(ONBOARDING_SLIDES_COMPLETED));
+    } catch (_) {}
+    return false;
+  };
+
+  /**
+   * Check whether user set a default Language at app start
+   *
+   */
+  isUserDefaultLanguageSet = async () => {
+    try {
+      return !!(await AsyncStorage.getItem(DEFAULT_LANGUAGE_IS_SET));
+    } catch (_) {}
+    return false;
+  };
+
+  /**
+   * Check whether bdk wallet exists
+   *
+   */
+  isDefaultWalletAvailable = async () => {
+    try {
+      return !!(await AsyncStorage.getItem(BDK_WALLET_STORAGE_KEY));
+    } catch (_) {}
+    return false;
   };
 
   /**

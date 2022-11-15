@@ -13,6 +13,7 @@ import colors from '../styles/colors';
 import fontStyles from '../styles/fonts';
 import { iconHitslop } from '../styles/variables';
 import { EttaStorageContext } from '../../storage/context';
+import variables from '../styles/variables';
 
 const onLearnMore = () => {
   navigate('WebViewScreen', { uri: 'www.google.com' }); // update this to go to a screen with more info

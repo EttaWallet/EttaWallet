@@ -27,7 +27,7 @@ export default function CancelConfirm({ screen }: Props) {
 
   const onProcrastinate = React.useCallback(() => {
     setOpenState(false);
-    navigate('MainArea');
+    navigate('TabsRoot');
   }, [screen, secondaryText]);
 
   return (

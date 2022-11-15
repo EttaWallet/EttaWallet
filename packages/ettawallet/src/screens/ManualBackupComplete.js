@@ -3,28 +3,41 @@
  * Users will see this component once they've completed the manual backup process succesfully. They are then redirected in 3 seconds
  */
 
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from '@ettawallet/react-native-kit';
 import { View, StyleSheet } from 'react-native';
 import { Check } from '@ettawallet/rn-bitcoin-icons/dist/filled';
 import colors from '../styles/colors';
 import { navigate } from '../navigation/NavigationService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { USER_PASSCODE_STORAGE_KEY } from '../../storage/consts';
 import { EttaStorageContext } from '../../storage/context';
 
 const ManualBackupComplete = () => {
   const { t } = useTranslation();
   const { manualBackupCompleted, phonePin, supportedBiometrics } =
     useContext(EttaStorageContext);
+  const [userPasscode, setUserPasscode] = useState('');
+
+  const checkPasscode = async () => {
+    const savedPasscode = await AsyncStorage.getItem(USER_PASSCODE_STORAGE_KEY);
+    setUserPasscode(savedPasscode);
+    console.log('setPasscode', userPasscode);
+  };
+
   useEffect(() => {
+    checkPasscode(); // check the existence of Passcode. Still not perfect.
     const timer = setTimeout(() => {
       if (manualBackupCompleted) {
-        if (!phonePin && supportedBiometrics !== null) {
+        if (!userPasscode && supportedBiometrics !== null) {
           navigate('ProtectWallet'); // should go to protect wallet
-        } else if (!phonePin && supportedBiometrics === null) {
+        } else if (!userPasscode && supportedBiometrics === null) {
           navigate('ProtectWallet'); // should go to protect wallet
-        } else if (phonePin && supportedBiometrics !== null) {
+        } else if (userPasscode && supportedBiometrics !== null) {
           navigate('ProtectWallet'); // should go to protect wallet
+        } else if (userPasscode && supportedBiometrics === null) {
+          navigate('TabsRoot'); // should go to wallet area
         } else {
           navigate('TabsRoot'); // should go to wallet area
         }

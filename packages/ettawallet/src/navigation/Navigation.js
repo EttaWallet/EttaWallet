@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Icon } from '@ettawallet/react-native-kit';
@@ -16,17 +16,57 @@ import LanguageChooser from '../screens/LanguageChooser';
 import SendBitcoin from '../screens/SendBitcoinScreen';
 import ReceiveBitcoin from '../screens/ReceiveBitcoinScreen';
 import ProtectWallet from '../screens/ProtectWalletScreen';
-import SendBitcoinConfirmation, {
-  sendConfirmationScreenNavOptions,
-} from '../screens/SendBitcoinConfirmationScreen';
+import SendBitcoinConfirmation from '../screens/SendBitcoinConfirmationScreen';
 import WalletHome from '../screens/WalletHomeScreen';
+import { EttaStorageContext } from '../../storage/context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const OnboardingStack = createNativeStackNavigator();
 
 const OnboardingRoot = () => {
+  const [initialRoute, setInitialRoute] = useState('');
+  const [userLanguageStatus, setUserLanguageStatus] = useState(false);
+  const [onboardingSlidesComplete, setOnboardingSlidesComplete] =
+    useState(false);
+  const [defaultWalletAvailable, setDefaultWalletAvailable] = useState(false);
+
+  const {
+    areOnboardingSlidesCompleted,
+    isUserLanguageSet,
+    isDefaultWalletAvailable,
+  } = useContext(EttaStorageContext);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        setUserLanguageStatus(await isUserLanguageSet());
+        setOnboardingSlidesComplete(await areOnboardingSlidesCompleted());
+        setDefaultWalletAvailable(await isDefaultWalletAvailable());
+      } catch (e) {
+        console.log(e);
+      } finally {
+        console.log(await AsyncStorage.getItem('@lang'));
+      }
+    })();
+
+    let theInitialRoute;
+    if (!userLanguageStatus) {
+      theInitialRoute = 'Language';
+    } else if (!onboardingSlidesComplete) {
+      theInitialRoute = 'OnboardingSlides';
+    } else if (!defaultWalletAvailable) {
+      theInitialRoute = 'WelcomeScreen';
+    } else {
+      theInitialRoute = 'TabsRoot';
+    }
+
+    setInitialRoute(theInitialRoute);
+    console.log(initialRoute);
+  }, [initialRoute]);
+
   return (
     <OnboardingStack.Navigator
-      initialRouteName="Language"
+      initialRouteName={initialRoute}
       screenOptions={{ headerShown: false }}
     >
       <OnboardingStack.Screen
