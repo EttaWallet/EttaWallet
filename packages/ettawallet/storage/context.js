@@ -38,6 +38,7 @@ export const EttaStorageProvider = ({ children }) => {
     currency.PREFERRED_CURRENCY
   ).getItem;
   const [btcCurrency, setBtcCurrency] = useState('BTC'); // BTC, sats?
+  const [bdkWalletBalance, setBdkWalletBalance] = useState(0);
 
   const getMnemonic = async () => {
     if (mnemonic) {
@@ -77,6 +78,15 @@ export const EttaStorageProvider = ({ children }) => {
       console.log('Something happened', e);
     } finally {
       saveToDisk;
+    }
+  };
+
+  const getBdkWalletBalance = async () => {
+    try {
+      const { data } = await BdkRn.getBalance();
+      setBdkWalletBalance(data);
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -183,6 +193,8 @@ export const EttaStorageProvider = ({ children }) => {
         areOnboardingSlidesCompleted,
         isUserLanguageSet,
         isDefaultWalletAvailable,
+        bdkWalletBalance,
+        getBdkWalletBalance,
       }}
     >
       {children}

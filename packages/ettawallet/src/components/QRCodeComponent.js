@@ -1,18 +1,28 @@
-import { IconTextButton, Text } from '@ettawallet/react-native-kit';
 import React, { useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
+import Share from 'react-native-share';
+import PropTypes from 'prop-types';
+import Colors from '../styles/colors';
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const QRCodeComponent = ({
   value,
   isLogoRendered = true,
-  logoSize = 50,
-  size = 220,
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  logoSize = 60,
+  size = 200,
+  ecl = 'H',
   onError = () => {},
 }) => {
   const qrCode = useRef();
+
+  const handleShareQRCode = () => {
+    qrCode.current.toDataURL(data => {
+      const shareImageBase64 = {
+        url: `data:image/png;base64,${data}`,
+      };
+      Share.open(shareImageBase64).catch(error => console.log(error));
+    });
+  };
 
   const renderQRCode = (
     <QRCode
@@ -23,76 +33,45 @@ const QRCodeComponent = ({
       size={size}
       logoSize={logoSize}
       color="#000000"
-      logoBackgroundColor="#FFFFFF"
+      logoBackgroundColor={Colors.onboardingBackground}
       backgroundColor="#FFFFFF"
+      ecl={ecl}
       getRef={qrCode}
       onError={onError}
     />
   );
 
-  return (
-    <>
-      <View style={styles.qrCodeContainer}>{renderQRCode}</View>
-      <Text style={styles.text} typography="base">
-        View address
-      </Text>
-      <View style={styles.btnGroup}>
-        <IconTextButton
-          variant="outlined"
-          color="secondary"
-          tone="neutral4"
-          size="small"
-          iconProps={{
-            name: 'icon-share',
-            fontColor: 'dark',
-            size: 'deca',
-          }}
-          label={'Share'}
-        />
-        <IconTextButton
-          variant="outlined"
-          color="secondary"
-          tone="neutral4"
-          size="small"
-          iconProps={{
-            name: 'icon-copy',
-            fontColor: 'dark',
-            size: 'deca',
-          }}
-          label={'Copy'}
-        />
-        <IconTextButton
-          variant="outlined"
-          color="secondary"
-          tone="neutral4"
-          size="small"
-          iconProps={{
-            name: 'icon-ellipsis',
-            fontColor: 'dark',
-            size: 'deca',
-          }}
-        />
-      </View>
-    </>
-  );
+  return <View style={styles.qrCodeContainer}>{renderQRCode}</View>;
 };
 
 export default QRCodeComponent;
 
 const styles = StyleSheet.create({
-  qrCodeContainer: {
-    borderWidth: 6,
-    borderRadius: 8,
-    borderColor: '#FFFFFF',
-    alignSelf: 'center',
-  },
-  btnGroup: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 'auto',
-  },
-  text: {
-    textAlign: 'center',
-    paddingTop: 10,
-  },
+  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
 });
+
+QRCodeComponent.actionKeys = {
+  Share: 'share',
+  Copy: 'copy',
+};
+
+QRCodeComponent.actionIcons = {
+  Share: {
+    iconType: 'SYSTEM',
+    iconValue: 'square.and.arrow.up',
+  },
+  Copy: {
+    iconType: 'SYSTEM',
+    iconValue: 'doc.on.doc',
+  },
+};
+
+QRCodeComponent.propTypes = {
+  value: PropTypes.string.isRequired,
+  isMenuAvailable: PropTypes.bool,
+  size: PropTypes.number,
+  ecl: PropTypes.string,
+  isLogoRendered: PropTypes.bool,
+  onError: PropTypes.func,
+  logoSize: PropTypes.number,
+};

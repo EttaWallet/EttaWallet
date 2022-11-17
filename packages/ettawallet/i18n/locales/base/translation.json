@@ -117,6 +117,14 @@
             "sendBtn": "Send Bitcoin"
         }
     },
+    "receiveBitcoin": {
+        "addressCTA": {
+            "header": "Your bitcoin address",
+            "copyBtn": "Copy",
+            "addressCopied": "Copied to clipboard"
+        },
+        "shareBtn": "Share address"
+    },
     "walletHome": {
         "totalBalanceHeader": "Total balance",
         "recentActivityHeader": "Recent Activity"

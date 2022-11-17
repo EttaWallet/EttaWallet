@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import {
   RefreshControl,
   RefreshControlProps,
@@ -16,12 +16,15 @@ import WalletBalance from '../components/WalletBalance';
 import variables from '../styles/variables';
 import SuggestionBox from '../components/SuggestionBox';
 import fontStyles from '../styles/fonts';
+import { EttaStorageContext } from '../../storage/context';
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
 const WalletHome = () => {
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
+
+  const { getBdkWalletBalance } = useContext(EttaStorageContext);
 
   const onRefresh = async () => {
     return; // what happens when you pull to refresh? should refresh balance and recent activity?
@@ -69,6 +72,13 @@ const WalletHome = () => {
     data: [{}],
     renderItem: () => <RecentActivityFeed key={'RecentActivityFeed'} />,
   });
+
+  useEffect(() => {
+    // generate walletBalance with Bdk to be passed on to WalletBalance component
+    setTimeout(() => {
+      getBdkWalletBalance();
+    }, 1000);
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>

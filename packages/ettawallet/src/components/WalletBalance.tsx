@@ -15,16 +15,17 @@ const WalletBalance = ({
   style?: StyleProp<TextStyle>;
 }) => {
   const { t } = useTranslation();
-  const { prefferedCurrency, btcCurrency } = useContext(EttaStorageContext);
+  const { prefferedCurrency, btcCurrency, bdkWalletBalance } =
+    useContext(EttaStorageContext);
 
-  const btc = BigNumber(0.0113); // should use a function to get the balance
+  const btcBalance = BigNumber(bdkWalletBalance); // retrieve from state via context
 
   const localCurrencySymbol = getCurrencySymbol(
     prefferedCurrency || DEFAULT_CURRENCY_CODE
   );
-  const localAmount = useBtcToLocalAmount(btc);
+  const localAmount = useBtcToLocalAmount(btcBalance);
   const totalLocalBalance = localAmount;
-  const totalBitcoinBalance = btc;
+  const totalBitcoinBalance = btcBalance;
 
   const [balanceFetchError, setBalanceFetchError] = useState('');
   const [balanceIsStale, setBalanceIsStale] = useState(false);
@@ -45,7 +46,7 @@ const WalletBalance = ({
           {t('walletHome.totalBalanceHeader')}
         </Text>
         <Text style={style}>
-          {totalBitcoinBalance?.toFormat(2) ?? new BigNumber(0).toFormat(2)}
+          {totalBitcoinBalance?.toFormat(4) ?? new BigNumber(0).toFormat(2)}
           &nbsp;{btcCurrency}
         </Text>
         <Text style={styles.localBalance}>
