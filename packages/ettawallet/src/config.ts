@@ -1,3 +1,5 @@
+import { CachesDirectoryPath } from 'react-native-fs';
+
 export const PIN_LENGTH = 6;
 export const PEPPER_LENGTH = 64;
 
@@ -14,3 +16,5 @@ export const APP_NAME = 'Etta Wallet';
 export const DEFAULT_CURRENCY_CODE = 'UGX';
 
 export const MAX_COMMENT_LENGTH = 70;
+
+export const OTA_TRANSLATIONS_FILEPATH = `file://${CachesDirectoryPath}/translations`;

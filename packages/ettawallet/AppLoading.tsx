@@ -14,7 +14,8 @@ interface State {
   showRestartButton: boolean;
 }
 
-type Props = WithTranslation;
+// eslint-disable-next-line @typescript-eslint/ban-types
+type Props = {} & WithTranslation;
 export class AppLoading extends React.Component<Props, State> {
   showRestartButtonTimer: number | null = null;
 

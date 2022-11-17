@@ -9,15 +9,10 @@ import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ErrorMessages } from '../utils/errors';
 import { headerWithBackButton } from '../navigation/headers/Headers';
-import { modalScreenOptions } from '../navigation/Navigation';
-import { Screens } from '../navigation/Screens';
-import { StackParamList } from '../navigation/types';
 import { checkPin } from '../utils/auth';
 import Pincode from '../components/Pincode/Pincode';
 
-type Props = StackScreenProps<StackParamList, Screens.EnterPin>;
-
-export const EnterPinCode = ({ route }: Props) => {
+export const EnterPinCode = ({ route }) => {
   const { t } = useTranslation();
   const [pin, setPin] = useState('');
   const [errorText, setErrorText] = useState(undefined);
@@ -78,7 +73,6 @@ export const EnterPinCode = ({ route }: Props) => {
 };
 
 EnterPinCode.navigationOptions = () => ({
-  ...modalScreenOptions(),
   ...headerWithBackButton,
   gestureEnabled: false,
 });

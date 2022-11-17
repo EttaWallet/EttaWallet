@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable no-empty */
 /* eslint-disable @typescript-eslint/no-var-requires */
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
@@ -5,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   ONBOARDING_SLIDES_COMPLETED,
   DEFAULT_LANGUAGE_IS_SET,
+  LANG_STORAGE_KEY,
   BDK_WALLET_STORAGE_KEY,
 } from './consts';
 
@@ -276,8 +278,10 @@ export class AppStorage {
    */
   isUserDefaultLanguageSet = async () => {
     try {
-      return !!(await AsyncStorage.getItem(DEFAULT_LANGUAGE_IS_SET));
-    } catch (_) {}
+      return !!(await AsyncStorage.getItem(LANG_STORAGE_KEY));
+    } catch (e) {
+      console.log('error getting language status: ', e);
+    }
     return false;
   };
 

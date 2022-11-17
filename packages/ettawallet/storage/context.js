@@ -12,6 +12,7 @@ import {
   LANG_STORAGE_KEY,
   MNEMONIC_STORAGE_KEY,
   BDK_WALLET_STORAGE_KEY,
+  DEFAULT_LANGUAGE_IS_SET,
 } from './consts';
 
 export const EttaStorageContext = createContext();
@@ -29,8 +30,7 @@ export const EttaStorageProvider = ({ children }) => {
   const [supportedBiometrics, setSupportedBiometrics] = useState(null);
   const [connected, setIsConnected] = useState(true); // True if the phone thinks it has a data connection (cellular/Wi-Fi), false otherwise. @todo
   const [manualBackupCompleted, setManualBackupComplete] = useState(false);
-  const [language, _setLanguage] = useState();
-  const getLanguageAsyncStorage = useAsyncStorage(LANG_STORAGE_KEY).getItem;
+  const [language, setLanguage] = useState('en-US');
   const [showRecoveryPhraseInSettings, setShowRecoveryPhraseInSettings] =
     useState(true);
   const [prefferedCurrency, _setPreferredCurrency] = useState(FiatUnit.USD); // This is Fiat btw
@@ -102,22 +102,26 @@ export const EttaStorageProvider = ({ children }) => {
     getPreferredCurrency();
   };
 
-  const getLanguage = async () => {
-    const item = await getLanguageAsyncStorage();
-    _setLanguage(item);
-  };
-
-  const setLanguage = () => {
-    getLanguage();
-  };
-
   useEffect(() => {
     getPreferredCurrency();
-    getLanguageAsyncStorage();
   }, []);
 
-  const resetWallets = () => {
-    setWallets(EttaApp.getWallets());
+  const updateLanguage = async lang => {
+    // save to storage
+    try {
+      await AsyncStorage.setItem(LANG_STORAGE_KEY, lang);
+      // then update current state
+      setLanguage(lang);
+    } catch (e) {
+      console.log('Something happened', e);
+    } finally {
+      // set that language has been set to true in storage
+      await AsyncStorage.setItem(DEFAULT_LANGUAGE_IS_SET, 'true');
+      console.log(
+        'user chosen language is: ',
+        await AsyncStorage.getItem(LANG_STORAGE_KEY)
+      );
+    }
   };
 
   const isStorageEncrypted = EttaApp.storageIsEncrypted;
@@ -152,7 +156,6 @@ export const EttaStorageProvider = ({ children }) => {
         startAndDecrypt,
         cachedPassword,
         sleep,
-        resetWallets,
         decryptStorage,
         isPasswordInUse,
         pinType,
@@ -160,6 +163,7 @@ export const EttaStorageProvider = ({ children }) => {
         manualBackupCompleted,
         setManualBackupComplete,
         setLanguage,
+        updateLanguage,
         language,
         showRecoveryPhraseInSettings,
         minRequiredVersion,

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import locales from './locales';
 import { useAsync } from 'react-async-hook';
 import { findBestAvailableLanguage } from 'react-native-localize';
@@ -18,13 +18,19 @@ interface Props {
 const I18nGate = ({ loading, children }: Props) => {
   const changelanguage = useChangeLanguage();
   const { language } = useContext(EttaStorageContext);
+  const allowOtaTranslations = true;
+  const otaTranslationsAppVersion = '0';
   const bestLanguage = findBestAvailableLanguage(
     Object.keys(locales)
   )?.languageTag;
 
   const i18nInitResult = useAsync(
     async () => {
-      await initI18n(language || bestLanguage || DEFAULT_APP_LANGUAGE);
+      await initI18n(
+        language || bestLanguage || DEFAULT_APP_LANGUAGE,
+        allowOtaTranslations,
+        otaTranslationsAppVersion
+      );
       if (!language && bestLanguage) {
         await changelanguage(bestLanguage);
       }
