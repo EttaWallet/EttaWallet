@@ -305,4 +305,14 @@ export class AppStorage {
   sleep = ms => {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
+
+  deleteAllKeys = async () => {
+    const keys = await AsyncStorage.getAllKeys();
+    try {
+      await AsyncStorage.multiRemove(keys);
+    } catch (e) {
+      // remove error
+    }
+    console.log('Done');
+  };
 }

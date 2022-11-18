@@ -153,7 +153,6 @@ const TabsRoot = () => {
     <TabsStack.Navigator
       initialRouteName="WalletHome"
       screenOptions={{
-        headerShown: false,
         tabBarActiveTintColor: '#F7931A',
         tabBarInactiveTintColor: '#777777',
         tabBarStyle: { height: 60, paddingVertical: 10 },
@@ -164,6 +163,7 @@ const TabsRoot = () => {
         name="WalletHome"
         component={WalletHome}
         options={{
+          headerShown: false,
           tabBarLabel: 'Home',
           tabBarIcon: ({ focused }) => (
             <Icon
@@ -192,6 +192,7 @@ const TabsRoot = () => {
         name="ReceiveBitcoin"
         component={ReceiveBitcoin}
         options={{
+          headerTitle: 'Share bitcoin address',
           tabBarLabel: 'Receive',
           tabBarIcon: ({ focused }) => (
             <Icon

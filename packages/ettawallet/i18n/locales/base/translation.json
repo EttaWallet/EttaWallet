@@ -118,12 +118,12 @@
         }
     },
     "receiveBitcoin": {
-        "addressCTA": {
-            "header": "Your bitcoin address",
-            "copyBtn": "Copy",
-            "addressCopied": "Copied to clipboard"
-        },
-        "shareBtn": "Share address"
+        "modifyTitle": "You can be more specific",
+        "specifyAmount": "Specify an amount",
+        "addDescription": "Add description",
+        "copyBtn": "Copy",
+        "addressCopied": "Address copied to clipboard",
+        "shareBtn": "Share"
     },
     "walletHome": {
         "totalBalanceHeader": "Total balance",

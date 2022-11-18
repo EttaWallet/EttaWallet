@@ -77,7 +77,17 @@ export const EttaStorageProvider = ({ children }) => {
     } catch (e) {
       console.log('Something happened', e);
     } finally {
+      await syncWallet();
       saveToDisk;
+    }
+  };
+
+  const syncWallet = async () => {
+    try {
+      const { data } = await BdkRn.syncWallet();
+      console.log(data); // sync status
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -85,6 +95,7 @@ export const EttaStorageProvider = ({ children }) => {
     try {
       const { data } = await BdkRn.getBalance();
       setBdkWalletBalance(data);
+      console.info('wallet balance', data);
     } catch (e) {
       console.log(e);
     }

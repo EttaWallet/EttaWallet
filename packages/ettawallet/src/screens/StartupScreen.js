@@ -35,6 +35,8 @@ const Startup = () => {
       if (langStatus === true) {
         setUserLanguageStatus(true);
         theInitialRoute = 'OnboardingSlides';
+      } else {
+        theInitialRoute = 'Language';
       }
       const slidesStatus = await areOnboardingSlidesCompleted();
       if (slidesStatus === true) {

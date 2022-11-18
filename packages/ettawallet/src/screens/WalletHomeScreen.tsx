@@ -17,6 +17,7 @@ import variables from '../styles/variables';
 import SuggestionBox from '../components/SuggestionBox';
 import fontStyles from '../styles/fonts';
 import { EttaStorageContext } from '../../storage/context';
+import BdkRn from 'bdk-rn';
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
@@ -27,7 +28,17 @@ const WalletHome = () => {
   const { getBdkWalletBalance } = useContext(EttaStorageContext);
 
   const onRefresh = async () => {
-    return; // what happens when you pull to refresh? should refresh balance and recent activity?
+    getBdkWalletBalance();
+    getBdkPendingTransactions();
+  };
+
+  const getBdkPendingTransactions = async () => {
+    try {
+      const { data } = await BdkRn.getTransactions();
+      console.info('all transactions', data);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const scrollPosition = useRef(new Animated.Value(0)).current;

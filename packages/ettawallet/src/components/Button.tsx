@@ -24,6 +24,7 @@ export enum BtnTypes {
   TERTIARY = 'Tertiary',
   ONBOARDING = 'Onboarding',
   ONBOARDING_SECONDARY = 'OnboardingSecondary',
+  MONOCHROME = 'Monochrome',
 }
 
 export enum BtnSizes {
@@ -165,6 +166,11 @@ function getColors(type: BtnTypes, disabled: boolean | undefined) {
     case BtnTypes.ONBOARDING_SECONDARY:
       textColor = colors.onboardingBlue;
       backgroundColor = colors.light;
+      opacity = disabled ? 0.5 : 1.0;
+      break;
+    case BtnTypes.MONOCHROME:
+      textColor = colors.dark;
+      backgroundColor = colors.white;
       opacity = disabled ? 0.5 : 1.0;
       break;
   }
