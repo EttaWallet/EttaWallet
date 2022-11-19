@@ -22,8 +22,16 @@ import { LOCAL_CURRENCY_KEY } from '../../../storage/consts';
 const GeneralSettings = () => {
   const { t } = useTranslation();
 
-  const { btcCurrency, getLocalCurrency, prefferedCurrency } =
-    useContext(EttaStorageContext);
+  const {
+    useSatoshiUnits,
+    setUseSatoshiUnits,
+    getLocalCurrency,
+    prefferedCurrency,
+  } = useContext(EttaStorageContext);
+
+  const handleSatoshiToggle = value => {
+    setUseSatoshiUnits(value);
+  };
 
   useEffect(() => {
     getLocalCurrency();
@@ -47,10 +55,11 @@ const GeneralSettings = () => {
             value={<Text>{prefferedCurrency}</Text> ?? t('settings.unknown')}
             onPress={() => navigate('CurrencySettings')}
           />
-          <SettingsItemTextValue
+          <SettingsItemSwitch
             title={t('settings.generalSettingsTitles.bitcoinUnit')}
-            value={btcCurrency ?? t('settings.unknown')}
-            onPress={() => navigate('WalletHome')}
+            details={t('settings.generalSettingsTitles.bitcoinUnitExplainer')}
+            value={useSatoshiUnits}
+            onValueChange={handleSatoshiToggle}
           />
           <SectionHeader
             text={t('settings.generalSettingsTitles.notificationsHeader')}

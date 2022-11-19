@@ -33,6 +33,7 @@ export const EttaStorageProvider = ({ children }) => {
     useState(true);
   const [prefferedCurrency, setPreferredCurrency] = useState(''); // This is local Fiat btw
   const [btcCurrency, setBtcCurrency] = useState('BTC'); // BTC, sats?
+  const [useSatoshiUnits, setUseSatoshiUnits] = useState(false);
   const [bdkWalletBalance, setBdkWalletBalance] = useState(0);
 
   const getMnemonic = async () => {
@@ -216,6 +217,8 @@ export const EttaStorageProvider = ({ children }) => {
         isDefaultWalletAvailable,
         bdkWalletBalance,
         getBdkWalletBalance,
+        useSatoshiUnits,
+        setUseSatoshiUnits,
       }}
     >
       {children}
