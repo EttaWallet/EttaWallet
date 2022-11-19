@@ -2,17 +2,15 @@
 import React, { createContext, useState, useEffect } from 'react';
 import BdkRn from 'bdk-rn';
 import { PincodeType } from '../src/utils/types';
-import AsyncStorage, {
-  useAsyncStorage,
-} from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FiatUnit } from '../src/models/fiatUnit';
 const EttaApp = require('../EttaApp');
-const currency = require('./currency');
 import {
   LANG_STORAGE_KEY,
   MNEMONIC_STORAGE_KEY,
   BDK_WALLET_STORAGE_KEY,
   DEFAULT_LANGUAGE_IS_SET,
+  LOCAL_CURRENCY_KEY,
 } from './consts';
 
 export const EttaStorageContext = createContext();
@@ -33,10 +31,7 @@ export const EttaStorageProvider = ({ children }) => {
   const [language, setLanguage] = useState('en-US');
   const [showRecoveryPhraseInSettings, setShowRecoveryPhraseInSettings] =
     useState(true);
-  const [prefferedCurrency, _setPreferredCurrency] = useState(FiatUnit.USD); // This is Fiat btw
-  const getPreferredCurrencyAsyncStorage = useAsyncStorage(
-    currency.PREFERRED_CURRENCY
-  ).getItem;
+  const [prefferedCurrency, setPreferredCurrency] = useState(''); // This is local Fiat btw
   const [btcCurrency, setBtcCurrency] = useState('BTC'); // BTC, sats?
   const [bdkWalletBalance, setBdkWalletBalance] = useState(0);
 
@@ -114,19 +109,6 @@ export const EttaStorageProvider = ({ children }) => {
     setWallets(EttaApp.getWallets());
   }, []);
 
-  const getPreferredCurrency = async () => {
-    const item = await getPreferredCurrencyAsyncStorage();
-    _setPreferredCurrency(item);
-  };
-
-  const setPreferredCurrency = () => {
-    getPreferredCurrency();
-  };
-
-  useEffect(() => {
-    getPreferredCurrency();
-  }, []);
-
   const updateLanguage = async lang => {
     // save to storage
     try {
@@ -142,6 +124,32 @@ export const EttaStorageProvider = ({ children }) => {
         'user chosen language is: ',
         await AsyncStorage.getItem(LANG_STORAGE_KEY)
       );
+    }
+  };
+
+  const updateLocalCurrency = async currency => {
+    // save to storage
+    try {
+      if (currency !== prefferedCurrency) {
+        const updated = await AsyncStorage.setItem(
+          LOCAL_CURRENCY_KEY,
+          currency
+        );
+        setPreferredCurrency(JSON.stringify(updated));
+      }
+    } catch (e) {
+      console.log('Something happened', e);
+    }
+  };
+
+  const getLocalCurrency = async () => {
+    // save to storage
+    try {
+      // TODO: check whether item exists in storage first, then update
+      const currency = await AsyncStorage.getItem(LOCAL_CURRENCY_KEY);
+      setPreferredCurrency(currency);
+    } catch (e) {
+      console.log('Something happened', e);
     }
   };
 
@@ -193,6 +201,8 @@ export const EttaStorageProvider = ({ children }) => {
         setCompletedOnboardingSlides,
         prefferedCurrency,
         setPreferredCurrency,
+        updateLocalCurrency,
+        getLocalCurrency,
         btcCurrency,
         setBtcCurrency,
         biometricsEnabled,

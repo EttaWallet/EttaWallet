@@ -20,6 +20,10 @@ import SendBitcoinConfirmation from '../screens/SendBitcoinConfirmationScreen';
 import WalletHome from '../screens/WalletHomeScreen';
 import Startup from '../screens/StartupScreen';
 import { noHeader } from './headers/Headers';
+import Settings from '../screens/Settings/SettingsScreen';
+import GeneralSettings from '../screens/Settings/GeneralSettingsScreen';
+import LanguageSettings from '../screens/Settings/LanguageSettingsScreen';
+import LocalCurrencySetting from '../screens/Settings/LocalCurrencySettingsScreen';
 
 const OnboardingStack = createNativeStackNavigator();
 
@@ -37,7 +41,7 @@ const OnboardingRoot = () => {
       <OnboardingStack.Screen
         name="Language"
         component={LanguageChooser}
-        options={LanguageChooser.navigationOptions(true)}
+        options={LanguageChooser.navigationOptions}
       />
 
       <OnboardingStack.Screen
@@ -119,17 +123,6 @@ const InitRoot = () => (
     />
   </InitStack.Navigator>
 );
-
-const SettingsStack = createNativeStackNavigator();
-const SettingsRoot = () => {
-  <SettingsStack.Navigator>
-    <SettingsStack.Screen
-      name="Language"
-      component={LanguageChooser}
-      options={{ headerShown: false }}
-    />
-  </SettingsStack.Navigator>;
-};
 
 const AnimatedModalStack = createNativeStackNavigator();
 const animatedModalRoot = () => {
@@ -219,8 +212,9 @@ const TabsRoot = () => {
       />
       <TabsStack.Screen
         name="Settings"
-        component={ReceiveBitcoin} // change component
+        component={SettingsRoot} // change component
         options={{
+          headerShown: false,
           tabBarLabel: 'Settings',
           tabBarIcon: ({ focused }) => (
             <Icon
@@ -232,6 +226,37 @@ const TabsRoot = () => {
         }}
       />
     </TabsStack.Navigator>
+  );
+};
+
+const SettingsStack = createNativeStackNavigator();
+const SettingsRoot = () => {
+  return (
+    <SettingsStack.Navigator
+      initialRouteName="BaseSettings"
+      screenOptions={{ headerShown: false }}
+    >
+      <SettingsStack.Screen
+        name="BaseSettings"
+        component={Settings}
+        options={Settings.navigationOptions}
+      />
+      <SettingsStack.Screen
+        name="GeneralSettings"
+        component={GeneralSettings}
+        options={GeneralSettings.navigationOptions}
+      />
+      <SettingsStack.Screen
+        name="LanguageSettings"
+        component={LanguageSettings}
+        options={LanguageSettings.navigationOptions}
+      />
+      <SettingsStack.Screen
+        name="CurrencySettings"
+        component={LocalCurrencySetting}
+        options={LocalCurrencySetting.navigationOptions}
+      />
+    </SettingsStack.Navigator>
   );
 };
 

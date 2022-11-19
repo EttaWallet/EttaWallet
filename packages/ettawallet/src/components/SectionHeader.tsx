@@ -27,10 +27,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   text: {
-    ...fontStyles.sectionHeader,
-    fontSize: 13,
-    lineHeight: 16,
-    color: colors.gray4,
+    ...fontStyles.regular600,
+    color: colors.dark,
   },
 });
 

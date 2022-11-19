@@ -1,15 +1,19 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { localesList } from '../../i18n/locales';
+import { localesList } from '../../../i18n/locales';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, ListRenderItemInfo, StyleSheet, Text } from 'react-native';
+import { FlatList, ListRenderItemInfo, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import SelectOption from '../components/SelectOption';
-import useChangeLanguage from '../../i18n/useChangeLanguage';
-import { emptyHeader } from '../navigation/headers/Headers';
-import { navigate } from '../navigation/NavigationService';
-import fontStyles from '../styles/fonts';
-import { EttaStorageContext } from '../../storage/context';
+import SelectOption from '../../components/SelectOption';
+import useChangeLanguage from '../../../i18n/useChangeLanguage';
+import { emptyHeader } from '../../navigation/headers/Headers';
+import { navigate } from '../../navigation/NavigationService';
+import fontStyles from '../../styles/fonts';
+import { EttaStorageContext } from '../../../storage/context';
+import { TopBarTextIconButton } from '../../navigation/headers/TopBarButton';
+import colors from '../../styles/colors';
+import BackChevron from '../../icons/BackChevron';
+import i18n from '../../../i18n';
 
 interface Language {
   code: string;
@@ -20,7 +24,7 @@ function keyExtractor(item: Language) {
   return item.code;
 }
 
-const LanguageChooser = ({ route }) => {
+const LanguageSettings = ({ route }) => {
   const [slidesStatus, setSlidesStatus] = useState(false);
   const { areOnboardingSlidesCompleted } = useContext(EttaStorageContext);
 
@@ -32,7 +36,7 @@ const LanguageChooser = ({ route }) => {
   };
 
   const changeLanguage = useChangeLanguage();
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const nextScreen = route.params?.nextScreen;
 
   const onSelect = (language: string, code: string) => {
@@ -77,9 +81,20 @@ const LanguageChooser = ({ route }) => {
   );
 };
 
-LanguageChooser.navigationOptions = () => ({
+LanguageSettings.navigationOptions = () => ({
   ...emptyHeader,
-  headerTitle: 'Select Language',
+  headerLeft: () => (
+    <TopBarTextIconButton
+      title="Back"
+      titleStyle={{ color: colors.dark }}
+      icon={<BackChevron color={colors.dark} />}
+      onPress={() => navigate('GeneralSettings')}
+    />
+  ),
+  headerTitle: i18n.t('selectLanguage'),
+  headerTitleStyle: {
+    ...fontStyles.regular600,
+  },
 });
 
 const styles = StyleSheet.create({
@@ -93,4 +108,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LanguageChooser;
+export default LanguageSettings;

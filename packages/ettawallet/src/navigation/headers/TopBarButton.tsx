@@ -64,10 +64,34 @@ export function TopBarTextButton(props: TopBarTextButtonProps) {
   );
 }
 
+export type TopBarIconTextButtonProps = CommonProps & {
+  icon: JSX.Element;
+  title: string;
+  titleStyle?: StyleProp<TextStyle>;
+};
+
+export function TopBarTextIconButton(props: TopBarIconTextButtonProps) {
+  const { titleStyle, title } = props;
+  return (
+    <Wrapper {...props} style={styles.container}>
+      <>
+        {props.icon}
+        <Text style={titleStyle ? [styles.text, titleStyle] : styles.text}>
+          {title}
+        </Text>
+      </>
+    </Wrapper>
+  );
+}
+
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   text: {
     ...fontStyles.regular,
     color: colors.orangeUI,
-    paddingHorizontal: Spacing.Thick24,
+    paddingHorizontal: Spacing.Smallest8,
   },
 });

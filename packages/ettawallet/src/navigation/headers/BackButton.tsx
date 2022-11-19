@@ -1,18 +1,23 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { navigateBack } from '../NavigationService';
-import { TopBarIconButton, TopBarIconButtonProps } from './TopBarButton';
+import {
+  TopBarIconTextButtonProps,
+  TopBarTextIconButton,
+} from './TopBarButton';
 import variables from '../../styles/variables';
-import { ArrowLeft } from '@ettawallet/rn-bitcoin-icons/dist/filled';
+import BackChevron, {
+  Props as BackChevronProps,
+} from '../../icons/BackChevron';
 
-type Props = Omit<TopBarIconButtonProps, 'icon'>;
+type Props = Omit<TopBarIconTextButtonProps, 'icon'> & BackChevronProps;
 
 const BackButton = (props: Props) => {
   return (
     <View style={styles.container}>
-      <TopBarIconButton
+      <TopBarTextIconButton
         {...props}
-        icon={<ArrowLeft color="#000" height={20} />}
+        icon={<BackChevron color={props.color} height={props.height} />}
       />
     </View>
   );

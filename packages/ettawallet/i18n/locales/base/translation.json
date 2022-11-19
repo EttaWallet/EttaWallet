@@ -4,7 +4,8 @@
     "badPassword": "Incorrect password. Please try again.",
     "enterPassword": "Enter password",
     "storageIsEncrypted": "Your storage is encrypted. Password is required to decrypt it.",
-    "selectLanguage": "Select Language",
+    "selectLanguage": "Select language",
+    "selectCurrency": "Select local currency",
     "welcome": {
         "subtitle": "Bitcoin is for all of us",
         "createNewWallet": "Create new wallet",
@@ -140,5 +141,26 @@
     },
     "alerts": {
         "default": "Alert"
+    },
+    "settings": {
+        "headerTitle": "Settings",
+        "titles": {
+            "generalSettings": "General",
+            "privacy": "Privacy",
+            "security": "Security",
+            "walletBackup": "Wallet backup",
+            "support": "Help & support"
+        },
+        "generalSettingsTitles": {
+            "headerTitle": "General",
+            "language": "Language",
+            "currency": "Local currency",
+            "bitcoinUnit": "Bitcoin unit",
+            "notificationsHeader": "Notifications",
+            "incomingTransactions": "Incoming transactions",
+            "securityReview": "Security review reminders",
+            "reviewPeriod": "Every 6 months"
+        },
+        "unknown": "Unknown"
     }
 }
