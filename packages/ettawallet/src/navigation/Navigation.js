@@ -19,11 +19,17 @@ import ProtectWallet from '../screens/ProtectWalletScreen';
 import SendBitcoinConfirmation from '../screens/SendBitcoinConfirmationScreen';
 import WalletHome from '../screens/WalletHomeScreen';
 import Startup from '../screens/StartupScreen';
-import { noHeader } from './headers/Headers';
+import { emptyHeader, noHeader } from './headers/Headers';
 import Settings from '../screens/Settings/SettingsScreen';
 import GeneralSettings from '../screens/Settings/GeneralSettingsScreen';
 import LanguageSettings from '../screens/Settings/LanguageSettingsScreen';
 import LocalCurrencySetting from '../screens/Settings/LocalCurrencySettingsScreen';
+import { TopBarTextButton, TopBarTextIconButton } from './headers/TopBarButton';
+import i18n from '../../i18n';
+import fontStyles from '../styles/fonts';
+import { navigate } from './NavigationService';
+import BackChevron from '../icons/BackChevron';
+import colors from '../styles/colors';
 
 const OnboardingStack = createNativeStackNavigator();
 
@@ -185,7 +191,33 @@ const TabsRoot = () => {
         name="ReceiveBitcoin"
         component={ReceiveBitcoin}
         options={{
-          headerTitle: 'Share bitcoin address',
+          // @TODO: use custom navOptions assigned on the screen component
+          ...emptyHeader,
+          headerLeftContainerStyle: {
+            paddingLeft: 16,
+          },
+          headerLeft: () => (
+            <TopBarTextIconButton
+              title="Back"
+              titleStyle={{ color: colors.dark }}
+              icon={<BackChevron color={colors.dark} />}
+              onPress={() => navigate('WalletHome')}
+            />
+          ),
+          headerTitle: i18n.t('receiveBitcoin.headerTitle'),
+          headerTitleStyle: {
+            ...fontStyles.regular600,
+          },
+          headerRight: () => (
+            <TopBarTextButton
+              title="Done"
+              titleStyle={{ color: colors.dark }}
+              onPress={() => navigate('WalletHome')}
+            />
+          ),
+          headerRightContainerStyle: {
+            paddingRight: 16,
+          },
           tabBarLabel: 'Receive',
           tabBarIcon: ({ focused }) => (
             <Icon

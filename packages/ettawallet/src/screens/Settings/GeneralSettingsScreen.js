@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { ScrollView, StyleSheet, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -16,8 +16,6 @@ import { TopBarTextIconButton } from '../../navigation/headers/TopBarButton';
 import BackChevron from '../../icons/BackChevron';
 import fontStyles from '../../styles/fonts';
 import SectionHeader from '../../components/SectionHeader';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LOCAL_CURRENCY_KEY } from '../../../storage/consts';
 
 const GeneralSettings = () => {
   const { t } = useTranslation();

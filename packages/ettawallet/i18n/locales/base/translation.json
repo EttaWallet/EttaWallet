@@ -119,6 +119,7 @@
         }
     },
     "receiveBitcoin": {
+        "headerTitle": "Share address to receive",
         "modifyTitle": "You can be more specific",
         "specifyAmount": "Specify an amount",
         "addDescription": "Add description",

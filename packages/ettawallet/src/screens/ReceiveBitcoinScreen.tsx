@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View, Text, Platform, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { headerWithBackButton } from '../navigation/headers/Headers';
+import { emptyHeader } from '../navigation/headers/Headers';
 import DisconnectBanner from '../components/DisconnectBanner';
 import variables from '../styles/variables';
 import QRCodeComponent from '../components/QRCodeComponent';
@@ -19,6 +19,13 @@ import Share from 'react-native-share';
 import KeyboardAwareScrollView from '../components/KeyboardAwareScrollView';
 import fontStyles from '../styles/fonts';
 import HorizontalLine from '../components/HorizontalLine';
+import {
+  TopBarTextButton,
+  TopBarTextIconButton,
+} from '../navigation/headers/TopBarButton';
+import { navigate } from '../navigation/NavigationService';
+import BackChevron from '../icons/BackChevron';
+import i18n from '../../i18n';
 
 const ReceiveBitcoin = () => {
   const { t } = useTranslation();
@@ -148,11 +155,6 @@ const ReceiveBitcoin = () => {
     </SafeAreaView>
   );
 };
-
-ReceiveBitcoin.navigationOptions = () => ({
-  ...headerWithBackButton,
-  gestureEnabled: false,
-});
 
 const styles = StyleSheet.create({
   container: {
