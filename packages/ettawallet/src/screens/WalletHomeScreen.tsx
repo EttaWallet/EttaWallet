@@ -28,6 +28,7 @@ const WalletHome = () => {
   const { getBdkWalletBalance } = useContext(EttaStorageContext);
 
   const onRefresh = async () => {
+    syncWallet();
     getBdkWalletBalance();
     getBdkPendingTransactions();
   };
@@ -36,6 +37,15 @@ const WalletHome = () => {
     try {
       const { data } = await BdkRn.getTransactions();
       console.info('all transactions', data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const syncWallet = async () => {
+    try {
+      const { data } = await BdkRn.syncWallet();
+      console.log(data); // sync status
     } catch (e) {
       console.log(e);
     }

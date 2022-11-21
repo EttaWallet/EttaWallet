@@ -3,10 +3,9 @@ import { useTranslation } from 'react-i18next';
 import BigNumber from 'bignumber.js';
 import { StyleSheet, StyleProp, TextStyle, Text } from 'react-native';
 import { EttaStorageContext } from '../../storage/context';
-import { useBtcToLocalAmount, getCurrencySymbol } from '../utils/currency';
+import { useSatsToLocalAmount } from '../utils/currency';
 import fontStyles from '../styles/fonts';
 import variables from '../styles/variables';
-import { DEFAULT_CURRENCY_CODE } from '../config';
 import colors from '../styles/colors';
 
 const WalletBalance = ({
@@ -15,15 +14,11 @@ const WalletBalance = ({
   style?: StyleProp<TextStyle>;
 }) => {
   const { t } = useTranslation();
-  const { prefferedCurrency, btcCurrency, bdkWalletBalance } =
-    useContext(EttaStorageContext);
+  const { btcCurrency, bdkWalletBalance } = useContext(EttaStorageContext);
 
   const btcBalance = BigNumber(bdkWalletBalance); // retrieve from state via context
 
-  const localCurrencySymbol = getCurrencySymbol(
-    prefferedCurrency || DEFAULT_CURRENCY_CODE
-  );
-  const localAmount = useBtcToLocalAmount(btcBalance);
+  const localAmount = useSatsToLocalAmount(btcBalance, true);
   const totalLocalBalance = localAmount;
   const totalBitcoinBalance = btcBalance;
 
@@ -33,12 +28,7 @@ const WalletBalance = ({
 
   if (balanceFetchError || balanceFetchLoading || balanceIsStale) {
     // Shown if balance is stale or hasn't been fetched yet.
-    return (
-      <Text style={style}>
-        {localCurrencySymbol}
-        {'-'}
-      </Text>
-    );
+    return <Text style={style}>{'-'}</Text>;
   } else {
     return (
       <>
@@ -46,13 +36,10 @@ const WalletBalance = ({
           {t('walletHome.totalBalanceHeader')}
         </Text>
         <Text style={style}>
-          {totalBitcoinBalance?.toFormat(4) ?? new BigNumber(0).toFormat(2)}
+          {totalBitcoinBalance?.toFormat(2) ?? new BigNumber(0).toFormat(3)}
           &nbsp;{btcCurrency}
         </Text>
-        <Text style={styles.localBalance}>
-          {localCurrencySymbol}&nbsp;
-          {totalLocalBalance?.toFormat(2) ?? new BigNumber(0).toFormat(2)}
-        </Text>
+        <Text style={styles.localBalance}>{totalLocalBalance}</Text>
       </>
     );
   }

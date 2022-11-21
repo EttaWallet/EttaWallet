@@ -32,8 +32,8 @@ export const EttaStorageProvider = ({ children }) => {
   const [showRecoveryPhraseInSettings, setShowRecoveryPhraseInSettings] =
     useState(true);
   const [prefferedCurrency, setPreferredCurrency] = useState(''); // This is local Fiat btw
-  const [btcCurrency, setBtcCurrency] = useState('BTC'); // BTC, sats?
-  const [useSatoshiUnits, setUseSatoshiUnits] = useState(false);
+  const [btcCurrency, setBtcCurrency] = useState('sats'); // BTC, sats?
+  const [useSatoshiUnits, setUseSatoshiUnits] = useState(true);
   const [bdkWalletBalance, setBdkWalletBalance] = useState(0);
 
   const getMnemonic = async () => {

@@ -39,7 +39,7 @@
         "endPointKey": "UGX",
         "locale": "en-UG",
         "source": "CoinDesk",
-        "symbol": "USh"
+        "symbol": "UGX"
     },
     "ZAR": {
         "endPointKey": "ZAR",
