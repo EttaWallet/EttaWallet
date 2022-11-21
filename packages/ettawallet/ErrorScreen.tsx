@@ -30,10 +30,10 @@ class ErrorScreen extends React.Component<Props> {
     const errorMessage = this.getErrorMessage();
     return (
       <FullscreenCTA
-        CTAText={t(RESTART_APP_I18N_KEY)}
+        CTAText={t('errorScreen.restartApp')}
         CTAHandler={restartApp}
-        title={t('oops')}
-        subtitle={t('somethingWrong')}
+        title={t('errorScreen.oops')}
+        subtitle={t('errorScreen.somethingWrong')}
       >
         <View>
           <Text

@@ -49,7 +49,7 @@ export class AppLoading extends React.Component<Props, State> {
           {this.state.showRestartButton && (
             <Button
               onPress={restartApp}
-              text={t(RESTART_APP_I18N_KEY)}
+              text={t('errorScreen.restartApp')}
               type={BtnTypes.PRIMARY}
             />
           )}

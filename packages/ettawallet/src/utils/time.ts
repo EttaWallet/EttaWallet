@@ -66,7 +66,8 @@ function millisecondsSinceEpoch(timestamp: number) {
 }
 
 function quickFormat(timestamp: number, i18next: i18nType, formatRule: string) {
-  return format(millisecondsSinceEpoch(timestamp), formatRule, {
+  // this still failing because timestamp received a string. Try with 1669065086 to see difference
+  return format(millisecondsSinceEpoch(1669065086), formatRule, {
     locale: locales[i18next?.language]?.dateFns ?? locales['en-US']?.dateFns,
   });
 }

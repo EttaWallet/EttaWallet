@@ -164,5 +164,10 @@
             "reviewPeriod": "Every 6 months"
         },
         "unknown": "Unknown"
+    },
+    "errorScreen": {
+        "restartApp": "Restart app",
+        "oops": "Uh oh",
+        "somethingWrong": "Something's wrong"
     }
 }

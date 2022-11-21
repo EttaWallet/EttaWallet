@@ -4,9 +4,7 @@ import {
   RefreshControlProps,
   SectionList,
   StyleSheet,
-  Text,
 } from 'react-native';
-import { useTranslation } from 'react-i18next';
 import Animated from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { noHeader } from '../navigation/headers/Headers';
@@ -18,34 +16,35 @@ import SuggestionBox from '../components/SuggestionBox';
 import fontStyles from '../styles/fonts';
 import { EttaStorageContext } from '../../storage/context';
 import BdkRn from 'bdk-rn';
+import TransactionFeed from '../components/TransactionFeed';
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
 const WalletHome = () => {
-  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
+  const [fetchedTransactions, setFetchedTransactions] = useState([]);
 
   const { getBdkWalletBalance } = useContext(EttaStorageContext);
 
   const onRefresh = async () => {
     syncWallet();
     getBdkWalletBalance();
-    getBdkPendingTransactions();
-  };
-
-  const getBdkPendingTransactions = async () => {
-    try {
-      const { data } = await BdkRn.getTransactions();
-      console.info('all transactions', data);
-    } catch (e) {
-      console.log(e);
-    }
   };
 
   const syncWallet = async () => {
     try {
       const { data } = await BdkRn.syncWallet();
       console.log(data); // sync status
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const getBdkTransactions = async () => {
+    try {
+      const { data } = await BdkRn.getTransactions();
+      setFetchedTransactions[data];
+      console.log('fetched: ', data);
     } catch (e) {
       console.log(e);
     }
@@ -68,15 +67,6 @@ const WalletHome = () => {
     />
   ) as React.ReactElement<RefreshControlProps>;
 
-  const RecentActivityFeed = () => {
-    // Temporary component: will be replaced with actual activity feed.
-    return (
-      <Text style={styles.sectionHeader}>
-        {t('walletHome.recentActivityHeader')}
-      </Text>
-    );
-  };
-
   const sections = [];
 
   sections.push({
@@ -91,14 +81,16 @@ const WalletHome = () => {
 
   sections.push({
     data: [{}],
-    renderItem: () => <RecentActivityFeed key={'RecentActivityFeed'} />,
+    renderItem: () => (
+      <TransactionFeed data={fetchedTransactions} key={'RecentActivityFeed'} />
+    ),
   });
 
   useEffect(() => {
     // generate walletBalance with Bdk to be passed on to WalletBalance component
-    setTimeout(() => {
-      getBdkWalletBalance();
-    }, 1000);
+    syncWallet();
+    getBdkWalletBalance();
+    getBdkTransactions();
   }, []);
 
   return (
