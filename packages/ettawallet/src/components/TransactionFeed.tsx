@@ -16,9 +16,11 @@ const TransactionFeed = ({ data }) => {
   const pending = data.map(txs => txs['pending']);
   const confirmed = data.map(txs => txs['confirmed']);
 
-  const keyExtractor = (item: any, index: number) => {
-    return index.toString();
+  const keyExtractor = (item: any) => {
+    const id = item.map(k => k.txid);
+    return id;
   };
+
   const sections = useMemo(() => {
     if (data.length === 0) {
       return [];
