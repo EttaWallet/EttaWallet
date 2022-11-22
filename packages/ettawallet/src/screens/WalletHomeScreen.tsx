@@ -43,7 +43,7 @@ const WalletHome = () => {
   const getBdkTransactions = async () => {
     try {
       const { data } = await BdkRn.getTransactions();
-      setFetchedTransactions[data];
+      setFetchedTransactions([data]);
       console.log('fetched: ', data);
     } catch (e) {
       console.log(e);
@@ -116,7 +116,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'relative',
-    margin: variables.contentPadding,
+    padding: variables.contentPadding,
+    backgroundColor: colors.light,
   },
   sectionHeader: {
     ...fontStyles.sectionHeader,

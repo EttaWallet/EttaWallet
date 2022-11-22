@@ -13,21 +13,35 @@ const TransactionFeed = ({ data }) => {
   const [fetchingMoreTransactions, setFetchingMoreTransactions] =
     useState(false);
 
+  const pending = data.map(txs => txs['pending']);
+  const confirmed = data.map(txs => txs['confirmed']);
+
+  const keyExtractor = (item: any, index: number) => {
+    return index.toString();
+  };
   const sections = useMemo(() => {
     if (data.length === 0) {
       return [];
     }
 
-    return groupFeedItemsInSections(data);
-  }, [data.map(tx => tx.txid).join(',')]);
+    return groupFeedItemsInSections(data.map(k => k['confirmed'])); // currently on getting confirmed transactions only. Need all.
+  }, [
+    data
+      .map(k => k['confirmed'])
+      .map(c => c.txid)
+      .join(','),
+  ]);
 
   if (!data.length) {
     return <NoTransactions />;
   }
 
-  function renderItem({ item: tx }) {
-    return <TransactionFeedItem key={tx.txid} transaction={tx} />;
-  }
+  const renderItem = ({ item: tx }: { item: any; index: number }) => {
+    console.log('item: ', tx);
+    return tx.map((value, index) => (
+      <TransactionFeedItem key={value.txid} transaction={value} />
+    ));
+  };
 
   const fetchMoreTransactions = () => {
     setFetchingMoreTransactions(true);
@@ -40,11 +54,11 @@ const TransactionFeed = ({ data }) => {
     <>
       <SectionList
         renderItem={renderItem}
-        renderSectionHeader={() => (
-          <SectionHeader style={{ marginTop: 20 }} text="Recent transactions" />
+        renderSectionHeader={item => (
+          <SectionHeader style={{ marginTop: 20 }} text={item.section.title} />
         )}
         sections={sections}
-        keyExtractor={item => `${item.txid}`}
+        keyExtractor={keyExtractor}
         keyboardShouldPersistTaps="always"
         onEndReached={() => fetchMoreTransactions} // do nothing? but should def fetch more?
       />

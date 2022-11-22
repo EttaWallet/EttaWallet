@@ -11,6 +11,7 @@ import Pagination from './Pagination';
 import variables from '../styles/variables';
 import { useTranslation } from 'react-i18next';
 import Card from './Card';
+import colors from '../styles/colors';
 
 interface Notification {
   element: React.ReactElement;
@@ -98,6 +99,7 @@ const styles = StyleSheet.create({
   notificationContainer: {
     width: variables.width - 2 * variables.contentPadding,
     marginBottom: 24,
+    backgroundColor: colors.greenFaint,
   },
   pagination: {
     paddingBottom: variables.contentPadding,

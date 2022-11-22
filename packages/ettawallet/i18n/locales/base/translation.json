@@ -131,6 +131,11 @@
         "totalBalanceHeader": "Total balance",
         "recentActivityHeader": "Recent Activity"
     },
+    "transactionFeed": {
+        "receivedHeader": "Received",
+        "sentHeader": "Sent",
+        "noTransactions": "No transactions at this time"
+    },
     "addNote": "Add note to self",
     "selectFees": "Select Fees",
     "biometrics": {

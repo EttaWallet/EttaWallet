@@ -29,7 +29,7 @@ export class NoTransactions extends React.PureComponent<Props> {
             color={colors.greenBrand}
           />
         )}
-        <Text style={styles.text}>{t('noTransactionActivity')} </Text>
+        <Text style={styles.text}>{t('transactionFeed.noTransactions')} </Text>
       </View>
     );
   }

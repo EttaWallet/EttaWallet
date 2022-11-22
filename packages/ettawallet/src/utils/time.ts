@@ -11,7 +11,7 @@ export const formatFeedTime = (timestamp: number, i18next: i18nType) => {
 };
 
 export const formatFeedDate = (timestamp: number, i18next: i18nType) => {
-  return quickFormat(timestamp, i18next, 'MMM d');
+  return quickFormat(timestamp, i18next, 'd MMM');
 };
 
 export const formatFeedSectionTitle = (
