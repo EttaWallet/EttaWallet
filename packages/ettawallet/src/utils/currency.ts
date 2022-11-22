@@ -115,12 +115,12 @@ export const useSatsToLocalAmount = (
 ) => {
   const { prefferedCurrency } = useContext(EttaStorageContext);
 
-  const rate = BigNumber(16200);
+  const rate = BigNumber(16200); // @TODO: This is the BTC-USD rate, we should get rate based on preffered fiat currency unit.
 
   let localFiatValue = new BigNumber(amountInSats)
     .dividedBy(100000000)
     .multipliedBy(rate)
-    .multipliedBy(3700);
+    .multipliedBy(3700); // @TODO: This is the USD-UGX rate, we should get rate based on logic.
 
   if (
     localFiatValue.isGreaterThanOrEqualTo(0.005) ||
