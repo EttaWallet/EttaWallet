@@ -1,0 +1,17 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/Bitcoin.ttf",
+      "sha1": "a367f812f9ec50911cf6b3c306326aa523d7c07a"
+    },
+    {
+      "path": "assets/fonts/Inter-Regular.ttf",
+      "sha1": "c47afdca3b107b58fc636380e94d78f2c664a5af"
+    },
+    {
+      "path": "assets/fonts/Inter-SemiBold.ttf",
+      "sha1": "431007da316de60d85174aeec9b8389b5c73e7d6"
+    }
+  ]
+}
