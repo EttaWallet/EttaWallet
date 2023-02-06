@@ -1,22 +1,23 @@
 {
   "compilerOptions": {
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
     "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "baseUrl": ".",
-    "importHelpers": true,
+    "importsNotUsedAsValues": "error",
+    "forceConsistentCasingInFileNames": true,
     "jsx": "react",
-    "lib": ["es7", "esnext", "dom"],
+    "lib": ["esnext", "dom"],
+    "module": "esnext",
     "moduleResolution": "node",
-    "noEmit": true,
-    "noImplicitAny": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitUseStrict": false,
+    "noStrictGenericChecks": false,
     "noUnusedLocals": true,
-    "strictNullChecks": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
-    "target": "es2015",
-    "strict": true
-  },
-  "include": ["src"],
-  "exclude": ["node_modules"]
+    "strict": true,
+    "target": "esnext",
+  }
 }

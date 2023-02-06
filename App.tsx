@@ -1,8 +1,6 @@
 import React from 'react';
 import { SafeAreaView, StatusBar, useColorScheme } from 'react-native';
 import { ThemeProvider, LIGHT_THEME, DARK_THEME, Colors } from 'etta-ui';
-import TypesafeI18n from './src/i18n/i18n-react';
-import { detectDefaultLocale } from './src/utils/get-locale';
 import ErrorBoundary from 'react-native-error-boundary';
 import { ErrorScreen } from './src/screens/ErrorScreen';
 
@@ -15,17 +13,14 @@ const App = () => {
 
   return (
     <ThemeProvider value={theme}>
-      <TypesafeI18n locale={detectDefaultLocale()}>
-        <SafeAreaView style={backgroundStyle}>
-          <ErrorBoundary FallbackComponent={ErrorScreen}>
-            <StatusBar
-              barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-              backgroundColor={backgroundStyle.backgroundColor}
-            />
-            <ErrorScreen />
-          </ErrorBoundary>
-        </SafeAreaView>
-      </TypesafeI18n>
+      <SafeAreaView style={backgroundStyle}>
+        <ErrorBoundary FallbackComponent={ErrorScreen}>
+          <StatusBar
+            barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+            backgroundColor={backgroundStyle.backgroundColor}
+          />
+        </ErrorBoundary>
+      </SafeAreaView>
     </ThemeProvider>
   );
 };

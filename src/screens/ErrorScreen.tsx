@@ -1,16 +1,14 @@
 import React from 'react';
-import { Text, View } from 'react-native';
-import { Button } from 'etta-ui';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useI18nContext } from '@src/i18n/i18n-react';
+import { Text, View, SafeAreaView } from 'react-native';
+import { Button, TypographyPresets } from 'etta-ui';
 
 export const ErrorScreen = () => {
-  const { LL } = useI18nContext();
-
   return (
     <SafeAreaView>
-      <View>
-        <Text>{LL.welcome.subtitle()}</Text>
+      <View style={{ marginHorizontal: 16 }}>
+        <Text style={{ ...TypographyPresets.Header2, textAlign: 'center' }}>
+          Ooops. Something went wrong
+        </Text>
         <Button title="Restart" appearance="filled" size="block" />
       </View>
     </SafeAreaView>
