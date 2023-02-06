@@ -1,37 +1,22 @@
 {
   "compilerOptions": {
-    "allowJs": false,
+    "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "jsx": "react-native",
-    "module": "es2020",
-    "moduleResolution": "node",
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noUnusedLocals": false,
-    "sourceMap": true,
-    "target": "es2015",
-    "lib": ["es2017"],
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
     "esModuleInterop": true,
-    "isolatedModules": true,
-    "resolveJsonModule": true,
-    "baseUrl": "./",
-    "paths": {
-      "@src/*": ["src/*"]
-    },
-    "plugins": [
-      {
-        "transform": "ts-auto-mock/transformer",
-        "cacheBetweenTests": false,
-        "features": ["random"]
-      }
-    ],
-    "types": ["node", "@types/jest"],
+    "experimentalDecorators": true,
+    "baseUrl": ".",
+    "importHelpers": true,
+    "jsx": "react",
+    "lib": ["es7", "esnext", "dom"],
+    "moduleResolution": "node",
+    "noEmit": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "strictNullChecks": true,
+    "skipLibCheck": true,
+    "target": "es2015",
+    "strict": true
   },
-  "exclude": ["node_modules"],
-  "include": ["src", "e2e"],
-  "extends": "@tsconfig/react-native/tsconfig.json"
+  "include": ["src"],
+  "exclude": ["node_modules"]
 }
