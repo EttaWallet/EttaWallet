@@ -14,11 +14,12 @@ const App = () => {
   return (
     <ThemeProvider value={theme}>
       <SafeAreaView style={backgroundStyle}>
+        <StatusBar
+          barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+          backgroundColor={backgroundStyle.backgroundColor}
+        />
         <ErrorBoundary FallbackComponent={ErrorScreen}>
-          <StatusBar
-            barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-            backgroundColor={backgroundStyle.backgroundColor}
-          />
+          {/* Add entry navigation wrapper here */}
         </ErrorBoundary>
       </SafeAreaView>
     </ThemeProvider>
