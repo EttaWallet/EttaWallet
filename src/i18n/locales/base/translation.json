@@ -1,0 +1,178 @@
+{
+    "cancel": "Cancel",
+    "ok": "Okay",
+    "badPassword": "Incorrect password. Please try again.",
+    "enterPassword": "Enter password",
+    "storageIsEncrypted": "Your storage is encrypted. Password is required to decrypt it.",
+    "selectLanguage": "Select language",
+    "selectCurrency": "Select local currency",
+    "welcome": {
+        "subtitle": "Bitcoin is for all of us",
+        "createNewWallet": "Create new wallet",
+        "restoreWallet": "Restore wallet",
+        "iAlreadyHaveAWallet": "I already have a wallet",
+        "footer": " Your wallet, your coins. \n 100% open-source & open-design. \n Built with ❤️ in Uganda"
+    },
+    "onboardingSlides": {
+        "slide1": {
+            "title": "Manage your bitcoin",
+            "text": "Have full control with this self-custody wallet. No one else can access your bitcoin."
+        },
+        "slide2": {
+            "title": "Convenient backups with cloud & manual storage",
+            "text": "Your recovery phrase will be encrypted and backed up to your cloud provider, only you will be able to access it."
+        },
+        "slide3": {
+            "title": "Keep your wallet and bitcoin secure",
+            "text": "Enable face detection or set a pin for extra security."
+        },
+        "labels": {
+            "done": "Get started",
+            "previous": "Back",
+            "next": "Next"
+        }
+    },
+    "pinCode": {
+        "create": "Create a PIN",
+        "createNew": "Create a new PIN",
+        "verify": "Enter your PIN again to confirm",
+        "changePIN": "Change PIN",
+        "pinsDontMatch": "The PINs didn't match",
+        "invalidPin": "Please use a stronger PIN",
+        "guideTitle": "Choose a 6 digit PIN you’ll remember",
+        "guideConfirm": "Enter your PIN again to confirm.",
+        "pinCodeGuide": "Your PIN is how you’ll secure your wallet.",
+        "selectPIN": "Select PIN"
+    },
+    "recoveryPhraseIntro": {
+        "title": "Let's create your recovery phrase",
+        "subtitle": "Pay attention, this is important!",
+        "fact1": "A recovery phrase is a group of 12 random words.",
+        "fact2": "It is the only way to access your wallet if your phone is lost or stolen.",
+        "fact3": "Never share your recovery phrase with anyone. Anyone who has it can access your funds.",
+        "fact4": "Write these words down in order on a piece of paper and store it somewhere safe that you will remember.",
+        "ctaBtn": "Continue"
+    },
+    "manualBackup": {
+        "inputHeader": "Your recovery phrase",
+        "inputPlaceholder": "Seed or Recovery Phrase here",
+        "warning": "Write it down some place safe. We will verify this on the next page. You might be tempted to, but do not save this on your phone!",
+        "writtenConfirmation": "Yes, I have written down my recovery phrase",
+        "topLearnMoreBtn": "Learn more",
+        "icloudBackupBtn": "Back up on iCloud",
+        "gdriveBackupBtn": "Back up on Google Drive",
+        "manualBackupBtn": "Back up manually"
+    },
+    "manualBackupQuiz": {
+        "headerTitle": "Confirm Manual Backup",
+        "cancelDialog": {
+            "title": "You should finish",
+            "body": "Your Recovery Phrase is extremely important. Without this backup, you will lose all your bitcoin forever.",
+            "action": "Complete Now",
+            "secondary": "Finish Later"
+        },
+        "backupQuizWordCount": "Select the <0>{{ordinal}}</0> word of your recovery phrase?",
+        "ordinals": [
+            "zeroth",
+            "first",
+            "second",
+            "third",
+            "fourth",
+            "fifth",
+            "sixth",
+            "seventh",
+            "eighth",
+            "ninth",
+            "tenth",
+            "eleventh",
+            "twelfth"
+        ],
+        "verifyBtn": "Verify",
+        "failed": "The Recovery Phrase you entered is incorrect. Try again.",
+        "resetBtn": "Start over",
+        "backupVerified": {
+            "title": "Back Up Verified",
+            "text": "Well done!. \n Please keep your recovery phrase safe. Memorize it if you can."
+        }
+    },
+    "protectWallet": {
+        "title": "Protect your wallet",
+        "subtitle": "Add an extra layer of security to prevent anyone from accessing your wallet and bitcoin",
+        "useBiometricsBtn": "Use {{biometryType}}",
+        "createPinBtn": "Create PIN",
+        "biometryType": {
+            "FaceID": "Face ID",
+            "TouchID": "Touch ID",
+            "Fingerprint": "Fingerprint recognition"
+        }
+    },
+    "sendBitcoin": {
+        "nextBtn": "Next",
+        "confirmation": {
+            "headerTitle": "Confirm transaction",
+            "title": "Send Bitcoin",
+            "amountLabel": "Amount in BTC",
+            "localAmountLabel": "Amount in {{ localCurrency }}",
+            "addNote": "Add note to self",
+            "fees": "Fees",
+            "sendBtn": "Send Bitcoin"
+        }
+    },
+    "receiveBitcoin": {
+        "headerTitle": "Share address to receive",
+        "modifyTitle": "You can be more specific",
+        "specifyAmount": "Specify an amount",
+        "addDescription": "Add description",
+        "copyBtn": "Copy",
+        "addressCopied": "Address copied to clipboard",
+        "shareBtn": "Share"
+    },
+    "walletHome": {
+        "totalBalanceHeader": "Total balance",
+        "recentActivityHeader": "Recent Activity"
+    },
+    "transactionFeed": {
+        "receivedHeader": "Received",
+        "sentHeader": "Sent",
+        "noTransactions": "No transactions at this time"
+    },
+    "addNote": "Add note to self",
+    "selectFees": "Select Fees",
+    "biometrics": {
+        "confirmIdentity": "Please confirm your identity",
+        "encryptStorage": "Storage",
+        "removeDecrypt": "All your wallets will be removed and your storage will be decrypted. Are you sure you want to proceed?",
+        "noPasscode": "Your device does not have a passcode. In order to proceed, please configure a passcode in the Settings app.",
+        "triedTenTimes": "You have attempted to enter your password 10 times. Would you like to reset your storage? This will remove all wallets and decrypt your storage."
+    },
+    "alerts": {
+        "default": "Alert"
+    },
+    "settings": {
+        "headerTitle": "Settings",
+        "titles": {
+            "generalSettings": "General",
+            "privacy": "Privacy",
+            "security": "Security",
+            "walletBackup": "Wallet backup",
+            "support": "Help & support"
+        },
+        "generalSettingsTitles": {
+            "headerTitle": "General",
+            "language": "Language",
+            "currency": "Local currency",
+            "bitcoinUnit": "Show bitcoin as satoshis (sats)",
+            "bitcoinUnitExplainer": "Default unit is bitcoin (BTC)",
+            "notificationsHeader": "Notifications",
+            "incomingTransactions": "Incoming transactions",
+            "securityReview": "Security review reminders",
+            "reviewPeriod": "Every 6 months"
+        },
+        "unknown": "Unknown"
+    },
+    "errorScreen": {
+        "restartApp": "Restart EttaWallet",
+        "defaultTitle": "Error",
+        "defaultDescription": "Something went wrong. Please see next steps below"
+    }
+}

@@ -1,8 +1,10 @@
 import React from 'react';
 import { SafeAreaView, StatusBar, useColorScheme } from 'react-native';
 import { ThemeProvider, LIGHT_THEME, DARK_THEME, Colors } from 'etta-ui';
-import ErrorBoundary from 'react-native-error-boundary';
-import { ErrorScreen } from './src/screens/ErrorScreen';
+import I18nGate from './src/i18n/i18nGate';
+import AppLoading from './src/shared/AppLoading';
+import NavigatorWrapper from './src/navigation/NavigatorWrapper';
+import ErrorBoundary from './src/shared/ErrorBoundary';
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -12,17 +14,19 @@ const App = () => {
   };
 
   return (
-    <ThemeProvider value={theme}>
-      <SafeAreaView style={backgroundStyle}>
-        <StatusBar
-          barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-          backgroundColor={backgroundStyle.backgroundColor}
-        />
-        <ErrorBoundary FallbackComponent={ErrorScreen}>
-          {/* Add entry navigation wrapper here */}
-        </ErrorBoundary>
-      </SafeAreaView>
-    </ThemeProvider>
+    <SafeAreaView>
+      <ThemeProvider value={theme}>
+        <I18nGate loading={<AppLoading />}>
+          <StatusBar
+            barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+            backgroundColor={backgroundStyle.backgroundColor}
+          />
+          <ErrorBoundary>
+            <NavigatorWrapper />
+          </ErrorBoundary>
+        </I18nGate>
+      </ThemeProvider>
+    </SafeAreaView>
   );
 };
 
