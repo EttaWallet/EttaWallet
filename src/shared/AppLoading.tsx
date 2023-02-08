@@ -43,11 +43,7 @@ export class AppLoading extends React.Component<Props, State> {
       <SafeAreaView style={styles.content}>
         <View style={styles.button}>
           {this.state.showRestartButton && (
-            <Button
-              onPress={restartApp}
-              title={t('errorScreen.restartApp')}
-              appearance="filled"
-            />
+            <Button onPress={restartApp} title={t('errorScreen.restartApp')} appearance="filled" />
           )}
         </View>
       </SafeAreaView>

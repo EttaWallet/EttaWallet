@@ -1,3 +1,4 @@
+import type { LayoutChangeEvent } from 'react-native';
 import { Screens } from './Screens';
 
 export type StackParamList = {
@@ -13,4 +14,16 @@ export type StackParamList = {
         nextScreen: keyof StackParamList;
       }
     | undefined;
+  [Screens.LanguageModal]:
+    | {
+        nextScreen: keyof StackParamList;
+      }
+    | undefined;
+  [Screens.Main]: undefined;
+  [Screens.MainModal]: undefined;
+  [Screens.TestBottomSheet]: undefined;
 };
+
+export interface BottomSheetParams {
+  handleContentLayout(event: LayoutChangeEvent): void;
+}

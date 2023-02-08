@@ -16,12 +16,10 @@ const NAVIGATOR_INIT_RETRIES = 10;
 type SafeNavigate = typeof navigate;
 
 // create async sleep function
-const sleep = (delay: any) =>
-  new Promise((resolve) => setTimeout(resolve, delay));
+const sleep = (delay: any) => new Promise((resolve) => setTimeout(resolve, delay));
 
 export const navigationRef = createNavigationContainerRef();
-export const navigatorIsReadyRef: MutableRefObject<boolean | null> =
-  createRef();
+export const navigatorIsReadyRef: MutableRefObject<boolean | null> = createRef();
 navigatorIsReadyRef.current = false;
 
 async function ensureNavigator() {
@@ -115,11 +113,7 @@ export const navigateClearingStack: SafeNavigate = (...args) => {
       );
     })
     .catch((reason) => {
-      Logger.error(
-        `${TAG}@navigateClearingStack`,
-        'Navigation failure',
-        reason
-      );
+      Logger.error(`${TAG}@navigateClearingStack`, 'Navigation failure', reason);
     });
 };
 
@@ -135,19 +129,13 @@ export function navigateBack() {
 }
 
 const getActiveRouteState = function (route: NavigationState): NavigationState {
-  if (
-    !route.routes ||
-    route.routes.length === 0 ||
-    route.index >= route.routes.length
-  ) {
+  if (!route.routes || route.routes.length === 0 || route.index >= route.routes.length) {
     // TODO: React Navigation types are hard :(
     // @ts-ignore
     return route.state;
   }
 
-  const childActiveRoute = route.routes[
-    route.index
-  ] as unknown as NavigationState;
+  const childActiveRoute = route.routes[route.index] as unknown as NavigationState;
   return getActiveRouteState(childActiveRoute);
 };
 
@@ -160,10 +148,7 @@ export async function isScreenOnForeground(screen: Screens) {
   const activeRouteState = getActiveRouteState(state);
   // Note: The '?' in the following line shouldn't be necessary, but are there anyways to be defensive
   // because of the ts-ignore on getActiveRouteState.
-  return (
-    activeRouteState?.routes[activeRouteState?.routes.length - 1]?.name ===
-    screen
-  );
+  return activeRouteState?.routes[activeRouteState?.routes.length - 1]?.name === screen;
 }
 
 export async function isBottomSheetVisible(screen: Screens) {
@@ -185,10 +170,6 @@ export function navigateHome(options?: NavigateHomeOptions) {
 }
 
 export function navigateToError(errorMessage: string, error?: Error) {
-  Logger.debug(
-    `${TAG}@navigateToError`,
-    `Navigating to error screen: ${errorMessage}`,
-    error
-  );
+  Logger.debug(`${TAG}@navigateToError`, `Navigating to error screen: ${errorMessage}`, error);
   navigate(Screens.ErrorScreen, { errorMessage });
 }

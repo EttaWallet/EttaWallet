@@ -1,20 +1,18 @@
+import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFlipper } from '@react-navigation/devtools';
 import { NavigationContainer, NavigationState } from '@react-navigation/native';
-import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { DEV_RESTORE_NAV_STATE_ON_RELOAD } from '../../config';
 import { navigationRef, navigatorIsReadyRef } from './NavigationService';
-import { Navigator } from './Navigator';
+import Navigator from './Navigator';
 import navTheme from './theme';
 import Logger from '../utils/logger';
+import { sentryRoutingInstrumentation } from '../utils/sentry';
 
-// This uses RN Navigation's experimental nav state persistence
-// to improve the hot reloading experience when in DEV mode
-// https://reactnavigation.org/docs/en/state-persistence.html
 const PERSISTENCE_KEY = 'NAVIGATION_STATE';
 
-// @ts-ignore https://reactnavigation.org/docs/screen-tracking/
+// @ts-ignore
 export const getActiveRouteName = (state: NavigationState) => {
   const route = state.routes[state.index];
 
@@ -97,6 +95,7 @@ export const NavigatorWrapper = () => {
 
   const onReady = () => {
     navigatorIsReadyRef.current = true;
+    sentryRoutingInstrumentation.registerNavigationContainer(navigationRef);
   };
 
   return (

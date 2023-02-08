@@ -1,4 +1,5 @@
-// import Toast from 'react-native-simple-toast';
+import * as Sentry from '@sentry/react-native';
+import type { SeverityLevel } from '@sentry/types';
 
 export enum LoggerLevel {
   Debug = 3,
@@ -7,10 +8,7 @@ export enum LoggerLevel {
   Error = 0,
 }
 
-const DEFAULT_SENTRY_NETWORK_ERRORS = [
-  'network request failed',
-  'The network connection was lost',
-];
+const DEFAULT_SENTRY_NETWORK_ERRORS = ['network request failed', 'The network connection was lost'];
 
 const LOGGER_LEVEL = LoggerLevel.Debug;
 
@@ -19,9 +17,7 @@ class Logger {
   networkErrors: string[];
   level: LoggerLevel;
 
-  constructor(
-    { level }: { level: LoggerLevel } = { level: LoggerLevel.Debug }
-  ) {
+  constructor({ level }: { level: LoggerLevel } = { level: LoggerLevel.Debug }) {
     this.level = level;
     this.isNetworkConnected = true;
     this.networkErrors = DEFAULT_SENTRY_NETWORK_ERRORS || [];
@@ -58,9 +54,7 @@ class Logger {
   ) => {
     // console.error would display red box, therefore, we will log to console.info instead.
     const sanitizedError =
-      error && shouldSanitizeError
-        ? this.sanitizeError(error, valueToPurge)
-        : error;
+      error && shouldSanitizeError ? this.sanitizeError(error, valueToPurge) : error;
     const errorMsg = this.getErrorMessage(sanitizedError);
     const isNetworkError = this.networkErrors.some(
       (networkError) =>
@@ -71,7 +65,7 @@ class Logger {
     // prevent genuine network errors from being sent to Sentry
     if (!isNetworkError || (this.isNetworkConnected && isNetworkError)) {
       const captureContext = {
-        level: 'error',
+        level: 'error' as SeverityLevel,
         extra: {
           tag,
           message: message?.toString(),
@@ -81,11 +75,9 @@ class Logger {
         },
       };
       if (error) {
-        // Sentry.captureException(error, captureContext);
-        console.log(error, captureContext);
+        Sentry.captureException(error, captureContext);
       } else {
-        // Sentry.captureMessage(message, captureContext);
-        console.info(message, captureContext);
+        Sentry.captureMessage(message, captureContext);
       }
     }
     console.info(
@@ -132,18 +124,12 @@ class Logger {
   sanitizeError = (error: Error, valueToPurge?: string) => {
     const message = this.getErrorMessage(error).toLowerCase();
 
-    if (
-      message.includes('password') ||
-      message.includes('key') ||
-      message.includes('pin')
-    ) {
+    if (message.includes('password') || message.includes('key') || message.includes('pin')) {
       return new Error('Error message hidden for privacy');
     }
 
     if (valueToPurge) {
-      return new Error(
-        message.replace(new RegExp(valueToPurge, 'g'), '<purged>')
-      );
+      return new Error(message.replace(new RegExp(valueToPurge, 'g'), '<purged>'));
     }
 
     return error;

@@ -74,8 +74,7 @@ export const headerWithCancelButton: StackNavigationOptions = {
 
 export const headerWithBackEditButtons: StackNavigationOptions = {
   ...emptyHeader,
-  headerLeft: () =>
-    PixelRatio.getFontScale() > 1 ? <CancelButton /> : <CancelButton />,
+  headerLeft: () => (PixelRatio.getFontScale() > 1 ? <CancelButton /> : <CancelButton />),
   headerRight: () => <BackButton />,
 };
 

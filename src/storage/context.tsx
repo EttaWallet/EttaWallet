@@ -18,24 +18,21 @@ interface ContextProps {
   supportedBiometrics: string[] | null;
   setSupportedBiometrics: (active: null) => void;
   setDoNotTrack: (value: number) => void;
-  isDoNotTrackEnabled: (active: boolean) => void;
-  areOnboardingSlidesCompleted: (active: boolean) => void;
-  isUserLanguageSet: (active: boolean) => void;
+  isDoNotTrackEnabled: (active: false) => void;
+  areOnboardingSlidesCompleted: (active: false) => void;
+  isUserLanguageSet: (active: false) => void;
   getItemFromKeychain: (key: string) => void;
   setItemInKeychain: (key: string, value: string) => void;
 }
 
-export const EttaStorageContext = createContext<ContextProps | undefined>(
-  undefined
-);
+export const EttaStorageContext = createContext<ContextProps | undefined>(undefined);
 
 interface Props {
   children: React.ReactNode;
 }
 
 export const EttaStorageProvider: React.FC<Props> = ({ children }) => {
-  const [completedOnboardingSlides, setCompletedOnboardingSlides] =
-    useState(false);
+  const [completedOnboardingSlides, setCompletedOnboardingSlides] = useState(false);
 
   const [biometricsEnabled, setBiometricsEnabled] = useState(false);
   const [supportedBiometrics, setSupportedBiometrics] = useState(null);
@@ -53,10 +50,7 @@ export const EttaStorageProvider: React.FC<Props> = ({ children }) => {
     } finally {
       // set that language has been set to true in storage
       await AsyncStorage.setItem(DEFAULT_LANGUAGE_IS_SET, 'true');
-      console.log(
-        'user chosen language is: ',
-        await AsyncStorage.getItem(LANG_STORAGE_KEY)
-      );
+      console.log('user chosen language is: ', await AsyncStorage.getItem(LANG_STORAGE_KEY));
     }
   };
 

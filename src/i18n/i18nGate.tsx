@@ -16,9 +16,7 @@ interface Props {
 const I18nGate = ({ loading, children }: Props) => {
   const changelanguage = useChangeLanguage();
   const { language } = useEttaStorageContext();
-  const bestLanguage = findBestAvailableLanguage(
-    Object.keys(locales)
-  )?.languageTag;
+  const bestLanguage = findBestAvailableLanguage(Object.keys(locales))?.languageTag;
 
   const i18nInitResult = useAsync(
     async () => {
@@ -36,9 +34,7 @@ const I18nGate = ({ loading, children }: Props) => {
     }
   );
 
-  return i18nInitResult.loading
-    ? (loading as JSX.Element)
-    : (children as JSX.Element);
+  return i18nInitResult.loading ? (loading as JSX.Element) : (children as JSX.Element);
 };
 
 export default I18nGate;

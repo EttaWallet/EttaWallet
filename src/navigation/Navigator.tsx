@@ -1,8 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
-import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
+import {
+  createStackNavigator,
+  StackNavigationOptions,
+  TransitionPresets,
+} from '@react-navigation/stack';
 import { Screens } from './Screens';
 import type { StackParamList } from './types';
+import {
+  BottomSheetBackdrop,
+  BottomSheetBackdropProps,
+  useBottomSheetDynamicSnapPoints,
+} from '@gorhom/bottom-sheet';
+import { createBottomSheetNavigator } from '@th3rdwave/react-navigation-bottom-sheet';
 import ErrorScreen from '../shared/ErrorScreen';
 import { noHeader, emptyHeader } from './Headers';
 import OnboardingSlidesScreen from '../screens/OnboardingSlidesScreen';
@@ -11,7 +21,8 @@ import { useEttaStorageContext } from '../storage/context';
 import AppLoading from '../shared/AppLoading';
 import SplashScreen from 'react-native-splash-screen';
 import Logger from '../utils/logger';
-// import WalletHomeScreen from '../screens/WalletHomeScreen';
+import LanguageChooser from '../screens/LanguageChooserScreen';
+import WalletHomeScreen from '../screens/WalletHomeScreen';
 
 const TAG = 'Navigator';
 
@@ -24,6 +35,8 @@ type ExtractProps<T extends keyof JSX.IntrinsicElements | React.JSXElementConstr
   JSX.LibraryManagedAttributes<T, React.ComponentProps<T>>;
 
 const Stack = createStackNavigator<StackParamList>();
+const ModalStack = createStackNavigator<StackParamList>();
+const RootStack = createBottomSheetNavigator<StackParamList>();
 
 export const modalScreenOptions = () =>
   Platform.select({
@@ -61,22 +74,21 @@ const onboardingScreens = (Navigator: typeof Stack) => (
 
 type InitialRouteName = ExtractProps<typeof Stack.Navigator>['initialRouteName'];
 
-export function MainStack() {
+export const MainStackScreen = () => {
   const [initialRouteName, setInitialRoute] = useState<InitialRouteName>(undefined);
 
   // get storage booleans from context
   const { areOnboardingSlidesCompleted, isUserLanguageSet } = useEttaStorageContext();
 
   useEffect(() => {
-    let initialRoute: InitialRouteName;
+    let initialRoute: InitialRouteName = Screens.LangugageChooserScreen;
 
     if (!isUserLanguageSet) {
       initialRoute = Screens.LangugageChooserScreen;
     } else if (!areOnboardingSlidesCompleted) {
       initialRoute = Screens.OnboardingSlidesScreen;
-      // see if LDK exists
+      // see if LDK node exists. Change the boolean check once setup.
     } else if (!isUserLanguageSet) {
-      // added a definitive true here but this should check that LDK wallet is ready
       initialRoute = Screens.WelcomeScreen;
     } else {
       initialRoute = Screens.WalletHomeScreen;
@@ -95,13 +107,71 @@ export function MainStack() {
 
   return (
     <Stack.Navigator initialRouteName={initialRouteName} screenOptions={emptyHeader}>
-      {/* <Stack.Screen
+      <Stack.Screen
         name={Screens.WalletHomeScreen}
         component={WalletHomeScreen}
         options={noHeader}
-      /> */}
+      />
       {commonScreens(Stack)}
       {onboardingScreens(Stack)}
     </Stack.Navigator>
   );
-}
+};
+
+const modalAnimatedScreens = (Navigator: typeof Stack) => (
+  <>
+    {/* QR code screen and FAQ screen will go here too */}
+    <Navigator.Screen
+      name={Screens.LanguageModal}
+      component={LanguageChooser}
+      options={LanguageChooser.navigationOptions() as StackNavigationOptions}
+    />
+  </>
+);
+
+const mainScreenNavOptions = () => ({
+  ...modalScreenOptions(),
+  headerShown: false,
+});
+
+const ModalStackScreen = () => {
+  return (
+    <ModalStack.Navigator>
+      <ModalStack.Screen
+        name={Screens.Main}
+        component={MainStackScreen}
+        options={mainScreenNavOptions as StackNavigationOptions}
+      />
+      {modalAnimatedScreens(ModalStack)}
+    </ModalStack.Navigator>
+  );
+};
+
+const RootStackScreen = () => {
+  const initialBottomSheetSnapPoints = React.useMemo(() => ['CONTENT_HEIGHT'], []);
+  const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight } =
+    useBottomSheetDynamicSnapPoints(initialBottomSheetSnapPoints);
+
+  const renderBackdrop = React.useCallback(
+    (props: BottomSheetBackdropProps) => (
+      <BottomSheetBackdrop opacity={0.25} appearsOnIndex={0} disappearsOnIndex={-1} {...props} />
+    ),
+    []
+  );
+
+  return (
+    <RootStack.Navigator
+      screenOptions={{
+        backdropComponent: renderBackdrop,
+        handleHeight: animatedHandleHeight,
+        //@ts-ignore: React 18 types error pending PR: https://github.com/gorhom/react-native-bottom-sheet/pull/1123
+        snapPoints: animatedSnapPoints,
+        contentHeight: animatedContentHeight,
+      }}
+    >
+      <RootStack.Screen name={Screens.MainModal} component={ModalStackScreen} />
+    </RootStack.Navigator>
+  );
+};
+
+export default RootStackScreen;
