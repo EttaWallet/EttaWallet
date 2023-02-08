@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, Text, View, Dimensions, SafeAreaView } from 'react-native';
-import { Button, TypographyPresets, Colors } from 'etta-ui';
+import { Button, TypographyPresets, Colors, Icon } from 'etta-ui';
 
 export interface Props {
   title: string;
@@ -18,12 +18,15 @@ class FullScreenBanner extends React.PureComponent<Props> {
 
     return (
       <SafeAreaView style={styles.container}>
+        <View style={styles.iconContainer}>
+          <Icon name="icon-alert" style={styles.errorIcon} />
+        </View>
         <View style={styles.header}>
-          <Text style={{ ...TypographyPresets.Header2, color: Colors.red.base }}>{title}</Text>
+          <Text style={{ ...TypographyPresets.Header3, color: Colors.red.base }}>{title}</Text>
           <Text
             // eslint-disable-next-line react-native/no-inline-styles
             style={{
-              ...TypographyPresets.Body3,
+              ...TypographyPresets.Body4,
               color: Colors.neutrals.light.neutral7,
               paddingBottom: 20,
               textAlign: 'center',
@@ -51,10 +54,24 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     paddingHorizontal: 20,
   },
+  errorIcon: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    fontSize: 52,
+    color: Colors.common.white,
+  },
+  iconContainer: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    width: 80,
+    height: 80,
+    borderRadius: 50,
+    backgroundColor: Colors.red.base,
+    marginBottom: 20,
+  },
   header: {
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: 120,
   },
   button: { alignItems: 'center', paddingTop: 50 },
 });

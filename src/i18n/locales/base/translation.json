@@ -172,7 +172,7 @@
     },
     "errorScreen": {
         "restartApp": "Restart EttaWallet",
-        "defaultTitle": "Error",
-        "defaultDescription": "Something went wrong. Please see next steps below"
+        "defaultTitle": "Something went wrong",
+        "defaultDescription": "More details below"
     }
 }

@@ -105,7 +105,3 @@ export function MainStack() {
     </Stack.Navigator>
   );
 }
-
-export const Navigator = () => {
-  return <Stack.Screen name={Screens.WelcomeScreen} component={WelcomeScreen} options={noHeader} />;
-};

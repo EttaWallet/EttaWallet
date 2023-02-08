@@ -1,5 +1,5 @@
 import type { RouteProp } from '@react-navigation/native';
-import { TypographyPresets } from 'etta-ui';
+import { TypographyPresets, Colors } from 'etta-ui';
 import * as React from 'react';
 import type { WithTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
@@ -20,11 +20,7 @@ class ErrorScreen extends React.Component<Props> {
   static navigationOptions = { header: null };
 
   getErrorMessage = () => {
-    return (
-      this.props.errorMessage ||
-      this.props.route?.params.errorMessage ||
-      'unknown'
-    );
+    return this.props.errorMessage || this.props.route?.params.errorMessage || 'unknown';
   };
 
   render() {
@@ -42,6 +38,7 @@ class ErrorScreen extends React.Component<Props> {
             style={styles.errorMessage}
             numberOfLines={10}
             ellipsizeMode="tail"
+            selectable={true}
           >
             {t(errorMessage)}
           </Text>
@@ -53,9 +50,10 @@ class ErrorScreen extends React.Component<Props> {
 
 const styles = StyleSheet.create({
   errorMessage: {
-    ...TypographyPresets.Body3,
-    borderRadius: 25,
-    backgroundColor: 'rgba(238, 238, 238, 0.75)',
+    ...TypographyPresets.Body5,
+    borderRadius: 5,
+    backgroundColor: Colors.neutrals.light.neutral2,
+    color: Colors.common.black,
     padding: 15,
   },
 });
