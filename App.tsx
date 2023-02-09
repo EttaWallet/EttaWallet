@@ -1,7 +1,7 @@
 import React from 'react';
 import { SafeAreaView, StatusBar, useColorScheme, LogBox } from 'react-native';
 import * as Sentry from '@sentry/react-native';
-import { ThemeProvider, LIGHT_THEME, DARK_THEME } from 'etta-ui';
+import { ThemeProvider, LIGHT_THEME, DARK_THEME, Colors } from 'etta-ui';
 import { enableScreens } from 'react-native-screens';
 import I18nGate from './src/i18n/i18nGate';
 import AppLoading from './src/shared/AppLoading';
@@ -29,13 +29,19 @@ LogBox.ignoreLogs(ignoreWarnings);
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
   const theme = isDarkMode ? DARK_THEME : LIGHT_THEME;
+  const backgroundStyle = {
+    backgroundColor: isDarkMode ? Colors.common.black : Colors.common.white,
+  };
 
   return (
     <SafeAreaView>
       <ThemeProvider value={theme}>
         <EttaStorageProvider>
           <I18nGate loading={<AppLoading />}>
-            <StatusBar backgroundColor="transparent" barStyle="dark-content" />
+            <StatusBar
+              barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+              backgroundColor={backgroundStyle.backgroundColor}
+            />
             <ErrorBoundary>
               <NavigatorWrapper />
             </ErrorBoundary>
