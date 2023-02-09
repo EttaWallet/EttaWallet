@@ -174,5 +174,13 @@
         "restartApp": "Restart EttaWallet",
         "defaultTitle": "Something went wrong",
         "defaultDescription": "More details below"
+    },
+    "navigationLabels": {
+        "home": "Home",
+        "settings": "Settings",
+        "help": "Help",
+        "faqs": "FAQs",
+        "seedPhrase": "Seed Phrase"
+
     }
 }

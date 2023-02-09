@@ -1,4 +1,3 @@
-import type { LayoutChangeEvent } from 'react-native';
 import { Screens } from './Screens';
 
 export type StackParamList = {
@@ -21,9 +20,11 @@ export type StackParamList = {
     | undefined;
   [Screens.Main]: undefined;
   [Screens.MainModal]: undefined;
-  [Screens.TestBottomSheet]: undefined;
+  [Screens.DrawerNavigator]: undefined;
+  [Screens.ManualBackupScreen]: undefined;
+  [Screens.ManualBackupQuizScreen]: undefined;
+  [Screens.SeedPhraseScreen]: undefined;
+  [Screens.SettingsScreen]: undefined;
+  [Screens.HelpScreen]: undefined;
+  [Screens.FAQScreen]: undefined;
 };
-
-export interface BottomSheetParams {
-  handleContentLayout(event: LayoutChangeEvent): void;
-}

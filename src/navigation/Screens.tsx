@@ -8,5 +8,11 @@ export enum Screens {
   OnboardingSlidesScreen = 'OnboardingSlidesScreen',
   Main = 'Main',
   MainModal = 'MainModal',
-  TestBottomSheet = 'TestBottomSheet',
+  DrawerNavigator = 'DrawerNavigator',
+  ManualBackupScreen = 'ManualBackupScreen',
+  ManualBackupQuizScreen = 'ManualBackupQuizScreen',
+  SeedPhraseScreen = 'SeedPhraseScreen',
+  SettingsScreen = 'SettingsScreen',
+  HelpScreen = 'HelpScreen',
+  FAQScreen = 'FAQScreen',
 }

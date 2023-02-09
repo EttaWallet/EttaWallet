@@ -1,5 +1,5 @@
 import React from 'react';
-import { SafeAreaView, StatusBar, useColorScheme, LogBox } from 'react-native';
+import { StatusBar, useColorScheme, LogBox } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { ThemeProvider, LIGHT_THEME, DARK_THEME, Colors } from 'etta-ui';
 import { enableScreens } from 'react-native-screens';
@@ -34,21 +34,19 @@ const App = () => {
   };
 
   return (
-    <SafeAreaView>
-      <ThemeProvider value={theme}>
-        <EttaStorageProvider>
-          <I18nGate loading={<AppLoading />}>
-            <StatusBar
-              barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-              backgroundColor={backgroundStyle.backgroundColor}
-            />
-            <ErrorBoundary>
-              <NavigatorWrapper />
-            </ErrorBoundary>
-          </I18nGate>
-        </EttaStorageProvider>
-      </ThemeProvider>
-    </SafeAreaView>
+    <ThemeProvider value={theme}>
+      <EttaStorageProvider>
+        <I18nGate loading={<AppLoading />}>
+          <StatusBar
+            barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+            backgroundColor={backgroundStyle.backgroundColor}
+          />
+          <ErrorBoundary>
+            <NavigatorWrapper />
+          </ErrorBoundary>
+        </I18nGate>
+      </EttaStorageProvider>
+    </ThemeProvider>
   );
 };
 

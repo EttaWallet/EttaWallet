@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
-import {
-  createStackNavigator,
-  StackNavigationOptions,
-  TransitionPresets,
-} from '@react-navigation/stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { Screens } from './Screens';
 import type { StackParamList } from './types';
 import {
@@ -22,23 +19,20 @@ import AppLoading from '../shared/AppLoading';
 import SplashScreen from 'react-native-splash-screen';
 import Logger from '../utils/logger';
 import LanguageChooser from '../screens/LanguageChooserScreen';
-import WalletHomeScreen from '../screens/WalletHomeScreen';
 import type { ExtractProps } from '../utils/helpers';
+import DrawerNavigator from './DrawerNavigator';
 
 const TAG = 'Navigator';
 
-const Stack = createStackNavigator<StackParamList>();
-const ModalStack = createStackNavigator<StackParamList>();
+const Stack = createNativeStackNavigator<StackParamList>();
+const ModalStack = createNativeStackNavigator<StackParamList>();
 const RootStack = createBottomSheetNavigator<StackParamList>();
 
 export const modalScreenOptions = () =>
   Platform.select({
     // iOS 13 modal presentation
     ios: {
-      gestureEnabled: true,
-      cardOverlayEnabled: true,
-      headerStatusBarHeight: 0,
-      ...TransitionPresets.ModalPresentationIOS,
+      presentation: 'modal',
     },
   });
 
@@ -86,7 +80,7 @@ export const MainStackScreen = () => {
         initialRoute = Screens.OnboardingSlidesScreen;
         // missing else if here for LDK wallet
       } else {
-        initialRoute = Screens.WalletHomeScreen;
+        initialRoute = Screens.DrawerNavigator;
       }
 
       setInitialRoute(initialRoute);
@@ -107,11 +101,7 @@ export const MainStackScreen = () => {
 
   return (
     <Stack.Navigator initialRouteName={initialRouteName} screenOptions={emptyHeader}>
-      <Stack.Screen
-        name={Screens.WalletHomeScreen}
-        component={WalletHomeScreen}
-        options={WalletHomeScreen.navigationOptions}
-      />
+      <Stack.Screen name={Screens.DrawerNavigator} component={DrawerNavigator} options={noHeader} />
       {commonScreens(Stack)}
       {onboardingScreens(Stack)}
     </Stack.Navigator>
@@ -124,22 +114,23 @@ const modalAnimatedScreens = (Navigator: typeof Stack) => (
     <Navigator.Screen
       name={Screens.LanguageModal}
       component={LanguageChooser}
-      options={LanguageChooser.navigationOptions() as StackNavigationOptions}
+      options={LanguageChooser.navigationOptions() as NativeStackNavigationOptions}
     />
   </>
 );
-
 const mainScreenNavOptions = () => ({
   headerShown: false,
 });
 
+// this nav stack is necessary to nest any screens rendering as modals
+// below the mainstack
 const ModalStackScreen = () => {
   return (
     <ModalStack.Navigator>
       <ModalStack.Screen
         name={Screens.Main}
         component={MainStackScreen}
-        options={mainScreenNavOptions as StackNavigationOptions}
+        options={mainScreenNavOptions as NativeStackNavigationOptions}
       />
       {modalAnimatedScreens(ModalStack)}
     </ModalStack.Navigator>

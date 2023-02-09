@@ -5,6 +5,7 @@ import { name as appName } from './app.json';
 import Logger from './src/utils/logger';
 import * as Sentry from '@sentry/react-native';
 import Config from 'react-native-config';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { stringToBoolean } from './src/utils/helpers';
 import 'intl-pluralrules';
@@ -23,9 +24,11 @@ ErrorUtils.setGlobalHandler(customErrorHandler);
 
 const EttaAppComponent = () => {
   return (
-    <GestureHandlerRootView>
-      <App />
-    </GestureHandlerRootView>
+    <SafeAreaProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <App />
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 };
 

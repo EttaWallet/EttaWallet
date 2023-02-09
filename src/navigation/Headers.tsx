@@ -1,24 +1,25 @@
 import * as React from 'react';
 import { Dimensions, PixelRatio, StyleSheet, Text, View } from 'react-native';
-import type { StackNavigationOptions } from '@react-navigation/stack';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import BackButton from './components/BackButton';
 import CancelButton from './components/CancelButton';
 import { navigateBack } from './NavigationService';
 import DisconnectBanner from '../shared/DisconnectBanner';
-import { TypographyPresets, Colors, Icon } from 'etta-ui';
+import { Colors, Icon } from 'etta-ui';
 
-export const noHeader: StackNavigationOptions = {
+export const noHeader: NativeStackNavigationOptions = {
   headerShown: false,
 };
 
-export const noHeaderGestureDisabled: StackNavigationOptions = {
+export const noHeaderGestureDisabled: NativeStackNavigationOptions = {
   headerShown: false,
   gestureEnabled: false,
 };
 
 export const styles = StyleSheet.create({
   headerTitle: {
-    ...TypographyPresets.Header5,
+    fontSize: 16,
+    lineHeight: 20,
     maxWidth: Dimensions.get('window').width * 0.6,
   },
   header: {
@@ -31,7 +32,7 @@ export const styles = StyleSheet.create({
   },
 });
 
-export const initNavigationOptions: StackNavigationOptions = {
+export const initNavigationOptions: NativeStackNavigationOptions = {
   headerShown: true,
   headerTransparent: true,
   // Prevents double back button on Android
@@ -44,12 +45,12 @@ export const initNavigationOptions: StackNavigationOptions = {
   },
 };
 
-export const initNavigationOptionsNoBackButton: StackNavigationOptions = {
+export const initNavigationOptionsNoBackButton: NativeStackNavigationOptions = {
   ...initNavigationOptions,
   headerLeft: () => <View />,
 };
 
-export const emptyHeader: StackNavigationOptions = {
+export const emptyHeader: NativeStackNavigationOptions = {
   headerTitle: ' ',
   headerShown: true,
   // Prevents double back button on Android
@@ -62,23 +63,23 @@ export const emptyHeader: StackNavigationOptions = {
   },
 };
 
-export const headerWithBackButton: StackNavigationOptions = {
+export const headerWithBackButton: NativeStackNavigationOptions = {
   ...emptyHeader,
   headerLeft: ({ canGoBack }) => (canGoBack ? <BackButton /> : null),
 };
 
-export const headerWithCancelButton: StackNavigationOptions = {
+export const headerWithCancelButton: NativeStackNavigationOptions = {
   ...emptyHeader,
   headerLeft: () => <CancelButton />,
 };
 
-export const headerWithBackEditButtons: StackNavigationOptions = {
+export const headerWithBackEditButtons: NativeStackNavigationOptions = {
   ...emptyHeader,
   headerLeft: () => (PixelRatio.getFontScale() > 1 ? <CancelButton /> : <CancelButton />),
   headerRight: () => <BackButton />,
 };
 
-export const headerWithCloseButton: StackNavigationOptions = {
+export const headerWithCloseButton: NativeStackNavigationOptions = {
   ...emptyHeader,
   headerLeft: () => <Icon name="icon-cross" onPress={navigateBack} />,
 };
