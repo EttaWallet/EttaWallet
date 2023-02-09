@@ -18,9 +18,9 @@ interface ContextProps {
   supportedBiometrics: string[] | null;
   setSupportedBiometrics: (active: null) => void;
   setDoNotTrack: (value: number) => void;
-  isDoNotTrackEnabled: (active: false) => void;
-  areOnboardingSlidesCompleted: (active: false) => void;
-  isUserLanguageSet: (active: false) => void;
+  isDoNotTrackEnabled: () => void;
+  areOnboardingSlidesCompleted: () => Promise<boolean>;
+  isUserLanguageSet: () => Promise<boolean>;
   getItemFromKeychain: (key: string) => void;
   setItemInKeychain: (key: string, value: string) => void;
 }

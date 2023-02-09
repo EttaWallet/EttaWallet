@@ -23,16 +23,9 @@ import SplashScreen from 'react-native-splash-screen';
 import Logger from '../utils/logger';
 import LanguageChooser from '../screens/LanguageChooserScreen';
 import WalletHomeScreen from '../screens/WalletHomeScreen';
+import type { ExtractProps } from '../utils/helpers';
 
 const TAG = 'Navigator';
-
-/**
- * Utility type to extract external Props of a component (respecting defaultProps)
- * See https://github.com/Microsoft/TypeScript/issues/26704
- * Usage: ExtractProps<typeof SomeComponent>
- */
-type ExtractProps<T extends keyof JSX.IntrinsicElements | React.JSXElementConstructor<any>> =
-  JSX.LibraryManagedAttributes<T, React.ComponentProps<T>>;
 
 const Stack = createStackNavigator<StackParamList>();
 const ModalStack = createStackNavigator<StackParamList>();
@@ -81,24 +74,31 @@ export const MainStackScreen = () => {
   const { areOnboardingSlidesCompleted, isUserLanguageSet } = useEttaStorageContext();
 
   useEffect(() => {
-    let initialRoute: InitialRouteName = Screens.LangugageChooserScreen;
+    let initialRoute: InitialRouteName;
 
-    if (!isUserLanguageSet) {
-      initialRoute = Screens.LangugageChooserScreen;
-    } else if (!areOnboardingSlidesCompleted) {
-      initialRoute = Screens.OnboardingSlidesScreen;
-      // see if LDK node exists. Change the boolean check once setup.
-    } else if (!isUserLanguageSet) {
-      initialRoute = Screens.WelcomeScreen;
-    } else {
-      initialRoute = Screens.WalletHomeScreen;
-    }
+    const checkStorageDefaults = async () => {
+      // grab from storage context
+      const defaultLanguageChosen = await isUserLanguageSet();
+      const onboardingSlidesCompleted = await areOnboardingSlidesCompleted();
+      if (defaultLanguageChosen === false) {
+        initialRoute = Screens.LangugageChooserScreen;
+      } else if (onboardingSlidesCompleted === false) {
+        initialRoute = Screens.OnboardingSlidesScreen;
+        // missing else if here for LDK wallet
+      } else {
+        initialRoute = Screens.WalletHomeScreen;
+      }
 
-    setInitialRoute(initialRoute);
-    Logger.info(`${TAG}@MainStackScreen`, `Initial route: ${initialRoute}`);
+      setInitialRoute(initialRoute);
+      Logger.info(`${TAG}@MainStackScreen`, `Initial route: ${initialRoute}`);
 
-    // Wait for next frame to avoid slight gap when hiding the splash
-    requestAnimationFrame(() => SplashScreen.hide());
+      // Wait for next frame to avoid slight gap when hiding the splash
+      requestAnimationFrame(() => SplashScreen.hide());
+    };
+
+    checkStorageDefaults()
+      // catch any errors
+      .catch(console.error);
   }, [areOnboardingSlidesCompleted, isUserLanguageSet]);
 
   if (!initialRouteName) {
@@ -110,7 +110,7 @@ export const MainStackScreen = () => {
       <Stack.Screen
         name={Screens.WalletHomeScreen}
         component={WalletHomeScreen}
-        options={noHeader}
+        options={WalletHomeScreen.navigationOptions}
       />
       {commonScreens(Stack)}
       {onboardingScreens(Stack)}
@@ -130,7 +130,6 @@ const modalAnimatedScreens = (Navigator: typeof Stack) => (
 );
 
 const mainScreenNavOptions = () => ({
-  ...modalScreenOptions(),
   headerShown: false,
 });
 

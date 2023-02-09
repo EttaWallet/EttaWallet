@@ -158,14 +158,14 @@ export async function isBottomSheetVisible(screen: Screens) {
 }
 
 interface NavigateHomeOptions {
-  params?: StackParamList[Screens.ErrorScreen]; // WalletHomeScreen
+  params?: StackParamList[Screens.WalletHomeScreen];
 }
 
 export function navigateHome(options?: NavigateHomeOptions) {
   const { params } = options ?? {};
   navigationRef.current?.reset({
     index: 0,
-    routes: [{ name: Screens.ErrorScreen, params }], // WalletHomeScreen
+    routes: [{ name: Screens.WalletHomeScreen, params }],
   });
 }
 

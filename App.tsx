@@ -11,7 +11,7 @@ import Logger from './src/utils/logger';
 import i18n from './src/i18n';
 import { EttaStorageProvider } from './src/storage/context';
 
-Logger.debug('App/init', 'Current Language: ' + i18n.language);
+Logger.info('App/init', 'Current Language: ' + i18n.language);
 
 // Explicitly enable screens for react-native-screens
 enableScreens(true);
@@ -21,6 +21,7 @@ const ignoreWarnings = [
   'Remote debugger',
   'cancelTouches',
   'Require cycle',
+  'react-i18next', // this annoying error isn't saying much tbh
 ];
 
 LogBox.ignoreLogs(ignoreWarnings);

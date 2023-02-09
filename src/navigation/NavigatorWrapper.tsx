@@ -8,6 +8,8 @@ import { navigationRef, navigatorIsReadyRef } from './NavigationService';
 import Navigator from './Navigator';
 import navTheme from './theme';
 import Logger from '../utils/logger';
+import * as Sentry from '@sentry/react-native';
+import type { SeverityLevel } from '@sentry/types';
 import { sentryRoutingInstrumentation } from '../utils/sentry';
 
 const PERSISTENCE_KEY = 'NAVIGATION_STATE';
@@ -52,7 +54,7 @@ export const NavigatorWrapper = () => {
           const state = JSON.parse(savedStateString);
 
           setInitialState(state);
-        } catch (e) {
+        } catch (e: any) {
           Logger.error('NavigatorWrapper', 'Error getting nav state', e);
         }
       }
@@ -87,7 +89,16 @@ export const NavigatorWrapper = () => {
       );
     }
 
+    const previousRouteName = routeNameRef.current;
     const currentRouteName = getActiveRouteName(state);
+
+    if (previousRouteName !== currentRouteName) {
+      Sentry.addBreadcrumb({
+        category: 'navigation',
+        message: `Navigated to ${currentRouteName}`,
+        level: 'info' as SeverityLevel,
+      });
+    }
 
     // Save the current route name for later comparision
     routeNameRef.current = currentRouteName;
@@ -120,33 +131,6 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
     justifyContent: 'flex-start',
   },
-  floating: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    right: 0,
-  },
-  locked: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-  },
 });
-
-export const navbarStyle: {
-  headerMode: 'none';
-} = {
-  headerMode: 'none',
-};
-
-export const headerArea = {
-  navigationOptions: {
-    headerStyle: {
-      elevation: 0,
-    },
-  },
-};
 
 export default NavigatorWrapper;
