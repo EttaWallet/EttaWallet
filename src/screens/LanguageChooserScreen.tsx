@@ -8,7 +8,7 @@ import { emptyHeader, headerWithBackButton } from '../navigation/Headers';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import type { StackParamList } from '../navigation/types';
-import { TypographyPresets } from 'etta-ui';
+import { Colors, TypographyPresets } from 'etta-ui';
 import SelectionOption from '../components/SelectionOption';
 
 type ScreenProps = StackScreenProps<
@@ -58,9 +58,7 @@ const LanguageChooser = ({ route }: Props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title} testID={'ChooseLanguageTitle'}>
-        {t('selectLanguage')}
-      </Text>
+      <Text style={styles.title}>{t('selectLanguage')}</Text>
       <FlatList
         initialNumToRender={localesList.length}
         data={localesList}
@@ -87,8 +85,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    ...TypographyPresets.Body3,
+    ...TypographyPresets.Header4,
     margin: 16,
+    color: Colors.common.black,
   },
 });
 

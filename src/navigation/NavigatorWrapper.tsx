@@ -11,6 +11,7 @@ import Logger from '../utils/logger';
 import * as Sentry from '@sentry/react-native';
 import type { SeverityLevel } from '@sentry/types';
 import { sentryRoutingInstrumentation } from '../utils/sentry';
+import WelcomeScreen from '../screens/WelcomeScreen';
 
 const PERSISTENCE_KEY = 'NAVIGATION_STATE';
 
@@ -118,7 +119,7 @@ export const NavigatorWrapper = () => {
       theme={navTheme}
     >
       <View style={styles.container}>
-        <Navigator />
+        <WelcomeScreen />
       </View>
     </NavigationContainer>
   );

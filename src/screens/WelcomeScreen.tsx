@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, TypographyPresets, Colors, Icon, Chip } from 'etta-ui';
-import { View, StyleSheet, Text } from 'react-native';
+import { SafeAreaView, View, StyleSheet, Text } from 'react-native';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { initNavigationOptions } from '../navigation/Headers';
@@ -9,28 +9,30 @@ import { initNavigationOptions } from '../navigation/Headers';
 const WelcomeScreen = () => {
   const { t } = useTranslation();
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.iconContainer}>
-        <Icon name="icon-bitcoin-circle" style={styles.appIcon} />
+        <Icon name="icon-wallet" style={styles.appIcon} />
       </View>
       <Text style={styles.appName}>EttaWallet</Text>
       <Text style={styles.subtitle}>{t('welcome.subtitle')}</Text>
-      <Button
-        style={styles.button}
-        title={t('welcome.createNewWallet')}
-        size="block"
-        appearance="filled"
-        onPress={() => navigate(Screens.WalletHomeScreen)}
-      />
-      <Button
-        style={styles.button}
-        title={t('welcome.restoreWallet')}
-        appearance="transparent"
-        size="block"
-        onPress={() => navigate(Screens.RestoreWalletScreen)}
-      />
+      <View>
+        <Button
+          style={styles.button}
+          title={t('welcome.createNewWallet')}
+          size="block"
+          appearance="filled"
+          onPress={() => navigate(Screens.WalletHomeScreen)}
+        />
+        <Button
+          style={styles.button}
+          title={t('welcome.restoreWallet')}
+          appearance="transparent"
+          size="block"
+          onPress={() => navigate(Screens.RestoreWalletScreen)}
+        />
+      </View>
       <Text style={styles.footer}>{t('welcome.footer')}</Text>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -38,13 +40,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignContent: 'center',
-    justifyContent: 'center',
-    padding: 20,
+    justifyContent: 'space-between',
+    marginHorizontal: 20,
   },
   appIcon: {
     alignSelf: 'center',
     justifyContent: 'center',
     fontSize: 52,
+    color: Colors.common.white,
   },
   iconContainer: {
     alignSelf: 'center',

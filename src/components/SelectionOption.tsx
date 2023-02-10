@@ -44,11 +44,12 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderColor: Colors.common.black,
+    borderColor: Colors.neutrals.light.neutral4,
   },
   text: {
-    ...TypographyPresets.Body3,
+    ...TypographyPresets.Body4,
     flex: 1,
+    color: Colors.common.black,
     marginRight: 16,
   },
   iconContainer: {

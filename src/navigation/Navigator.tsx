@@ -9,7 +9,10 @@ import {
   BottomSheetBackdropProps,
   useBottomSheetDynamicSnapPoints,
 } from '@gorhom/bottom-sheet';
-import { createBottomSheetNavigator } from '@th3rdwave/react-navigation-bottom-sheet';
+import {
+  createBottomSheetNavigator,
+  BottomSheetNavigationOptions,
+} from '@th3rdwave/react-navigation-bottom-sheet';
 import ErrorScreen from '../shared/ErrorScreen';
 import { noHeader, emptyHeader } from './Headers';
 import OnboardingSlidesScreen from '../screens/OnboardingSlidesScreen';
@@ -25,45 +28,14 @@ import DrawerNavigator from './DrawerNavigator';
 const TAG = 'Navigator';
 
 const Stack = createNativeStackNavigator<StackParamList>();
-const ModalStack = createNativeStackNavigator<StackParamList>();
 const RootStack = createBottomSheetNavigator<StackParamList>();
 
-export const modalScreenOptions = () =>
-  Platform.select({
-    // iOS 13 modal presentation
-    ios: {
-      presentation: 'modal',
-    },
-  });
-
-const commonScreens = (Navigator: typeof Stack) => {
-  return (
-    <>
-      <Navigator.Screen name={Screens.ErrorScreen} component={ErrorScreen} options={noHeader} />
-    </>
-  );
-};
-
-const onboardingScreens = (Navigator: typeof Stack) => (
-  <>
-    <Navigator.Screen
-      name={Screens.OnboardingSlidesScreen}
-      component={OnboardingSlidesScreen}
-      options={noHeader}
-    />
-    <Navigator.Screen
-      name={Screens.WelcomeScreen}
-      component={WelcomeScreen}
-      options={WelcomeScreen.navigationOptions}
-    />
-  </>
-);
+type combinedNavProps = BottomSheetNavigationOptions & NativeStackNavigationOptions;
 
 type InitialRouteName = ExtractProps<typeof Stack.Navigator>['initialRouteName'];
 
 export const MainStackScreen = () => {
   const [initialRouteName, setInitialRoute] = useState<InitialRouteName>(undefined);
-
   // get storage booleans from context
   const { areOnboardingSlidesCompleted, isUserLanguageSet } = useEttaStorageContext();
 
@@ -101,41 +73,46 @@ export const MainStackScreen = () => {
 
   return (
     <Stack.Navigator initialRouteName={initialRouteName} screenOptions={emptyHeader}>
+      {/* Onboarding screens */}
+      <Stack.Group>
+        <Stack.Screen
+          name={Screens.LangugageChooserScreen}
+          component={LanguageChooser}
+          options={LanguageChooser.navigationOptions() as NativeStackNavigationOptions}
+        />
+        <Stack.Screen
+          name={Screens.OnboardingSlidesScreen}
+          component={OnboardingSlidesScreen}
+          options={noHeader}
+        />
+        <Stack.Screen
+          name={Screens.WelcomeScreen}
+          component={WelcomeScreen}
+          options={WelcomeScreen.navigationOptions}
+        />
+      </Stack.Group>
+      {/* Home drawer navigation */}
       <Stack.Screen name={Screens.DrawerNavigator} component={DrawerNavigator} options={noHeader} />
-      {commonScreens(Stack)}
-      {onboardingScreens(Stack)}
+      {/* Common screens */}
+      <Stack.Group>
+        <Stack.Screen name={Screens.ErrorScreen} component={ErrorScreen} options={noHeader} />
+      </Stack.Group>
     </Stack.Navigator>
   );
 };
 
-const modalAnimatedScreens = (Navigator: typeof Stack) => (
-  <>
-    {/* QR code screen and FAQ screen will go here too */}
-    <Navigator.Screen
-      name={Screens.LanguageModal}
-      component={LanguageChooser}
-      options={LanguageChooser.navigationOptions() as NativeStackNavigationOptions}
-    />
-  </>
-);
+export const modalScreenOptions = () =>
+  Platform.select({
+    // iOS 13 modal presentation
+    ios: {
+      presentation: 'modal',
+    },
+  });
+
 const mainScreenNavOptions = () => ({
+  ...modalScreenOptions(),
   headerShown: false,
 });
-
-// this nav stack is necessary to nest any screens rendering as modals
-// below the mainstack
-const ModalStackScreen = () => {
-  return (
-    <ModalStack.Navigator>
-      <ModalStack.Screen
-        name={Screens.Main}
-        component={MainStackScreen}
-        options={mainScreenNavOptions as NativeStackNavigationOptions}
-      />
-      {modalAnimatedScreens(ModalStack)}
-    </ModalStack.Navigator>
-  );
-};
 
 const RootStackScreen = () => {
   const initialBottomSheetSnapPoints = React.useMemo(() => ['CONTENT_HEIGHT'], []);
@@ -159,7 +136,11 @@ const RootStackScreen = () => {
         contentHeight: animatedContentHeight,
       }}
     >
-      <RootStack.Screen name={Screens.MainModal} component={ModalStackScreen} />
+      <RootStack.Screen
+        name={Screens.Main}
+        component={MainStackScreen}
+        options={mainScreenNavOptions as combinedNavProps}
+      />
     </RootStack.Navigator>
   );
 };

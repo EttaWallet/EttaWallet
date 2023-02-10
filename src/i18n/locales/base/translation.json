@@ -4,7 +4,8 @@
     "badPassword": "Incorrect password. Please try again.",
     "enterPassword": "Enter password",
     "storageIsEncrypted": "Your storage is encrypted. Password is required to decrypt it.",
-    "selectLanguage": "Select language",
+    "selectLanguage": "Select default language",
+    "changeLanguage": "Change Language",
     "selectCurrency": "Select local currency",
     "welcome": {
         "subtitle": "Bitcoin is for all of us",
@@ -172,6 +173,7 @@
     },
     "errorScreen": {
         "restartApp": "Restart EttaWallet",
+        "shouldRestart": "This is taking some time. Do you want to restart?",
         "defaultTitle": "Something went wrong",
         "defaultDescription": "More details below"
     },

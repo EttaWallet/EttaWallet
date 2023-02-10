@@ -1,10 +1,11 @@
 import * as React from 'react';
 import type { WithTranslation } from 'react-i18next';
-import { StyleSheet, View, SafeAreaView } from 'react-native';
-import { Button, Colors } from 'etta-ui';
+import { StyleSheet, View, SafeAreaView, ActivityIndicator, Text } from 'react-native';
+import { Button, Colors, TypographyPresets } from 'etta-ui';
 import { withTranslation } from '../i18n';
 import { restartApp } from '../utils/restart';
 
+// determines how after this appears to ask user to restart app
 const SHOW_RESTART_BUTTON_TIMEOUT = 10000;
 
 interface State {
@@ -41,9 +42,19 @@ export class AppLoading extends React.Component<Props, State> {
 
     return (
       <SafeAreaView style={styles.content}>
+        <View>
+          <ActivityIndicator size="large" color={Colors.orange.base} />
+        </View>
         <View style={styles.button}>
           {this.state.showRestartButton && (
-            <Button onPress={restartApp} title={t('errorScreen.restartApp')} appearance="filled" />
+            <>
+              <Text style={styles.advice}>{t('errorScreen.shouldRestart')}</Text>
+              <Button
+                onPress={restartApp}
+                title={t('errorScreen.restartApp')}
+                appearance="filled"
+              />
+            </>
           )}
         </View>
       </SafeAreaView>
@@ -56,15 +67,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
-    width: '100%',
-    backgroundColor: Colors.orange.base,
+    paddingHorizontal: 16,
+    marginTop: 32,
   },
-
+  advice: {
+    ...TypographyPresets.Body4,
+    color: Colors.neutrals.light.neutral7,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
   button: {
     alignItems: 'center',
     justifyContent: 'flex-end',
     paddingLeft: 20,
     paddingRight: 20,
+    marginBottom: 50,
     flex: 1,
   },
 });

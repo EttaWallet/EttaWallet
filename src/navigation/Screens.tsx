@@ -7,7 +7,6 @@ export enum Screens {
   WalletHomeScreen = 'WalletHomeScreen',
   OnboardingSlidesScreen = 'OnboardingSlidesScreen',
   Main = 'Main',
-  MainModal = 'MainModal',
   DrawerNavigator = 'DrawerNavigator',
   ManualBackupScreen = 'ManualBackupScreen',
   ManualBackupQuizScreen = 'ManualBackupQuizScreen',
