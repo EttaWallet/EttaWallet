@@ -9,7 +9,8 @@ import NavigatorWrapper from './src/navigation/NavigatorWrapper';
 import ErrorBoundary from './src/shared/ErrorBoundary';
 import Logger from './src/utils/logger';
 import i18n from './src/i18n';
-import { EttaStorageProvider } from './src/storage/context';
+import { StoreProvider } from 'easy-peasy';
+import store from './src/state/store';
 
 Logger.info('App/init', 'Current Language: ' + i18n.language);
 
@@ -21,7 +22,8 @@ const ignoreWarnings = [
   'Remote debugger',
   'cancelTouches',
   'Require cycle',
-  'react-i18next', // this annoying error isn't saying much tbh
+  'react-i18next', // this annoying error isn't saying much tbh,
+  'Non-serializable values were found in the navigation state', // @tofix: comes from EnterPinScreen onSuccess()
 ];
 
 LogBox.ignoreLogs(ignoreWarnings);
@@ -32,10 +34,26 @@ const App = () => {
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.common.black : Colors.common.white,
   };
+  // const appReady = useStoreState((state) => state.app.appReady);
+  // const initializeApp = useStoreActions((action) => action.initializeApp);
+
+  // useEffect(() => {
+  //   // tslint:disable-next-line
+  //   (async () => {
+  //     console.log('ready or not?', appReady);
+  //     if (!appReady) {
+  //       try {
+  //         await initializeApp();
+  //       } catch (e) {
+  //         console.log('Something happened', e);
+  //       }
+  //     }
+  //   })();
+  // }, [appReady]);
 
   return (
     <ThemeProvider value={theme}>
-      <EttaStorageProvider>
+      <StoreProvider store={store}>
         <I18nGate loading={<AppLoading />}>
           <StatusBar
             barStyle={isDarkMode ? 'light-content' : 'dark-content'}
@@ -45,7 +63,7 @@ const App = () => {
             <NavigatorWrapper />
           </ErrorBoundary>
         </I18nGate>
-      </EttaStorageProvider>
+      </StoreProvider>
     </ThemeProvider>
   );
 };

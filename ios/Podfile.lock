@@ -75,6 +75,9 @@ PODS:
   - glog (0.3.5)
   - hermes-engine (0.70.6)
   - libevent (2.1.12)
+  - MMKV (1.2.15):
+    - MMKVCore (~> 1.2.15)
+  - MMKVCore (1.2.15)
   - OpenSSL-Universal (1.1.1100)
   - RCT-Folly (2021.07.22.00):
     - boost
@@ -306,7 +309,10 @@ PODS:
     - react-native-config/App (= 1.5.0)
   - react-native-config/App (1.5.0):
     - React-Core
-  - react-native-flipper (0.178.1):
+  - react-native-flipper (0.183.0):
+    - React-Core
+  - react-native-mmkv (2.6.3):
+    - MMKV (>= 1.2.13)
     - React-Core
   - react-native-restart (0.0.27):
     - React-Core
@@ -392,6 +398,8 @@ PODS:
     - React-Core
   - RNGestureHandler (2.9.0):
     - React-Core
+  - RNKeychain (8.1.1):
+    - React-Core
   - RNLocalize (2.2.4):
     - React-Core
   - RNReanimated (2.14.4):
@@ -424,9 +432,15 @@ PODS:
   - RNScreens (3.19.0):
     - React-Core
     - React-RCTImage
+  - RNSecureRandom (1.0.1):
+    - React
   - RNSentry (4.14.0):
     - React-Core
     - Sentry/HybridSDK (= 7.31.5)
+  - RNSha256 (1.4.9):
+    - React-Core
+  - RNSVG (13.8.0):
+    - React-Core
   - Sentry/HybridSDK (7.31.5)
   - SocketRocket (0.6.0)
   - Yoga (1.14.0)
@@ -482,6 +496,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-config (from `../node_modules/react-native-config`)
   - react-native-flipper (from `../node_modules/react-native-flipper`)
+  - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - react-native-restart (from `../node_modules/react-native-restart`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-secure-key-store (from `../node_modules/react-native-secure-key-store`)
@@ -501,10 +516,14 @@ DEPENDENCIES:
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNKeychain (from `../node_modules/react-native-keychain`)
   - RNLocalize (from `../node_modules/react-native-localize`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNSecureRandom (from `../node_modules/react-native-securerandom`)
   - "RNSentry (from `../node_modules/@sentry/react-native`)"
+  - RNSha256 (from `../node_modules/react-native-sha256`)
+  - RNSVG (from `../node_modules/react-native-svg`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -521,6 +540,8 @@ SPEC REPOS:
     - FlipperKit
     - fmt
     - libevent
+    - MMKV
+    - MMKVCore
     - OpenSSL-Universal
     - Sentry
     - SocketRocket
@@ -573,6 +594,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-config"
   react-native-flipper:
     :path: "../node_modules/react-native-flipper"
+  react-native-mmkv:
+    :path: "../node_modules/react-native-mmkv"
   react-native-restart:
     :path: "../node_modules/react-native-restart"
   react-native-safe-area-context:
@@ -611,14 +634,22 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-device-info"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNKeychain:
+    :path: "../node_modules/react-native-keychain"
   RNLocalize:
     :path: "../node_modules/react-native-localize"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSecureRandom:
+    :path: "../node_modules/react-native-securerandom"
   RNSentry:
     :path: "../node_modules/@sentry/react-native"
+  RNSha256:
+    :path: "../node_modules/react-native-sha256"
+  RNSVG:
+    :path: "../node_modules/react-native-svg"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -641,6 +672,8 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 2af7b7a59128f250adfd86f15aa1d5a2ecd39995
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
+  MMKV: 7f34558bbb5a33b0eaefae2de4b6a20a2ffdad6f
+  MMKVCore: ddf41b9d9262f058419f9ba7598719af56c02cd3
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
   RCT-Folly: 0080d0a6ebf2577475bda044aa59e2ca1f909cda
   RCTRequired: e1866f61af7049eb3d8e08e8b133abd38bc1ca7a
@@ -658,7 +691,8 @@ SPEC CHECKSUMS:
   React-jsinspector: 60769e5a0a6d4b32294a2456077f59d0266f9a8b
   React-logger: 1623c216abaa88974afce404dc8f479406bbc3a0
   react-native-config: 5330c8258265c1e5fdb8c009d2cabd6badd96727
-  react-native-flipper: a171cbd0bbc75544b0061d8e9f035e87d5233104
+  react-native-flipper: fe6db6651d338f516899ebe8dad573d0f2d7aa76
+  react-native-mmkv: 2e5bf67513cc8deed86fcffe87e12b8cc250dfab
   react-native-restart: 7595693413fe3ca15893702f2c8306c62a708162
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
   react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
@@ -678,10 +712,14 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 8616bd5a58af409453ea4e1b246521bb76578d60
   RNDeviceInfo: 4701f0bf2a06b34654745053db0ce4cb0c53ada7
   RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
+  RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333
   RNLocalize: 0df7970cfc60389f00eb62fd7c097dc75af3fb4f
   RNReanimated: 6668b0587bebd4b15dd849b99e5a9c70fc12ed95
   RNScreens: ea4cd3a853063cda19a4e3c28d2e52180c80f4eb
+  RNSecureRandom: 07efbdf2cd99efe13497433668e54acd7df49fef
   RNSentry: 7e90aec2633d2fdad8aeb839c9915e4376fd27d1
+  RNSha256: a6bc3640a34eb41907e363828b9ec742c274298d
+  RNSVG: c1e76b81c76cdcd34b4e1188852892dc280eb902
   Sentry: 4c9babff9034785067c896fd580b1f7de44da020
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   Yoga: 99caf8d5ab45e9d637ee6e0174ec16fbbb01bcfc

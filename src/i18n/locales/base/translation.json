@@ -1,10 +1,11 @@
 {
     "cancel": "Cancel",
     "ok": "Okay",
+    "disconnected": "Bad internet connection. Some features might not work.",
     "badPassword": "Incorrect password. Please try again.",
     "enterPassword": "Enter password",
     "storageIsEncrypted": "Your storage is encrypted. Password is required to decrypt it.",
-    "selectLanguage": "Select default language",
+    "selectLanguage": "What language do you speak?",
     "changeLanguage": "Change Language",
     "selectCurrency": "Select local currency",
     "welcome": {
@@ -12,7 +13,7 @@
         "createNewWallet": "Create new wallet",
         "restoreWallet": "Restore wallet",
         "iAlreadyHaveAWallet": "I already have a wallet",
-        "footer": " Your wallet, your coins. \n 100% open-source & open-design. \n Built with ❤️ in Uganda"
+        "footer": " Your wallet, your coins. \n 100% open source. \n Built in 🇺🇬 & 🇰🇪"
     },
     "onboardingSlides": {
         "slide1": {
@@ -33,17 +34,18 @@
             "next": "Next"
         }
     },
-    "pinCode": {
+    "pincode": {
         "create": "Create a PIN",
         "createNew": "Create a new PIN",
         "verify": "Enter your PIN again to confirm",
         "changePIN": "Change PIN",
         "pinsDontMatch": "The PINs didn't match",
         "invalidPin": "Please use a stronger PIN",
-        "guideTitle": "Choose a 6 digit PIN you’ll remember",
+        "guideTitle": "Choose a 6 digit PIN",
         "guideConfirm": "Enter your PIN again to confirm.",
-        "pinCodeGuide": "Your PIN is how you’ll secure your wallet.",
-        "selectPIN": "Select PIN"
+        "guideSubtitle": "This is used to encrypt your wallet, which prevents others from accessing it.",
+        "selectPIN": "Select PIN",
+        "confirmPin": "Enter PIN to confirm"
     },
     "recoveryPhraseIntro": {
         "title": "Let's create your recovery phrase",
@@ -94,17 +96,6 @@
         "backupVerified": {
             "title": "Back Up Verified",
             "text": "Well done!. \n Please keep your recovery phrase safe. Memorize it if you can."
-        }
-    },
-    "protectWallet": {
-        "title": "Protect your wallet",
-        "subtitle": "Add an extra layer of security to prevent anyone from accessing your wallet and bitcoin",
-        "useBiometricsBtn": "Use {{biometryType}}",
-        "createPinBtn": "Create PIN",
-        "biometryType": {
-            "FaceID": "Face ID",
-            "TouchID": "Touch ID",
-            "Fingerprint": "Fingerprint recognition"
         }
     },
     "sendBitcoin": {
@@ -178,11 +169,31 @@
         "defaultDescription": "More details below"
     },
     "navigationLabels": {
+        "back": "Back",
+        "skip": "Skip",
         "home": "Home",
         "settings": "Settings",
         "help": "Help",
         "faqs": "FAQs",
         "seedPhrase": "Seed Phrase"
 
+    },
+    "disclaimer": {
+        "title": "Pay attention!",
+        "info": "This app will be in beta for a while.\n \nPlease do not use any amount of bitcoin that you are not prepared to lose. You can learn more in the <0>FAQ here</0>. \n \nBy clicking the button below, you acknowledge that you understand the risks.",
+        "acknowledgeBtn": "I understand the risks"
+    },
+    "biometry": {
+        "header": "Enable biometrics",
+        "title": "Enable {{biometryType}} for extra security?",
+        "subtitle": "This will allow you to conveniently access your wallet and approve transactions faster",
+        "cta": "Enable {{biometryType}}",
+        "type": {
+            "FaceID": "Face ID",
+            "TouchID": "Touch ID",
+            "Fingerprint": "Fingerprint recognition",
+            "Face": "Face recognition",
+            "Iris": "Iris recognition"
+        }
     }
 }

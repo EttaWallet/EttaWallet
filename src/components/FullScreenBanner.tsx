@@ -7,7 +7,7 @@ export interface Props {
   CTAText: string;
   CTAHandler: () => void;
   subtitle?: string | null;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 const { height, width } = Dimensions.get('window');

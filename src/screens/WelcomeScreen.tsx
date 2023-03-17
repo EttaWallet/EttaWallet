@@ -1,37 +1,74 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, TypographyPresets, Colors, Icon, Chip } from 'etta-ui';
+import { Button, TypographyPresets, Colors, Icon } from 'etta-ui';
 import { SafeAreaView, View, StyleSheet, Text } from 'react-native';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { initNavigationOptions } from '../navigation/Headers';
+import LanguageButton from '../components/LanguageButton';
+import { useStoreState, useStoreActions } from '../state/hooks';
+import { APP_NAME } from '../../config';
+import { PinType } from '../state/types';
+import mmkvStorage, { StorageItem } from '../storage/disk';
 
 const WelcomeScreen = () => {
+  const acknowledgedDisclaimer = useStoreState((state) => state.nuxt.acknowledgedDisclaimer);
+  // const pincodeType = useStoreState((state) => state.nuxt.pincodeType);
+  const pincodeType = mmkvStorage.getItem(StorageItem.pinType);
+  const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType);
+  const skippedBiometrics = useStoreState((state) => state.app.skippedBiometrics);
+  // const skippedBiometrics = mmkvStorage.getItem(StorageItem.supportedBiometry);
+  const setChoseRestore = useStoreActions((action) => action.nuxt.setChoseRestoreWallet);
+
+  const navigateNext = () => {
+    if (!acknowledgedDisclaimer) {
+      navigate(Screens.Disclaimer);
+    } else if (pincodeType === PinType.Unset) {
+      navigate(Screens.SetPinScreen);
+    } else if (supportedBiometryType !== null && skippedBiometrics === false) {
+      navigate(Screens.EnableBiometryScreen);
+    } else {
+      navigate(Screens.DrawerNavigator);
+    }
+  };
+
+  const createWalletHandler = () => {
+    setChoseRestore(false);
+    navigateNext();
+  };
+
+  const restoreWalletHandler = () => {
+    setChoseRestore(true);
+    navigateNext();
+  };
+
   const { t } = useTranslation();
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.iconContainer}>
-        <Icon name="icon-wallet" style={styles.appIcon} />
+      <View style={styles.headers}>
+        <View style={styles.iconContainer}>
+          <Icon name="icon-lightning" style={styles.appIcon} />
+        </View>
+        <Text style={styles.appName}>{APP_NAME}</Text>
+        <Text style={styles.subtitle}>{t('welcome.subtitle')}</Text>
       </View>
-      <Text style={styles.appName}>EttaWallet</Text>
-      <Text style={styles.subtitle}>{t('welcome.subtitle')}</Text>
-      <View>
+      <View style={styles.headers}>
         <Button
           style={styles.button}
           title={t('welcome.createNewWallet')}
-          size="block"
           appearance="filled"
-          onPress={() => navigate(Screens.WalletHomeScreen)}
+          onPress={createWalletHandler}
         />
         <Button
           style={styles.button}
           title={t('welcome.restoreWallet')}
           appearance="transparent"
-          size="block"
-          onPress={() => navigate(Screens.RestoreWalletScreen)}
+          onPress={restoreWalletHandler}
         />
       </View>
-      <Text style={styles.footer}>{t('welcome.footer')}</Text>
+      <View>
+        <Text style={styles.footer}>{t('welcome.footer')}</Text>
+      </View>
     </SafeAreaView>
   );
 };
@@ -39,15 +76,12 @@ const WelcomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignContent: 'center',
     justifyContent: 'space-between',
-    marginHorizontal: 20,
+    marginHorizontal: 32,
   },
-  appIcon: {
-    alignSelf: 'center',
-    justifyContent: 'center',
-    fontSize: 52,
-    color: Colors.common.white,
+  headers: {
+    flex: 1,
+    justifyContent: 'flex-start',
   },
   iconContainer: {
     alignSelf: 'center',
@@ -55,22 +89,29 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: Colors.orange.base,
+    backgroundColor: '#401D18',
+    marginVertical: 20,
+  },
+  appIcon: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    fontSize: 52,
+    color: '#FF682C',
   },
   appName: {
     ...TypographyPresets.Header1,
     textAlign: 'center',
-    marginBottom: 10,
-    color: Colors.common.black,
+    color: '#401D18',
   },
   subtitle: {
-    ...TypographyPresets.Body1,
+    ...TypographyPresets.Body3,
     marginBottom: 50,
     textAlign: 'center',
     color: Colors.neutrals.light.neutral7,
   },
   button: {
     marginBottom: 10,
+    justifyContent: 'center',
   },
   footer: {
     fontSize: 15,
@@ -83,9 +124,5 @@ export default WelcomeScreen;
 
 WelcomeScreen.navigationOptions = {
   ...initNavigationOptions,
-  headerRight: () => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { t } = useTranslation();
-    return <Chip>{t('selectLanguage')}</Chip>;
-  },
+  headerRight: () => <LanguageButton />,
 };

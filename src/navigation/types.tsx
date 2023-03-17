@@ -5,6 +5,20 @@ export type StackParamList = {
     errorMessage?: string;
   };
   [Screens.OnboardingSlidesScreen]: undefined;
+  [Screens.Disclaimer]: undefined;
+  [Screens.EnterPinScreen]: {
+    withVerification?: boolean;
+    onSuccess: (pin: string) => void;
+    onCancel: () => void;
+    account?: string;
+  };
+  [Screens.SetPinScreen]:
+    | {
+        changePin?: boolean;
+        choseRestoreWallet?: boolean;
+      }
+    | undefined;
+  [Screens.EnableBiometryScreen]: undefined;
   [Screens.WelcomeScreen]: undefined;
   [Screens.RestoreWalletScreen]: undefined;
   [Screens.WalletHomeScreen]: undefined;
@@ -19,7 +33,7 @@ export type StackParamList = {
       }
     | undefined;
   [Screens.Main]: undefined;
-  [Screens.MainModal]: undefined;
+  [Screens.AnimatedModal]: undefined;
   [Screens.DrawerNavigator]: undefined;
   [Screens.ManualBackupScreen]: undefined;
   [Screens.ManualBackupQuizScreen]: undefined;

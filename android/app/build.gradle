@@ -1,7 +1,7 @@
 apply plugin: "com.android.application"
+apply plugin: "com.facebook.react"
 
 import com.android.build.OutputFile
-import org.apache.tools.ant.taskdefs.condition.Os
 
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
@@ -265,7 +265,8 @@ dependencies {
         exclude group:'com.squareup.okhttp3', module:'okhttp'
     }
 
-    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}") {
+    // fresco not updated. using 0.182.0
+    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:0.182.0") {
         exclude group:'com.facebook.flipper'
     }
 

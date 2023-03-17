@@ -31,13 +31,11 @@ const LanguageChooser = ({ route }: Props) => {
   const { t, i18n } = useTranslation();
   const nextScreen = route.params?.nextScreen;
 
-  const onSelect = (code: string) => {
+  const onSelect = (language: string, code: string) => {
     // eslint-disable-next-line no-void
     void changeLanguage(code);
-    // Wait for next frame before navigating
-    // so the user can see the changed selection briefly
     requestAnimationFrame(() => {
-      navigate(nextScreen || Screens.OnboardingSlidesScreen);
+      navigate(nextScreen || Screens.WelcomeScreen);
     });
   };
 

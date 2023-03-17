@@ -45,6 +45,11 @@ export const initNavigationOptions: NativeStackNavigationOptions = {
   },
 };
 
+export const initOnboardingNavigationOptions: NativeStackNavigationOptions = {
+  ...initNavigationOptions,
+  headerLeft: ({ canGoBack }) => (canGoBack ? <BackButton /> : <View />),
+};
+
 export const initNavigationOptionsNoBackButton: NativeStackNavigationOptions = {
   ...initNavigationOptions,
   headerLeft: () => <View />,

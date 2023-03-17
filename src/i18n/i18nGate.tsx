@@ -3,10 +3,11 @@ import { useAsync } from 'react-async-hook';
 import { findBestAvailableLanguage } from 'react-native-localize';
 import { DEFAULT_APP_LANGUAGE } from '../../config';
 import { initI18n } from '.';
-import { useEttaStorageContext } from '../storage/context';
 import useChangeLanguage from './useChangeLanguage';
 import { navigateToError } from '../navigation/NavigationService';
 import Logger from '../utils/logger';
+// import { useStoreState } from '../state/hooks';
+import mmkvStorage, { StorageItem } from '../storage/disk';
 
 interface Props {
   loading: React.ReactNode;
@@ -15,11 +16,14 @@ interface Props {
 
 const I18nGate = ({ loading, children }: Props) => {
   const changelanguage = useChangeLanguage();
-  const { language } = useEttaStorageContext();
+  const language = mmkvStorage.getItem(StorageItem.language);
+  // const language = useStoreState((state) => state.nuxt.language);
   const bestLanguage = findBestAvailableLanguage(Object.keys(locales))?.languageTag;
 
   const i18nInitResult = useAsync(
     async () => {
+      // defaulting to en-us on hard reload via findBestAvailableLanguage.
+      // @ts-ignore
       await initI18n(language || bestLanguage || DEFAULT_APP_LANGUAGE);
       if (!language && bestLanguage) {
         await changelanguage(bestLanguage);
