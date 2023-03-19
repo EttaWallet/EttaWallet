@@ -16,7 +16,8 @@ const WelcomeScreen = () => {
   // const pincodeType = useStoreState((state) => state.nuxt.pincodeType);
   const pincodeType = mmkvStorage.getItem(StorageItem.pinType);
   const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType);
-  const skippedBiometrics = useStoreState((state) => state.app.skippedBiometrics);
+  const enabledBiometrics = mmkvStorage.getItem(StorageItem.enabledBiometrics);
+  const skippedBiometrics = mmkvStorage.getItem(StorageItem.skippedBiometrics);
   // const skippedBiometrics = mmkvStorage.getItem(StorageItem.supportedBiometry);
   const setChoseRestore = useStoreActions((action) => action.nuxt.setChoseRestoreWallet);
 
@@ -25,7 +26,11 @@ const WelcomeScreen = () => {
       navigate(Screens.Disclaimer);
     } else if (pincodeType === PinType.Unset) {
       navigate(Screens.SetPinScreen);
-    } else if (supportedBiometryType !== null && skippedBiometrics === false) {
+    } else if (
+      supportedBiometryType !== null &&
+      enabledBiometrics === false &&
+      skippedBiometrics === false
+    ) {
       navigate(Screens.EnableBiometryScreen);
     } else {
       navigate(Screens.DrawerNavigator);

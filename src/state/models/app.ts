@@ -17,6 +17,7 @@ export interface AppModelType {
   activeScreen: Screens;
   supportedBiometryType: BIOMETRY_TYPE | null;
   skippedBiometrics: boolean;
+  biometricsEnabled: boolean;
   minAppVersion: string | null;
   // actions
   setAppVersion: Action<AppModelType, number>;
@@ -30,7 +31,9 @@ export interface AppModelType {
   setActiveScreen: Action<AppModelType, Screens>;
   setMinAppVersion: Action<AppModelType, string | null>;
   setSupportedBiometryType: Action<AppModelType, BIOMETRY_TYPE>;
+  setEnabledBiometrics: Action<AppModelType, boolean>;
   setSkippedBiometrics: Action<AppModelType, boolean>;
+  saveEnabledBiometrics: Thunk<AppModelType, boolean>;
   saveSkippedBiometrics: Thunk<AppModelType, boolean>;
 }
 
@@ -47,6 +50,7 @@ export const appModel: AppModelType = {
   activeScreen: Screens.Main,
   supportedBiometryType: null,
   skippedBiometrics: false,
+  biometricsEnabled: false,
   minAppVersion: null,
   // wip actions
   setAppVersion: action((state, version) => {
@@ -97,8 +101,15 @@ export const appModel: AppModelType = {
   setSupportedBiometryType: action((state, supportedBiometryType) => {
     state.supportedBiometryType = supportedBiometryType;
   }),
+  setEnabledBiometrics: action((state, skippedBiometrics) => {
+    state.skippedBiometrics = skippedBiometrics;
+  }),
   setSkippedBiometrics: action((state, skippedBiometrics) => {
     state.skippedBiometrics = skippedBiometrics;
+  }),
+  saveEnabledBiometrics: thunk(async (actions, payload) => {
+    await mmkvStorage.setItem(StorageItem.enabledBiometrics, payload);
+    actions.setEnabledBiometrics(payload);
   }),
   saveSkippedBiometrics: thunk(async (actions, payload) => {
     await mmkvStorage.setItem(StorageItem.skippedBiometrics, payload);

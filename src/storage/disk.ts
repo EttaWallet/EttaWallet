@@ -5,7 +5,6 @@ import { collectBuildNumber, collectAppVersion } from '../utils/helpers';
 import * as Keychain from 'react-native-keychain';
 import Logger from '../utils/logger';
 import { isNil } from 'lodash';
-import { isPinOrFingerprintSet } from 'react-native-device-info';
 
 export const storage = new MMKV();
 
@@ -24,6 +23,7 @@ export enum StorageItem {
   pinType = 'pinType',
   pinCache = 'pinCache',
   supportedBiometry = 'supportedBiometry',
+  enabledBiometrics = 'enabledBiometrics',
   skippedBiometrics = 'skippedBiometrics',
 }
 
@@ -97,7 +97,7 @@ export const setupApp = async () => {
       }
       mmkvStorage.setItem(StorageItem.supportedBiometry, biometry);
     }
-  } catch (error) {
+  } catch (error: any) {
     Logger.error(TAG, 'Error storing biometry type', error, true);
   }
 };

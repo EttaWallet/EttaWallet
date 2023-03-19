@@ -15,6 +15,7 @@ export interface NuxtModelType {
   setAcknowledgedDisclaimer: Action<NuxtModelType, boolean>;
   setChoseRestoreWallet: Action<NuxtModelType, boolean>;
   saveAcknowledgedDisclaimer: Thunk<NuxtModelType, boolean>;
+  saveLanguage: Thunk<NuxtModelType, string>;
   savePinType: Thunk<NuxtModelType, PinType>;
 }
 
@@ -58,6 +59,10 @@ export const nuxtModel: NuxtModelType = {
   saveAcknowledgedDisclaimer: thunk(async (actions, payload) => {
     await mmkvStorage.setItem(StorageItem.acknowledgedDisclaimer, payload);
     actions.setAcknowledgedDisclaimer(payload);
+  }),
+  saveLanguage: thunk(async (actions, payload) => {
+    await mmkvStorage.setItem(StorageItem.language, payload);
+    actions.setLanguage(payload);
   }),
   savePinType: thunk(async (actions, payload) => {
     await mmkvStorage.setItem(StorageItem.pinType, payload);

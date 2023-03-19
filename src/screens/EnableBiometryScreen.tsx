@@ -33,6 +33,7 @@ export const EnableBiometry = ({ navigation }: Props) => {
   const { t } = useTranslation();
 
   const setPinType = useStoreActions((action) => action.nuxt.savePinType);
+  const setEnabledBiometrics = useStoreActions((action) => action.app.saveEnabledBiometrics);
 
   const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType)!;
   const choseRestoreWallet = useStoreState((state) => state.nuxt.choseRestoreWallet);
@@ -58,6 +59,7 @@ export const EnableBiometry = ({ navigation }: Props) => {
     try {
       await setPincodeWithBiometry();
       setPinType(PinType.Device);
+      setEnabledBiometrics(true);
       handleNavigateToNextScreen();
     } catch (error: any) {
       if (!isUserCancelledError(error)) {
