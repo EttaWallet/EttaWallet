@@ -15,7 +15,7 @@ export default function LanguageButton() {
   const onPress = () => pushToStack(Screens.LanguageModal, { nextScreen: route.name });
 
   return (
-    <Chip onPress={onPress} selected icon="icon-ellipsis" iconPosition="left">
+    <Chip onPress={onPress} selected icon="icon-globe" iconPosition="left">
       {currentLanguage?.name ?? t('unknown')}
     </Chip>
   );

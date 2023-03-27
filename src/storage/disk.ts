@@ -18,6 +18,8 @@ export enum StorageItem {
   navState = 'navState',
   buildNumber = 'buildNumber',
   versionNumber = 'versionNumber',
+  seenSlides = 'seenSlides',
+  userStarted = 'userStarted',
   language = 'language',
   acknowledgedDisclaimer = 'acknowledgedDisclaimer',
   pinType = 'pinType',

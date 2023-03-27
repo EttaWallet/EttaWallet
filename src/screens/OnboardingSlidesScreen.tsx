@@ -1,14 +1,12 @@
 import React from 'react';
-import { useEttaStorageContext } from '../storage/context';
 import { navigate } from '../navigation/NavigationService';
 import { useTranslation } from 'react-i18next';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ONBOARDING_SLIDES_COMPLETED } from '../storage/constants';
 import { Carousel } from 'etta-ui';
 import { Screens } from '../navigation/Screens';
+import { useStoreActions } from '../state/hooks';
 
 const OnboardingSlidesScreen = () => {
-  const { setCompletedOnboardingSlides } = useEttaStorageContext();
+  const setSeenSlides = useStoreActions((action) => action.nuxt.saveSeenSlides);
   const { t } = useTranslation();
 
   // Define slides
@@ -33,18 +31,11 @@ const OnboardingSlidesScreen = () => {
     },
   ];
 
-  const markSlidesSeen = async () => {
-    try {
-      await AsyncStorage.setItem(ONBOARDING_SLIDES_COMPLETED, 'true');
-    } catch (e) {
-      console.log('something went wrong here');
-    }
-  };
-
   const finishedSlides = () => {
-    setCompletedOnboardingSlides(true);
-    markSlidesSeen(); // save to disk
-    navigate(Screens.WelcomeScreen);
+    setSeenSlides(true);
+    requestAnimationFrame(() => {
+      navigate(Screens.WelcomeScreen);
+    });
   };
 
   return (

@@ -55,6 +55,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutrals.light.neutral2,
     color: Colors.common.black,
     padding: 15,
+    marginHorizontal: 20,
   },
 });
 

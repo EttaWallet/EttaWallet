@@ -37,7 +37,7 @@ class FullScreenBanner extends React.PureComponent<Props> {
         </View>
         {this.props.children}
         <View style={styles.button}>
-          <Button onPress={CTAHandler} title={CTAText} appearance="filled" size="block" />
+          <Button onPress={CTAHandler} title={CTAText} appearance="filled" />
         </View>
       </SafeAreaView>
     );

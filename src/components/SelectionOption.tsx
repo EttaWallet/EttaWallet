@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { RadioButtonIcon, TypographyPresets, Colors } from 'etta-ui';
+import { TypographyPresets, Colors } from 'etta-ui';
+import RadioButton from '../icons/RadioButton';
 
 interface Props {
   text: string;
@@ -10,23 +11,17 @@ interface Props {
   data?: any;
 }
 
-export default function SelectionOption({
-  text,
-  isSelected,
-  data,
-  onSelect,
-  hideCheckboxes,
-}: Props) {
-  function onPress() {
+const SelectionOption = ({ text, isSelected, data, onSelect, hideCheckboxes }: Props) => {
+  const onPress = () => {
     onSelect(text, data);
-  }
+  };
 
   return (
     <TouchableOpacity onPress={onPress}>
       <View style={styles.contentContainer}>
         {!hideCheckboxes && (
           <View style={styles.iconContainer}>
-            <RadioButtonIcon selected={isSelected} />
+            <RadioButton selected={isSelected} />
           </View>
         )}
         <Text style={styles.text} numberOfLines={1}>
@@ -35,7 +30,7 @@ export default function SelectionOption({
       </View>
     </TouchableOpacity>
   );
-}
+};
 
 const styles = StyleSheet.create({
   contentContainer: {
@@ -56,3 +51,5 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
 });
+
+export default SelectionOption;

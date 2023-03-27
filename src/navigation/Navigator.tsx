@@ -26,6 +26,7 @@ import DisclaimerScreen from '../shared/DisclaimerScreen';
 import SetPinScreen from '../screens/SetPinScreen';
 import EnableBiometry from '../screens/EnableBiometryScreen';
 import EnterPin from '../shared/EnterPinScreen';
+import InitScreen from '../screens/InitScreen';
 
 const TAG = 'Navigator';
 
@@ -37,17 +38,20 @@ type InitialRouteName = ExtractProps<typeof Stack.Navigator>['initialRouteName']
 
 export const MainStackScreen = () => {
   const [initialRouteName, setInitialRoute] = useState<InitialRouteName>(undefined);
+  // @todo: updated state via thunk not being rehydrated on app reload. Look into this
   const choseRestoreWallet = useStoreState((state) => state.nuxt.choseRestoreWallet);
   const acknowledgedDisclaimer = useStoreState((state) => state.nuxt.acknowledgedDisclaimer);
   const pinType = useStoreState((state) => state.nuxt.pincodeType);
-  const language = useStoreState((state) => state.nuxt.language);
+  const userStarted = useStoreState((state) => state.nuxt.userStarted);
+  const slidesSeen = useStoreState((state) => state.nuxt.seenSlides);
   const wallet = useStoreState((state) => state.lightning.nodeId);
 
   useEffect(() => {
     let initialRoute: InitialRouteName;
-
-    if (!language) {
-      initialRoute = Screens.LangugageChooserScreen;
+    if (!userStarted) {
+      initialRoute = Screens.InitScreen;
+    } else if (!slidesSeen) {
+      initialRoute = Screens.OnboardingSlidesScreen;
     } else if (!acknowledgedDisclaimer || pinType === PinType.Unset) {
       initialRoute = Screens.WelcomeScreen;
     } else if (!wallet) {
@@ -61,7 +65,7 @@ export const MainStackScreen = () => {
 
     // Wait for next frame to avoid slight gap when hiding the splash
     requestAnimationFrame(() => SplashScreen.hide());
-  }, [acknowledgedDisclaimer, choseRestoreWallet, language, pinType, wallet]);
+  }, [acknowledgedDisclaimer, choseRestoreWallet, slidesSeen, userStarted, pinType, wallet]);
 
   if (!initialRouteName) {
     return <AppLoading />;
@@ -72,14 +76,19 @@ export const MainStackScreen = () => {
       {/* Onboarding screens */}
       <Stack.Group>
         <Stack.Screen
-          name={Screens.LangugageChooserScreen}
-          component={LanguageChooser}
-          options={LanguageChooser.navigationOptions() as NativeStackNavigationOptions}
-        />
-        <Stack.Screen
           name={Screens.OnboardingSlidesScreen}
           component={OnboardingSlidesScreen}
           options={noHeader}
+        />
+        <Stack.Screen
+          name={Screens.InitScreen}
+          component={InitScreen}
+          options={InitScreen.navigationOptions}
+        />
+        <Stack.Screen
+          name={Screens.LangugageChooserScreen}
+          component={LanguageChooser}
+          options={LanguageChooser.navigationOptions() as NativeStackNavigationOptions}
         />
         <Stack.Screen
           name={Screens.SetPinScreen}

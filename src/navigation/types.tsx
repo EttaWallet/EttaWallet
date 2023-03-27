@@ -5,6 +5,11 @@ export type StackParamList = {
     errorMessage?: string;
   };
   [Screens.OnboardingSlidesScreen]: undefined;
+  [Screens.InitScreen]:
+    | {
+        nextScreen: keyof StackParamList;
+      }
+    | undefined;
   [Screens.Disclaimer]: undefined;
   [Screens.EnterPinScreen]: {
     withVerification?: boolean;
