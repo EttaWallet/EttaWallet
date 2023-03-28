@@ -1,5 +1,5 @@
 import type { BIOMETRY_TYPE } from 'react-native-keychain';
-import { AppState } from '../types';
+import { AppState } from '../../utils/types';
 import { Screens } from '../../navigation/Screens';
 import { action, thunk } from 'easy-peasy';
 import type { Action, Thunk } from 'easy-peasy';

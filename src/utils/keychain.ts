@@ -35,7 +35,7 @@ export const storeItem = async (
     accessible,
   };
   try {
-    const stored = await Keychain.setInternetCredentials(key, USER, value, options);
+    const stored = await Keychain.setInternetCredentials(key, USER, value!, options);
     if (stored === false) {
       throw new Error('Store item not saved');
     }
@@ -52,7 +52,7 @@ export const storeItem = async (
     }
 
     return stored;
-  } catch (error) {
+  } catch (error: any) {
     Logger.error(TAG, 'Error storing item', error, true, value);
     throw error;
   }
@@ -66,7 +66,7 @@ export const retrieveStoredItem = async (key: string): Promise<string | null> =>
     } else {
       return null;
     }
-  } catch (error) {
+  } catch (error: any) {
     if (!isUserCancelledError(error)) {
       // user cancelled action
       Logger.error(TAG, 'Error retrieving stored item', error, true);
@@ -78,7 +78,7 @@ export const retrieveStoredItem = async (key: string): Promise<string | null> =>
 export const removeStoredItem = async (key: string) => {
   try {
     return await Keychain.resetInternetCredentials(key);
-  } catch (error) {
+  } catch (error: any) {
     Logger.error(TAG, 'Error clearing item', error, true);
     throw error;
   }
@@ -112,7 +112,7 @@ export async function storeKeychainItem({ key, value, options = {} }: SecureStor
     }
 
     return result;
-  } catch (error) {
+  } catch (error: any) {
     Logger.error(TAG, 'Error storing item', error, true, value);
     throw error;
   }
@@ -128,7 +128,7 @@ export async function retrieveStoredKeychainItem(key: string, options: Keychain.
       return null;
     }
     return item.password;
-  } catch (error) {
+  } catch (error: any) {
     if (!isUserCancelledError(error)) {
       // triggered when biometry verification fails and user cancels the action
       Logger.error(TAG, 'Error retrieving stored item', error, true);
@@ -142,7 +142,7 @@ export async function removeStoredKeychainItem(key: string) {
     return Keychain.resetGenericPassword({
       service: key,
     });
-  } catch (error) {
+  } catch (error: any) {
     Logger.error(TAG, 'Error clearing item', error, true);
     throw error;
   }
@@ -151,7 +151,7 @@ export async function removeStoredKeychainItem(key: string) {
 export async function listStoredKeychainItems() {
   try {
     return Keychain.getAllGenericPasswordServices();
-  } catch (error) {
+  } catch (error: any) {
     Logger.error(TAG, 'Error listing items', error, true);
     throw error;
   }

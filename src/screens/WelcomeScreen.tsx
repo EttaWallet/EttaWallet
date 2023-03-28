@@ -8,7 +8,7 @@ import { initNavigationOptions } from '../navigation/Headers';
 import LanguageButton from '../components/LanguageButton';
 import { useStoreState, useStoreActions } from '../state/hooks';
 import { APP_NAME } from '../../config';
-import { PinType } from '../state/types';
+import { PinType } from '../utils/types';
 import mmkvStorage, { StorageItem } from '../storage/disk';
 
 const WelcomeScreen = () => {

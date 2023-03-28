@@ -21,7 +21,7 @@ import LanguageChooser from '../screens/LanguageChooserScreen';
 import type { ExtractProps } from '../utils/helpers';
 import DrawerNavigator from './DrawerNavigator';
 import { useStoreState } from '../state/hooks';
-import { PinType } from '../state/types';
+import { PinType } from '../utils/types';
 import DisclaimerScreen from '../shared/DisclaimerScreen';
 import SetPinScreen from '../screens/SetPinScreen';
 import EnableBiometry from '../screens/EnableBiometryScreen';

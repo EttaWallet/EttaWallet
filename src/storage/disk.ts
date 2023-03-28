@@ -1,6 +1,6 @@
 import { MMKV } from 'react-native-mmkv';
 import { initializeMMKVFlipper } from 'react-native-mmkv-flipper-plugin';
-import { PinType } from '../state/types';
+import { PinType } from '../utils/types';
 import { collectBuildNumber, collectAppVersion } from '../utils/helpers';
 import * as Keychain from 'react-native-keychain';
 import Logger from '../utils/logger';

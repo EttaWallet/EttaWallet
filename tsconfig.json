@@ -1,23 +1,41 @@
 {
   "compilerOptions": {
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
+    "allowJs": false,
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "importsNotUsedAsValues": "error",
-    "forceConsistentCasingInFileNames": true,
-    "jsx": "react",
-    "lib": ["esnext", "dom"],
-    "module": "esnext",
-    "moduleResolution": "node",
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
-    "noImplicitUseStrict": false,
-    "noStrictGenericChecks": false,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "isolatedModules": false,
     "resolveJsonModule": true,
-    "skipLibCheck": true,
+    "jsx": "react-native",
+    "lib": [
+      "es6",
+      "es2017",
+      "esnext",
+      "dom"
+    ],
+    "moduleResolution": "node",
+    "noEmit": true,
     "strict": true,
     "target": "esnext",
-  }
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "removeComments": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // TODO: add these rules & fix errors
+    // "noUncheckedIndexedAccess": true,
+
+    // TODO: remove these rules & add types
+    "noImplicitAny": false,
+    "useUnknownInCatchVariables": false
+  },
+  "exclude": [
+    "node_modules",
+    "babel.config.js",
+    "metro.config.js",
+    "jest.config.js"
+  ]
 }

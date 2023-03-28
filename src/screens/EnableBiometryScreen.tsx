@@ -13,7 +13,7 @@ import Logger from '../utils/logger';
 import { Button, Colors, TypographyPresets } from 'etta-ui';
 import { useStoreActions, useStoreState } from '../state/hooks';
 import SkipButton from '../navigation/components/SkipButton';
-import { PinType } from '../state/types';
+import { PinType } from '../utils/types';
 import { BIOMETRY_TYPE } from 'react-native-keychain';
 import { Face, FaceID, Fingerprint } from '../icons';
 

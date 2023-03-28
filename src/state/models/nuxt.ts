@@ -1,4 +1,4 @@
-import { PinType } from '../types';
+import { PinType } from '../../utils/types';
 import { action, Thunk, thunk } from 'easy-peasy';
 import type { Action } from 'easy-peasy';
 import mmkvStorage, { StorageItem } from '../../storage/disk';

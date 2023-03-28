@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation, WithTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PinType } from '../state/types';
+import { PinType } from '../utils/types';
 import i18n from '../i18n';
 import {
   HeaderTitleWithSubtitle,

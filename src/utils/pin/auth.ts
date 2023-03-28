@@ -1,5 +1,5 @@
 import * as Keychain from 'react-native-keychain';
-import { PinType } from '../../state/types';
+import { PinType } from '../types';
 import i18n from '../../i18n';
 import { navigate, navigateBack } from '../../navigation/NavigationService';
 import { Screens } from '../../navigation/Screens';
