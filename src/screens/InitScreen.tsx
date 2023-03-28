@@ -24,7 +24,7 @@ const InitScreen = () => {
     setUserStarted(true);
     // navigate to next point
     requestAnimationFrame(() => {
-      navigate(Screens.OnboardingSlidesScreen);
+      navigate(Screens.WelcomeScreen);
     });
   };
 

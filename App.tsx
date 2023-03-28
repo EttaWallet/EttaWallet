@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { StatusBar, useColorScheme, LogBox } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { ThemeProvider, LIGHT_THEME, DARK_THEME, Colors } from 'etta-ui';
@@ -9,7 +9,7 @@ import NavigatorWrapper from './src/navigation/NavigatorWrapper';
 import ErrorBoundary from './src/shared/ErrorBoundary';
 import Logger from './src/utils/logger';
 import i18n from './src/i18n';
-import { StoreProvider } from 'easy-peasy';
+import { StoreProvider, useStoreRehydrated } from 'easy-peasy';
 import store from './src/state/store';
 
 Logger.info('App/init', 'Current Language: ' + i18n.language);
@@ -22,11 +22,21 @@ const ignoreWarnings = [
   'Remote debugger',
   'cancelTouches',
   'Require cycle',
-  'react-i18next', // this annoying error isn't saying much tbh,
+  'react-i18next', // this annoying error isn't saying much tbh
   'Non-serializable values were found in the navigation state', // @tofix: comes from EnterPinScreen onSuccess()
 ];
 
 LogBox.ignoreLogs(ignoreWarnings);
+
+type Props = {
+  children: ReactElement;
+};
+
+// check to ensure state is well rehydrated from storage prior to rendering NavWrapper
+function WaitForStateRehydration({ children }: Props) {
+  const isRehydrated = useStoreRehydrated();
+  return isRehydrated ? children : null;
+}
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -60,7 +70,9 @@ const App = () => {
             backgroundColor={backgroundStyle.backgroundColor}
           />
           <ErrorBoundary>
-            <NavigatorWrapper />
+            <WaitForStateRehydration>
+              <NavigatorWrapper />
+            </WaitForStateRehydration>
           </ErrorBoundary>
         </I18nGate>
       </StoreProvider>
