@@ -32,26 +32,37 @@ const InitScreen = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.carousel} />
       <View style={{ paddingVertical: 50 }}>
-        <Text style={styles.title}>{t('onboardingTitle')}</Text>
+        <Text style={styles.title}>{t('welcome.subtitle')}</Text>
         <Button
           title={currentLanguage?.name ?? t('unknown')}
           appearance="transparent"
           icon="icon-globe"
           iconPosition="left"
           onPress={onPressLanguage}
+          size="small"
         />
         <Button
           title="Accessibility"
           appearance="transparent"
           icon="icon-edit"
           iconPosition="left"
+          size="small"
         />
         <Button
-          style={styles.continueBtn}
-          title={t('onboardingCTA')}
+          style={[styles.button, styles.createBtn]}
+          title={t('welcome.createNewWallet')}
           appearance="filled"
           onPress={onPressGetStarted}
         />
+        <Button
+          style={[styles.button, styles.restoreBtn]}
+          title={t('welcome.restoreWallet')}
+          appearance="transparent"
+          onPress={onPressGetStarted}
+        />
+      </View>
+      <View>
+        <Text style={styles.footer}>{t('welcome.footer')}</Text>
       </View>
     </SafeAreaView>
   );
@@ -62,7 +73,6 @@ InitScreen.navigationOptions = noHeader;
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
-    paddingHorizontal: 16,
     flex: 1,
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -73,13 +83,24 @@ const styles = StyleSheet.create({
     paddingVertical: 50,
   },
   title: {
-    ...TypographyPresets.Header1,
+    ...TypographyPresets.Header2,
     margin: 16,
     color: '#401D18',
   },
-  continueBtn: {
-    marginVertical: 30,
+  button: {
     justifyContent: 'center',
+  },
+  createBtn: {
+    marginTop: 30,
+  },
+  restoreBtn: {
+    marginBottom: 30,
+    marginTop: 10,
+  },
+  footer: {
+    fontSize: 15,
+    textAlign: 'center',
+    marginTop: 'auto',
   },
 });
 

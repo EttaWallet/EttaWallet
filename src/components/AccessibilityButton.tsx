@@ -1,5 +1,4 @@
 import { RouteProp, useRoute } from '@react-navigation/native';
-import locales from '../i18n/locales';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { pushToStack } from '../navigation/NavigationService';
@@ -7,16 +6,15 @@ import { Screens } from '../navigation/Screens';
 import type { StackParamList } from '../navigation/types';
 import { Chip } from 'etta-ui';
 
-export default function LanguageButton() {
-  const { t, i18n } = useTranslation();
+export default function AccessibilityButton() {
+  const { t } = useTranslation();
   const route = useRoute<RouteProp<StackParamList, keyof StackParamList>>();
-  const currentLanguage = locales[i18n.language];
-
+  // @todo: should pull up accessibility options screen. LanguageModal is just a placeholder
   const onPress = () => pushToStack(Screens.LanguageModal, { nextScreen: route.name });
 
   return (
-    <Chip onPress={onPress} icon="icon-globe" iconPosition="left">
-      {currentLanguage?.name ?? t('unknown')}
+    <Chip onPress={onPress} icon="icon-edit" iconPosition="left">
+      {t('accessibility')}
     </Chip>
   );
 }

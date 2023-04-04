@@ -48,12 +48,7 @@ export const MainStackScreen = () => {
 
   useEffect(() => {
     let initialRoute: InitialRouteName;
-    if (!userStarted) {
-      initialRoute = Screens.InitScreen;
-      // removing onboarding slides screen. Will show carousel on InitScreen
-      // } else if (!slidesSeen) {
-      //   initialRoute = Screens.OnboardingSlidesScreen;
-    } else if (!acknowledgedDisclaimer || pinType === PinType.Unset) {
+    if (!acknowledgedDisclaimer || pinType === PinType.Unset) {
       initialRoute = Screens.WelcomeScreen;
     } else if (!wallet) {
       initialRoute = choseRestoreWallet ? Screens.RestoreWalletScreen : Screens.WelcomeScreen;

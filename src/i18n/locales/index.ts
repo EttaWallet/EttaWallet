@@ -9,7 +9,7 @@ interface Locales {
 
 const locales: Locales = {
   'en-US': {
-    name: 'English (United States)',
+    name: 'English (US)',
     get strings() {
       return {
         translation: require('./base/translation.json'),
