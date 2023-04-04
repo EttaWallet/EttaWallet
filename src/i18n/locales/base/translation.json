@@ -1,7 +1,7 @@
 {
     "cancel": "Cancel",
     "ok": "Okay",
-    "disconnected": "No internet connection.",
+    "disconnected": "Offline",
     "onboardingTitle": "Welcome to the Bitcoin revolution",
     "onboardingCTA": "Get started",
     "storageIsEncrypted": "Your storage is encrypted. Password is required to decrypt it.",
@@ -11,7 +11,7 @@
     "selectCurrency": "Select local currency",
     "welcome": {
         "subtitle": "Bitcoin is for all of us",
-        "createNewWallet": "Create new wallet",
+        "createNewWallet": "Get started",
         "restoreWallet": "Restore existing wallet",
         "iAlreadyHaveAWallet": "I already have a wallet",
         "footer": "100% open source \n Baked in 🇺🇬 and 🇰🇪"
@@ -181,7 +181,7 @@
     },
     "disclaimer": {
         "title": "Pay attention!",
-        "info": "This app will be in beta for a while.\n \nPlease do not use any amount of bitcoin that you are not prepared to lose. You can learn more in the <0>FAQ here</0>. \n \nBy clicking the button below, you acknowledge that you understand the risks.",
+        "info": "This app will be in beta for a while 🤷🏿‍♂️\n \nPlease do not use any amount of bitcoin that you are not prepared to lose. You can learn more in the <0>FAQ here</0>. \n \nBy clicking the button below, you acknowledge that you understand the risks.",
         "acknowledgeBtn": "I understand the risks"
     },
     "biometry": {

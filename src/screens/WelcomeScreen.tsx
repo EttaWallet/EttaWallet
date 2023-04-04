@@ -5,7 +5,7 @@ import { SafeAreaView, View, StyleSheet, Text } from 'react-native';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { initNavigationOptions } from '../navigation/Headers';
-import LanguageButton from '../components/LanguageButton';
+import LanguageChip from '../components/LanguageChip';
 import { useStoreState, useStoreActions } from '../state/hooks';
 import { APP_NAME } from '../../config';
 import { PinType } from '../utils/types';
@@ -129,5 +129,5 @@ export default WelcomeScreen;
 
 WelcomeScreen.navigationOptions = {
   ...initNavigationOptions,
-  headerRight: () => <LanguageButton />,
+  headerRight: () => <LanguageChip />,
 };
