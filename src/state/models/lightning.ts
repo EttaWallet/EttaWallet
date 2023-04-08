@@ -1,23 +1,29 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { setupLdk, syncLdk, updateHeader } from '../../ldk';
 import { connectToElectrum, subscribeToHeader } from '../../utils/electrum';
+import ldk from '@synonymdev/react-native-ldk/dist/ldk';
+import mmkvStorage, { StorageItem } from '../../storage/disk';
 
 import Logger from '../../utils/logger';
 
 const TAG = 'LightningStore';
 
+// @TODO: add translatable strings to error and success messages
+
 export interface LightningNodeModelType {
-  message: string;
+  nodeId: string | null;
+  setNodeId: Action<LightningNodeModelType, string>;
   progress: number;
+  setProgress: Action<LightningNodeModelType, number>;
+  message: string;
   setMessage: Action<LightningNodeModelType, string>;
   nodeStarted: boolean;
-  nodeId: string | null;
-  setProgress: Action<LightningNodeModelType, number>;
   setNodeStarted: Action<LightningNodeModelType, boolean>;
   connectToElectrum: Thunk<LightningNodeModelType>;
   syncLdk: Thunk<LightningNodeModelType>;
   setupLdk: Thunk<LightningNodeModelType>;
   startNode: Thunk<LightningNodeModelType>;
+  getNodeId: Thunk<LightningNodeModelType>;
 }
 
 export const lightningModel: LightningNodeModelType = {
@@ -46,7 +52,7 @@ export const lightningModel: LightningNodeModelType = {
         onReceive: async (): Promise<void> => {
           const syncRes = await actions.syncLdk();
           if (syncRes.isErr()) {
-            actions.setMessage(syncRes.error.message);
+            // actions.setMessage(syncRes.error.message);
             Logger.error(TAG, '@syncRes', syncRes.error.message);
             return;
           }
@@ -55,7 +61,7 @@ export const lightningModel: LightningNodeModelType = {
         },
       });
       if (headerInfo.isErr()) {
-        actions.setMessage(headerInfo.error.message);
+        // actions.setMessage(headerInfo.error.message);
         Logger.error(TAG, '@headerInfo', headerInfo.error.message);
         return;
       }
@@ -68,8 +74,11 @@ export const lightningModel: LightningNodeModelType = {
       actions.setProgress(90);
       actions.setNodeStarted(true);
       actions.setMessage('LDK setup complete');
+      // save Node ID
+      await actions.getNodeId();
     } catch (error) {
-      actions.setMessage(`Something went wrong starting node: \n ${error.message}`);
+      // actions.setMessage(`Something went wrong starting node: \n ${error.message}`);
+      Logger.error(TAG, '@connectToElectrum', error.message);
     }
   }),
   syncLdk: thunk(async (actions) => {
@@ -88,15 +97,19 @@ export const lightningModel: LightningNodeModelType = {
     try {
       const { message, error } = await setupLdk();
       if (error) {
-        setMessage(`Error setting up LDK: ${message}`);
+        // setMessage(`Error setting up LDK: ${message}`);
+        Logger.error(TAG, '@setupLdk', error.message);
         return;
       }
       setMessage('LDK setup complete');
       setProgress(0);
     } catch (error) {
-      setMessage(`Error setting up LDK: ${error.message}`);
+      // setMessage(`Error setting up LDK: ${error.message}`);
       Logger.error(TAG, '@setupLdk', error.message);
     }
+  }),
+  setNodeId: action((state, payload) => {
+    state.nodeId = payload;
   }),
   setMessage: action((state, payload) => {
     state.message = payload;
@@ -106,5 +119,21 @@ export const lightningModel: LightningNodeModelType = {
   }),
   setProgress: action((state, payload) => {
     state.progress = payload;
+  }),
+  getNodeId: thunk(async (actions) => {
+    const { setMessage } = actions;
+    try {
+      const nodeIdRes = await ldk.nodeId();
+      // save to storage
+      // @ts-ignore
+      mmkvStorage.setItem(StorageItem.ldkNodeId, nodeIdRes.value);
+      if (nodeIdRes.isErr()) {
+        // setMessage(`Error getting Node ID:\n ${nodeIdRes.error.message}`);
+        Logger.error(TAG, `Error getting Node ID:\n ${nodeIdRes.error.message}`);
+        return;
+      }
+    } catch (error) {
+      Logger.error(TAG, '@getNodeId', error.message);
+    }
   }),
 };
