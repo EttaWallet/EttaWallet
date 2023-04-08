@@ -46,4 +46,6 @@ export type StackParamList = {
   [Screens.SettingsScreen]: undefined;
   [Screens.HelpScreen]: undefined;
   [Screens.FAQScreen]: undefined;
+  [Screens.TestScreen]: undefined;
+  [Screens.StartLN]: undefined;
 };

@@ -20,4 +20,6 @@ export enum Screens {
   SettingsScreen = 'SettingsScreen',
   HelpScreen = 'HelpScreen',
   FAQScreen = 'FAQScreen',
+  TestScreen = 'TestScreen',
+  StartLN = 'StartLN',
 }

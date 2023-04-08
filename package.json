@@ -10,9 +10,11 @@
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "typesafe-i18n": "typesafe-i18n --no-watch",
-    "typesafe-i18n:export": "tsx src/i18n/export.ts"
+    "typesafe-i18n:export": "tsx src/i18n/export.ts",
+    "postinstall": "node postinstall.js"
   },
   "dependencies": {
+    "@bitcoinerlab/secp256k1": "^1.0.2",
     "@gorhom/bottom-sheet": "^4.4.5",
     "@react-native-async-storage/async-storage": "^1.17.11",
     "@react-native-community/netinfo": "^9.3.8",
@@ -24,11 +26,18 @@
     "@react-navigation/stack": "^6.3.12",
     "@sentry/react-native": "^4.13.0",
     "@sentry/types": "^7.29.0",
+    "@synonymdev/react-native-ldk": "^0.0.83",
     "@th3rdwave/react-navigation-bottom-sheet": "^0.2.2",
     "add": "^2.0.6",
+    "assert": "^1.1.1",
+    "bip32": "^4.0.0",
+    "bip39": "^3.1.0",
+    "bitcoinjs-lib": "^6.1.0",
+    "buffer": "^6.0.3",
     "date-fns": "^2.29.3",
     "easy-peasy": "^5.2.0",
     "etta-ui": "^0.2.0",
+    "events": "^1.0.0",
     "history": "^5.3.0",
     "hoist-non-react-statics": "^3.3.2",
     "i18next": "^22.4.9",
@@ -39,7 +48,9 @@
     "react-async-hook": "^4.0.0",
     "react-i18next": "^12.1.5",
     "react-native": "0.70.6",
+    "react-native-circular-progress-indicator": "^4.4.2",
     "react-native-config": "^1.5.0",
+    "react-native-crypto": "^2.1.0",
     "react-native-device-info": "^10.3.0",
     "react-native-error-boundary": "^1.2.1",
     "react-native-fs": "^2.20.0",
@@ -49,6 +60,7 @@
     "react-native-localize": "^2.2.4",
     "react-native-mmkv": "^2.5.1",
     "react-native-mmkv-flipper-plugin": "^1.0.0",
+    "react-native-randombytes": "^3.6.1",
     "react-native-reanimated": "^2.14.4",
     "react-native-restart": "^0.0.27",
     "react-native-safe-area-context": "^4.5.0",
@@ -58,11 +70,14 @@
     "react-native-sha256": "^1.4.9",
     "react-native-splash-screen": "^3.3.0",
     "react-native-svg": "^13.8.0",
-    "react-native-tcp-socket": "^6.0.6",
-    "rn-electrum-client": "git+http://git@github.com/synonymdev/react-native-electrum-client#a32a292d4e4918a04d280137e24e5961c74c543f",
+    "react-native-tcp-socket": "5.6.2",
+    "readable-stream": "^4.3.0",
+    "rn-electrum-client": "github:synonymdev/react-native-electrum-client#a32a292d4e4918a04d280137e24e5961c74c543f",
+    "stream-browserify": "^1.0.0",
     "ts-results": "^3.3.0",
+    "tslib": "^2.5.0",
     "typesafe-i18n": "^5.24.0",
-    "yarn": "^1.22.19"
+    "vm-browserify": "0.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
@@ -86,6 +101,7 @@
     "pod-install": "^0.1.0",
     "react-native-flipper": "^0.183.0",
     "react-test-renderer": "18.1.0",
+    "rn-nodeify": "^10.3.0",
     "ts-node": "^10.9.1",
     "tsx": "^3.12.2",
     "typescript": "^4.8.3"
@@ -100,5 +116,25 @@
       "json",
       "node"
     ]
+  },
+  "react-native": {
+    "crypto": "react-native-crypto",
+    "_stream_transform": "readable-stream/transform",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_writable": "readable-stream/writable",
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "stream": "stream-browserify",
+    "vm": "vm-browserify"
+  },
+  "browser": {
+    "crypto": "react-native-crypto",
+    "_stream_transform": "readable-stream/transform",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_writable": "readable-stream/writable",
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "stream": "stream-browserify",
+    "vm": "vm-browserify"
   }
 }

@@ -27,6 +27,7 @@ export enum StorageItem {
   supportedBiometry = 'supportedBiometry',
   enabledBiometrics = 'enabledBiometrics',
   skippedBiometrics = 'skippedBiometrics',
+  ldkAccount = 'ldkAccount',
 }
 
 const mmkvStorage = {

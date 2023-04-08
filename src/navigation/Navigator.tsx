@@ -12,7 +12,6 @@ import {
 import { createBottomSheetNavigator } from '@th3rdwave/react-navigation-bottom-sheet';
 import ErrorScreen from '../shared/ErrorScreen';
 import { noHeader, emptyHeader } from './Headers';
-import OnboardingSlidesScreen from '../screens/OnboardingSlidesScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import AppLoading from '../shared/AppLoading';
 import SplashScreen from 'react-native-splash-screen';
@@ -27,6 +26,8 @@ import SetPinScreen from '../screens/SetPinScreen';
 import EnableBiometry from '../screens/EnableBiometryScreen';
 import EnterPin from '../shared/EnterPinScreen';
 import InitScreen from '../screens/InitScreen';
+import TestScreen from '../screens/TestScreen';
+import StartLN from '../screens/StartLN';
 
 const TAG = 'Navigator';
 
@@ -44,12 +45,12 @@ export const MainStackScreen = () => {
   const pinType = useStoreState((state) => state.nuxt.pincodeType);
   const userStarted = useStoreState((state) => state.nuxt.userStarted);
   const slidesSeen = useStoreState((state) => state.nuxt.seenSlides);
-  const wallet = useStoreState((state) => state.lightning.nodeId);
+  const wallet = useStoreState((state) => state.lightning.nodeStarted);
 
   useEffect(() => {
     let initialRoute: InitialRouteName;
     if (!acknowledgedDisclaimer || pinType === PinType.Unset) {
-      initialRoute = Screens.WelcomeScreen;
+      initialRoute = Screens.StartLN;
     } else if (!wallet) {
       initialRoute = choseRestoreWallet ? Screens.RestoreWalletScreen : Screens.WelcomeScreen;
     } else {
@@ -71,11 +72,7 @@ export const MainStackScreen = () => {
     <Stack.Navigator initialRouteName={initialRouteName} screenOptions={emptyHeader}>
       {/* Onboarding screens */}
       <Stack.Group>
-        <Stack.Screen
-          name={Screens.OnboardingSlidesScreen}
-          component={OnboardingSlidesScreen}
-          options={noHeader}
-        />
+        <Stack.Screen name={Screens.TestScreen} component={TestScreen} options={noHeader} />
         <Stack.Screen
           name={Screens.InitScreen}
           component={InitScreen}
@@ -96,6 +93,7 @@ export const MainStackScreen = () => {
           component={EnableBiometry}
           options={EnableBiometry.navigationOptions}
         />
+        <Stack.Screen name={Screens.StartLN} component={StartLN} options={noHeader} />
         <Stack.Screen
           name={Screens.WelcomeScreen}
           component={WelcomeScreen}

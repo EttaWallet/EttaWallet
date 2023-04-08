@@ -52,7 +52,8 @@ export const EnableBiometry = ({ navigation }: Props) => {
       navigate(Screens.RestoreWalletScreen);
       return;
     }
-    navigate(Screens.DrawerNavigator);
+    navigate(Screens.StartLN);
+    // navigate(Screens.DrawerNavigator);
   };
 
   const onPressUseBiometry = async () => {

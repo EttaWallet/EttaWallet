@@ -1,3 +1,5 @@
+import './shim';
+
 import React, { ReactElement } from 'react';
 import { StatusBar, useColorScheme, LogBox } from 'react-native';
 import * as Sentry from '@sentry/react-native';

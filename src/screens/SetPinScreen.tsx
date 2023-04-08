@@ -21,6 +21,7 @@ import { Colors } from 'etta-ui';
 import type { RouteProp } from '@react-navigation/core';
 import { Pincode } from '../components/pincode'; // revert to etta component after merging changes
 import { setPinInKeyChain } from '../utils/keychain';
+import mmkvStorage, { StorageItem } from '../storage/disk';
 
 type ScreenProps = NativeStackScreenProps<StackParamList, Screens.SetPinScreen>;
 
@@ -39,7 +40,7 @@ const SetPinScreen = ({ route }: Props) => {
   const restoreWallet = useStoreState((state) => state.nuxt.choseRestoreWallet);
   const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType);
   const skippedBiometrics = useStoreState((state) => state.app.skippedBiometrics);
-  // const skippedBiometrics = mmkvStorage.getItem(StorageItem.supportedBiometry);
+  const enabledBiometrics = mmkvStorage.getItem(StorageItem.enabledBiometrics);
   // dispatch action from rootState
   const setPinType = useStoreActions((action) => action.nuxt.savePinType);
 
@@ -57,7 +58,11 @@ const SetPinScreen = ({ route }: Props) => {
   const navigateToNextScreen = () => {
     if (isChangingPin()) {
       navigate(Screens.SettingsScreen);
-    } else if (supportedBiometryType !== null && skippedBiometrics === false) {
+    } else if (
+      supportedBiometryType !== null &&
+      skippedBiometrics === false &&
+      enabledBiometrics !== false
+    ) {
       navigate(Screens.EnableBiometryScreen);
     } else if (restoreWallet) {
       popToScreen(Screens.WelcomeScreen);

@@ -18,7 +18,6 @@ const WelcomeScreen = () => {
   const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType);
   const enabledBiometrics = mmkvStorage.getItem(StorageItem.enabledBiometrics);
   const skippedBiometrics = mmkvStorage.getItem(StorageItem.skippedBiometrics);
-  // const skippedBiometrics = mmkvStorage.getItem(StorageItem.supportedBiometry);
   const setChoseRestore = useStoreActions((action) => action.nuxt.setChoseRestoreWallet);
 
   const navigateNext = () => {
@@ -32,6 +31,7 @@ const WelcomeScreen = () => {
       skippedBiometrics === false
     ) {
       navigate(Screens.EnableBiometryScreen);
+      // add new else if to initialize wallet
     } else {
       navigate(Screens.DrawerNavigator);
     }

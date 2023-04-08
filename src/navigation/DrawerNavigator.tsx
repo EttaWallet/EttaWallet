@@ -22,8 +22,8 @@ import DrawerItem from './components/DrawerItem';
 import { Screens } from './Screens';
 import { APP_NAME } from '../../config';
 import WalletHomeScreen from '../screens/WalletHomeScreen';
-import PlaceholderScreen from '../screens/PlaceholderScreen';
 import { Colors, TypographyPresets } from 'etta-ui';
+import TestScreen from '../screens/TestScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -124,18 +124,18 @@ export default function DrawerNavigator() {
 
       <Drawer.Screen
         name={Screens.SeedPhraseScreen}
-        component={PlaceholderScreen}
+        component={TestScreen}
         options={{ title: t('navigationLabels.seedPhrase')! }}
         initialParams={{ showDrawerTopBar: true }}
       />
       <Drawer.Screen
         name={Screens.SettingsScreen}
-        component={PlaceholderScreen}
+        component={TestScreen}
         options={{ title: t('navigationLabels.settings')! }}
       />
       <Drawer.Screen
         name={Screens.HelpScreen}
-        component={PlaceholderScreen}
+        component={TestScreen}
         options={{ title: t('navigationLabels.help')! }}
       />
     </Drawer.Navigator>

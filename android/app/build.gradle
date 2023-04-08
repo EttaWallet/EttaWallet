@@ -278,6 +278,9 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    // react-native-ldk
+    implementation files("../../node_modules/@synonymdev/react-native-ldk/android/libs/LDK-release.aar")
 }
 
 if (isNewArchitectureEnabled()) {

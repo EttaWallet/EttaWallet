@@ -1,5 +1,5 @@
 import { AppModelType, appModel } from './app';
-import { LightningModelType, lightningModel } from './lightning';
+import { LightningNodeModelType, lightningModel } from './lightning';
 import { NuxtModelType, nuxtModel } from './nuxt';
 import { InternetModelType, internetModel } from './internet';
 import { thunk, Thunk } from 'easy-peasy';
@@ -21,7 +21,7 @@ export interface RootModelType {
   internet: InternetModelType;
   nuxt: NuxtModelType;
   app: AppModelType;
-  lightning: LightningModelType;
+  lightning: LightningNodeModelType;
 }
 
 const rootModel: RootModelType = {
