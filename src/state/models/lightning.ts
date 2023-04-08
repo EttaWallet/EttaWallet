@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { setupLdk, syncLdk, updateHeader } from '../../ldk';
 import { connectToElectrum, subscribeToHeader } from '../../utils/electrum';
@@ -136,4 +137,5 @@ export const lightningModel: LightningNodeModelType = {
       Logger.error(TAG, '@getNodeId', error.message);
     }
   }),
+  // open channel with LSP and receive inbound liquidity
 };

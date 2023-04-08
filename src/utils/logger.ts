@@ -81,7 +81,7 @@ class Logger {
       }
     }
     console.info(
-      `${tag} :: ${message} :: ${errorMsg} :: network connected ${this.isNetworkConnected}`
+      `${tag} :: ${message} :: ${errorMsg} :: internet connected: ${this.isNetworkConnected}`
     );
     if (__DEV__) {
       console.info(console.trace());
