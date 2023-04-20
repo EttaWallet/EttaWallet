@@ -52,7 +52,7 @@ export const MainStackScreen = () => {
     if (!acknowledgedDisclaimer || pinType === PinType.Unset) {
       initialRoute = Screens.WelcomeScreen;
     } else if (!wallet) {
-      initialRoute = choseRestoreWallet ? Screens.RestoreWalletScreen : Screens.WelcomeScreen;
+      initialRoute = choseRestoreWallet ? Screens.RestoreWalletScreen : Screens.StartLN;
     } else {
       initialRoute = Screens.DrawerNavigator;
     }
@@ -72,17 +72,7 @@ export const MainStackScreen = () => {
     <Stack.Navigator initialRouteName={initialRouteName} screenOptions={emptyHeader}>
       {/* Onboarding screens */}
       <Stack.Group>
-        <Stack.Screen name={Screens.TestScreen} component={TestScreen} options={noHeader} />
-        <Stack.Screen
-          name={Screens.InitScreen}
-          component={InitScreen}
-          options={InitScreen.navigationOptions}
-        />
-        <Stack.Screen
-          name={Screens.LangugageChooserScreen}
-          component={LanguageChooser}
-          options={LanguageChooser.navigationOptions() as NativeStackNavigationOptions}
-        />
+        {/* <Stack.Screen name={Screens.TestScreen} component={TestScreen} options={noHeader} /> */}
         <Stack.Screen
           name={Screens.SetPinScreen}
           // resolve navOptions

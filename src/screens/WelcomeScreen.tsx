@@ -16,8 +16,8 @@ const WelcomeScreen = () => {
   // const pincodeType = useStoreState((state) => state.nuxt.pincodeType);
   const pincodeType = mmkvStorage.getItem(StorageItem.pinType);
   const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType);
-  const enabledBiometrics = mmkvStorage.getItem(StorageItem.enabledBiometrics);
-  const skippedBiometrics = mmkvStorage.getItem(StorageItem.skippedBiometrics);
+  const enabledBiometrics = useStoreState((state) => state.app.biometricsEnabled);
+  const skippedBiometrics = useStoreState((state) => state.app.skippedBiometrics);
   const setChoseRestore = useStoreActions((action) => action.nuxt.setChoseRestoreWallet);
 
   const navigateNext = () => {

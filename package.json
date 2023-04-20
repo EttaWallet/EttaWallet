@@ -98,7 +98,7 @@
     "jest": "^26.6.3",
     "metro-react-native-babel-preset": "0.72.3",
     "pod-install": "^0.1.0",
-    "react-native-flipper": "^0.183.0",
+    "react-native-flipper": "^0.189.0",
     "react-test-renderer": "18.1.0",
     "reactotron-react-native": "^5.0.3",
     "reactotron-redux": "^3.1.3",

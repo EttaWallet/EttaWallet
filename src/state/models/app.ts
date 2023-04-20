@@ -101,8 +101,8 @@ export const appModel: AppModelType = {
   setSupportedBiometryType: action((state, supportedBiometryType) => {
     state.supportedBiometryType = supportedBiometryType;
   }),
-  setEnabledBiometrics: action((state, skippedBiometrics) => {
-    state.skippedBiometrics = skippedBiometrics;
+  setEnabledBiometrics: action((state, biometricsEnabled) => {
+    state.biometricsEnabled = biometricsEnabled;
   }),
   setSkippedBiometrics: action((state, skippedBiometrics) => {
     state.skippedBiometrics = skippedBiometrics;
