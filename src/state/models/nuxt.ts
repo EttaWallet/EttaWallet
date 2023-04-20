@@ -43,23 +43,8 @@ export const nuxtModel: NuxtModelType = {
   setLanguage: action((state, language) => {
     state.language = language;
   }),
-  setPincodeType: action((state) => {
-    let { pincodeType } = state;
-    switch (pincodeType) {
-      case 'Unset':
-        pincodeType = PinType.Unset;
-        break;
-      case 'Custom':
-        pincodeType = PinType.Custom;
-        break;
-      case 'Device':
-        pincodeType = PinType.Device;
-        break;
-    }
-    return {
-      ...state,
-      pincodeType,
-    };
+  setPincodeType: action((state, pincodeType) => {
+    state.pincodeType = pincodeType;
   }),
   setBackupCompleted: action((state, backupCompleted) => {
     state.backupCompleted = backupCompleted;
