@@ -108,6 +108,7 @@ export default function DrawerNavigator() {
       drawerContent={drawerContent}
       backBehavior={'initialRoute'}
       screenOptions={{
+        headerShown: false,
         unmountOnBlur: true,
         drawerLabelStyle: [TypographyPresets.Body3, { marginLeft: -20, fontWeight: 'normal' }],
         drawerActiveBackgroundColor: Colors.neutrals.light.neutral2,

@@ -37,6 +37,7 @@ export const initNavigationOptions: NativeStackNavigationOptions = {
   headerTransparent: true,
   // Prevents double back button on Android
   headerBackTitleVisible: false,
+  headerBackVisible: false,
   headerLeft: ({ canGoBack }) => (canGoBack ? <BackButton /> : <View />),
   headerRight: () => <View />,
   headerTitle: () => <DisconnectBanner />,

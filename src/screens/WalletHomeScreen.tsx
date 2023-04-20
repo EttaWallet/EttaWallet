@@ -1,42 +1,57 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, SafeAreaView, View, Text } from 'react-native';
-import { HomeButton } from 'etta-ui';
+import React, { useRef } from 'react';
+import {
+  StyleSheet,
+  SafeAreaView,
+  RefreshControl,
+  RefreshControlProps,
+  SectionList,
+  Text,
+} from 'react-native';
+import Animated from 'react-native-reanimated';
 import { noHeader } from '../navigation/Headers';
-import ldk from '@synonymdev/react-native-ldk/dist/ldk';
 import { useStoreState } from '../state/hooks';
+import DrawerHeader from '../navigation/components/DrawerHeader';
+import HomeActionsBar from '../components/HomeActionsBar';
+import { Colors } from 'etta-ui';
+import ContactsButton from '../navigation/components/ContactsButton';
+
+const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
 const WalletHomeScreen = () => {
   const nodeStarted = useStoreState((state) => state.lightning.nodeStarted);
-  const message = useStoreState((state) => state.lightning.message);
-  useEffect(() => {
-    (async (): Promise<void> => {
-      // Connect to Electrum Server
-      const nodeId = await ldk.nodeId();
-      if (nodeId.isErr()) {
-        console.error('Couldnot get the node ID');
-        return;
-      }
-      console.info('node ID: ', nodeId);
-    })();
-  }, []);
+
+  const scrollPosition = useRef(new Animated.Value(0)).current;
+
+  const keyExtractor = (_item: any, index: number) => {
+    return index.toString();
+  };
+
+  const refresh: React.ReactElement<RefreshControlProps> = (
+    <RefreshControl refreshing={nodeStarted} onRefresh={() => 0} colors={[Colors.green.base]} />
+  ) as React.ReactElement<RefreshControlProps>;
+
+  // add sections showing balance, most recent transaction and a prompt to show all transactions. Keep clean
+  const sections = [];
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={{ padding: 50 }} />
-      <View>
-        <Text>{nodeStarted ? 'node is up' : message}</Text>
-      </View>
-      <View style={styles.homeButtonsGroup}>
-        <HomeButton style={{ marginHorizontal: 8 }} icon="icon-arrow-up">
-          Send
-        </HomeButton>
-        <HomeButton style={{ marginHorizontal: 8 }} icon="icon-qr-code">
-          Scan
-        </HomeButton>
-        <HomeButton style={{ marginHorizontal: 8 }} icon="icon-arrow-down">
-          Receive
-        </HomeButton>
-      </View>
+      <DrawerHeader
+        middleElement={<Text>Synced</Text>}
+        rightElement={<ContactsButton />}
+        scrollPosition={scrollPosition}
+        showLogo={false}
+      />
+      <AnimatedSectionList
+        scrollEventThrottle={16}
+        onScroll={() => 0}
+        refreshControl={refresh}
+        onRefresh={() => 0}
+        refreshing={nodeStarted}
+        style={styles.container}
+        sections={sections}
+        keyExtractor={keyExtractor}
+      />
+      <HomeActionsBar />
     </SafeAreaView>
   );
 };
@@ -46,10 +61,7 @@ WalletHomeScreen.navigationOptions = noHeader;
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
-    paddingHorizontal: 16,
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   homeButtonsGroup: {
     flexDirection: 'row',

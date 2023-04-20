@@ -20,9 +20,6 @@ export interface LightningNodeModelType {
   setMessage: Action<LightningNodeModelType, string>;
   nodeStarted: boolean;
   setNodeStarted: Action<LightningNodeModelType, boolean>;
-  connectToElectrum: Thunk<LightningNodeModelType>;
-  syncLdk: Thunk<LightningNodeModelType>;
-  setupLdk: Thunk<LightningNodeModelType>;
   startNode: Thunk<LightningNodeModelType>;
   getNodeId: Thunk<LightningNodeModelType>;
 }
@@ -32,82 +29,53 @@ export const lightningModel: LightningNodeModelType = {
   progress: 0,
   nodeStarted: false,
   nodeId: null,
-  startNode: thunk(async (actions) => {
-    await actions.connectToElectrum();
-  }),
-  connectToElectrum: thunk(async (actions) => {
+  startNode: thunk(async (actions, _, { getState }) => {
+    //Restarting LDK on each code update causes constant errors.
+    const state = getState(); // Get the current state of the store
+    if (state.nodeStarted) {
+      return;
+    }
+
     // Connect to Electrum Server
     actions.setProgress(10);
-    try {
-      const electrumResponse = await connectToElectrum({});
-      if (electrumResponse.isErr()) {
-        actions.setMessage(
-          `Unable to connect to Electrum Server:\n ${electrumResponse.error.message}`
-        );
-        Logger.error(TAG, '@electrumResponse', electrumResponse.error.message);
-        return;
-      }
-      actions.setProgress(30);
-      // Subscribe to new blocks and sync LDK accordingly.
-      const headerInfo = await subscribeToHeader({
-        onReceive: async (): Promise<void> => {
-          const syncRes = await actions.syncLdk();
-          if (syncRes.isErr()) {
-            // actions.setMessage(syncRes.error.message);
-            Logger.error(TAG, '@syncRes', syncRes.error.message);
-            return;
-          }
-          actions.setProgress(50);
-          actions.setMessage(syncRes.value);
-        },
-      });
-      if (headerInfo.isErr()) {
-        // actions.setMessage(headerInfo.error.message);
-        Logger.error(TAG, '@headerInfo', headerInfo.error.message);
-        return;
-      }
-      await updateHeader({ header: headerInfo.value });
-      actions.setProgress(50);
-      await actions.syncLdk();
-      actions.setProgress(70);
-      // Setup LDK
-      await actions.setupLdk();
-      actions.setProgress(90);
-      actions.setNodeStarted(true);
-      actions.setMessage('LDK setup complete');
-      // save Node ID
-      await actions.getNodeId();
-    } catch (error) {
-      // actions.setMessage(`Something went wrong starting node: \n ${error.message}`);
-      Logger.error(TAG, '@connectToElectrum', error.message);
+    const electrumResponse = await connectToElectrum({});
+    if (electrumResponse.isErr()) {
+      actions.setMessage(
+        `Unable to connect to Electrum Server:\n ${electrumResponse.error.message}`
+      );
+      return;
     }
-  }),
-  syncLdk: thunk(async (actions) => {
-    const { setMessage } = actions;
-    try {
-      await syncLdk();
-      setMessage('LDK synced with blockchain');
-      actions.setProgress(30);
-    } catch (error) {
-      setMessage(`Error syncing LDK: ${error.message}`);
-      Logger.error(TAG, '@syncLdk', error.message);
+    actions.setProgress(30);
+
+    // Subscribe to new blocks and sync LDK accordingly.
+    const headerInfo = await subscribeToHeader({
+      onReceive: async (): Promise<void> => {
+        const syncRes = await syncLdk();
+        if (syncRes.isErr()) {
+          actions.setMessage(syncRes.error.message);
+          return;
+        }
+        actions.setMessage(syncRes.value);
+      },
+    });
+    if (headerInfo.isErr()) {
+      actions.setMessage(headerInfo.error.message);
+      return;
     }
-  }),
-  setupLdk: thunk(async (actions) => {
-    const { setMessage, setProgress } = actions;
-    try {
-      const { message, error } = await setupLdk();
-      if (error) {
-        // setMessage(`Error setting up LDK: ${message}`);
-        Logger.error(TAG, '@setupLdk', error.message);
-        return;
-      }
-      setMessage('LDK setup complete');
-      setProgress(0);
-    } catch (error) {
-      // setMessage(`Error setting up LDK: ${error.message}`);
-      Logger.error(TAG, '@setupLdk', error.message);
+    await updateHeader({ header: headerInfo.value });
+    actions.setProgress(60);
+
+    // Setup LDK
+    const setupResponse = await setupLdk();
+    if (setupResponse.isErr()) {
+      actions.setMessage(setupResponse.error.message);
+      return;
     }
+    actions.setProgress(80);
+    actions.setNodeStarted(true);
+    actions.setMessage('You are good to go!');
+    actions.getNodeId();
+    actions.setProgress(100);
   }),
   setNodeId: action((state, payload) => {
     state.nodeId = payload;

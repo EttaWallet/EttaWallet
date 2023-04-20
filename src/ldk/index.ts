@@ -156,7 +156,7 @@ export const setupLdk = async (): Promise<Result<string>> => {
     if (nodeIdRes.isErr()) {
       return err(nodeIdRes.error.message);
     }
-
+    console.log('Starting le sync');
     const syncRes = await lm.syncLdk();
     if (syncRes.isErr()) {
       return err(syncRes.error.message);

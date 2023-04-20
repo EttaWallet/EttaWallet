@@ -71,8 +71,8 @@ const WelcomeScreen = () => {
           onPress={restoreWalletHandler}
         />
       </View>
-      <View>
-        <Text style={styles.footer}>{t('welcome.footer')}</Text>
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>{t('welcome.footer')}</Text>
       </View>
     </SafeAreaView>
   );
@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
   headers: {
     flex: 1,
     justifyContent: 'flex-start',
+    marginTop: 60,
   },
   iconContainer: {
     alignSelf: 'center',
@@ -119,6 +120,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   footer: {
+    flex: 1,
+    position: 'relative',
+    marginBottom: 32,
+  },
+  footerText: {
     fontSize: 15,
     textAlign: 'center',
     marginTop: 'auto',

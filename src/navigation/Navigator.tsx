@@ -50,7 +50,7 @@ export const MainStackScreen = () => {
   useEffect(() => {
     let initialRoute: InitialRouteName;
     if (!acknowledgedDisclaimer || pinType === PinType.Unset) {
-      initialRoute = Screens.StartLN;
+      initialRoute = Screens.WelcomeScreen;
     } else if (!wallet) {
       initialRoute = choseRestoreWallet ? Screens.RestoreWalletScreen : Screens.WelcomeScreen;
     } else {
@@ -85,6 +85,7 @@ export const MainStackScreen = () => {
         />
         <Stack.Screen
           name={Screens.SetPinScreen}
+          // resolve navOptions
           component={SetPinScreen}
           options={SetPinScreen.navigationOptions}
         />

@@ -2,7 +2,6 @@ import { Platform, Linking } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import Logger from './logger';
 import { APP_STORE_ID } from '../../config';
-import { Err, Ok, Result } from 'ts-results';
 
 export const stringToBoolean = (inputString: string): boolean => {
   const lowercasedInput = inputString.toLowerCase().trim();
@@ -107,27 +106,3 @@ export const collectAppVersion: string = DeviceInfo.getVersion();
 export const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
-
-export async function resultifyAsync<T>(f: () => Promise<T>): Promise<Result<T, Error>> {
-  try {
-    return Ok(await f());
-  } catch (e) {
-    if (e instanceof Error) {
-      return Err(e);
-    } else {
-      throw new Error(`${e} is not an instance of Error -- this should not happen`);
-    }
-  }
-}
-
-export function resultify<T>(f: () => T): Result<T, Error> {
-  try {
-    return Ok(f());
-  } catch (e) {
-    if (e instanceof Error) {
-      return Err(e);
-    } else {
-      throw new Error(`${e} is not an instance of Error -- this should not happen`);
-    }
-  }
-}

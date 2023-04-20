@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import { useStoreActions, useStoreState } from '../state/hooks';
@@ -13,40 +12,12 @@ const StartLN: React.FC = () => {
   const nodeStarted = useStoreState((state) => state.lightning.nodeStarted);
   const progress = useStoreState((state) => state.lightning.progress);
 
-  const connectToElectrum = useStoreActions((actions) => actions.lightning.connectToElectrum);
-  const syncLdk = useStoreActions((actions) => actions.lightning.syncLdk);
-  const setupLdk = useStoreActions((actions) => actions.lightning.setupLdk);
-  const setProgress = useStoreActions((actions) => actions.lightning.setProgress);
-
   useEffect(() => {
-    const runThunks = async () => {
-      const thunks = [connectToElectrum, syncLdk, setupLdk];
-
-      const totalThunks = thunks.length;
-      let numThunksCompleted = 0;
-
-      for (const thunk of thunks) {
-        await new Promise<void>((resolve, reject) => {
-          thunk()
-            .then(() => {
-              numThunksCompleted++;
-              const progressValue = (numThunksCompleted / totalThunks) * 100;
-              setProgress(progressValue);
-              resolve();
-            })
-            .catch((error) => {
-              reject(error);
-            });
-        });
-      }
-    };
-
     if (!nodeStarted) {
       startNode();
-    } else {
-      runThunks();
     }
-  }, [connectToElectrum, nodeStarted, setProgress, setupLdk, startNode, syncLdk]);
+    return;
+  }, [nodeStarted, startNode]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -58,7 +29,7 @@ const StartLN: React.FC = () => {
           loop={false}
         />
       ) : (
-        <CircularProgress radius={100} value={progress} activeStrokeWidth={12} />
+        <CircularProgress radius={100} value={progress} valueSuffix={'%'} activeStrokeWidth={12} />
       )}
       <Text style={styles.text}>{message || 'Initializing node...'}</Text>
       <View style={styles.buttonContainer}>
