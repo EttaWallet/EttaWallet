@@ -1,5 +1,7 @@
-import { createStore } from 'easy-peasy';
+import { createStore, persist } from 'easy-peasy';
 import rootModel, { RootModelType } from './models';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import mmkvStorage from '../storage/disk';
 
 let storeEnhancers = [];
 
@@ -9,8 +11,13 @@ if (__DEV__) {
   storeEnhancers.push(reactotron.createEnhancer());
 }
 
-const store = createStore<RootModelType>(rootModel, {
-  enhancers: [...storeEnhancers],
-});
+const store = createStore<RootModelType>(
+  persist(rootModel, {
+    storage: mmkvStorage,
+  }),
+  {
+    enhancers: [...storeEnhancers],
+  }
+);
 
 export default store;

@@ -5,6 +5,9 @@ import CircularProgress from 'react-native-circular-progress-indicator';
 import LottieView from 'lottie-react-native';
 import { Button } from 'etta-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { navigate } from '../navigation/NavigationService';
+import { Screens } from '../navigation/Screens';
+import { sleep } from '../utils/helpers';
 
 const StartLN: React.FC = () => {
   const startNode = useStoreActions((actions) => actions.lightning.startNode);
@@ -18,6 +21,11 @@ const StartLN: React.FC = () => {
     }
     return;
   }, [nodeStarted, startNode]);
+
+  const onPressProceed = () => {
+    sleep(1000);
+    navigate(Screens.DrawerNavigator);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -35,7 +43,7 @@ const StartLN: React.FC = () => {
       <View style={styles.buttonContainer}>
         <Button
           appearance="filled"
-          onPress={() => 0}
+          onPress={onPressProceed}
           title="Proceed"
           disabled={!nodeStarted}
           style={styles.proceedBtn}

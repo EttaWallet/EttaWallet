@@ -45,13 +45,13 @@ export const MainStackScreen = () => {
   const pinType = useStoreState((state) => state.nuxt.pincodeType);
   const userStarted = useStoreState((state) => state.nuxt.userStarted);
   const slidesSeen = useStoreState((state) => state.nuxt.seenSlides);
-  const wallet = useStoreState((state) => state.lightning.nodeStarted);
+  const nodeIsUp = useStoreState((state) => state.lightning.nodeStarted);
 
   useEffect(() => {
     let initialRoute: InitialRouteName;
     if (!acknowledgedDisclaimer || pinType === PinType.Unset) {
       initialRoute = Screens.WelcomeScreen;
-    } else if (!wallet) {
+    } else if (!nodeIsUp) {
       initialRoute = choseRestoreWallet ? Screens.RestoreWalletScreen : Screens.StartLN;
     } else {
       initialRoute = Screens.DrawerNavigator;
@@ -62,7 +62,7 @@ export const MainStackScreen = () => {
 
     // Wait for next frame to avoid slight gap when hiding the splash
     requestAnimationFrame(() => SplashScreen.hide());
-  }, [acknowledgedDisclaimer, choseRestoreWallet, slidesSeen, userStarted, pinType, wallet]);
+  }, [acknowledgedDisclaimer, choseRestoreWallet, slidesSeen, userStarted, pinType, nodeIsUp]);
 
   if (!initialRouteName) {
     return <AppLoading />;

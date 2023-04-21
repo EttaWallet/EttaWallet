@@ -16,9 +16,15 @@ const WelcomeScreen = () => {
   // const pincodeType = useStoreState((state) => state.nuxt.pincodeType);
   const pincodeType = mmkvStorage.getItem(StorageItem.pinType);
   const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType);
-  const enabledBiometrics = useStoreState((state) => state.app.biometricsEnabled);
-  const skippedBiometrics = useStoreState((state) => state.app.skippedBiometrics);
+  // issue: using mmkv because biometric state keeps defaulting back to false on reload:
+  // const enabledBiometrics = useStoreState((state) => state.app.biometricsEnabled);
+  // const skippedBiometrics = useStoreState((state) => state.app.skippedBiometrics);
+  const enabledBiometrics = mmkvStorage.getItem(StorageItem.enabledBiometrics);
+  const skippedBiometrics = mmkvStorage.getItem(StorageItem.skippedBiometrics);
   const setChoseRestore = useStoreActions((action) => action.nuxt.setChoseRestoreWallet);
+
+  const nodeIsUp = useStoreState((state) => state.lightning.nodeStarted);
+  const nodeId = mmkvStorage.getItem(StorageItem.ldkNodeId);
 
   const navigateNext = () => {
     if (!acknowledgedDisclaimer) {
@@ -31,7 +37,9 @@ const WelcomeScreen = () => {
       skippedBiometrics === false
     ) {
       navigate(Screens.EnableBiometryScreen);
-      // add new else if to initialize wallet
+      // check if node is available on device
+    } else if (nodeIsUp === false || nodeId === '') {
+      navigate(Screens.StartLN);
     } else {
       navigate(Screens.DrawerNavigator);
     }

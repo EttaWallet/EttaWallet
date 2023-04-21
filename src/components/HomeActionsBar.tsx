@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { HomeButton, Colors } from 'etta-ui';
+import { moderateScale, verticalScale } from '../utils/sizing';
 
 export default function HomeActionsBar() {
   const onPressSend = () => {
@@ -39,15 +40,15 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 40,
+    paddingHorizontal: moderateScale(10),
+    paddingTop: verticalScale(20),
+    paddingBottom: verticalScale(40),
     borderTopColor: Colors.neutrals.light.neutral4,
     borderTopWidth: 1,
   },
   button: {
     flex: 1,
     flexDirection: 'column',
-    marginHorizontal: 8,
+    marginHorizontal: moderateScale(8),
   },
 });

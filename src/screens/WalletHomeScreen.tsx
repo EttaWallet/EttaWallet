@@ -6,6 +6,7 @@ import {
   RefreshControlProps,
   SectionList,
   Text,
+  View,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { noHeader } from '../navigation/Headers';
@@ -14,11 +15,13 @@ import DrawerHeader from '../navigation/components/DrawerHeader';
 import HomeActionsBar from '../components/HomeActionsBar';
 import { Colors } from 'etta-ui';
 import ContactsButton from '../navigation/components/ContactsButton';
+import { moderateScale, scale, verticalScale } from '../utils/sizing';
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
 const WalletHomeScreen = () => {
   const nodeStarted = useStoreState((state) => state.lightning.nodeStarted);
+  const nodeMsg = useStoreState((state) => state.lightning.message);
 
   const scrollPosition = useRef(new Animated.Value(0)).current;
 
@@ -33,10 +36,21 @@ const WalletHomeScreen = () => {
   // add sections showing balance, most recent transaction and a prompt to show all transactions. Keep clean
   const sections = [];
 
+  const NodeStatus = () => {
+    // @todo: setup an enum to track Node state and switch color i.e:
+    // synced, syncing, offline, with different color codes.
+    return (
+      <>
+        <View style={styles.dotContainer} />
+        <Text>{nodeMsg}</Text>
+      </>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <DrawerHeader
-        middleElement={<Text>Synced</Text>}
+        middleElement={<NodeStatus />}
         rightElement={<ContactsButton />}
         scrollPosition={scrollPosition}
         showLogo={false}
@@ -65,7 +79,15 @@ const styles = StyleSheet.create({
   },
   homeButtonsGroup: {
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: verticalScale(20),
+  },
+  dotContainer: {
+    width: scale(8),
+    borderRadius: scale(4),
+    marginRight: moderateScale(8),
+    height: verticalScale(8),
+    backgroundColor: '#08CB7A',
+    alignSelf: 'center',
   },
 });
 

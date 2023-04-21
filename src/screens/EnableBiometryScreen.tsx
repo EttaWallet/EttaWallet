@@ -33,11 +33,12 @@ export const EnableBiometry = ({ navigation }: Props) => {
   const { t } = useTranslation();
 
   const setPinType = useStoreActions((action) => action.nuxt.savePinType);
-  const setEnabledBiometrics = useStoreActions((action) => action.app.saveEnabledBiometrics);
+  const setBiometricsStatus = useStoreActions((action) => action.app.setEnabledBiometrics);
 
   const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType)!;
   const choseRestoreWallet = useStoreState((state) => state.nuxt.choseRestoreWallet);
-  const setSkippedBiometrics = useStoreActions((action) => action.app.saveSkippedBiometrics);
+  const nodeIsUp = useStoreState((state) => state.lightning.nodeStarted);
+  const userSkippedBiometry = useStoreActions((action) => action.app.setSkippedBiometrics);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -50,17 +51,21 @@ export const EnableBiometry = ({ navigation }: Props) => {
   const handleNavigateToNextScreen = () => {
     if (choseRestoreWallet) {
       navigate(Screens.RestoreWalletScreen);
-      return;
+    } else if (!nodeIsUp) {
+      // proceed to launch LDK node
+      navigate(Screens.StartLN);
+    } else {
+      navigate(Screens.DrawerNavigator);
     }
-    // navigate(Screens.StartLN);
-    navigate(Screens.DrawerNavigator);
+    return;
   };
 
   const onPressUseBiometry = async () => {
     try {
       await setPincodeWithBiometry();
       setPinType(PinType.Device);
-      setEnabledBiometrics(true);
+      // @issue: state keeps reverting to false on reload
+      setBiometricsStatus(true);
       handleNavigateToNextScreen();
     } catch (error: any) {
       if (!isUserCancelledError(error)) {
@@ -70,7 +75,8 @@ export const EnableBiometry = ({ navigation }: Props) => {
   };
 
   const onPressSkip = async () => {
-    setSkippedBiometrics(true);
+    // @issue: state keeps reverting to false on reload
+    userSkippedBiometry(true);
     handleNavigateToNextScreen();
   };
 

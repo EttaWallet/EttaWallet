@@ -93,13 +93,16 @@ export const lightningModel: LightningNodeModelType = {
     const { setMessage } = actions;
     try {
       const nodeIdRes = await ldk.nodeId();
-      // save to storage
-      // @ts-ignore
-      mmkvStorage.setItem(StorageItem.ldkNodeId, nodeIdRes.value);
       if (nodeIdRes.isErr()) {
         // setMessage(`Error getting Node ID:\n ${nodeIdRes.error.message}`);
         Logger.error(TAG, `Error getting Node ID:\n ${nodeIdRes.error.message}`);
         return;
+      } else {
+        // save to storage
+        // @ts-ignore
+        mmkvStorage.setItem(StorageItem.ldkNodeId, nodeIdRes.value);
+        // update state
+        await actions.setNodeId(nodeIdRes.value);
       }
     } catch (error) {
       Logger.error(TAG, '@getNodeId', error.message);
