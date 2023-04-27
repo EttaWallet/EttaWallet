@@ -50,7 +50,7 @@ export const getPrivateKey = async ({
     }
 
     const seed = await bip39.mnemonicToSeed(mnemonic, bip39Passphrase);
-    const network = bitcoin.networks[selectedNetwork!];
+    const network = getBitcoinJSNetwork[selectedNetwork!];
     const root = BIP32.fromSeed(seed, network);
     const addressKeypair = root.derivePath(path);
     return { error: false, value: addressKeypair.toWIF() };
