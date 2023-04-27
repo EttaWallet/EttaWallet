@@ -19,6 +19,7 @@ export interface AppModelType {
   skippedBiometrics: boolean;
   biometricsEnabled: boolean;
   minAppVersion: string | null;
+  isConnectedToElectrum: boolean;
   // actions
   setAppVersion: Action<AppModelType, number>;
   setAppBuild: Action<AppModelType, number>;
@@ -33,6 +34,7 @@ export interface AppModelType {
   setSupportedBiometryType: Action<AppModelType, BIOMETRY_TYPE>;
   setEnabledBiometrics: Action<AppModelType, boolean>;
   setSkippedBiometrics: Action<AppModelType, boolean>;
+  setIsConnectedToElectrum: Action<AppModelType, boolean>;
   saveEnabledBiometrics: Thunk<AppModelType, boolean>;
   saveSkippedBiometrics: Thunk<AppModelType, boolean>;
 }
@@ -52,6 +54,7 @@ export const appModel: AppModelType = {
   skippedBiometrics: false,
   biometricsEnabled: false,
   minAppVersion: null,
+  isConnectedToElectrum: false,
   // wip actions
   setAppVersion: action((state, version) => {
     state.appVersion = version;
@@ -114,5 +117,8 @@ export const appModel: AppModelType = {
   saveSkippedBiometrics: thunk(async (actions, payload) => {
     await mmkvStorage.setItem(StorageItem.skippedBiometrics, payload);
     actions.setSkippedBiometrics(payload);
+  }),
+  setIsConnectedToElectrum: action((state, isConnectedToElectrum) => {
+    state.isConnectedToElectrum = isConnectedToElectrum;
   }),
 };

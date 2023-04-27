@@ -1765,10 +1765,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@synonymdev/react-native-ldk@^0.0.83":
-  version "0.0.83"
-  resolved "https://registry.yarnpkg.com/@synonymdev/react-native-ldk/-/react-native-ldk-0.0.83.tgz#4f64d6a968121b6396c78cfc0ca9bf52a3b6bec3"
-  integrity sha512-eJXWKxw0fO0Ih1CKfJQZte2EUc5LY4azyw8A2+fa2mONIqXtL/ULZKJwvsfeMHZ20f44mHVkzwONU/iJzeBAkA==
+"@synonymdev/react-native-ldk@^0.0.89":
+  version "0.0.89"
+  resolved "https://registry.yarnpkg.com/@synonymdev/react-native-ldk/-/react-native-ldk-0.0.89.tgz#82956436011cc575e893422e12469a298bf214b2"
+  integrity sha512-AAfnVM3AEGkoJaSNcbtjLd3Xnfx/87Jj1owETB2fY77f2bw4rFFsgoQyge6OfsHst5xlpohCqVmTVzzcH6J0Sg==
   dependencies:
     bitcoinjs-lib "^6.0.2"
 
@@ -1959,6 +1959,11 @@
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-2.0.1.tgz#20f18294f797f2209b5f65c8e3b5c8e8261d127c"
   integrity sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==
+
+"@types/uuid@^9.0.1":
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-9.0.1.tgz#98586dc36aee8dacc98cc396dbca8d0429647aa6"
+  integrity sha512-rFT3ak0/2trgvp4yYZo5iKFEPsET7vKydKF+VRCxlQ9bpheehyAJH89dAkaLEq/j/RZXJIqcgsmPJKUP1Z28HA==
 
 "@types/yargs-parser@*":
   version "21.0.0"
@@ -9037,6 +9042,11 @@ uuid@^8.3.0:
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
+
+uuid@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.0.tgz#592f550650024a38ceb0c562f2f6aa435761efb5"
+  integrity sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==
 
 v8-compile-cache-lib@^3.0.1:
   version "3.0.1"

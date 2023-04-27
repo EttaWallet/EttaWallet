@@ -2,6 +2,26 @@ import { Platform, Linking } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import Logger from './logger';
 import { APP_STORE_ID } from '../../config';
+import { err, Result } from './result';
+
+// MIT License
+// Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
+// https://github.com/sindresorhus/ts-extras
+
+export type ObjectKeys<T extends object> = `${Exclude<keyof T, symbol>}`;
+
+/**
+A strongly-typed version of `Object.keys()`.
+
+This is useful since `Object.keys()` always returns an array of strings. This function returns a strongly-typed array of the keys of the given object.
+
+- [Explanation](https://stackoverflow.com/questions/55012174/why-doesnt-object-keys-return-a-keyof-type-in-typescript)
+- [TypeScript issues about this](https://github.com/microsoft/TypeScript/issues/45390)
+
+*/
+export const objectKeys = Object.keys as <Type extends object>(
+  value: Type
+) => Array<ObjectKeys<Type>>;
 
 export const stringToBoolean = (inputString: string): boolean => {
   const lowercasedInput = inputString.toLowerCase().trim();
@@ -125,3 +145,55 @@ export const deepMap = (obj, fn) => {
   }
   return obj;
 };
+
+export const promiseTimeout = <T>(ms: number, promise: Promise<any>): Promise<T> => {
+  let id: NodeJS.Timeout | undefined;
+  const timeout = new Promise((resolve) => {
+    id = setTimeout(() => {
+      resolve(err('Timed Out.'));
+    }, ms);
+  });
+  return Promise.race([promise, timeout]).then((result) => {
+    clearTimeout(id);
+    return result;
+  });
+};
+
+/**
+ * Tries to resolve a Promise N times, with a delay between each attempt.
+ * @param {() => Promise<T>} toTry The Promise to try to resolve.
+ * @param {number} [times] The maximum number of attempts (must be greater than 0).
+ * @param {number} [interval] The interval of time between each attempt in milliseconds.
+ * @returns {Promise<T>} The resolution of the Promise.
+ */
+export async function tryNTimes<T>({
+  toTry,
+  times = 5,
+  interval = 50,
+}: {
+  toTry: () => Promise<Result<T>>;
+  times?: number;
+  interval?: number;
+}): Promise<T> {
+  if (times < 1) {
+    throw new Error(`Bad argument: 'times' must be greater than 0, but ${times} was received.`);
+  }
+  let attemptCount = 0;
+  while (true) {
+    try {
+      const result = await toTry();
+      if (result.isErr()) {
+        if (++attemptCount >= times) {
+          throw result.error;
+        }
+      } else {
+        return result.value;
+      }
+    } catch (error) {
+      if (++attemptCount >= times) {
+        throw error;
+      }
+    }
+    await sleep(interval);
+  }
+}

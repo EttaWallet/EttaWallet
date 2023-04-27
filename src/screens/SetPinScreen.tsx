@@ -21,7 +21,6 @@ import { Colors } from 'etta-ui';
 import type { RouteProp } from '@react-navigation/core';
 import { Pincode } from '../components/pincode'; // revert to etta component after merging changes
 import { setPinInKeyChain } from '../utils/keychain';
-import mmkvStorage, { StorageItem } from '../storage/disk';
 
 type ScreenProps = NativeStackScreenProps<StackParamList, Screens.SetPinScreen>;
 
@@ -40,9 +39,10 @@ const SetPinScreen = ({ route }: Props) => {
   const restoreWallet = useStoreState((state) => state.nuxt.choseRestoreWallet);
   const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType);
   const skippedBiometrics = useStoreState((state) => state.app.skippedBiometrics);
-  const enabledBiometrics = mmkvStorage.getItem(StorageItem.enabledBiometrics);
+  const enabledBiometrics = useStoreState((state) => state.app.biometricsEnabled);
   // dispatch action from rootState
   const setPinType = useStoreActions((action) => action.nuxt.savePinType);
+  const nodeIsUp = useStoreState((state) => state.lightning.nodeStarted);
 
   useEffect(() => {
     if (isChangingPin()) {
@@ -67,6 +67,9 @@ const SetPinScreen = ({ route }: Props) => {
     } else if (restoreWallet) {
       popToScreen(Screens.WelcomeScreen);
       navigate(Screens.RestoreWalletScreen);
+    } else if (nodeIsUp === false) {
+      // proceed to launch LDK node
+      navigate(Screens.StartLN);
     } else {
       navigateClearingStack(Screens.DrawerNavigator);
     }

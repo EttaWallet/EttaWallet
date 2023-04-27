@@ -5,12 +5,17 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
+    "ios:se": "react-native run-ios --simulator='iPhone SE (3rd generation)'",
     "start": "react-native start",
     "dev": "react-native start --reset-cache",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "typesafe-i18n": "typesafe-i18n --no-watch",
     "typesafe-i18n:export": "tsx src/i18n/export.ts",
+    "clean": "yarn clean:rn && yarn clean:ios && yarn clean:android && yarn start --reset-cache",
+    "clean:rn": "watchman watch-del-all && rimraf node_modules nodejs-assets/nodejs-project/node_modules && yarn && rimraf /tmp/metro-*",
+    "clean:android": "cd android && rimraf build app/build && ./gradlew clean",
+    "clean:ios": "cd ios && rimraf Pods Podfile.lock build && pod deintegrate && arch -x86_64 pod install",
     "postinstall": "node postinstall.js"
   },
   "dependencies": {
@@ -26,7 +31,7 @@
     "@react-navigation/stack": "^6.3.12",
     "@sentry/react-native": "^4.13.0",
     "@sentry/types": "^7.29.0",
-    "@synonymdev/react-native-ldk": "^0.0.83",
+    "@synonymdev/react-native-ldk": "^0.0.89",
     "@th3rdwave/react-navigation-bottom-sheet": "^0.2.2",
     "add": "^2.0.6",
     "assert": "^1.1.1",
@@ -76,6 +81,7 @@
     "stream-browserify": "^1.0.0",
     "tslib": "^2.5.0",
     "typesafe-i18n": "^5.24.0",
+    "uuid": "^9.0.0",
     "vm-browserify": "0.0.4"
   },
   "devDependencies": {
@@ -90,6 +96,7 @@
     "@types/react": "^18.0.21",
     "@types/react-native": "^0.70.6",
     "@types/react-test-renderer": "^18.0.0",
+    "@types/uuid": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^5.37.0",
     "@typescript-eslint/parser": "^5.37.0",
     "babel-jest": "^26.6.3",

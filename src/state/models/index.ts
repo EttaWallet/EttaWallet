@@ -13,6 +13,8 @@ import {
   getPinType,
   setupApp,
 } from '../../storage/disk';
+import { WalletModelType, walletModel } from './wallet';
+import { SettingsModelType, settingsModel } from './settings';
 
 const TAG = 'state/root';
 
@@ -22,6 +24,8 @@ export interface RootModelType {
   nuxt: NuxtModelType;
   app: AppModelType;
   lightning: LightningNodeModelType;
+  settings: SettingsModelType;
+  wallet: WalletModelType;
 }
 
 const rootModel: RootModelType = {
@@ -44,6 +48,8 @@ const rootModel: RootModelType = {
   app: appModel,
   nuxt: nuxtModel,
   lightning: lightningModel,
+  settings: settingsModel,
+  wallet: walletModel,
 };
 
 export default rootModel;

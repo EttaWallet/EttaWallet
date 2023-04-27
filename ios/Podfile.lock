@@ -315,7 +315,7 @@ PODS:
     - React-Core
   - react-native-flipper (0.189.0):
     - React-Core
-  - react-native-ldk (0.0.83):
+  - react-native-ldk (0.0.89):
     - React
   - react-native-mmkv (2.5.1):
     - MMKV (>= 1.2.13)
@@ -733,7 +733,7 @@ SPEC CHECKSUMS:
   React-logger: 1623c216abaa88974afce404dc8f479406bbc3a0
   react-native-config: 5330c8258265c1e5fdb8c009d2cabd6badd96727
   react-native-flipper: e0e154c742a3c5020ec97362de664880b608dab1
-  react-native-ldk: f9cbe8be61991389bca0ceb582f322745606ea75
+  react-native-ldk: 58ed077970033a7017a290b4a5ec6189c70ebb08
   react-native-mmkv: 69b9c003f10afdd01addf7c6ee784ce42ee2eff3
   react-native-netinfo: 22c082970cbd99071a4e5aa7a612ac20d66b08f0
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846

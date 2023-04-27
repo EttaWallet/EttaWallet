@@ -1,23 +1,50 @@
 import * as electrum from 'rn-electrum-client/helpers';
 import { err, ok, Result } from '../result';
-import { getItem, updateHeader } from '../../ldk';
+import { getAddressFromScriptPubKey, subscribeToAddresses, updateHeader } from './helpers';
 import { Block } from 'bitcoinjs-lib';
-import * as tls from './tls';
-import { customPeers, selectedNetwork } from '../lightning/constants';
-import { THeader } from '@synonymdev/react-native-ldk';
-import { IGetHeaderResponse, ISubscribeToHeader, TGetAddressHistory } from '../types';
-import { getAddressFromScriptPubKey, getScriptHash } from '../lightning/helpers';
+import {
+  IBitcoinTransactionData,
+  ICustomElectrumPeer,
+  IGetHeaderResponse,
+  IHeader,
+  ISubscribeToHeader,
+  IWalletItem,
+  TGetAddressHistory,
+} from '../types';
+import { TAvailableNetworks } from '../networks';
+import { getSelectedNetwork } from '../wallet';
+import { getCustomElectrumPeers, hardcodedPeers } from './helpers';
+import store from '../../state/store';
+import { getBitcoinScriptHash } from '../bitcoin';
 
+type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+type TCustomElectrumPeerOptionalProtocol = PartialBy<ICustomElectrumPeer, 'protocol'>;
+
+const tempElectrumServers: IWalletItem<TCustomElectrumPeerOptionalProtocol[]> = {
+  bitcoin: hardcodedPeers.bitcoin,
+  bitcoinTestnet: hardcodedPeers.bitcoinTestnet,
+  bitcoinRegtest: [],
+};
 /**
  * Returns the block hash given a block hex.
  * Leaving blockHex empty will return the last known block hash from storage.
  * @param {string} [blockHex]
+ * @param {TAvailableNetworks} [selectedNetwork]
  * @returns {string}
  */
-export const getBlockHashFromHex = async ({ blockHex }: { blockHex?: string }): Promise<string> => {
+export const getBlockHashFromHex = ({
+  blockHex,
+  selectedNetwork,
+}: {
+  blockHex?: string;
+  selectedNetwork?: TAvailableNetworks;
+}): string => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
   // If empty, return the last known block hex from storage.
   if (!blockHex) {
-    const { hex } = await getBlockHeader();
+    const { hex } = getBlockHeader();
     blockHex = hex;
   }
   const block = Block.fromHex(blockHex);
@@ -27,11 +54,10 @@ export const getBlockHashFromHex = async ({ blockHex }: { blockHex?: string }): 
 
 /**
  * Returns last known block height, and it's corresponding hex from local storage.
- * @returns {THeader}
+ * @returns {IHeader}
  */
-export const getBlockHeader = async (): Promise<THeader> => {
-  const header = await getItem('header');
-  return JSON.parse(header);
+export const getBlockHeader = (): IHeader => {
+  return store.getState().wallet.header;
 };
 
 /**
@@ -55,9 +81,19 @@ export const getBlockHashFromHeight = async ({
 /**
  * Returns the block hex of the provided block height.
  * @param {number} [height]
+ * @param {TAvailableNetworks} [selectedNetwork]
  * @returns {Promise<Result<string>>}
  */
-export const getBlockHex = async ({ height = 0 }: { height?: number }): Promise<Result<string>> => {
+export const getBlockHex = async ({
+  height = 0,
+  selectedNetwork,
+}: {
+  height?: number;
+  selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string>> => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
   const response: IGetHeaderResponse = await electrum.getHeader({
     height,
     network: selectedNetwork,
@@ -68,115 +104,275 @@ export const getBlockHex = async ({ height = 0 }: { height?: number }): Promise<
   return ok(response.data);
 };
 
+/**
+ * Connects to the provided electrum peer. Otherwise, it will attempt to connect to a set of default peers.
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {number} [retryAttempts]
+ * @param {ICustomElectrumPeer[]} [customPeers]
+ * @param {{ net: undefined, tls: undefined }} [options]
+ * @return {Promise<Result<string>>}
+ */
 export const connectToElectrum = async ({
+  selectedNetwork,
+  retryAttempts = 2,
+  customPeers,
   options = { net: undefined, tls: undefined },
 }: {
+  selectedNetwork?: TAvailableNetworks;
+  retryAttempts?: number;
+  customPeers?: TCustomElectrumPeerOptionalProtocol[];
   options?: { net?: any; tls?: any };
-}): Promise<Result<string>> => {
+} = {}): Promise<Result<string>> => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
   const net = options.net ?? global?.net;
-  const _tls = options.tls ?? tls;
+  // const _tls = options.tls ?? tls;
+  const _tls = options.tls ?? global?.tls;
 
-  console.info('NET', net);
+  //Attempt to disconnect from any old/lingering connections
+  await electrum.stop({ network: selectedNetwork });
 
-  const startResponse = await electrum.start({
-    network: selectedNetwork,
-    customPeers: customPeers[selectedNetwork],
-    net,
-    tls: _tls,
-  });
+  // Fetch any stored custom peers.
+  if (!customPeers) {
+    customPeers = getCustomElectrumPeers({ selectedNetwork });
+  }
+  if (customPeers.length < 1) {
+    customPeers = tempElectrumServers[selectedNetwork];
+  }
+
+  let startResponse = { error: true, data: '' };
+  for (let i = 0; i < retryAttempts; i++) {
+    startResponse = await electrum.start({
+      network: selectedNetwork,
+      customPeers,
+      net,
+      tls: _tls,
+    });
+    if (!startResponse.error) {
+      break;
+    }
+  }
 
   if (startResponse.error) {
     //Attempt one more time
     const { error, data } = await electrum.start({
       network: selectedNetwork,
-      customPeers: customPeers[selectedNetwork],
+      customPeers,
       net,
       tls: _tls,
     });
     if (error) {
-      return err(data);
+      const msg = data || 'An unknown error occurred.';
+      return err(msg);
     }
+    return ok(data);
   }
-  return ok('Successfully connected.');
+  // update state
+  store.dispatch.app.setIsConnectedToElectrum(true);
+  return ok(startResponse.data);
 };
 
 /**
  * Subscribes to the current networks headers.
+ * @param {string} [selectedNetwork]
  * @param {Function} [onReceive]
  * @return {Promise<Result<string>>}
  */
 export const subscribeToHeader = async ({
+  selectedNetwork,
   onReceive,
 }: {
-  onReceive?: Function;
-}): Promise<Result<THeader>> => {
+  selectedNetwork?: TAvailableNetworks;
+  onReceive?: () => void;
+}): Promise<Result<IHeader>> => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
   const subscribeResponse: ISubscribeToHeader = await electrum.subscribeHeader({
     network: selectedNetwork,
     onReceive: async (data) => {
       const hex = data[0].hex;
-      const hash = getBlockHashFromHex({ blockHex: hex });
-      const header = { ...data[0], hash };
-      await updateHeader({
-        header,
+      const hash = getBlockHashFromHex({ blockHex: hex, selectedNetwork });
+      updateHeader({
+        selectedNetwork,
+        header: { ...data[0], hash },
       });
-      if (onReceive) {
-        onReceive();
-      }
+      onReceive?.();
     },
   });
   if (subscribeResponse.error) {
     return err('Unable to subscribe to headers.');
   }
+
+  // @ts-ignore
+  if (subscribeResponse?.data === 'Already Subscribed.') {
+    return ok(getBlockHeader());
+  }
   // Update local storage with current height and hex.
   const hex = subscribeResponse.data.hex;
-  const hash = await getBlockHashFromHex({ blockHex: hex });
+  const hash = getBlockHashFromHex({ blockHex: hex, selectedNetwork });
   const header = { ...subscribeResponse.data, hash };
-  await updateHeader({
+  updateHeader({
+    selectedNetwork,
     header,
   });
   return ok(header);
 };
 
+/**
+ * Used to retrieve scriptPubkey history for LDK.
+ * @param {string} scriptPubkey
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<TGetAddressHistory[]>}
+ */
 export const getScriptPubKeyHistory = async (
-  scriptPubkey: string
+  scriptPubkey: string,
+  selectedNetwork?: TAvailableNetworks
 ): Promise<TGetAddressHistory[]> => {
-  try {
-    const address = getAddressFromScriptPubKey(scriptPubkey);
-    const scriptHash = getScriptHash(address);
-    const response = await electrum.getAddressScriptHashesHistory({
-      scriptHashes: [scriptHash],
-      network: selectedNetwork,
-    });
-
-    /*
-		const mempoolResponse = await electrum.getAddressScriptHashesMempool({
-			scriptHashes: [scriptHash],
-			network: selectedNetwork,
-		});
-
-		if (response.error || mempoolResponse.error) {
-			return [];
-		}
-		const combinedResponse = [...response.data, ...mempoolResponse.data];
-		*/
-
-    let history: { txid: string; height: number }[] = [];
-    await Promise.all(
-      response.data.map(({ result }): void => {
-        if (result && result?.length > 0) {
-          result.map((item) => {
-            // @ts-ignore
-            history.push({
-              txid: item?.tx_hash ?? '',
-              height: item?.height ?? 0,
-            });
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+  let history: { txid: string; height: number }[] = [];
+  const address = getAddressFromScriptPubKey(scriptPubkey, selectedNetwork);
+  if (!address) {
+    return history;
+  }
+  const scriptHash = await getBitcoinScriptHash(address, selectedNetwork);
+  if (!scriptHash) {
+    return history;
+  }
+  const response = await electrum.getAddressScriptHashesHistory({
+    scriptHashes: [scriptHash],
+    network: selectedNetwork,
+  });
+  if (response.error) {
+    return history;
+  }
+  await Promise.all(
+    response.data.map(({ result }): void => {
+      if (result && result?.length > 0) {
+        result.map((item) => {
+          history.push({
+            txid: item?.tx_hash ?? '',
+            height: item?.height ?? 0,
           });
+        });
+      }
+    })
+  );
+  return history;
+};
+
+/**
+ * Returns combined balance of provided addresses.
+ * @param {string[]} addresses
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const getAddressBalance = async ({
+  addresses = [],
+  selectedNetwork,
+}: {
+  addresses: string[];
+  selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<number>> => {
+  try {
+    if (!selectedNetwork) {
+      selectedNetwork = getSelectedNetwork();
+    }
+    const scriptHashes = await Promise.all(
+      addresses.map(async (address) => {
+        if (!selectedNetwork) {
+          selectedNetwork = getSelectedNetwork();
         }
+        return await getBitcoinScriptHash(address, selectedNetwork);
       })
     );
-
-    return history;
-  } catch {
-    return [];
+    const res = await electrum.getAddressScriptHashBalances({
+      scriptHashes,
+      network: selectedNetwork,
+    });
+    if (res.error) {
+      return err(res.data);
+    }
+    return ok(
+      res.data.reduce((acc, cur) => {
+        return acc + Number(cur.result?.confirmed ?? 0) + Number(cur.result?.unconfirmed ?? 0);
+      }, 0) || 0
+    );
+  } catch (e) {
+    return err(e);
   }
+};
+
+/**
+ * Returns onchain transaction data related to the specified network and wallet.
+ * @param {TWalletName} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const getOnchainTransactionData = ({
+  selectedNetwork,
+}: {
+  selectedNetwork?: TAvailableNetworks;
+}): Result<IBitcoinTransactionData> => {
+  try {
+    if (!selectedNetwork) {
+      selectedNetwork = getSelectedNetwork();
+    }
+    const transaction = store.getState().wallet.walletinfo.transaction;
+    if (transaction) {
+      return ok(transaction);
+    }
+    return err('Unable to get transaction data.');
+  } catch (e) {
+    return err(e);
+  }
+};
+
+export const broadcastTransaction = async ({
+  rawTx,
+  selectedNetwork,
+  subscribeToOutputAddress = true,
+}: {
+  rawTx: string;
+  selectedNetwork?: TAvailableNetworks;
+  subscribeToOutputAddress?: boolean;
+}): Promise<Result<string>> => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+
+  /**
+   * Subscribe to the output address and refresh the wallet when the Electrum server detects it.
+   * This prevents updating the wallet prior to the Electrum server detecting the new tx in the mempool.
+   */
+  if (subscribeToOutputAddress) {
+    const transaction = getOnchainTransactionData({
+      selectedNetwork,
+    });
+    if (transaction.isErr()) {
+      return err(transaction.error.message);
+    }
+    const address = transaction.value.outputs[0]?.address;
+    if (address) {
+      const scriptHash = await getBitcoinScriptHash(address, selectedNetwork);
+      console.log('@broadcastTransaction', scriptHash);
+      if (scriptHash) {
+        await subscribeToAddresses({
+          selectedNetwork,
+          scriptHashes: [scriptHash.value],
+        });
+      }
+    }
+  }
+
+  const broadcastResponse = await electrum.broadcastTransaction({
+    rawTx,
+    network: selectedNetwork,
+  });
+  // TODO: This needs to be resolved in rn-electrum-client
+  if (broadcastResponse.error || broadcastResponse.data.includes(' ')) {
+    return err(broadcastResponse.data);
+  }
+  return ok(broadcastResponse.data);
 };

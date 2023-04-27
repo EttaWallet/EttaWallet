@@ -51,7 +51,7 @@ export const EnableBiometry = ({ navigation }: Props) => {
   const handleNavigateToNextScreen = () => {
     if (choseRestoreWallet) {
       navigate(Screens.RestoreWalletScreen);
-    } else if (!nodeIsUp) {
+    } else if (nodeIsUp === false) {
       // proceed to launch LDK node
       navigate(Screens.StartLN);
     } else {

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import { useStoreActions, useStoreState } from '../state/hooks';
 import CircularProgress from 'react-native-circular-progress-indicator';
@@ -10,14 +10,15 @@ import { Screens } from '../navigation/Screens';
 import { sleep } from '../utils/helpers';
 
 const StartLN: React.FC = () => {
-  const startNode = useStoreActions((actions) => actions.lightning.startNode);
-  const message = useStoreState((state) => state.lightning.message);
+  const [message, setMessage] = useState('Hang tight. Setting up your lightning wallet ...');
+  const startNode = useStoreActions((actions) => actions.lightning.startLdk);
   const nodeStarted = useStoreState((state) => state.lightning.nodeStarted);
-  const progress = useStoreState((state) => state.lightning.progress);
 
   useEffect(() => {
     if (!nodeStarted) {
-      startNode();
+      startNode().then();
+    } else {
+      setMessage('All set. Proceed to your wallet');
     }
     return;
   }, [nodeStarted, startNode]);
@@ -37,9 +38,9 @@ const StartLN: React.FC = () => {
           loop={false}
         />
       ) : (
-        <CircularProgress radius={100} value={progress} valueSuffix={'%'} activeStrokeWidth={12} />
+        <CircularProgress radius={100} value={50} valueSuffix={'%'} activeStrokeWidth={12} />
       )}
-      <Text style={styles.text}>{message || 'Initializing node...'}</Text>
+      <Text style={styles.text}>{message}</Text>
       <View style={styles.buttonContainer}>
         <Button
           appearance="filled"
@@ -60,11 +61,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center', // center vertically
     alignItems: 'center', // center horizontally
+    paddingHorizontal: 40,
   },
   text: {
     fontSize: 18,
-    marginTop: 10,
+    marginTop: 20,
     fontFamily: fontFamilyChoice,
+    textAlign: 'center',
   },
   lottieIcon: {
     width: '50%',

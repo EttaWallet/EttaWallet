@@ -1,7 +1,12 @@
 import { createStore, persist } from 'easy-peasy';
 import rootModel, { RootModelType } from './models';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import mmkvStorage from '../storage/disk';
+
+// There might be an issue causing `setItem` not being called correctly
+// for iOS devices using React Native. The solution for this is currently
+// to remove the implemenation of `requestIdleCallback`.
+// Read this issue for more information: https://github.com/ctrlplusb/easy-peasy/issues/599
+window.requestIdleCallback = null!;
 
 let storeEnhancers = [];
 

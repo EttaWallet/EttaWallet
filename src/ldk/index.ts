@@ -1,86 +1,155 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as electrum from 'rn-electrum-client/helpers';
 import { err, ok, Result } from '../utils/result';
-import RNFS from 'react-native-fs';
+//@ts-ignore
+import * as electrum from 'rn-electrum-client/helpers';
 import {
-  getBlockHashFromHeight,
   getBlockHeader,
   getBlockHex,
   getScriptPubKeyHistory,
+  broadcastTransaction,
 } from '../utils/electrum';
 import lm, {
   DefaultTransactionDataShape,
-  TAccount,
-  TAccountBackup,
-  THeader,
   TTransactionData,
   TTransactionPosition,
 } from '@synonymdev/react-native-ldk';
 import ldk from '@synonymdev/react-native-ldk/dist/ldk';
-import { peers, selectedNetwork } from '../utils/lightning/constants';
 import {
-  getAccount,
-  getAddress,
-  getNetwork,
-  ldkNetwork,
-  setAccount,
+  updateLdkVersion,
+  updateLdkNodeId,
+  setLdkStoragePath,
+  getLdkAccount,
 } from '../utils/lightning/helpers';
-import { EAccount } from '../utils/types';
-import * as bitcoin from 'bitcoinjs-lib';
+import { TLightningNodeVersion } from '../utils/types';
+import { InteractionManager } from 'react-native';
+import { promiseTimeout, sleep, tryNTimes } from '../utils/helpers';
+import { getBestBlock, getTransactionMerkle } from '../utils/electrum/helpers';
+import { getLdkNetwork, TAvailableNetworks } from '../utils/networks';
+import { getReceiveAddress, getSelectedNetwork, getWalletStore } from '../utils/wallet';
 
-/**
- * Retrieves data from local storage.
- * @param {string} key
- * @returns {Promise<string>}
- */
-export const getItem = async (key = ''): Promise<any> => {
-  try {
-    return await AsyncStorage.getItem(key);
-  } catch (e) {
-    console.log(e);
-    return '';
-  }
-};
-
-/**
- * Saves data to local storage.
- * @param {string} key
- * @param {string} value
- * @returns {Promise<void>}
- */
-export const setItem = async (key = '', value = ''): Promise<void> => {
-  try {
-    await AsyncStorage.setItem(key, value);
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-/**
- * Returns last known header information from storage.
- * @returns {Promise<THeader>}
- */
-export const getBestBlock = async (): Promise<THeader> => {
-  const bestBlock = await getItem('header');
-  return bestBlock ? JSON.parse(bestBlock) : { height: 0, hex: '', hash: '' };
-};
-
-/**
- * Saves new/latest header data to local storage.
- * @param {THeader} header
- * @returns {Promise<void>}
- */
-export const updateHeader = async ({ header }: { header: THeader }): Promise<void> => {
-  return await setItem('header', JSON.stringify(header));
-};
+let LDKIsStayingSynced = false;
 
 /**
  * Syncs LDK to the current height.
  * @returns {Promise<Result<string>>}
  */
-export const syncLdk = async (): Promise<Result<string>> => {
-  const syncResponse = await lm.syncLdk();
-  return syncResponse;
+export const refreshLdk = async ({
+  selectedNetwork,
+}: {
+  selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string>> => {
+  try {
+    // wait for the bells and whistles to finish
+    await new Promise((resolve) => InteractionManager.runAfterInteractions(() => resolve(null)));
+
+    if (!selectedNetwork) {
+      selectedNetwork = getSelectedNetwork();
+    }
+
+    const isRunning = await isLdkRunning();
+    if (!isRunning) {
+      // Not up, attempt to reset LDK
+      await resetLdk();
+      // run fresh ldk setup; no need to refresh(sync) at this time.
+      const setupResponse = await setupLdk({ selectedNetwork, shouldRefreshLdk: false });
+      if (setupResponse.isErr()) {
+        return err(setupResponse.error.message);
+      }
+      // keep synced every 2mins(default or define frequency param)
+      keepLdkSynced({}).then();
+    }
+    const syncResponse = await lm.syncLdk();
+    if (syncResponse.isErr()) {
+      return err(syncResponse.error.message);
+    }
+    return ok('');
+  } catch (e) {
+    return err(`@refreshLdk ${e}`);
+  }
+};
+
+export const resetLdk = async (): Promise<Result<string>> => {
+  // wait for interactions/animations to be completed
+  await new Promise((resolve) => InteractionManager.runAfterInteractions(() => resolve(null)));
+
+  return await ldk.reset();
+};
+
+/**
+ * Check if LDK is running.
+ * @returns {Promise<boolean>}
+ */
+export const isLdkRunning = async (): Promise<boolean> => {
+  const getNodeIdResponse = await promiseTimeout<Result<string>>(2000, getNodeId());
+  if (getNodeIdResponse.isOk()) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+/**
+ * Pauses execution until LDK is setup.
+ * @returns {Promise<void>}
+ */
+export const waitForLdk = async (): Promise<void> => {
+  await tryNTimes({
+    toTry: getNodeId,
+    interval: 500,
+  });
+};
+
+/**
+ * Attempts to keep LDK in sync every 2-minutes.
+ * @param {number} frequency
+ */
+export const keepLdkSynced = async ({
+  frequency = 120000,
+  selectedNetwork,
+}: {
+  frequency?: number;
+  selectedNetwork?: TAvailableNetworks;
+}): Promise<void> => {
+  if (LDKIsStayingSynced) {
+    return;
+  } else {
+    LDKIsStayingSynced = true;
+  }
+
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+
+  let error: string = '';
+  while (!error) {
+    const syncRes = await refreshLdk({ selectedNetwork });
+
+    if (!syncRes) {
+      error = 'Could not refresh LDK.';
+      LDKIsStayingSynced = false;
+      break;
+    }
+    await sleep(frequency);
+  }
+};
+
+/**
+ * Returns the current LDK node id.
+ * @returns {Promise<Result<string>>}
+ */
+export const getNodeId = async (): Promise<Result<string>> => {
+  try {
+    return await ldk.nodeId();
+  } catch (e) {
+    return err(e);
+  }
+};
+
+/**
+ * Returns LDK and c-bindings version.
+ * @returns {Promise<Result<TLightningNodeVersion>}
+ */
+export const getNodeVersion = (): Promise<Result<TLightningNodeVersion>> => {
+  return ldk.version();
 };
 
 /**
@@ -89,81 +158,99 @@ export const syncLdk = async (): Promise<Result<string>> => {
  * 1. Fetches and sets the genesis hash.
  * 2. Retrieves and sets the seed from storage.
  * 3. Starts ldk with the necessary params.
- * 4. Adds/Connects saved peers from storage. (Note: Not needed as LDK handles this automatically once a peer has been added successfully. Only used to make example app easier to test.)
- * 5. Syncs LDK.
+ * 4. Syncs LDK.
  */
-export const setupLdk = async (): Promise<Result<string>> => {
+export const setupLdk = async ({
+  selectedNetwork,
+  shouldRefreshLdk = true,
+}: {
+  selectedNetwork: TAvailableNetworks;
+  shouldRefreshLdk?: boolean;
+}): Promise<Result<string>> => {
   try {
-    await ldk.reset();
-    const genesisHash = await getBlockHashFromHeight({
-      height: 0,
-    });
-    if (genesisHash.isErr()) {
-      return err(genesisHash.error.message);
+    if (!selectedNetwork) {
+      selectedNetwork = getSelectedNetwork();
     }
-    const account = await getAccount();
-    const storageRes = await lm.setBaseStoragePath(`${RNFS.DocumentDirectoryPath}/ldk/`);
+    // start from clean slate
+    await resetLdk();
+
+    const account = await getLdkAccount();
+    if (account.isErr()) {
+      return err(account.error.message);
+    }
+
+    const _getAddress = async () => {
+      // return a valid receive address for the selected network
+      const res = await getReceiveAddress({ selectedNetwork });
+      if (res.isOk()) {
+        return res.value;
+      }
+      return '';
+    };
+
+    const _broadcastTransaction = async (rawTx: string): Promise<string> => {
+      const res = await broadcastTransaction({
+        rawTx,
+        selectedNetwork,
+        subscribeToOutputAddress: false,
+      });
+      if (res.isErr()) {
+        return '';
+      }
+      return res.value;
+    };
+
+    const storageRes = await setLdkStoragePath();
     if (storageRes.isErr()) {
       return err(storageRes.error);
     }
 
+    // derive fees from updated state
+    const fees = getWalletStore().fees;
+
+    // start the lightning manager
     const lmStart = await lm.start({
-      getBestBlock,
-      genesisHash: genesisHash.value,
-      account,
-      getAddress,
-      getScriptPubKeyHistory,
+      account: account.value,
       getFees: () =>
         Promise.resolve({
-          highPriority: 12500,
-          normal: 12500,
-          background: 12500,
+          highPriority: fees.fast,
+          normal: fees.normal,
+          background: fees.slow,
         }),
-      getTransactionData,
-      getTransactionPosition,
-      broadcastTransaction,
-      network: ldkNetwork(selectedNetwork),
+      network: getLdkNetwork(selectedNetwork),
+      getBestBlock,
+      getAddress: _getAddress,
+      broadcastTransaction: _broadcastTransaction,
+      getTransactionData: (txId) => _getTransactionData(txId, selectedNetwork),
+      getScriptPubKeyHistory: (scriptPubkey) => {
+        return getScriptPubKeyHistory(scriptPubkey, selectedNetwork);
+      },
+      getTransactionPosition: (params) => {
+        return getTransactionPosition({ ...params, selectedNetwork });
+      },
     });
-
     if (lmStart.isErr()) {
-      return err(lmStart.error.message);
+      return err(`@lmStart: ${lmStart.error.message}`);
     }
 
-    /*
-     * Note: This isn't needed once a peer has been add successfully.
-     * LDK stores peers in LDKData as they are added successfully and attempts to re-connect to them on-start.
-     * This is only here to make the example electrum app easier to work with for testing by pulling peers from constants.ts.
-     */
-    try {
-      const peersRes = await Promise.all(
-        Object.keys(peers).map(async (peer) => {
-          const addPeer = await lm.addPeer({
-            ...peers[peer],
-            timeout: 5000,
-          });
-          if (addPeer.isErr()) {
-            return err(addPeer.error.message);
-          }
-          return addPeer.value;
-        })
-      );
-      console.log('addPeer Responses:', JSON.stringify(peersRes));
-    } catch (e) {
-      return err(e.toString());
-    }
-
+    // Grab node id and add it to state
     const nodeIdRes = await ldk.nodeId();
     if (nodeIdRes.isErr()) {
       return err(nodeIdRes.error.message);
     }
-    console.log('Starting le sync');
-    const syncRes = await lm.syncLdk();
-    if (syncRes.isErr()) {
-      return err(syncRes.error.message);
+    await Promise.all([
+      await updateLdkNodeId({
+        nodeId: nodeIdRes.value,
+      }),
+      // also update ldk node version in state
+      updateLdkVersion(),
+      // removeUnusedPeers({ selectedWallet, selectedNetwork }),
+    ]);
+    // if yes, start sync
+    if (shouldRefreshLdk) {
+      await refreshLdk({ selectedNetwork });
     }
-
-    console.log(`Node ID: ${nodeIdRes.value}`);
-    return ok('Running LDK'); //e2e test needs to see this string
+    return ok(`LDK NodeID: ${nodeIdRes.value}`); //e2e test needs to see this string
   } catch (e) {
     return err(e.toString());
   }
@@ -172,48 +259,66 @@ export const setupLdk = async (): Promise<Result<string>> => {
 /**
  * Returns the transaction header, height and hex (transaction) for a given txid.
  * @param {string} txId
+ * @param {TAvailableNetworks} [selectedNetwork]
  * @returns {Promise<TTransactionData>}
  */
-export const getTransactionData = async (txId: string = ''): Promise<TTransactionData> => {
+export const _getTransactionData = async (
+  txId: string = '',
+  selectedNetwork?: TAvailableNetworks
+): Promise<TTransactionData> => {
   let transactionData = DefaultTransactionDataShape;
-  const data = {
-    key: 'tx_hash',
-    data: [
-      {
-        tx_hash: txId,
-      },
-    ],
-  };
-  const response = await electrum.getTransactions({
-    txHashes: data,
-    network: selectedNetwork,
-  });
+  try {
+    const data = {
+      key: 'tx_hash',
+      data: [
+        {
+          tx_hash: txId,
+        },
+      ],
+    };
 
-  if (response.error || !response.data || response.data[0].error) {
+    if (selectedNetwork) {
+      selectedNetwork = getSelectedNetwork();
+    }
+
+    const response = await electrum.getTransactions({
+      txHashes: data,
+      network: selectedNetwork,
+    });
+
+    if (response.error || !response.data || response.data[0].error) {
+      console.log(
+        `@getTransactions: something ain't right: ${JSON.stringify(response.data[0].error.message)}`
+      );
+      return transactionData;
+    }
+
+    const { confirmations, hex: hex_encoded_tx, vout } = response.data[0].result;
+    const header = getBlockHeader();
+    const currentHeight = header.height;
+    let confirmedHeight = 0;
+    if (confirmations) {
+      confirmedHeight = currentHeight - confirmations + 1;
+    }
+    const hexEncodedHeader = await getBlockHex({
+      height: confirmedHeight,
+      selectedNetwork,
+    });
+    if (hexEncodedHeader.isErr()) {
+      return transactionData;
+    }
+    const voutData = vout.map(({ n, value, scriptPubKey: { hex } }) => {
+      return { n, hex, value };
+    });
+    return {
+      header: hexEncodedHeader.value,
+      height: confirmedHeight,
+      transaction: hex_encoded_tx,
+      vout: voutData,
+    };
+  } catch {
     return transactionData;
   }
-  const { confirmations, hex: hex_encoded_tx, vout } = response.data[0].result;
-  const header = await getBlockHeader();
-  const currentHeight = header.height;
-  let confirmedHeight = 0;
-  if (confirmations) {
-    confirmedHeight = currentHeight - confirmations + 1;
-  }
-  const hexEncodedHeader = await getBlockHex({
-    height: confirmedHeight,
-  });
-  if (hexEncodedHeader.isErr()) {
-    return transactionData;
-  }
-  const voutData = vout.map(({ n, value, scriptPubKey: { hex } }) => {
-    return { n, hex, value };
-  });
-  return {
-    header: hexEncodedHeader.value,
-    height: confirmedHeight,
-    transaction: hex_encoded_tx,
-    vout: voutData,
-  };
 };
 
 /**
@@ -225,101 +330,28 @@ export const getTransactionData = async (txId: string = ''): Promise<TTransactio
 export const getTransactionPosition = async ({
   tx_hash,
   height,
+  selectedNetwork,
+}: {
+  tx_hash: string;
+  height: number;
+  selectedNetwork?: TAvailableNetworks;
 }): Promise<TTransactionPosition> => {
-  const response = await electrum.getTransactionMerkle({
+  const response = await getTransactionMerkle({
     tx_hash,
     height,
-    network: selectedNetwork,
+    selectedNetwork,
   });
-  if (response.error || isNaN(response.data?.pos || response.data?.pos < 0)) {
+  if (response.error || isNaN(response.data?.pos) || response.data?.pos < 0) {
     return -1;
   }
   return response.data.pos;
 };
 
 /**
- * Returns the balance in sats of the provided Bitcoin address.
- * @param {string} [address]
- * @returns {Promise<number>}
- */
-export const getAddressBalance = async (address = ''): Promise<number> => {
-  try {
-    const network = getNetwork(selectedNetwork);
-    const script = bitcoin.address.toOutputScript(address, network);
-    let hash = bitcoin.crypto.sha256(script);
-    const reversedHash = new Buffer(hash.reverse());
-    const scriptHash = reversedHash.toString('hex');
-    const response = await electrum.getAddressScriptHashBalance({
-      scriptHash,
-      network: selectedNetwork,
-    });
-    if (response.error) {
-      return 0;
-    }
-    const { confirmed, unconfirmed } = response.data;
-    return confirmed + unconfirmed;
-  } catch {
-    return 0;
-  }
-};
-
-/**
- * Attempts to broadcast the provided rawTx.
- * @param {string} rawTx
- * @returns {Promise<string>}
- */
-export const broadcastTransaction = async (rawTx: string): Promise<string> => {
-  try {
-    const response = await electrum.broadcastTransaction({
-      rawTx,
-      network: selectedNetwork,
-    });
-    console.log('broadcastTransaction', response);
-    return response.data;
-  } catch (e) {
-    console.log(e);
-    return '';
-  }
-};
-
-/**
- * Used to backup a given account.
- * @param {TAccount} [account]
- * @returns {Promise<Result<string>>}
- */
-export const backupAccount = async (account?: TAccount): Promise<Result<TAccountBackup>> => {
-  if (!account) {
-    account = await getAccount();
-  }
-  return await lm.backupAccount({
-    account,
-  });
-};
-
-/**
- * Used to import an account using the backup JSON string or TAccountBackup object.
- * @param {string | TAccountBackup} backup
- * @returns {Promise<Result<TAccount>>}
- */
-export const importAccount = async (backup: string | TAccountBackup): Promise<Result<TAccount>> => {
-  const importResponse = await lm.importAccount({
-    backup,
-    overwrite: true,
-  });
-  if (importResponse.isErr()) {
-    return err(importResponse.error.message);
-  }
-  await setAccount(importResponse.value);
-  await setItem(EAccount.currentAccountKey, importResponse.value.name);
-  await setupLdk();
-  await syncLdk();
-  return ok(importResponse.value);
-};
-
-/**
  * Iterates over watch transactions for spends. Sets them as confirmed as needed.
  * @returns {Promise<boolean>}
  */
+
 export const checkWatchTxs = async (): Promise<boolean> => {
   const checkedScriptPubKeys: string[] = [];
   const watchTransactionIds = lm.watchTxs.map((tx) => tx.txid);
@@ -330,7 +362,7 @@ export const checkWatchTxs = async (): Promise<boolean> => {
       );
       for (const data of scriptPubKeyHistory) {
         if (!watchTransactionIds.includes(data?.txid)) {
-          const txData = await getTransactionData(data?.txid);
+          const txData = await _getTransactionData(data?.txid);
           await ldk.setTxConfirmed({
             header: txData.header,
             height: txData.height,

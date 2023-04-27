@@ -1,3 +1,6 @@
+import { ENetworks } from '@synonymdev/react-native-ldk';
+import * as bitcoinJS from 'bitcoinjs-lib';
+
 export type TAvailableNetworks = 'bitcoin' | 'bitcoinTestnet' | 'bitcoinRegtest';
 
 export enum EAvailableNetworks {
@@ -64,3 +67,38 @@ export const networks: INetworks = {
 
 //Returns an array of all available networks from the networks object.
 export const availableNetworks = (): EAvailableNetworks[] => Object.values(EAvailableNetworks);
+
+/**
+ * Returns the appropriate LDK network object.
+ * @param network
+ * @returns {bitcoin.networks.Network}
+ */
+
+export const getLdkNetwork = (network: TAvailableNetworks): ENetworks => {
+  switch (network) {
+    case 'bitcoinRegtest':
+      return ENetworks.regtest;
+    case 'bitcoinTestnet':
+      return ENetworks.testnet;
+    case 'bitcoin':
+      return ENetworks.mainnet;
+  }
+};
+
+/**
+ * Returns the appropriate bitcoinjs-lib network object.
+ * @param network
+ * @returns {bitcoin.networks.Network}
+ */
+export const getBitcoinJSNetwork = (network: TAvailableNetworks): bitcoinJS.Network => {
+  switch (network) {
+    case 'bitcoin':
+      return bitcoinJS.networks.bitcoin;
+    case 'bitcoinTestnet':
+      return bitcoinJS.networks.testnet;
+    case 'bitcoinRegtest':
+      return bitcoinJS.networks.regtest;
+    default:
+      return bitcoinJS.networks.regtest;
+  }
+};

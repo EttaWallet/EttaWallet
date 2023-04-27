@@ -17,6 +17,8 @@ import { Colors } from 'etta-ui';
 import ContactsButton from '../navigation/components/ContactsButton';
 import { moderateScale, scale, verticalScale } from '../utils/sizing';
 
+const TAG = 'WalletHomeScreen';
+
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
 const WalletHomeScreen = () => {

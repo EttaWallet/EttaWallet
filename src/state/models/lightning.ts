@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Action, action, Thunk, thunk } from 'easy-peasy';
-import { setupLdk, syncLdk, updateHeader } from '../../ldk';
-import { connectToElectrum, subscribeToHeader } from '../../utils/electrum';
-import ldk from '@synonymdev/react-native-ldk/dist/ldk';
-import mmkvStorage, { StorageItem } from '../../storage/disk';
-
-import Logger from '../../utils/logger';
+import { TLightningNodeVersion, TLightningPayment, TOpenChannelIds } from '../../utils/types';
+import { TChannel, TInvoice } from '@synonymdev/react-native-ldk';
+import { startLightning } from '../../utils/lightning/helpers';
+import logger from '../../utils/logger';
 
 const TAG = 'LightningStore';
 
@@ -13,100 +11,68 @@ const TAG = 'LightningStore';
 
 export interface LightningNodeModelType {
   nodeId: string | null;
-  setNodeId: Action<LightningNodeModelType, string>;
-  progress: number;
-  setProgress: Action<LightningNodeModelType, number>;
-  message: string;
-  setMessage: Action<LightningNodeModelType, string>;
   nodeStarted: boolean;
+  ldkVersion: TLightningNodeVersion;
+  channels: { [key: string]: TChannel };
+  openChannelIds: TOpenChannelIds;
+  invoices: TInvoice[];
+  payments: { [key: string]: TLightningPayment };
+  peers: string[];
+  claimableBalance: number;
+  setNodeId: Action<LightningNodeModelType, string>;
   setNodeStarted: Action<LightningNodeModelType, boolean>;
-  startNode: Thunk<LightningNodeModelType>;
-  getNodeId: Thunk<LightningNodeModelType>;
+  startLdk: Thunk<LightningNodeModelType>;
+  setLdkVersion: Action<LightningNodeModelType, TLightningNodeVersion>;
+  addInvoice: Action<LightningNodeModelType, TInvoice>;
+  updateInvoices: Action<LightningNodeModelType, { index: number; invoice: TInvoice }>;
+  removeExpiredInvoices: Action<LightningNodeModelType, TInvoice>;
 }
 
 export const lightningModel: LightningNodeModelType = {
-  message: '',
-  progress: 0,
   nodeStarted: false,
   nodeId: null,
-  startNode: thunk(async (actions, _, { getState }) => {
-    //Restarting LDK on each code update causes constant errors.
-    const state = getState(); // Get the current state of the store
-    if (state.nodeStarted) {
-      return;
-    }
+  ldkVersion: {
+    ldk: '',
+    c_bindings: '',
+  },
+  channels: {},
+  invoices: [],
+  payments: {},
+  peers: [],
+  openChannelIds: [],
+  claimableBalance: 0,
 
-    // Connect to Electrum Server
-    actions.setProgress(10);
-    const electrumResponse = await connectToElectrum({});
-    if (electrumResponse.isErr()) {
-      actions.setMessage(
-        `Unable to connect to Electrum Server:\n ${electrumResponse.error.message}`
-      );
-      return;
-    }
-    actions.setProgress(30);
-
-    // Subscribe to new blocks and sync LDK accordingly.
-    const headerInfo = await subscribeToHeader({
-      onReceive: async (): Promise<void> => {
-        const syncRes = await syncLdk();
-        if (syncRes.isErr()) {
-          actions.setMessage(syncRes.error.message);
-          return;
-        }
-        actions.setMessage(syncRes.value);
-      },
-    });
-    if (headerInfo.isErr()) {
-      actions.setMessage(headerInfo.error.message);
-      return;
-    }
-    await updateHeader({ header: headerInfo.value });
-    actions.setProgress(60);
-
-    // Setup LDK
-    const setupResponse = await setupLdk();
-    if (setupResponse.isErr()) {
-      actions.setMessage(setupResponse.error.message);
-      return;
-    }
-    actions.setProgress(80);
-    actions.setNodeStarted(true);
-    actions.setMessage('You are good to go!');
-    actions.getNodeId();
-    actions.setProgress(100);
-  }),
   setNodeId: action((state, payload) => {
     state.nodeId = payload;
   }),
-  setMessage: action((state, payload) => {
-    state.message = payload;
+  setLdkVersion: action((state, payload) => {
+    state.ldkVersion = payload;
+  }),
+  startLdk: thunk(async (actions, _, { getState }) => {
+    try {
+      await startLightning({
+        selectedNetwork: 'bitcoinTestnet', // defaulting to testnet for now
+      });
+    } catch (error) {
+      logger.error(TAG, '@startLdk', error.message);
+    }
   }),
   setNodeStarted: action((state, payload) => {
     state.nodeStarted = payload;
   }),
-  setProgress: action((state, payload) => {
-    state.progress = payload;
+  addInvoice: action((state, payload) => {
+    state.invoices.push(payload);
   }),
-  getNodeId: thunk(async (actions) => {
-    const { setMessage } = actions;
-    try {
-      const nodeIdRes = await ldk.nodeId();
-      if (nodeIdRes.isErr()) {
-        // setMessage(`Error getting Node ID:\n ${nodeIdRes.error.message}`);
-        Logger.error(TAG, `Error getting Node ID:\n ${nodeIdRes.error.message}`);
-        return;
-      } else {
-        // save to storage
-        // @ts-ignore
-        mmkvStorage.setItem(StorageItem.ldkNodeId, nodeIdRes.value);
-        // update state
-        await actions.setNodeId(nodeIdRes.value);
-      }
-    } catch (error) {
-      Logger.error(TAG, '@getNodeId', error.message);
-    }
+  updateInvoices: action((state, payload) => {
+    state.invoices[payload.index] = payload.invoice;
+  }),
+  removeExpiredInvoices: action((state) => {
+    // get number of secs since unix epoch at this time
+    const nowInSecs = Math.floor(Date.now() / 1000);
+    // filter out current invoices
+    state.invoices = state.invoices.filter(
+      (invoice) => invoice.timestamp + invoice.expiry_time > nowInSecs
+    );
   }),
   // open channel with LSP and receive inbound liquidity
 };

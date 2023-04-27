@@ -1,5 +1,6 @@
 import * as Keychain from 'react-native-keychain';
 import Logger from './logger';
+import { IResponse } from './types';
 
 const TAG = 'storage/keychain';
 
@@ -156,3 +157,33 @@ export async function listStoredKeychainItems() {
     throw error;
   }
 }
+
+export const setKeychainValue = async ({ key = '', value = '' }): Promise<IResponse<string>> => {
+  return new Promise(async (resolve) => {
+    try {
+      await Keychain.setGenericPassword(key, value, { service: key });
+      resolve({ error: false, data: '' });
+    } catch (e) {
+      resolve({ error: true, data: e });
+    }
+  });
+};
+
+export const getKeychainValue = async ({ key = '' }): Promise<{ error: boolean; data: string }> => {
+  return new Promise(async (resolve) => {
+    try {
+      let result = await Keychain.getGenericPassword({ service: key });
+      let data: string | undefined;
+      if (!result) {
+        return resolve({ error: true, data: '' });
+      }
+      if (!result.password) {
+        return resolve({ error: true, data: '' });
+      }
+      data = result.password;
+      resolve({ error: false, data });
+    } catch (e) {
+      resolve({ error: true, data: e });
+    }
+  });
+};

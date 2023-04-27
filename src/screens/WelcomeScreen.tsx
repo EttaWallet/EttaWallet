@@ -9,22 +9,17 @@ import LanguageChip from '../components/LanguageChip';
 import { useStoreState, useStoreActions } from '../state/hooks';
 import { APP_NAME } from '../../config';
 import { PinType } from '../utils/types';
-import mmkvStorage, { StorageItem } from '../storage/disk';
 
 const WelcomeScreen = () => {
   const acknowledgedDisclaimer = useStoreState((state) => state.nuxt.acknowledgedDisclaimer);
-  // const pincodeType = useStoreState((state) => state.nuxt.pincodeType);
-  const pincodeType = mmkvStorage.getItem(StorageItem.pinType);
+  const pincodeType = useStoreState((state) => state.nuxt.pincodeType);
   const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType);
-  // issue: using mmkv because biometric state keeps defaulting back to false on reload:
-  // const enabledBiometrics = useStoreState((state) => state.app.biometricsEnabled);
-  // const skippedBiometrics = useStoreState((state) => state.app.skippedBiometrics);
-  const enabledBiometrics = mmkvStorage.getItem(StorageItem.enabledBiometrics);
-  const skippedBiometrics = mmkvStorage.getItem(StorageItem.skippedBiometrics);
+  const enabledBiometrics = useStoreState((state) => state.app.biometricsEnabled);
+  const skippedBiometrics = useStoreState((state) => state.app.skippedBiometrics);
   const setChoseRestore = useStoreActions((action) => action.nuxt.setChoseRestoreWallet);
 
   const nodeIsUp = useStoreState((state) => state.lightning.nodeStarted);
-  const nodeId = mmkvStorage.getItem(StorageItem.ldkNodeId);
+  const nodeId = useStoreState((state) => state.lightning.nodeId);
 
   const navigateNext = () => {
     if (!acknowledgedDisclaimer) {

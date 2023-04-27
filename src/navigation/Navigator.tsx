@@ -25,8 +25,6 @@ import DisclaimerScreen from '../shared/DisclaimerScreen';
 import SetPinScreen from '../screens/SetPinScreen';
 import EnableBiometry from '../screens/EnableBiometryScreen';
 import EnterPin from '../shared/EnterPinScreen';
-import InitScreen from '../screens/InitScreen';
-import TestScreen from '../screens/TestScreen';
 import StartLN from '../screens/StartLN';
 
 const TAG = 'Navigator';
@@ -75,7 +73,7 @@ export const MainStackScreen = () => {
         {/* <Stack.Screen name={Screens.TestScreen} component={TestScreen} options={noHeader} /> */}
         <Stack.Screen
           name={Screens.SetPinScreen}
-          // resolve navOptions
+          // @ts-ignore until I resolve navOptions
           component={SetPinScreen}
           options={SetPinScreen.navigationOptions}
         />

@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: moderateScale(10),
     paddingTop: verticalScale(20),
-    paddingBottom: verticalScale(40),
+    paddingBottom: verticalScale(30),
     borderTopColor: Colors.neutrals.light.neutral4,
     borderTopWidth: 1,
   },
