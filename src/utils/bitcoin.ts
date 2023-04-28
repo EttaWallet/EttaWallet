@@ -83,7 +83,10 @@ export const getBitcoinAddress = async ({
       if (mnemonicResponse.isErr()) {
         return err(mnemonicResponse.error.message);
       }
+
       const mnemonic = mnemonicResponse.value;
+
+      console.log(mnemonic);
 
       const bip39Passphrase = await getBip39Passphrase();
       const network = getBitcoinJSNetwork(selectedNetwork);

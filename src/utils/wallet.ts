@@ -41,7 +41,7 @@ export const seedHash = (seed: Buffer): string => {
 };
 
 /**
- * Returns available address types for the given network and wallet
+ * Returns the current state of the wallet store
  * @return IAddressTypes
  */
 export const getWalletStore = () => {
@@ -858,6 +858,7 @@ export const createDefaultWallet = async ({
     if (!validateMnemonic(mnemonic)) {
       return err('Invalid Mnemonic');
     }
+
     await setKeychainValue({ key: walletName, value: mnemonic });
     await setKeychainValue({
       key: `${walletName}passphrase`,

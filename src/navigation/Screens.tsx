@@ -22,4 +22,5 @@ export enum Screens {
   FAQScreen = 'FAQScreen',
   TestScreen = 'TestScreen',
   StartLN = 'StartLN',
+  ReceiveScreen = 'ReceiveScreen',
 }

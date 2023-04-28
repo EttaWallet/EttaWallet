@@ -122,7 +122,6 @@ export default function DrawerNavigator() {
         component={WalletHomeScreen}
         options={{ title: t('navigationLabels.home')!, unmountOnBlur: false }}
       />
-
       <Drawer.Screen
         name={Screens.SeedPhraseScreen}
         component={TestScreen}

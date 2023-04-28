@@ -1,5 +1,10 @@
-import lm, { TAccount, TAvailableNetworks } from '@synonymdev/react-native-ldk';
-import { TLightningNodeVersion, TWalletName } from '../types';
+import lm, {
+  TAccount,
+  TAvailableNetworks,
+  TCreatePaymentReq,
+  TInvoice,
+} from '@synonymdev/react-native-ldk';
+import { IWalletItem, TCreateLightningInvoice, TLightningNodeVersion, TWalletName } from '../types';
 import Keychain from 'react-native-keychain';
 import { err, ok, Result } from '../result';
 import RNFS from 'react-native-fs';
@@ -17,8 +22,23 @@ import {
 import { getKeychainValue } from '../keychain';
 import { InteractionManager } from 'react-native';
 import { connectToElectrum, subscribeToHeader } from '../electrum';
+import ldk from '@synonymdev/react-native-ldk/dist/ldk';
 
 const LDK_ACCOUNT_SUFFIX = 'ldkaccount';
+
+export const DEFAULT_LIGHTNING_PEERS: IWalletItem<string[]> = {
+  bitcoin: [],
+  bitcoinRegtest: [],
+  bitcoinTestnet: [],
+};
+
+/**
+ * Returns the current state of the lightning store
+ * @return IAddressTypes
+ */
+export const getLightningStore = () => {
+  return store.getState().lightning;
+};
 
 export const setLdkStoragePath = (): Promise<Result<string>> =>
   lm.setBaseStoragePath(`${RNFS.DocumentDirectoryPath}/ldk/`);
@@ -82,6 +102,173 @@ export const updateLdkVersion = async (): Promise<Result<TLightningNodeVersion>>
       updateLdkVersionAction(version.value);
     }
     return ok(version.value);
+  } catch (e) {
+    console.log(e);
+    return err(e);
+  }
+};
+
+/**
+ * Returns whether the user has any open lightning channels.
+ * @param {TWalletName} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {boolean}
+ */
+export const hasOpenLightningChannels = ({
+  selectedNetwork,
+}: {
+  selectedNetwork?: TAvailableNetworks;
+}): boolean => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+  const availableChannels = getLightningStore().openChannelIds[selectedNetwork];
+  return availableChannels.length > 0;
+};
+
+/**
+ * Creates and stores a lightning invoice, for the specified amount, and refreshes/re-adds peers.
+ * @param {number} amountSats
+ * @param {string} [description]
+ * @param {number} [expiryDeltaSeconds]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {TWalletName} [selectedWallet]
+ */
+export const createLightningInvoice = async ({
+  amountSats,
+  description,
+  expiryDeltaSeconds,
+  selectedNetwork,
+  selectedWallet,
+}: TCreateLightningInvoice): Promise<Result<TInvoice>> => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+  if (!selectedWallet) {
+    selectedWallet = getSelectedWallet();
+  }
+  // if (!hasOpenLightningChannels({ selectedNetwork })) {
+  //   return err('No lightning channels available to receive an invoice.');
+  // }
+  const invoice = await createPaymentRequest({
+    amountSats,
+    description,
+    expiryDeltaSeconds,
+  });
+  if (invoice.isErr()) {
+    return err(invoice.error.message);
+  }
+
+  // addPeers({ selectedNetwork, selectedWallet }).then();
+
+  // dispath action to add invoice to state object
+  store.dispatch.lightning.addInvoice(invoice.value);
+  return ok(invoice.value);
+};
+
+/**
+ * Attempts to create a bolt11 invoice.
+ * @param {TCreatePaymentReq} req
+ * @returns {Promise<Result<TInvoice>>}
+ */
+export const createPaymentRequest = (req: TCreatePaymentReq): Promise<Result<TInvoice>> =>
+  ldk.createPaymentRequest(req);
+
+/**
+ * Parses a lightning uri.
+ * @param {string} str
+ * @returns {{ publicKey: string; ip: string; port: number; }}
+ */
+export const parseLightningUri = (
+  str: string
+): Result<{
+  publicKey: string;
+  ip: string;
+  port: number;
+}> => {
+  const uri = str.split('@');
+  const publicKey = uri[0];
+  if (uri.length !== 2) {
+    return err('Invalid URI.');
+  }
+  const parsed = uri[1].split(':');
+  if (parsed.length < 2) {
+    return err('Invalid URI.');
+  }
+  const ip = parsed[0];
+  const port = Number(parsed[1]);
+  return ok({
+    publicKey,
+    ip,
+    port,
+  });
+};
+
+/**
+ * Prompt LDK to add a specified peer.
+ * @param {string} peer
+ * @param {number} [timeout]
+ */
+export const addPeer = async ({
+  peer,
+  timeout = 5000,
+}: {
+  peer: string;
+  timeout?: number;
+}): Promise<Result<string>> => {
+  const parsedUri = parseLightningUri(peer);
+  if (parsedUri.isErr()) {
+    return err(parsedUri.error.message);
+  }
+  return await lm.addPeer({
+    pubKey: parsedUri.value.publicKey,
+    address: parsedUri.value.ip,
+    port: parsedUri.value.port,
+    timeout,
+  });
+};
+
+/**
+ * Adds blocktank, default, and all custom lightning peers.
+ * @returns {Promise<Result<string[]>>}
+ */
+export const addPeers = async ({
+  selectedWallet,
+  selectedNetwork,
+}: {
+  selectedWallet?: TWalletName;
+  selectedNetwork?: TAvailableNetworks;
+} = {}): Promise<Result<string[]>> => {
+  try {
+    if (!selectedWallet) {
+      selectedWallet = getSelectedWallet();
+    }
+    if (!selectedNetwork) {
+      selectedNetwork = getSelectedNetwork();
+    }
+    const defaultLightningPeers = DEFAULT_LIGHTNING_PEERS[selectedNetwork];
+    // @TODO: Create user UI for adding custom peers in Lightning settings.
+    // Defaulting to LSP and a few other well connected peers.
+    // const customLightningPeers = getCustomLightningPeers({
+    //   selectedNetwork,
+    //   selectedWallet,
+    // });
+    // const peers = [...defaultLightningPeers, ...customLightningPeers];
+
+    const addPeerRes = await Promise.all(
+      defaultLightningPeers.map(async (peer) => {
+        const addPeerResponse = await addPeer({
+          peer,
+          timeout: 5000,
+        });
+        if (addPeerResponse.isErr()) {
+          console.log(addPeerResponse.error.message);
+          return addPeerResponse.error.message;
+        }
+        return addPeerResponse.value;
+      })
+    );
+    return ok(addPeerRes);
   } catch (e) {
     console.log(e);
     return err(e);
@@ -193,7 +380,7 @@ export const startLightning = async ({
 
     // ensure the node is up and running before we go anywhere
     const isRunning = await isLdkRunning();
-    if (isRunning) {
+    if (!isRunning) {
       restartLightning({ selectedNetwork });
     } else {
       // update node is started in state
