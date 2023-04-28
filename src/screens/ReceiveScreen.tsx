@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Text, SafeAreaView, StyleSheet, View, Platform } from 'react-native';
+import { Text, SafeAreaView, StyleSheet, View, Platform, ActivityIndicator } from 'react-native';
 import { headerWithCloseButton } from '../navigation/Headers';
 import { createLightningInvoice, startLightning } from '../utils/lightning/helpers';
 import { isLdkRunning, waitForLdk } from '../ldk';
 
 const ReceiveScreen = () => {
   const [invoice, setInvoice] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   const amount = 1000;
   const message = 'vibes and inshallah';
@@ -28,7 +29,7 @@ const ReceiveScreen = () => {
           console.log(invoiceString.error.message);
           return;
         }
-
+        setIsLoading(false);
         setInvoice(invoiceString.value.to_str);
       } catch (e) {
         setInvoice(`Error: ${e.message}`);
@@ -41,9 +42,13 @@ const ReceiveScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.messageContainer}>
-        <Text style={styles.text}>
-          {typeof invoice === 'string' ? invoice : JSON.stringify(invoice)}
-        </Text>
+        {isLoading ? (
+          <ActivityIndicator />
+        ) : (
+          <Text style={styles.text}>
+            {typeof invoice === 'string' ? invoice : JSON.stringify(invoice)}
+          </Text>
+        )}
       </View>
     </SafeAreaView>
   );
