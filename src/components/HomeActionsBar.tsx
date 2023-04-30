@@ -11,7 +11,7 @@ export default function HomeActionsBar() {
     navigate(Screens.TestScreen);
   };
 
-  const onPressReceive = () => {
+  const onPressRequest = () => {
     navigate(Screens.ReceiveScreen);
   };
 
@@ -29,8 +29,8 @@ export default function HomeActionsBar() {
       <HomeButton style={styles.button} icon="icon-qr-code" onPress={onPressQrCode}>
         {t('homeActions.scanQR')}
       </HomeButton>
-      <HomeButton style={styles.button} icon="icon-arrow-down" onPress={onPressReceive}>
-        {t('homeActions.receive')}
+      <HomeButton style={styles.button} icon="icon-arrow-down" onPress={onPressRequest}>
+        {t('homeActions.request')}
       </HomeButton>
     </View>
   );

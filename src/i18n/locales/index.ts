@@ -3,6 +3,7 @@ interface Locales {
     | {
         name: string;
         strings: any;
+        dateFns: Locale;
       }
     | undefined;
 }
@@ -15,6 +16,9 @@ const locales: Locales = {
         translation: require('./base/translation.json'),
       };
     },
+    get dateFns() {
+      return require('date-fns/locale/en-US');
+    },
   },
   'fr-FR': {
     name: 'French',
@@ -23,6 +27,9 @@ const locales: Locales = {
         translation: require('./fr-FR/translation.json'),
       };
     },
+    get dateFns() {
+      return require('date-fns/locale/fr');
+    },
   },
   'sw-SW': {
     name: 'Swahili',
@@ -30,6 +37,9 @@ const locales: Locales = {
       return {
         translation: require('./sw-SW/translation.json'),
       };
+    },
+    get dateFns() {
+      return require('date-fns/locale/en-US');
     },
   },
 };

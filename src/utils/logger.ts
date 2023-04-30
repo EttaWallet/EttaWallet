@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/react-native';
 import type { SeverityLevel } from '@sentry/types';
+import Toast from 'react-native-simple-toast';
 
 export enum LoggerLevel {
   Debug = 3,
@@ -97,13 +98,13 @@ class Logger {
   };
 
   showMessage = (message: string) => {
-    // Toast.showWithGravity(message, Toast.SHORT, Toast.BOTTOM);
+    Toast.showWithGravity(message, Toast.SHORT, Toast.BOTTOM);
     this.debug('Toast', message);
   };
 
   showError = (error: string | Error) => {
     const errorMsg = this.getErrorMessage(error);
-    // Toast.showWithGravity(errorMsg, Toast.SHORT, Toast.BOTTOM);
+    Toast.showWithGravity(errorMsg, Toast.SHORT, Toast.BOTTOM);
     this.error('Toast', errorMsg);
   };
 

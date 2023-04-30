@@ -48,5 +48,8 @@ export type StackParamList = {
   [Screens.FAQScreen]: undefined;
   [Screens.TestScreen]: undefined;
   [Screens.StartLN]: undefined;
-  [Screens.ReceiveScreen]: undefined;
+  [Screens.ReceiveScreen]: {
+    modifiedAmount: number;
+    modifiedDescription: string;
+  };
 };

@@ -1,27 +1,68 @@
 import React, { useState, useEffect } from 'react';
-import { Text, SafeAreaView, StyleSheet, View, Platform, ActivityIndicator } from 'react-native';
-import { headerWithCloseButton } from '../navigation/Headers';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import {
+  SafeAreaView,
+  StyleSheet,
+  View,
+  Platform,
+  ActivityIndicator,
+  Dimensions,
+  Text,
+} from 'react-native';
+import { headerWithBackButton } from '../navigation/Headers';
 import { createLightningInvoice, startLightning } from '../utils/lightning/helpers';
 import { isLdkRunning, waitForLdk } from '../ldk';
+import QRCode from 'react-native-qrcode-svg';
+import { Colors, TypographyPresets } from 'etta-ui';
+import { moderateScale } from '../utils/sizing';
+import InvoiceActionsBar from '../components/InvoiceActionsBar';
+import usePaymentRequestBottomSheet from '../components/usePaymentRequestBottomSheet';
+import { StackParamList } from '../navigation/types';
+import { Screens } from '../navigation/Screens';
 
-const ReceiveScreen = () => {
+const WINDOW_WIDTH = Dimensions.get('window').width;
+const QR_CODE_WIDTH = WINDOW_WIDTH - 150;
+
+type RouteProps = NativeStackScreenProps<StackParamList, Screens.ReceiveScreen>;
+type Props = RouteProps;
+
+const ReceiveScreen = (props: Props) => {
   const [invoice, setInvoice] = useState('');
+  const [amount, setAmount] = useState(0);
+  const [timestamp, setTimestamp] = useState(0);
+  const [description, setDescription] = useState(`Pay lightining invoice for ${amount} sats`);
+  const [expiry, setExpiry] = useState(3600);
   const [isLoading, setIsLoading] = useState(true);
 
-  const amount = 1000;
-  const message = 'vibes and inshallah';
+  const { openSheet, ModifyInvoiceBottomSheet } = usePaymentRequestBottomSheet({
+    amountInSats: amount,
+    timestamp: timestamp,
+    valid_for: expiry,
+  });
+
+  const modifiedAmount = props.route.params?.modifiedAmount;
+  const modifiedDescription = props.route.params?.modifiedDescription;
+
+  if (modifiedAmount !== amount || modifiedDescription !== description) {
+    setAmount(modifiedAmount);
+    setDescription(modifiedDescription);
+  }
 
   useEffect(() => {
     async function fetchInvoice() {
       try {
+        // check if LDK is up
         const isLdkUp = await isLdkRunning();
+        // if nuh, start all lightning services
         if (!isLdkUp) {
           await startLightning({});
+          // check for node ID
+          await waitForLdk();
         }
-        await waitForLdk();
+        // proceed to create invoice
         const invoiceString = await createLightningInvoice({
-          amountSats: amount,
-          description: message,
+          amountSats: amount, // amountSats is optional
+          description: description,
           expiryDeltaSeconds: 3600,
         });
 
@@ -31,31 +72,52 @@ const ReceiveScreen = () => {
         }
         setIsLoading(false);
         setInvoice(invoiceString.value.to_str);
+        setTimestamp(invoiceString.value.timestamp);
+        setExpiry(invoiceString.value.expiry_time);
       } catch (e) {
         setInvoice(`Error: ${e.message}`);
       }
     }
 
     fetchInvoice();
-  }, []);
+  }, [amount, description]);
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.messageContainer}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.heading}>Share payment request</Text>
+        <Text style={styles.text}>Keep the app open until the payment is received</Text>
+      </View>
+      <View style={styles.qrContainer}>
         {isLoading ? (
           <ActivityIndicator />
         ) : (
-          <Text style={styles.text}>
-            {typeof invoice === 'string' ? invoice : JSON.stringify(invoice)}
-          </Text>
+          <QRCode
+            value={`lightning:${invoice}`}
+            size={QR_CODE_WIDTH}
+            backgroundColor={Colors.common.white}
+            color={Colors.common.black}
+          />
         )}
       </View>
+      <View style={styles.buttonContainer}>
+        {isLoading ? (
+          ''
+        ) : (
+          <InvoiceActionsBar
+            paymentRequest={invoice}
+            allowModifier={true}
+            onPressModify={openSheet}
+          />
+        )}
+      </View>
+      {ModifyInvoiceBottomSheet}
     </SafeAreaView>
   );
 };
 
 ReceiveScreen.navigationOptions = {
-  ...headerWithCloseButton,
+  ...headerWithBackButton,
   ...Platform.select({
     ios: { animation: 'slide_from_bottom' },
   }),
@@ -67,12 +129,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  messageContainer: {
-    minHeight: 120,
-    marginHorizontal: 20,
+  qrContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  headerContainer: {
+    flex: 1,
+    alignItems: 'center',
     justifyContent: 'center',
   },
+  buttonContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heading: {
+    ...TypographyPresets.Header3,
+  },
   text: {
+    color: Colors.neutrals.light.neutral6,
+    marginHorizontal: moderateScale(16),
     textAlign: 'center',
   },
 });

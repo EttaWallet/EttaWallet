@@ -203,6 +203,6 @@
     "homeActions": {
         "send": "Send",
         "scanQR": "Scan QR",
-        "receive": "Receive"
+        "request": "Request"
     }
 }

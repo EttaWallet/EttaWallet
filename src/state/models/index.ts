@@ -15,6 +15,7 @@ import {
 } from '../../storage/disk';
 import { WalletModelType, walletModel } from './wallet';
 import { SettingsModelType, settingsModel } from './settings';
+import { AccessibilityModelType, accessibilityModel } from './accessibility';
 
 const TAG = 'state/root';
 
@@ -23,6 +24,7 @@ export interface RootModelType {
   internet: InternetModelType;
   nuxt: NuxtModelType;
   app: AppModelType;
+  accessibility: AccessibilityModelType;
   lightning: LightningNodeModelType;
   settings: SettingsModelType;
   wallet: WalletModelType;
@@ -46,6 +48,7 @@ const rootModel: RootModelType = {
   }),
   internet: internetModel,
   app: appModel,
+  accessibility: accessibilityModel,
   nuxt: nuxtModel,
   lightning: lightningModel,
   settings: settingsModel,
