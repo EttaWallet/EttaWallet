@@ -2,8 +2,9 @@ import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { processColor, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { cond, greaterThan } from 'react-native-reanimated';
-import Hamburger from '../../icons/Hamburger';
+// import Hamburger from '../../icons/Hamburger';
 import { Colors } from 'etta-ui';
+import Logo from '../../icons/Logo';
 
 interface Props {
   middleElement?: React.ReactNode;
@@ -40,7 +41,8 @@ function DrawerHeader({ middleElement, rightElement, scrollPosition }: Props) {
         onPress={onPressHamburger}
         hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
       >
-        <Hamburger />
+        {/* <Hamburger /> */}
+        <Logo height={32} />
       </TouchableOpacity>
       {middleElement}
       {rightElement && <View style={styles.rightElement}>{rightElement}</View>}

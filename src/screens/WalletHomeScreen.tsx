@@ -23,7 +23,7 @@ const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
 const WalletHomeScreen = () => {
   const nodeStarted = useStoreState((state) => state.lightning.nodeStarted);
-  const nodeMsg = useStoreState((state) => state.lightning.message);
+  const currentBlockHeight = useStoreState((state) => state.wallet.header.height);
 
   const scrollPosition = useRef(new Animated.Value(0)).current;
 
@@ -44,7 +44,7 @@ const WalletHomeScreen = () => {
     return (
       <>
         <View style={styles.dotContainer} />
-        <Text>{nodeMsg}</Text>
+        <Text>{currentBlockHeight}</Text>
       </>
     );
   };
