@@ -12,7 +12,7 @@ export default function HomeActionsBar() {
   };
 
   const onPressRequest = () => {
-    navigate(Screens.ReceiveScreen);
+    navigate(Screens.ReceiveScreen, {});
   };
 
   const onPressQrCode = () => {

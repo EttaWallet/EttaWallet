@@ -49,7 +49,7 @@ export type StackParamList = {
   [Screens.TestScreen]: undefined;
   [Screens.StartLN]: undefined;
   [Screens.ReceiveScreen]: {
-    modifiedAmount: number;
-    modifiedDescription: string;
+    modifiedAmount?: number;
+    modifiedDescription?: string;
   };
 };
