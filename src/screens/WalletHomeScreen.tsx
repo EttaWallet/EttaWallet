@@ -16,6 +16,7 @@ import HomeActionsBar from '../components/HomeActionsBar';
 import { Colors } from 'etta-ui';
 import ContactsButton from '../navigation/components/ContactsButton';
 import { moderateScale, scale, verticalScale } from '../utils/sizing';
+import { HomeBalance } from '../components/HomeBalance';
 
 const TAG = 'WalletHomeScreen';
 
@@ -37,6 +38,13 @@ const WalletHomeScreen = () => {
 
   // add sections showing balance, most recent transaction and a prompt to show all transactions. Keep clean
   const sections = [];
+
+  const balanceSection = {
+    data: [{}],
+    renderItem: () => <HomeBalance key={'HomeBalance'} />,
+  };
+
+  sections.push(balanceSection);
 
   const NodeStatus = () => {
     // @todo: setup an enum to track Node state and switch color i.e:
@@ -62,10 +70,11 @@ const WalletHomeScreen = () => {
         onScroll={() => 0}
         refreshControl={refresh}
         onRefresh={() => 0}
-        refreshing={nodeStarted}
+        refreshing={!nodeStarted}
         style={styles.container}
         sections={sections}
         keyExtractor={keyExtractor}
+        contentContainerStyle={styles.balanceSection}
       />
       <HomeActionsBar />
     </SafeAreaView>
@@ -78,6 +87,11 @@ const styles = StyleSheet.create({
   container: {
     position: 'relative',
     flex: 1,
+  },
+  balanceSection: {
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   homeButtonsGroup: {
     flexDirection: 'row',
