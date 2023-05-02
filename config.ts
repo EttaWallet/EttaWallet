@@ -17,3 +17,6 @@ export const SENTRY_DSN =
   'https://18b58638f56746e2971e78a145cff90d@o631664.ingest.sentry.io/4504051403849728';
 
 export const FAQ_LINK = 'https://ettawallet.app/faq';
+
+export const VOLTAGE_LSP_API_TESTNET = 'https://testnet-lsp.voltageapi.com/api/v1/proposal';
+export const VOLTAGE_LSP_FEE_ESTIMATE_API = 'https://testnet-lsp.voltageapi.com/api/v1/fee';

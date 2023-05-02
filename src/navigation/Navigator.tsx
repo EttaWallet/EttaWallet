@@ -27,6 +27,8 @@ import EnableBiometry from '../screens/EnableBiometryScreen';
 import EnterPin from '../shared/EnterPinScreen';
 import StartLN from '../screens/StartLN';
 import ReceiveScreen from '../screens/ReceiveScreen';
+import LightningChannelsIntroScreen from '../screens/LightningChannelsIntro';
+import JITLiquidityScreen from '../screens/JITLiquidityScreen';
 
 const TAG = 'Navigator';
 
@@ -92,8 +94,19 @@ export const MainStackScreen = () => {
       </Stack.Group>
       {/* Home drawer navigation */}
       <Stack.Screen name={Screens.DrawerNavigator} component={DrawerNavigator} options={noHeader} />
-      {/* Transaction screens */}
+      {/* Wallet home screens */}
       <Stack.Group>
+        <Stack.Screen
+          name={Screens.LightningChannelsIntroScreen}
+          // @ts-ignore until I resolve navOptions
+          component={LightningChannelsIntroScreen}
+          options={LightningChannelsIntroScreen.navigationOptions as NativeStackNavigationOptions}
+        />
+        <Stack.Screen
+          name={Screens.JITLiquidityScreen}
+          component={JITLiquidityScreen}
+          options={JITLiquidityScreen.navigationOptions as NativeStackNavigationOptions}
+        />
         <Stack.Screen
           name={Screens.ReceiveScreen}
           // @ts-ignore until I resolve navOptions

@@ -1,6 +1,7 @@
 import lm, {
   TAccount,
   TAvailableNetworks,
+  TChannel,
   TCreatePaymentReq,
   TInvoice,
 } from '@synonymdev/react-native-ldk';
@@ -29,7 +30,10 @@ const LDK_ACCOUNT_SUFFIX = 'ldkaccount';
 export const DEFAULT_LIGHTNING_PEERS: IWalletItem<string[]> = {
   bitcoin: [],
   bitcoinRegtest: [],
-  bitcoinTestnet: [],
+  bitcoinTestnet: [
+    // voltage lsp for zero-conf channel
+    '025804d4431ad05b06a1a1ee41f22fefeb8ce800b0be3a92ff3b9f594a263da34e@44.228.24.253:9735',
+  ],
 };
 
 /**
@@ -109,7 +113,7 @@ export const updateLdkVersion = async (): Promise<Result<TLightningNodeVersion>>
 };
 
 /**
- * Returns whether the user has any open lightning channels.
+ * Returns whether the usern(checks state object) has any open lightning channels.
  * @param {TWalletName} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
  * @returns {boolean}
@@ -159,7 +163,7 @@ export const createLightningInvoice = async ({
     return err(invoice.error.message);
   }
 
-  // addPeers({ selectedNetwork, selectedWallet }).then();
+  addPeers({ selectedNetwork, selectedWallet }).then();
 
   // dispath action to add invoice to state object
   store.dispatch.lightning.addInvoice(invoice.value);
@@ -229,7 +233,7 @@ export const addPeer = async ({
 };
 
 /**
- * Adds blocktank, default, and all custom lightning peers.
+ * Adds default, and all custom lightning peers.
  * @returns {Promise<Result<string[]>>}
  */
 export const addPeers = async ({
@@ -471,4 +475,12 @@ const _getDefaultAccount = (name: string, mnemonic: string): TAccount => {
     name,
     seed: ldkSeed,
   };
+};
+
+/**
+ * Returns an array of pending and open channels
+ * @returns Promise<Result<TChannel[]>>
+ */
+export const getLightningChannels = (): Promise<Result<TChannel[]>> => {
+  return ldk.listChannels();
 };

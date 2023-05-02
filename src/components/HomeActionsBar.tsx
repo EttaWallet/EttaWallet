@@ -5,10 +5,13 @@ import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { HomeButton, Colors } from 'etta-ui';
 import { moderateScale, verticalScale } from '../utils/sizing';
+import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 
 export default function HomeActionsBar() {
   const onPressSend = () => {
-    navigate(Screens.TestScreen);
+    cueInformativeHaptic();
+    // if no open channels go lighting intro and channel setup
+    navigate(Screens.LightningChannelsIntroScreen);
   };
 
   const onPressRequest = () => {

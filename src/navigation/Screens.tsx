@@ -23,4 +23,6 @@ export enum Screens {
   TestScreen = 'TestScreen',
   StartLN = 'StartLN',
   ReceiveScreen = 'ReceiveScreen',
+  LightningChannelsIntroScreen = 'LightningChannelsIntroScreen',
+  JITLiquidityScreen = 'JITLiquidityScreen',
 }

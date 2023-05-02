@@ -18,8 +18,6 @@ import ContactsButton from '../navigation/components/ContactsButton';
 import { moderateScale, scale, verticalScale } from '../utils/sizing';
 import { HomeBalance } from '../components/HomeBalance';
 
-const TAG = 'WalletHomeScreen';
-
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
 const WalletHomeScreen = () => {
@@ -44,6 +42,7 @@ const WalletHomeScreen = () => {
     renderItem: () => <HomeBalance key={'HomeBalance'} />,
   };
 
+  // @ts-ignore
   sections.push(balanceSection);
 
   const NodeStatus = () => {
@@ -75,6 +74,7 @@ const WalletHomeScreen = () => {
         sections={sections}
         keyExtractor={keyExtractor}
         contentContainerStyle={styles.balanceSection}
+        showsVerticalScrollIndicator={false}
       />
       <HomeActionsBar />
     </SafeAreaView>

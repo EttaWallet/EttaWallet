@@ -11,6 +11,7 @@ import lm, {
   DefaultTransactionDataShape,
   TTransactionData,
   TTransactionPosition,
+  TUserConfig,
 } from '@synonymdev/react-native-ldk';
 import ldk from '@synonymdev/react-native-ldk/dist/ldk';
 import {
@@ -152,6 +153,17 @@ export const getNodeVersion = (): Promise<Result<TLightningNodeVersion>> => {
   return ldk.version();
 };
 
+const defaultUserConfig: TUserConfig = {
+  channel_handshake_config: {
+    announced_channel: false,
+    minimum_depth: 1,
+    max_htlc_value_in_flight_percent_of_channel: 100,
+  },
+  manually_accept_inbound_channels: false,
+  accept_inbound_channels: true, // to allow zero conf
+  accept_intercept_htlcs: true, // required by Voltage LSP Flow2.0? // LDK versions prior to 0.0.113 not supported
+};
+
 /**
  * Used to spin-up LDK services.
  * In order, this method:
@@ -228,6 +240,7 @@ export const setupLdk = async ({
       getTransactionPosition: (params) => {
         return getTransactionPosition({ ...params, selectedNetwork });
       },
+      userConfig: defaultUserConfig,
     });
     if (lmStart.isErr()) {
       return err(`@lmStart: ${lmStart.error.message}`);

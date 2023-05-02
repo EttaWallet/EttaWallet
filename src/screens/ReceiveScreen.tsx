@@ -44,8 +44,8 @@ const ReceiveScreen = (props: Props) => {
   const modifiedDescription = props.route.params?.modifiedDescription;
 
   if (modifiedAmount !== amount || modifiedDescription !== description) {
-    setAmount(modifiedAmount);
-    setDescription(modifiedDescription);
+    setAmount(modifiedAmount!);
+    setDescription(modifiedDescription!);
   }
 
   useEffect(() => {
@@ -90,7 +90,7 @@ const ReceiveScreen = (props: Props) => {
       </View>
       <View style={styles.qrContainer}>
         {isLoading ? (
-          <ActivityIndicator />
+          <ActivityIndicator color={Colors.orange.base} />
         ) : (
           <QRCode
             value={`lightning:${invoice}`}

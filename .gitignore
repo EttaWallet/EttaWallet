@@ -62,5 +62,3 @@ buck-out/
 # Ruby / CocoaPods
 /ios/Pods/
 /vendor/bundle/
-Logo.tsx
-new.ts

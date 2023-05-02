@@ -11,6 +11,7 @@ interface ActionProps {
   paymentRequest: string;
   allowModifier?: boolean;
   onPressModify?: () => void;
+  smallButtons?: boolean;
 }
 
 const InvoiceActionsBar = (props: ActionProps) => {
@@ -42,7 +43,7 @@ const InvoiceActionsBar = (props: ActionProps) => {
         iconPosition="left"
         onPress={onPressShare}
         appearance="outline"
-        size="default"
+        size={props.smallButtons === true ? 'small' : 'default'}
       />
       <Button
         title="Copy"
@@ -51,7 +52,7 @@ const InvoiceActionsBar = (props: ActionProps) => {
         iconPosition="left"
         onPress={onPressCopy}
         appearance="outline"
-        size="default"
+        size={props.smallButtons === true ? 'small' : 'default'}
       />
       {props.allowModifier ? (
         <Button
@@ -61,7 +62,7 @@ const InvoiceActionsBar = (props: ActionProps) => {
           iconPosition="left"
           onPress={onPressModify}
           appearance="outline"
-          size="default"
+          size={props.smallButtons === true ? 'small' : 'default'}
         />
       ) : (
         ''
