@@ -1,33 +1,55 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Dimensions, Platform, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Dimensions, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, Edge } from 'react-native-safe-area-context';
-import { headerWithBackButton } from '../navigation/Headers';
+import { HeaderTitleWithSubtitle, initOnboardingNavigationOptions } from '../navigation/Headers';
 import { Button, Colors, TypographyPresets } from 'etta-ui';
-import FormInput from '../components/form/Input';
-import { isLdkRunning, waitForLdk } from '../ldk';
-import { createLightningInvoice, startLightning } from '../utils/lightning/helpers';
 import QRCode from 'react-native-qrcode-svg';
 import KeyboardAwareScrollView from '../components/keyboard/KeyboardInScrollView';
 import KeyboardSpacer from '../components/keyboard/KeyboardSpacer';
 import { VOLTAGE_LSP_API_TESTNET, VOLTAGE_LSP_FEE_ESTIMATE_API } from '../../config';
 import InvoiceActionsBar from '../components/InvoiceActionsBar';
+import { Screens } from '../navigation/Screens';
+import { StackParamList } from '../navigation/types';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { InfoListItem } from '../components/InfoListItem';
+import CancelButton from '../navigation/components/CancelButton';
+import { navigate } from '../navigation/NavigationService';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
 const QR_CODE_WIDTH = WINDOW_WIDTH - 150;
 
-const DEFAULT_INBOUND_LIQUIDITY_IN_SATS = '100000';
+type Props = NativeStackScreenProps<StackParamList, Screens.JITLiquidityScreen>;
 
-const JITLiquidityScreen = () => {
+const JITLiquidityScreen = ({ navigation, route }: Props) => {
+  const requestLiquidity = route.params.liquidityAmount!;
+  const nodeInvoice = route.params.paymentRequest!;
+
+  console.log(nodeInvoice);
+
   const { t } = useTranslation();
-  const [isLoading, setIsLoading] = useState(true);
-  const [liquidityAmount, setLiquidityAmount] = useState(DEFAULT_INBOUND_LIQUIDITY_IN_SATS);
-  const [invoice, setInvoice] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [wrappedInvoice, setWrappedInvoice] = useState('');
   const [wrappedInvoiceFees, setWrappedInvoiceFees] = useState(0);
+  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
 
-  const getLSPWrappedInvoice = async () => {
+  const onPressCancel = () => {
+    navigate(Screens.DrawerNavigator);
+  };
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => (
+        <HeaderTitleWithSubtitle title={t('Open a channel')!} subTitle="Channel details" />
+      ),
+      headerRight: () => <CancelButton onCancel={onPressCancel} />,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigation]);
+
+  const getWrappedInvoice = async () => {
     // get wrapped invoice
+    setIsLoading(true);
     try {
       await fetch(VOLTAGE_LSP_API_TESTNET, {
         method: 'POST',
@@ -35,7 +57,7 @@ const JITLiquidityScreen = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          bolt11: invoice,
+          bolt11: nodeInvoice,
         }),
       })
         .then((response) => response.json())
@@ -49,7 +71,8 @@ const JITLiquidityScreen = () => {
     }
   };
 
-  const checkInvoiceSettled = () => {
+  const confirmPayment = () => {
+    setPaymentConfirmed(!paymentConfirmed);
     return 0;
   };
 
@@ -61,7 +84,7 @@ const JITLiquidityScreen = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          amount_msat: parseInt(liquidityAmount, 10) * 1000, // get amount in msats
+          amount_msat: parseInt(requestLiquidity, 10) * 1000, // get amount in msats
           pubkey: '025804d4431ad05b06a1a1ee41f22fefeb8ce800b0be3a92ff3b9f594a263da34e',
         }),
       })
@@ -78,46 +101,18 @@ const JITLiquidityScreen = () => {
   };
 
   useEffect(() => {
-    async function fetchInvoice() {
-      try {
-        // check if LDK is up
-        const isLdkUp = await isLdkRunning();
-        // if nuh, start all lightning services
-        if (!isLdkUp) {
-          await startLightning({});
-          // check for node ID
-          await waitForLdk();
-        }
-        // proceed to create invoice
-        const invoiceString = await createLightningInvoice({
-          amountSats: parseInt(liquidityAmount, 10),
-          description: 'Zero conf channel for inbound liquidity',
-          expiryDeltaSeconds: 3600,
-        });
-
-        if (invoiceString.isErr()) {
-          console.log(invoiceString.error.message);
-          return;
-        }
-        setInvoice(invoiceString.value.to_str);
-        setIsLoading(false);
-      } catch (e) {
-        setInvoice(`Error: ${e.message}`);
-      }
-    }
-    fetchInvoice();
+    getWrappedInvoice();
     // estimate fees if fee estimate is zero.
     if (wrappedInvoiceFees === 0) {
       estimateFees();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [requestLiquidity, nodeInvoice]);
 
   const edges: Edge[] | undefined = ['bottom'];
 
   const DynamicButton = () => {
-    const ctaButtonTitle = wrappedInvoice === '' ? 'Get quote' : 'Check for payment';
-    const ctaAction = wrappedInvoice === '' ? getLSPWrappedInvoice : checkInvoiceSettled;
+    const ctaButtonTitle = paymentConfirmed ? 'Continue' : 'Check for payment';
+    const ctaAction = wrappedInvoice === '' ? getWrappedInvoice : confirmPayment;
     return (
       <Button
         title={ctaButtonTitle}
@@ -129,23 +124,32 @@ const JITLiquidityScreen = () => {
     );
   };
 
-  const totalChannelOpen = parseInt(liquidityAmount, 10) + wrappedInvoiceFees;
+  const totalChannelCapacity = parseInt(requestLiquidity, 10) * 2;
+  const channelReserve = totalChannelCapacity * 0.01; // 1% of total capacity
+  const receiveAmount = parseInt(requestLiquidity, 10);
+  const canReceive = parseInt(requestLiquidity, 10) - channelReserve;
+  const totalInvoiceAmount = parseInt(requestLiquidity, 10) + wrappedInvoiceFees;
 
   return (
     <SafeAreaView style={styles.container} edges={edges}>
-      <Text style={styles.intro}>{t('Purchase inbound liquidity')}</Text>
       <KeyboardAwareScrollView contentContainerStyle={styles.contentContainer}>
-        <View style={styles.amountContainer}>
-          <FormInput
-            label={t('Amount in sats')}
-            onChangeText={setLiquidityAmount}
-            value={liquidityAmount}
-            enablesReturnKeyAutomatically={true}
-            placeholder="Amount in sats" // should pass value of amount from receive Screen
-            multiline={false}
-            keyboardType={'decimal-pad'}
+        <View style={styles.infoContainer}>
+          <InfoListItem title="Total capacity" value={totalChannelCapacity} valueIsNumeric={true} />
+          <InfoListItem title="Can send" value={canReceive} valueIsNumeric={true} />
+          <InfoListItem title="Can receive" value={canReceive} valueIsNumeric={true} />
+          <InfoListItem title="Channel reserve" value={channelReserve} valueIsNumeric={true} />
+          <InfoListItem
+            title="Invoice amount"
+            value={receiveAmount}
+            valueIsNumeric={true}
+            highlightValue={true}
           />
-          <Text style={styles.fees}>Fee Estimate: {wrappedInvoiceFees} sats</Text>
+          <InfoListItem
+            title="LSP fees"
+            value={wrappedInvoiceFees}
+            valueIsNumeric={true}
+            highlightValue={true}
+          />
         </View>
         <View style={styles.qrContainer}>
           {isLoading || wrappedInvoice === '' ? (
@@ -163,17 +167,10 @@ const JITLiquidityScreen = () => {
                 allowModifier={false}
                 smallButtons={true}
               />
-              <Text style={styles.total}>Total for channel open: {totalChannelOpen} sats</Text>
+              <Text style={styles.total}>Total for channel open: {totalInvoiceAmount} sats</Text>
             </>
           )}
         </View>
-        {wrappedInvoice !== '' ? (
-          <Text style={[styles.adviceWrapper, TypographyPresets.Body4, styles.adviceText]}>
-            Paying this wrapped invoice will allow you to receive up to {liquidityAmount} sats.
-          </Text>
-        ) : (
-          ''
-        )}
         <DynamicButton />
         <KeyboardSpacer topSpacing={16} />
       </KeyboardAwareScrollView>
@@ -181,20 +178,19 @@ const JITLiquidityScreen = () => {
   );
 };
 
-JITLiquidityScreen.navigationOptions = {
-  ...headerWithBackButton,
-  ...Platform.select({
-    ios: { animation: 'slide_from_bottom' },
-  }),
-};
+JITLiquidityScreen.navigationOptions = initOnboardingNavigationOptions;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 100,
   },
   contentContainer: {
     padding: 16,
     flexGrow: 1,
+  },
+  infoContainer: {
+    flex: 1,
   },
   qrContainer: {
     flex: 1,

@@ -53,5 +53,8 @@ export type StackParamList = {
     modifiedDescription?: string;
   };
   [Screens.LightningChannelsIntroScreen]: undefined;
-  [Screens.JITLiquidityScreen]: undefined;
+  [Screens.JITLiquidityScreen]: {
+    liquidityAmount?: string;
+    paymentRequest?: string;
+  };
 };

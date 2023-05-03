@@ -22,6 +22,9 @@ export const styles = StyleSheet.create({
     lineHeight: 20,
     maxWidth: Dimensions.get('window').width * 0.6,
   },
+  headerSubTitle: {
+    color: Colors.neutrals.light.neutral7,
+  },
   header: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -92,6 +95,7 @@ export const headerWithCloseButton: NativeStackNavigationOptions = {
 
 export function HeaderTitleWithSubtitle({
   title,
+  subTitle,
 }: {
   title: string | JSX.Element;
   subTitle?: string | JSX.Element;
@@ -106,6 +110,11 @@ export function HeaderTitleWithSubtitle({
           allowFontScaling={false}
         >
           {title}
+        </Text>
+      )}
+      {subTitle && (
+        <Text style={styles.headerSubTitle} numberOfLines={1} allowFontScaling={false}>
+          {subTitle}
         </Text>
       )}
     </View>

@@ -1,21 +1,14 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  TouchableWithoutFeedback,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  Platform,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, View, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { noHeader } from '../navigation/Headers';
-import { navigate, navigateBack } from '../navigation/NavigationService';
+import { navigate } from '../navigation/NavigationService';
 
 import { Button, Chip, Colors, Icon, TypographyPresets } from 'etta-ui';
 import { Screens } from '../navigation/Screens';
-import { iconHitslop } from '../utils/helpers';
 import useLiquidityOptionBottomSheet from '../components/useLiquidityOptionBottomSheet';
+import CancelButton from '../navigation/components/CancelButton';
 
 const onPressLearnMore = () => {
   // @TODO: should open webView with appropiate URL
@@ -27,9 +20,7 @@ function Header() {
 
   return (
     <View style={styles.headerContainer}>
-      <TouchableWithoutFeedback onPress={navigateBack} hitSlop={iconHitslop}>
-        <Icon name="icon-cross" style={styles.closeIcon} />
-      </TouchableWithoutFeedback>
+      <CancelButton />
       <Chip onPress={onPressLearnMore} selected={true}>
         {t('Learn more')}
       </Chip>
@@ -83,13 +74,7 @@ const LightningChannelsIntroScreen = () => {
         <LightningInstructions />
       </ScrollView>
       <View style={styles.buttonContainer}>
-        <Button
-          title="Get started"
-          size="default"
-          iconPosition="left"
-          icon="icon-lightning"
-          onPress={openSheet}
-        />
+        <Button title="Get started" size="default" onPress={openSheet} style={styles.button} />
       </View>
       {SelectLiquidityOptionBottomSheet}
     </SafeAreaView>
@@ -156,9 +141,10 @@ const styles = StyleSheet.create({
   buttonContainer: {
     paddingTop: 32,
     paddingBottom: 16,
-    alignItems: 'center',
-    borderTopColor: Colors.neutrals.light.neutral4,
-    borderTopWidth: 1,
+    marginHorizontal: 32,
+  },
+  button: {
+    justifyContent: 'center',
   },
 });
 

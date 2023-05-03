@@ -13,7 +13,7 @@ export default function FormLabel({ style, children }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    ...TypographyPresets.Body3,
+    ...TypographyPresets.Body4,
     color: Colors.common.black,
   },
 });

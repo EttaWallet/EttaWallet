@@ -4,7 +4,7 @@ import Logger from './logger';
 import { APP_STORE_ID } from '../../config';
 import { err, Result } from './result';
 
-export const iconHitslop = { top: 10, right: 10, bottom: 10, left: 10 };
+export const pressableHitSlop = { top: 10, right: 10, bottom: 10, left: 10 };
 
 // MIT License
 // Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)

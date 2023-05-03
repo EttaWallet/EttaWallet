@@ -42,8 +42,6 @@ const LanguageChooser = ({ route }: Props) => {
   const renderItem = ({ item: language }: ListRenderItemInfo<Language>) => {
     return (
       <SelectionOption
-        // nextScreen is not set when the language screen is the first seen in the app
-        // for when the best language couldn't be determined
         hideCheckboxes={!nextScreen}
         text={language.name}
         key={language.code}

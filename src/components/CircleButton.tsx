@@ -1,6 +1,7 @@
 import { Colors, Icon } from 'etta-ui';
 import * as React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { pressableHitSlop } from '../utils/helpers';
 
 interface ButtonProps {
   onPress: () => void;
@@ -38,7 +39,7 @@ export default class CircleButton extends React.PureComponent<ButtonProps> {
           onPress={onPress}
           disabled={disabled}
           style={buttonStyle}
-          hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
+          hitSlop={pressableHitSlop}
         >
           <Icon name="icon-cross" style={{ color: xColor }} />
         </TouchableOpacity>

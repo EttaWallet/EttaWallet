@@ -1,13 +1,29 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Icon } from 'etta-ui';
+import { View, StyleSheet } from 'react-native';
+import { Colors, Icon } from 'etta-ui';
+import { navigateBack } from '../NavigationService';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { pressableHitSlop } from '../../utils/helpers';
 
-const CancelButton = () => {
+interface Props {
+  onCancel?: () => void;
+}
+
+const CancelButton = ({ onCancel }: Props) => {
+  const onPressCancel = () => {
+    if (onCancel) {
+      onCancel();
+    } else {
+      navigateBack();
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Icon name="icon-caret-left" style={styles.iconContainer} />
-      <Text style={styles.textContainer}>Back</Text>
-    </View>
+    <TouchableWithoutFeedback onPress={onPressCancel} hitSlop={pressableHitSlop}>
+      <View style={styles.iconContainer}>
+        <Icon name="icon-cross" style={styles.icon} />
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -18,13 +34,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   iconContainer: {
-    paddingRight: 8,
-    fontSize: 20,
+    justifyContent: 'center',
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    alignItems: 'center',
+    backgroundColor: Colors.neutrals.light.neutral3,
   },
-  textContainer: {
-    fontSize: 18,
-    lineHeight: 18,
-    fontWeight: '500',
+  icon: {
+    fontSize: 24,
+    color: Colors.red.base,
   },
 });
 

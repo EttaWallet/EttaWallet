@@ -5,6 +5,7 @@ import Animated, { cond, greaterThan } from 'react-native-reanimated';
 // import Hamburger from '../../icons/Hamburger';
 import { Colors } from 'etta-ui';
 import Logo from '../../icons/Logo';
+import { pressableHitSlop } from '../../utils/helpers';
 
 interface Props {
   middleElement?: React.ReactNode;
@@ -39,7 +40,7 @@ function DrawerHeader({ middleElement, rightElement, scrollPosition }: Props) {
       <TouchableOpacity
         style={styles.hamburger}
         onPress={onPressHamburger}
-        hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
+        hitSlop={pressableHitSlop}
       >
         {/* <Hamburger /> */}
         <Logo height={32} />
