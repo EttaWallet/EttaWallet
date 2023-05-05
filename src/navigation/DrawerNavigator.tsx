@@ -23,7 +23,7 @@ import { Screens } from './Screens';
 import { APP_NAME } from '../../config';
 import WalletHomeScreen from '../screens/WalletHomeScreen';
 import { Colors, TypographyPresets } from 'etta-ui';
-import ChannelsScreen from '../screens/ChannelScreen';
+import ChannelsScreen from '../screens/ChannelsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
 const Drawer = createDrawerNavigator();

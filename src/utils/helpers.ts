@@ -2,7 +2,7 @@ import { Platform, Linking } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import Logger from './logger';
 import { APP_STORE_ID } from '../../config';
-import { err, Result } from './result';
+import { err, ok, Result } from './result';
 
 export const pressableHitSlop = { top: 10, right: 10, bottom: 10, left: 10 };
 
@@ -127,6 +127,32 @@ export const collectAppVersion: string = DeviceInfo.getVersion();
  */
 export const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+/**
+ * Sum a specific value in an array of objects.
+ * @param arr
+ * @param value
+ */
+export const reduceValue = ({
+  arr = [],
+  value = '',
+}: {
+  arr: any[];
+  value: string;
+}): Result<number> => {
+  try {
+    if (!value) {
+      return err('No value specified.');
+    }
+    return ok(
+      arr.reduce((acc, cur) => {
+        return acc + Number(cur[value]);
+      }, 0) || 0
+    );
+  } catch (e) {
+    return err(e);
+  }
 };
 
 const mapObject = (obj, fn) =>

@@ -26,6 +26,9 @@ export interface LightningNodeModelType {
   setLdkVersion: Action<LightningNodeModelType, TLightningNodeVersion>;
   addInvoice: Action<LightningNodeModelType, TInvoice>;
   updateInvoices: Action<LightningNodeModelType, { index: number; invoice: TInvoice }>;
+  updateChannels: Action<LightningNodeModelType, { [key: string]: TChannel }>;
+  updateOpenChannels: Action<LightningNodeModelType, string[]>;
+  updateClaimableBalance: Action<LightningNodeModelType, number>;
   removeExpiredInvoices: Action<LightningNodeModelType, TInvoice>;
 }
 
@@ -79,6 +82,21 @@ export const lightningModel: LightningNodeModelType = {
     state.invoices = state.invoices.filter(
       (invoice) => invoice.timestamp + invoice.expiry_time > nowInSecs
     );
+  }),
+  updateChannels: action((state, payload) => {
+    state.channels = {
+      ...state.channels,
+      ...payload,
+    };
+  }),
+  updateOpenChannels: action((state, payload) => {
+    state.openChannelIds = {
+      ...state.openChannelIds,
+      ...payload,
+    };
+  }),
+  updateClaimableBalance: action((state, payload) => {
+    state.claimableBalance = payload;
   }),
   // open channel with LSP and receive inbound liquidity
 };

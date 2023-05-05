@@ -19,6 +19,8 @@ import {
   updateLdkNodeId,
   setLdkStoragePath,
   getLdkAccount,
+  updateLightningChannels,
+  updateClaimableBalance,
 } from '../utils/lightning/helpers';
 import { TLightningNodeVersion } from '../utils/types';
 import { InteractionManager } from 'react-native';
@@ -62,6 +64,9 @@ export const refreshLdk = async ({
     if (syncResponse.isErr()) {
       return err(syncResponse.error.message);
     }
+
+    await updateLightningChannels();
+    await updateClaimableBalance({ selectedNetwork });
     return ok('');
   } catch (e) {
     return err(`@refreshLdk ${e}`);

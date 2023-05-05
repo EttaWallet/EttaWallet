@@ -26,6 +26,7 @@ import { connectToElectrum, subscribeToHeader } from '../electrum';
 import ldk from '@synonymdev/react-native-ldk/dist/ldk';
 
 import * as bitcoin from 'bitcoinjs-lib';
+import { reduceValue } from '../helpers';
 
 const LDK_ACCOUNT_SUFFIX = 'ldkaccount';
 
@@ -295,24 +296,6 @@ export const removeExpiredInvoices = async (): Promise<Result<string>> => {
   return ok('');
 };
 
-export const restartLightning = async ({
-  selectedNetwork,
-}: {
-  selectedNetwork?: TAvailableNetworks;
-}) => {
-  try {
-    if (!selectedNetwork) {
-      selectedNetwork = getSelectedNetwork();
-    }
-
-    await startLightning({
-      selectedNetwork,
-    });
-  } catch (error) {
-    console.error('@restartLightning', error.message);
-  }
-};
-
 export const startLightning = async ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   restore = false,
@@ -385,15 +368,17 @@ export const startLightning = async ({
     ]);
     // await runChecks({ selectedNetwork });
 
+    // update channels
+    await updateLightningChannels();
+    await updateClaimableBalance({ selectedNetwork });
     // remove invoices that have surpassed expiry time from state
     await removeExpiredInvoices();
 
     // ensure the node is up and running before we go anywhere
     const isRunning = await isLdkRunning();
     if (!isRunning) {
-      restartLightning({ selectedNetwork });
+      startLightning({ selectedNetwork });
     } else {
-      // update node is started in state
       store.dispatch.lightning.setNodeStarted(true);
     }
 
@@ -484,9 +469,137 @@ const _getDefaultAccount = (name: string, mnemonic: string): TAccount => {
 };
 
 /**
- * Returns an array of pending and open channels
+ * Returns an array of pending and open channels from LDK
  * @returns Promise<Result<TChannel[]>>
  */
 export const getLightningChannels = (): Promise<Result<TChannel[]>> => {
   return ldk.listChannels();
+};
+
+/**
+ * Attempts to update the lightning channels for the given wallet and network.
+ * This method will save all channels (both pending, open & closed) to redux and update openChannelIds to reference channels that are currently open.
+ * @param {TWalletName} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const updateLightningChannels = async (): Promise<Result<TChannel[]>> => {
+  const lightningChannels = await getLightningChannels();
+  if (lightningChannels.isErr()) {
+    return err(lightningChannels.error.message);
+  }
+
+  const channels: { [channelId: string]: TChannel } = {};
+  const openChannelIds: string[] = [];
+
+  lightningChannels.value.forEach((channel) => {
+    channels[channel.channel_id] = channel;
+    if (!openChannelIds.includes(channel.channel_id)) {
+      openChannelIds.push(channel.channel_id);
+    }
+  });
+
+  const payload = {
+    channels,
+    openChannelIds,
+  };
+  // update channels in lightning store
+  store.dispatch.lightning.updateChannels(payload.channels);
+  // update open channels
+  store.dispatch.lightning.updateOpenChannels(payload.openChannelIds);
+  return ok(lightningChannels.value);
+};
+
+/**
+ * Retrieves the total wallet display values for the currently selected wallet and network.
+ * @param {boolean} [subtractReserveBalance]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const getTotalBalance = ({
+  subtractReserveBalance = true,
+  selectedNetwork,
+}: {
+  subtractReserveBalance?: boolean;
+  selectedNetwork?: TAvailableNetworks;
+}): number => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+
+  let balance: number = 0;
+
+  const openChannelIds = getLightningStore().openChannelIds;
+  const channels = getLightningStore().channels;
+  const openChannels = Object.values(channels).filter((channel) => {
+    return openChannelIds.includes(channel.channel_id);
+  });
+
+  balance = Object.values(openChannels).reduce((previousValue, currentChannel) => {
+    if (currentChannel.is_channel_ready) {
+      let reserveBalance = 0;
+      if (subtractReserveBalance) {
+        reserveBalance = currentChannel.unspendable_punishment_reserve ?? 0;
+      }
+      return previousValue + currentChannel.balance_sat - reserveBalance;
+    }
+    return previousValue;
+  }, balance);
+
+  return balance;
+};
+
+/**
+ * Returns the claimable balance for all lightning channels.
+ * @param {boolean} [ignoreOpenChannels]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<number>}
+ */
+export const getClaimableBalance = async ({
+  ignoreOpenChannels = false,
+  selectedNetwork,
+}: {
+  ignoreOpenChannels?: boolean;
+  selectedNetwork?: TAvailableNetworks;
+}): Promise<number> => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+  const lightningBalance = getTotalBalance({
+    selectedNetwork,
+    subtractReserveBalance: false,
+  });
+  const claimableBalanceRes = await ldk.claimableBalances(ignoreOpenChannels);
+  if (claimableBalanceRes.isErr()) {
+    return 0;
+  }
+  const claimableBalance = reduceValue({
+    arr: claimableBalanceRes.value,
+    value: 'claimable_amount_satoshis',
+  });
+  if (claimableBalance.isErr()) {
+    return 0;
+  }
+  return Math.abs(lightningBalance - claimableBalance.value);
+};
+
+export const updateClaimableBalance = async ({
+  selectedWallet,
+  selectedNetwork,
+}: {
+  selectedWallet?: TWalletName;
+  selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string>> => {
+  if (!selectedWallet) {
+    selectedWallet = getSelectedWallet();
+  }
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+
+  const claimableBalance = await getClaimableBalance({
+    selectedNetwork,
+  });
+
+  // update claimable balance in store
+  store.dispatch.lightning.updateClaimableBalance(claimableBalance);
+  return ok('Successfully Updated Claimable Balance.');
 };
