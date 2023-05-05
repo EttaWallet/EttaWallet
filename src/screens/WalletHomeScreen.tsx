@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   StyleSheet,
   SafeAreaView,
@@ -17,12 +17,15 @@ import { Colors } from 'etta-ui';
 import ContactsButton from '../navigation/components/ContactsButton';
 import { moderateScale, scale, verticalScale } from '../utils/sizing';
 import { HomeBalance } from '../components/HomeBalance';
+import { isLdkRunning, waitForLdk } from '../ldk';
+import { startLightning } from '../utils/lightning/helpers';
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
 const WalletHomeScreen = () => {
   const nodeStarted = useStoreState((state) => state.lightning.nodeStarted);
   const currentBlockHeight = useStoreState((state) => state.wallet.header.height);
+  const [refreshing, setRefreshing] = useState(false);
 
   const scrollPosition = useRef(new Animated.Value(0)).current;
 
@@ -30,8 +33,22 @@ const WalletHomeScreen = () => {
     return index.toString();
   };
 
+  const onRefreshLdk = useCallback(async (): Promise<void> => {
+    setRefreshing(true);
+    const isLdkUp = await isLdkRunning();
+    if (!isLdkUp) {
+      await startLightning({});
+    }
+    await waitForLdk();
+    setRefreshing(false);
+  }, []);
+
   const refresh: React.ReactElement<RefreshControlProps> = (
-    <RefreshControl refreshing={nodeStarted} onRefresh={() => 0} colors={[Colors.green.base]} />
+    <RefreshControl
+      refreshing={refreshing}
+      onRefresh={onRefreshLdk}
+      colors={[Colors.orange.base]}
+    />
   ) as React.ReactElement<RefreshControlProps>;
 
   // add sections showing balance, most recent transaction and a prompt to show all transactions. Keep clean

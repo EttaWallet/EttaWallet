@@ -1,6 +1,6 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useEffect, useState } from 'react';
-import { useTranslation, WithTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PinType } from '../utils/types';
@@ -24,9 +24,7 @@ import { setPinInKeyChain } from '../utils/keychain';
 
 type ScreenProps = NativeStackScreenProps<StackParamList, Screens.SetPinScreen>;
 
-type Props = ScreenProps & WithTranslation;
-
-const SetPinScreen = ({ route }: Props) => {
+const SetPinScreen = ({ route }: ScreenProps) => {
   const { t } = useTranslation();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [oldPin, setOldPin] = useState<string>('');

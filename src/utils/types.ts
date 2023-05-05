@@ -234,15 +234,7 @@ export interface IWallet {
   name: string;
   type: string;
   seedHash?: string; // Help components/hooks recognize when a seed is set/updated for the same wallet id/name.
-  addresses: IWalletItem<IAddressTypeContent<IAddresses>>;
-  addressIndex: IWalletItem<IAddressTypeContent<IAddress>>;
-  lastUsedAddressIndex: IWalletItem<IAddressTypeContent<IAddress>>;
-  changeAddresses: IWalletItem<IAddressTypeContent<IAddresses>>;
-  changeAddressIndex: IWalletItem<IAddressTypeContent<IAddress>>;
-  lastUsedChangeAddressIndex: IWalletItem<IAddressTypeContent<IAddress>>;
-  utxos: IWalletItem<IUtxo[]>;
   transactions: IWalletItem<IFormattedTransactions>;
-  blacklistedUtxos: IWalletItem<[]>;
   balance: IWalletItem<number>;
   lastUpdated: IWalletItem<number>;
   hasBackedUpWallet: boolean;
@@ -254,7 +246,6 @@ export interface IWallet {
     bitcoinTestnet: EAddressType;
     bitcoinRegtest: EAddressType;
   };
-  rbfData: IWalletItem<object>;
   transaction: IWalletItem<IBitcoinTransactionData>;
 }
 

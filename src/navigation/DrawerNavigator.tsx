@@ -23,7 +23,8 @@ import { Screens } from './Screens';
 import { APP_NAME } from '../../config';
 import WalletHomeScreen from '../screens/WalletHomeScreen';
 import { Colors, TypographyPresets } from 'etta-ui';
-import TestScreen from '../screens/TestScreen';
+import ChannelsScreen from '../screens/ChannelScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -73,6 +74,10 @@ function CustomDrawerItemList({
         focused={focused}
         to={buildLink(route.name, route.params)}
         onPress={onPress}
+        labelStyle={[TypographyPresets.Body4, { marginLeft: 16 }]}
+        activeBackgroundColor={Colors.orange.light}
+        activeTintColor={Colors.common.white}
+        inactiveTintColor={Colors.neutrals.light.neutral1}
       />
     );
   }) as React.ReactNode as React.ReactElement;
@@ -87,7 +92,6 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
     <DrawerContentScrollView {...props}>
       <View style={styles.drawerTop}>
         {!!appName && <Text style={styles.appLabel}>{appName}</Text>}
-        <View style={styles.border} />
       </View>
       <CustomDrawerItemList {...props} />
       <View style={styles.drawerBottom}>
@@ -110,33 +114,33 @@ export default function DrawerNavigator() {
       screenOptions={{
         headerShown: false,
         unmountOnBlur: true,
-        drawerLabelStyle: [TypographyPresets.Body3, { marginLeft: -20, fontWeight: 'normal' }],
-        drawerActiveBackgroundColor: Colors.neutrals.light.neutral2,
+        drawerStyle: {
+          backgroundColor: '#151516',
+          width: 240,
+        },
       }}
-      // Whether inactive screens should be detached from the view hierarchy to save memory.
-      // Defaults to true, but also explicitly set here.
       detachInactiveScreens={true}
     >
       <Drawer.Screen
         name={Screens.WalletHomeScreen}
         component={WalletHomeScreen}
-        options={{ title: t('navigationLabels.home')!, unmountOnBlur: false }}
+        options={{
+          title: t('navigationLabels.home')!,
+          unmountOnBlur: false,
+        }}
       />
       <Drawer.Screen
-        name={Screens.SeedPhraseScreen}
-        component={TestScreen}
-        options={{ title: t('navigationLabels.seedPhrase')! }}
-        initialParams={{ showDrawerTopBar: true }}
+        name={Screens.ChannelsScreen}
+        component={ChannelsScreen}
+        options={{
+          title: t('Channels')!,
+          unmountOnBlur: false,
+        }}
       />
       <Drawer.Screen
         name={Screens.SettingsScreen}
-        component={TestScreen}
+        component={SettingsScreen}
         options={{ title: t('navigationLabels.settings')! }}
-      />
-      <Drawer.Screen
-        name={Screens.HelpScreen}
-        component={TestScreen}
-        options={{ title: t('navigationLabels.help')! }}
       />
     </Drawer.Navigator>
   );
@@ -144,8 +148,8 @@ export default function DrawerNavigator() {
 
 const styles = StyleSheet.create({
   drawerTop: {
-    marginLeft: 16,
-    marginTop: 16,
+    marginLeft: 20,
+    marginVertical: 20,
     alignItems: 'flex-start',
     marginRight: 16,
   },
@@ -157,13 +161,6 @@ const styles = StyleSheet.create({
   appLabel: {
     ...TypographyPresets.Body3,
     marginTop: 8,
-  },
-  border: {
-    marginTop: 20,
-    marginBottom: 12,
-    height: 1,
-    backgroundColor: Colors.neutrals.light.neutral2,
-    alignSelf: 'stretch',
   },
   drawerBottom: {
     marginVertical: 32,

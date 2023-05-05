@@ -188,14 +188,15 @@ export const setupLdk = async ({
 
     const account = await getLdkAccount();
     if (account.isErr()) {
+      console.log('@setupLdk/getLdkAccount', account.error.message);
       return err(account.error.message);
     }
 
-    const _getAddress = async () => {
+    const _getAddress = async (): Promise<string> => {
       // return a valid receive address for the selected network
       const res = await getReceiveAddress({ selectedNetwork });
-      if (res.isOk()) {
-        return res.value;
+      if (res) {
+        return res;
       }
       return '';
     };

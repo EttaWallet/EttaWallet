@@ -3,7 +3,7 @@ import Config from 'react-native-config';
 
 export const DEFAULT_APP_LANGUAGE = 'en-US';
 
-export const APP_NAME = 'EttaWallet';
+export const APP_NAME = 'EttaLN';
 
 export const APP_STORE_ID = Config.APP_STORE_ID;
 

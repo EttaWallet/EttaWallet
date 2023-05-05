@@ -191,6 +191,7 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     flex: 1,
+    marginBottom: 10,
   },
   qrContainer: {
     flex: 1,

@@ -19,7 +19,7 @@ export default function Logo({ height = 25, polkaType = DotColors.LIGHT }: Props
       dotFillColor = Colors.common.white;
       break;
     case DotColors.LIGHT:
-      dotFillColor = Colors.common.black;
+      dotFillColor = Colors.common.black; // #151516
       break;
     default:
       break;

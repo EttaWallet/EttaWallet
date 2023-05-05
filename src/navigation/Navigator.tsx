@@ -38,6 +38,61 @@ const RootStack = createBottomSheetNavigator<StackParamList>();
 
 type InitialRouteName = ExtractProps<typeof Stack.Navigator>['initialRouteName'];
 
+const commonScreens = (Navigator: typeof Stack) => {
+  return (
+    <>
+      <Navigator.Screen name={Screens.ErrorScreen} component={ErrorScreen} options={noHeader} />
+    </>
+  );
+};
+
+const walletScreens = (Navigator: typeof Stack) => {
+  return (
+    <>
+      <Navigator.Screen
+        name={Screens.LightningChannelsIntroScreen}
+        // @ts-ignore until I resolve navOptions
+        component={LightningChannelsIntroScreen}
+        options={LightningChannelsIntroScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.JITLiquidityScreen}
+        component={JITLiquidityScreen}
+        options={JITLiquidityScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.ReceiveScreen}
+        // @ts-ignore until I resolve navOptions
+        component={ReceiveScreen}
+        options={ReceiveScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+    </>
+  );
+};
+
+const onboardingScreens = (Navigator: typeof Stack) => {
+  return (
+    <>
+      <Navigator.Screen
+        name={Screens.SetPinScreen}
+        component={SetPinScreen}
+        options={SetPinScreen.navigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.EnableBiometryScreen}
+        component={EnableBiometry}
+        options={EnableBiometry.navigationOptions}
+      />
+      <Navigator.Screen name={Screens.StartLN} component={StartLN} options={noHeader} />
+      <Navigator.Screen
+        name={Screens.WelcomeScreen}
+        component={WelcomeScreen}
+        options={WelcomeScreen.navigationOptions}
+      />
+    </>
+  );
+};
+
 export const MainStackScreen = () => {
   const [initialRouteName, setInitialRoute] = useState<InitialRouteName>(undefined);
   // @todo: updated state via thunk not being rehydrated on app reload. Look into this
@@ -71,53 +126,10 @@ export const MainStackScreen = () => {
 
   return (
     <Stack.Navigator initialRouteName={initialRouteName} screenOptions={emptyHeader}>
-      {/* Onboarding screens */}
-      <Stack.Group>
-        {/* <Stack.Screen name={Screens.TestScreen} component={TestScreen} options={noHeader} /> */}
-        <Stack.Screen
-          name={Screens.SetPinScreen}
-          // @ts-ignore until I resolve navOptions
-          component={SetPinScreen}
-          options={SetPinScreen.navigationOptions}
-        />
-        <Stack.Screen
-          name={Screens.EnableBiometryScreen}
-          component={EnableBiometry}
-          options={EnableBiometry.navigationOptions}
-        />
-        <Stack.Screen name={Screens.StartLN} component={StartLN} options={noHeader} />
-        <Stack.Screen
-          name={Screens.WelcomeScreen}
-          component={WelcomeScreen}
-          options={WelcomeScreen.navigationOptions}
-        />
-      </Stack.Group>
-      {/* Home drawer navigation */}
       <Stack.Screen name={Screens.DrawerNavigator} component={DrawerNavigator} options={noHeader} />
-      {/* Wallet home screens */}
-      <Stack.Group>
-        <Stack.Screen
-          name={Screens.LightningChannelsIntroScreen}
-          // @ts-ignore until I resolve navOptions
-          component={LightningChannelsIntroScreen}
-          options={LightningChannelsIntroScreen.navigationOptions as NativeStackNavigationOptions}
-        />
-        <Stack.Screen
-          name={Screens.JITLiquidityScreen}
-          component={JITLiquidityScreen}
-          options={JITLiquidityScreen.navigationOptions as NativeStackNavigationOptions}
-        />
-        <Stack.Screen
-          name={Screens.ReceiveScreen}
-          // @ts-ignore until I resolve navOptions
-          component={ReceiveScreen}
-          options={ReceiveScreen.navigationOptions as NativeStackNavigationOptions}
-        />
-      </Stack.Group>
-      {/* Common screens */}
-      <Stack.Group>
-        <Stack.Screen name={Screens.ErrorScreen} component={ErrorScreen} options={noHeader} />
-      </Stack.Group>
+      {onboardingScreens(Stack)}
+      {walletScreens(Stack)}
+      {commonScreens(Stack)}
     </Stack.Navigator>
   );
 };

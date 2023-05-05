@@ -3,9 +3,9 @@ import * as bip39 from 'bip39';
 import { BIP32Factory } from 'bip32';
 import ecc from '@bitcoinerlab/secp256k1';
 import { TAvailableNetworks } from '@synonymdev/react-native-ldk';
-import { Result, err } from './result';
+import { err } from './result';
 import { getBip39Passphrase, getSelectedNetwork } from './wallet';
-import { IGetAddress, IGetAddressResponse } from './types';
+import { IGetAddress } from './types';
 import { getMnemonicPhrase } from './lightning/helpers';
 import { getBitcoinJSNetwork } from './networks';
 
@@ -27,9 +27,9 @@ export const getMnemonicPhraseFromSeed = (accountSeed: string): string => {
 export const generateMnemonic = async ({ strength = 128 }: { strength?: number }) => {
   try {
     const mnemonic = bip39.generateMnemonic(strength);
-    return { error: false, value: mnemonic };
+    return mnemonic;
   } catch (e) {
-    return { error: true, value: e };
+    console.log('Error generating mnemonic');
   }
 };
 
@@ -59,71 +59,64 @@ export const getPrivateKey = async ({
   }
 };
 
-export const getBitcoinAddress = async ({
-  path,
-  selectedNetwork,
-  type,
-}: IGetAddress): Promise<Result<IGetAddressResponse>> => {
-  return new Promise(async (resolve) => {
-    try {
-      if (!selectedNetwork) {
-        selectedNetwork = getSelectedNetwork();
-      }
-
-      if (!path) {
-        return resolve({ error: true, value: 'No path provided.' });
-      }
-      if (!type) {
-        return resolve({ error: true, value: 'No address type provided.' });
-      }
-
-      //   const mnemonic = bip39.generateMnemonic();
-
-      const mnemonicResponse = await getMnemonicPhrase();
-      if (mnemonicResponse.isErr()) {
-        return err(mnemonicResponse.error.message);
-      }
-
-      const mnemonic = mnemonicResponse.value;
-
-      console.log(mnemonic);
-
-      const bip39Passphrase = await getBip39Passphrase();
-      const network = getBitcoinJSNetwork(selectedNetwork);
-      const seed = await bip39.mnemonicToSeed(mnemonic, bip39Passphrase);
-      const root = BIP32.fromSeed(seed, network);
-      const keyPair = root.derivePath(path);
-      let address = '';
-      switch (type) {
-        case 'p2wpkh':
-          //Get Native Bech32 (bc1) addresses
-          address = bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey, network }).address!;
-          break;
-        case 'p2sh':
-          //Get Segwit P2SH Address (3)
-          address = bitcoin.payments.p2sh({
-            redeem: bitcoin.payments.p2wpkh({
-              pubkey: keyPair.publicKey,
-              network,
-            }),
-            network,
-          }).address!;
-          break;
-        case 'p2pkh':
-          //Get Legacy Address (1)
-          address = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network }).address!;
-          break;
-      }
-      const value = {
-        address,
-        path,
-        publicKey: keyPair.publicKey.toString('hex'),
-      };
-      return resolve({ error: false, value });
-    } catch (e) {
-      return err(e);
+export const getBitcoinAddress = async ({ path, selectedNetwork, type }: IGetAddress) => {
+  try {
+    if (!selectedNetwork) {
+      selectedNetwork = getSelectedNetwork();
     }
-  });
+
+    if (!path) {
+      return err('No path provided.');
+    }
+    if (!type) {
+      return err('No address type provided.');
+    }
+
+    const mnemonicResponse = await getMnemonicPhrase();
+    if (mnemonicResponse.isErr()) {
+      return err(mnemonicResponse.error.message);
+    }
+
+    const mnemonic = mnemonicResponse.value;
+
+    console.info('mnemonic retrieved: ', mnemonic);
+
+    const bip39Passphrase = await getBip39Passphrase();
+    const network = getBitcoinJSNetwork(selectedNetwork);
+    const seed = await bip39.mnemonicToSeed(mnemonic, bip39Passphrase);
+    const root = BIP32.fromSeed(seed, network);
+    const keyPair = root.derivePath(path);
+    let address = '';
+    switch (type) {
+      case 'p2wpkh':
+        //Get Native Bech32 (bc1) addresses
+        address = bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey, network }).address!;
+        break;
+      case 'p2sh':
+        //Get Segwit P2SH Address (3)
+        address = bitcoin.payments.p2sh({
+          redeem: bitcoin.payments.p2wpkh({
+            pubkey: keyPair.publicKey,
+            network,
+          }),
+          network,
+        }).address!;
+        break;
+      case 'p2pkh':
+        //Get Legacy Address (1)
+        address = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network }).address!;
+        break;
+    }
+    const value = {
+      address,
+      path,
+      publicKey: keyPair.publicKey.toString('hex'),
+    };
+    console.info('getBitcoinAddress: ', value.address);
+    return value.address;
+  } catch (e) {
+    return err(e);
+  }
 };
 
 export const getBitcoinScriptHash = async (

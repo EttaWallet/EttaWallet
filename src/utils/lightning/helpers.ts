@@ -13,7 +13,7 @@ import mmkvStorage, { StorageItem } from '../../storage/disk';
 import { getNodeVersion, isLdkRunning, keepLdkSynced, setupLdk } from '../../ldk';
 import store from '../../state/store';
 import {
-  createWallet,
+  createDefaultWallet,
   getBip39Passphrase,
   getSelectedNetwork,
   getSelectedWallet,
@@ -24,6 +24,8 @@ import { getKeychainValue } from '../keychain';
 import { InteractionManager } from 'react-native';
 import { connectToElectrum, subscribeToHeader } from '../electrum';
 import ldk from '@synonymdev/react-native-ldk/dist/ldk';
+
+import * as bitcoin from 'bitcoinjs-lib';
 
 const LDK_ACCOUNT_SUFFIX = 'ldkaccount';
 
@@ -333,7 +335,9 @@ export const startLightning = async ({
     // updateExchangeRates().then();
 
     // connect to electrum
-    const electrumResponse = await connectToElectrum({ selectedNetwork });
+    const electrumResponse = await connectToElectrum({
+      selectedNetwork,
+    });
     if (electrumResponse.isOk()) {
       isConnectedToElectrum = true;
       // Ensure the on-chain wallet & LDK syncs when a new block is detected.
@@ -341,6 +345,7 @@ export const startLightning = async ({
         refreshWallet({
           selectedNetwork,
         });
+        console.log('onReceive', onReceive);
       };
       // Ensure we are subscribed to and save new header information.
       subscribeToHeader({ selectedNetwork, onReceive }).then();
@@ -348,6 +353,7 @@ export const startLightning = async ({
 
     const mnemonicResponse = await getMnemonicPhrase();
     if (mnemonicResponse.isErr()) {
+      console.log('mnemonicResponse: ', mnemonicResponse);
       return err(mnemonicResponse.error.message);
     }
     const mnemonic = mnemonicResponse.value;
@@ -355,7 +361,7 @@ export const startLightning = async ({
     const walletExists = store.getState().wallet.walletExists;
     if (!walletExists) {
       const bip39Passphrase = await getBip39Passphrase();
-      const createRes = await createWallet({ mnemonic, bip39Passphrase });
+      const createRes = await createDefaultWallet({ mnemonic, bip39Passphrase });
       if (createRes.isErr()) {
         return err(createRes.error.message);
       }
@@ -442,7 +448,7 @@ export const getLdkAccount = async ({
   if (!selectedNetwork) {
     selectedNetwork = getSelectedNetwork();
   }
-  const mnemonicPhrase = await getMnemonicPhrase(selectedWallet);
+  const mnemonicPhrase = await getMnemonicPhrase();
   if (mnemonicPhrase.isErr()) {
     return err(mnemonicPhrase.error.message);
   }

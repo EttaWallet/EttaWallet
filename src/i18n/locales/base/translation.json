@@ -11,7 +11,7 @@
     "selectCurrency": "Select local currency",
     "welcome": {
         "subtitle": "Bitcoin is for all of us",
-        "createNewWallet": "Get started",
+        "createNewWallet": "Create new wallet",
         "restoreWallet": "Restore existing wallet",
         "iAlreadyHaveAWallet": "I already have a wallet",
         "footer": "100% open source \n Baked in 🇺🇬 and 🇰🇪"

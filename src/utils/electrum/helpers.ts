@@ -17,7 +17,6 @@ import store from '../../state/store';
 import * as bitcoin from 'bitcoinjs-lib';
 import { THeader } from '@synonymdev/react-native-ldk';
 import { header as defaultHeader } from '../types';
-import { objectKeys } from '../helpers';
 
 export const CHUNK_LIMIT = 15; // control # requests to electrum
 export const GAP_LIMIT = 20;
@@ -151,7 +150,7 @@ export const updateHeader = ({
  */
 export const getBestBlock = async (): Promise<THeader> => {
   try {
-    const header = store.getState().wallet.header;
+    const header = getWalletStore().header;
     return header?.hash ? header : defaultHeader;
   } catch (e) {
     console.log(e);
@@ -285,36 +284,6 @@ export const subscribeToAddresses = async ({
 }): Promise<Result<string>> => {
   if (!selectedNetwork) {
     selectedNetwork = getSelectedNetwork();
-  }
-  const currentWallet = getWalletStore().walletinfo;
-
-  const addressTypes = objectKeys(getWalletStore().addressTypes);
-
-  // Gather the receiving address scripthash for each address type if no scripthashes were provided.
-  if (!scriptHashes.length) {
-    for (const addressType of addressTypes) {
-      // Check if addresses of this type have been generated. If not, skip.
-      const addressCount = Object.keys(
-        currentWallet.addresses[selectedNetwork][addressType]
-      )?.length;
-      if (addressCount > 0) {
-        const addresses = currentWallet.addresses[selectedNetwork][addressType];
-        let addressIndex = currentWallet.addressIndex[selectedNetwork][addressType]?.index;
-        addressIndex = addressIndex > 0 ? addressIndex : 0;
-        const addressesToSubscribeTo = Object.values(addresses).filter(
-          (a) => Math.abs(a.index - addressIndex) <= GAP_LIMIT
-        );
-        let i = 0;
-        for (const { scriptHash } of addressesToSubscribeTo) {
-          // Only subscribe up to the gap limit.
-          if (i > GAP_LIMIT) {
-            break;
-          }
-          scriptHashes.push(scriptHash);
-          i++;
-        }
-      }
-    }
   }
 
   // Subscribe to all provided scriphashes.

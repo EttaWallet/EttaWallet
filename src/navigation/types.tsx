@@ -42,7 +42,6 @@ export type StackParamList = {
   [Screens.DrawerNavigator]: undefined;
   [Screens.ManualBackupScreen]: undefined;
   [Screens.ManualBackupQuizScreen]: undefined;
-  [Screens.SeedPhraseScreen]: undefined;
   [Screens.SettingsScreen]: undefined;
   [Screens.HelpScreen]: undefined;
   [Screens.FAQScreen]: undefined;
@@ -57,4 +56,5 @@ export type StackParamList = {
     liquidityAmount?: string;
     paymentRequest?: string;
   };
+  [Screens.ChannelsScreen]: undefined;
 };

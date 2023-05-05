@@ -52,14 +52,12 @@ const useLiquidityOptionBottomSheet = () => {
     async function fetchInvoice() {
       setIsLoading(true);
       try {
-        // check if LDK is up
+        // ensure Ldk is up
         const isLdkUp = await isLdkRunning();
-        // if nuh, start all lightning services
         if (!isLdkUp) {
           await startLightning({});
-          // check for node ID
-          await waitForLdk();
         }
+        await waitForLdk();
         // proceed to create invoice
         const generateInvoice = await createLightningInvoice({
           amountSats: parseInt(liquidityAmount, 10),

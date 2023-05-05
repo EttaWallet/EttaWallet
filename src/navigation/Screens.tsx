@@ -16,7 +16,6 @@ export enum Screens {
   DrawerNavigator = 'DrawerNavigator',
   ManualBackupScreen = 'ManualBackupScreen',
   ManualBackupQuizScreen = 'ManualBackupQuizScreen',
-  SeedPhraseScreen = 'SeedPhraseScreen',
   SettingsScreen = 'SettingsScreen',
   HelpScreen = 'HelpScreen',
   FAQScreen = 'FAQScreen',
@@ -25,4 +24,5 @@ export enum Screens {
   ReceiveScreen = 'ReceiveScreen',
   LightningChannelsIntroScreen = 'LightningChannelsIntroScreen',
   JITLiquidityScreen = 'JITLiquidityScreen',
+  ChannelsScreen = 'ChannelsScreen',
 }

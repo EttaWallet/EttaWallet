@@ -137,6 +137,7 @@ export const connectToElectrum = async ({
   if (!customPeers) {
     customPeers = getCustomElectrumPeers({ selectedNetwork });
   }
+  // if no custom peers, use default peers from state
   if (customPeers.length < 1) {
     customPeers = tempElectrumServers[selectedNetwork];
   }
@@ -360,7 +361,7 @@ export const broadcastTransaction = async ({
       if (scriptHash) {
         await subscribeToAddresses({
           selectedNetwork,
-          scriptHashes: [scriptHash.value],
+          scriptHashes: [scriptHash],
         });
       }
     }

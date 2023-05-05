@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, TypographyPresets, Colors, Icon } from 'etta-ui';
 import { SafeAreaView, View, StyleSheet, Text } from 'react-native';
@@ -9,8 +9,14 @@ import LanguageChip from '../components/LanguageChip';
 import { useStoreState, useStoreActions } from '../state/hooks';
 import { APP_NAME } from '../../config';
 import { PinType } from '../utils/types';
+import { sleep } from '../utils/helpers';
+import { createDefaultWallet } from '../utils/wallet';
+import Logger from '../utils/logger';
+
+const TAG = 'WelcomeScreen';
 
 const WelcomeScreen = () => {
+  const [creatingWallet, setCreatingWallet] = useState(false);
   const acknowledgedDisclaimer = useStoreState((state) => state.nuxt.acknowledgedDisclaimer);
   const pincodeType = useStoreState((state) => state.nuxt.pincodeType);
   const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType);
@@ -40,10 +46,23 @@ const WelcomeScreen = () => {
     }
   };
 
-  const createWalletHandler = () => {
-    setChoseRestore(false);
-    navigateNext();
-  };
+  const createWalletHandler = useCallback(async (): Promise<void> => {
+    setCreatingWallet(true);
+    await sleep(500); // wait
+    const res = await createDefaultWallet({});
+    if (res.isErr()) {
+      setCreatingWallet(false);
+      Logger.error(`${TAG}/createWalletHandler`, res.error.message);
+    } else {
+      // show success notification
+      setCreatingWallet(false);
+      // redirect when ready
+      requestAnimationFrame(() => {
+        navigateNext();
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const restoreWalletHandler = () => {
     setChoseRestore(true);
@@ -60,12 +79,13 @@ const WelcomeScreen = () => {
         <Text style={styles.appName}>{APP_NAME}</Text>
         <Text style={styles.subtitle}>{t('welcome.subtitle')}</Text>
       </View>
-      <View style={styles.headers}>
+      <View style={styles.buttonContainer}>
         <Button
           style={styles.button}
-          title={t('welcome.createNewWallet')}
+          title={!creatingWallet ? t('welcome.createNewWallet') : 'Creating wallet ...'}
           appearance="filled"
           onPress={createWalletHandler}
+          disabled={creatingWallet}
         />
         <Button
           style={styles.button}
@@ -90,7 +110,6 @@ const styles = StyleSheet.create({
   headers: {
     flex: 1,
     justifyContent: 'flex-start',
-    marginTop: 60,
   },
   iconContainer: {
     alignSelf: 'center',
@@ -117,6 +136,9 @@ const styles = StyleSheet.create({
     marginBottom: 50,
     textAlign: 'center',
     color: Colors.neutrals.light.neutral7,
+  },
+  buttonContainer: {
+    marginTop: 100,
   },
   button: {
     marginBottom: 10,

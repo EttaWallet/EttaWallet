@@ -51,14 +51,12 @@ const ReceiveScreen = (props: Props) => {
   useEffect(() => {
     async function fetchInvoice() {
       try {
-        // check if LDK is up
+        // ensure Ldk is up
         const isLdkUp = await isLdkRunning();
-        // if nuh, start all lightning services
         if (!isLdkUp) {
           await startLightning({});
-          // check for node ID
-          await waitForLdk();
         }
+        await waitForLdk();
         // proceed to create invoice
         const invoiceString = await createLightningInvoice({
           amountSats: amount, // amountSats is optional

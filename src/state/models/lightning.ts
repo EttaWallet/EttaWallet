@@ -4,6 +4,7 @@ import { TLightningNodeVersion, TLightningPayment, TOpenChannelIds } from '../..
 import { TChannel, TInvoice } from '@synonymdev/react-native-ldk';
 import { startLightning } from '../../utils/lightning/helpers';
 import logger from '../../utils/logger';
+import { isLdkRunning, waitForLdk } from '../../ldk';
 
 const TAG = 'LightningStore';
 
@@ -48,11 +49,16 @@ export const lightningModel: LightningNodeModelType = {
   setLdkVersion: action((state, payload) => {
     state.ldkVersion = payload;
   }),
-  startLdk: thunk(async (actions, _, { getState }) => {
+  startLdk: thunk(async () => {
     try {
-      await startLightning({
-        selectedNetwork: 'bitcoinTestnet', // defaulting to testnet for now
-      });
+      // check if LDK is up
+      const isLdkUp = await isLdkRunning();
+      // if nuh, start all lightning services (testnet)
+      if (!isLdkUp) {
+        await startLightning({ selectedNetwork: 'bitcoinTestnet' });
+        // check for node ID
+        await waitForLdk();
+      }
     } catch (error) {
       logger.error(TAG, '@startLdk', error.message);
     }

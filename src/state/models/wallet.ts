@@ -4,24 +4,17 @@ import {
   EAddressType,
   EBoostType,
   EFeeId,
-  IAddress,
-  IAddressTypeContent,
   IAddressTypes,
-  IAddresses,
   IBitcoinTransactionData,
   IFormattedTransactions,
   IHeader,
   IKeyDerivationPath,
   IOnchainFees,
-  IUtxo,
   IWallet,
   IWalletItem,
   TWalletName,
-  addressContent,
   addressTypes,
-  arrayTypeItems,
   defaultKeyDerivationPath,
-  getAddressTypeContent,
   numberTypeItems,
   objectTypeItems,
 } from '../../utils/types';
@@ -55,24 +48,6 @@ export const bitcoinTransaction: Readonly<IWalletItem<IBitcoinTransactionData>> 
   bitcoinRegtest: defaultBitcoinTransactionData,
 };
 
-export const getAddressIndexShape = (): IWalletItem<IAddressTypeContent<IAddress>> => {
-  return cloneDeep({
-    [EAvailableNetworks.bitcoin]: getAddressTypeContent<IAddress>(addressContent),
-    [EAvailableNetworks.bitcoinTestnet]: getAddressTypeContent<IAddress>(addressContent),
-    [EAvailableNetworks.bitcoinRegtest]: getAddressTypeContent<IAddress>(addressContent),
-    timestamp: null,
-  });
-};
-
-export const getAddressesShape = (): IWalletItem<IAddressTypeContent<IAddresses>> => {
-  return cloneDeep({
-    [EAvailableNetworks.bitcoin]: getAddressTypeContent<IAddresses>({}),
-    [EAvailableNetworks.bitcoinTestnet]: getAddressTypeContent<IAddresses>({}),
-    [EAvailableNetworks.bitcoinRegtest]: getAddressTypeContent<IAddresses>({}),
-    timestamp: null,
-  });
-};
-
 export interface WalletModelType {
   walletExists: boolean;
   selectedNetwork: TAvailableNetworks;
@@ -83,15 +58,8 @@ export interface WalletModelType {
     id: TWalletName;
     name: string;
     type: string;
-    addresses: IWalletItem<IAddressTypeContent<IAddresses>>;
-    addressIndex: IWalletItem<IAddressTypeContent<IAddress>>;
-    lastUsedAddressIndex: IWalletItem<IAddressTypeContent<IAddress>>;
-    changeAddresses: IWalletItem<IAddressTypeContent<IAddresses>>;
-    changeAddressIndex: IWalletItem<IAddressTypeContent<IAddress>>;
-    lastUsedChangeAddressIndex: IWalletItem<IAddressTypeContent<IAddress>>;
-    utxos: IWalletItem<IUtxo[]>;
+    addressIndex: number;
     transactions: IWalletItem<IFormattedTransactions>;
-    blacklistedUtxos: IWalletItem<[]>;
     balance: IWalletItem<number>;
     lastUpdated: IWalletItem<number>;
     hasBackedUpWallet: boolean;
@@ -103,15 +71,14 @@ export interface WalletModelType {
       bitcoinTestnet: EAddressType;
       bitcoinRegtest: EAddressType;
     };
-    rbfData: IWalletItem<object>;
     transaction: IWalletItem<IBitcoinTransactionData>;
   };
+  setWalletExists: Action<WalletModelType, boolean>;
+  setAddressIndex: Action<WalletModelType, number>;
   setHeader: Action<WalletModelType, IHeader>;
   updateWalletInfo: Action<WalletModelType, Partial<WalletModelType['walletinfo']>>;
   fees: IOnchainFees;
   updateFees: Action<WalletModelType, IOnchainFees>;
-  setAddresses: Action<WalletModelType, Partial<WalletModelType['walletinfo']>>;
-  setAddressIndexes: Action<WalletModelType, Partial<WalletModelType['walletinfo']>>;
 }
 
 export const walletModel: WalletModelType = {
@@ -124,15 +91,8 @@ export const walletModel: WalletModelType = {
     id: 'wallet0',
     name: '',
     type: 'default',
-    addresses: getAddressesShape(),
-    addressIndex: getAddressIndexShape(),
-    lastUsedAddressIndex: getAddressIndexShape(),
-    changeAddresses: getAddressesShape(),
-    changeAddressIndex: getAddressIndexShape(),
-    lastUsedChangeAddressIndex: getAddressIndexShape(),
-    utxos: arrayTypeItems,
+    addressIndex: 0,
     transactions: objectTypeItems,
-    blacklistedUtxos: arrayTypeItems,
     balance: numberTypeItems,
     lastUpdated: numberTypeItems,
     hasBackedUpWallet: false,
@@ -155,7 +115,6 @@ export const walletModel: WalletModelType = {
       bitcoinTestnet: EAddressType.p2wpkh,
       bitcoinRegtest: EAddressType.p2wpkh,
     },
-    rbfData: objectTypeItems,
     transaction: bitcoinTransaction,
   },
   fees: {
@@ -165,6 +124,12 @@ export const walletModel: WalletModelType = {
     minimum: 1,
     timestamp: Date.now() - 60 * 30 * 1000 - 1, // minus 30 mins
   },
+  setAddressIndex: action((state, payload) => {
+    state.walletinfo.addressIndex = payload;
+  }),
+  setWalletExists: action((state, payload) => {
+    state.walletExists = payload;
+  }),
   setHeader: action((state, payload) => {
     state.header = payload;
   }),
@@ -178,53 +143,8 @@ export const walletModel: WalletModelType = {
       ...payload,
     };
   }),
-  setAddresses: action((state, payload) => {
-    state.walletinfo.addresses = { ...state.walletinfo.addresses, ...payload };
-  }),
-  setAddressIndexes: action((state, payload) => {
-    state.walletinfo.addressIndex = { ...state.walletinfo.addressIndex, ...payload };
-  }),
-};
-
-export const defaultWalletShape: Readonly<IWallet> = {
-  id: 'wallet0',
-  name: '',
-  type: 'default',
-  addresses: getAddressesShape(),
-  addressIndex: getAddressIndexShape(),
-  lastUsedAddressIndex: getAddressIndexShape(),
-  changeAddresses: getAddressesShape(),
-  changeAddressIndex: getAddressIndexShape(),
-  lastUsedChangeAddressIndex: getAddressIndexShape(),
-  utxos: arrayTypeItems,
-  transactions: objectTypeItems,
-  blacklistedUtxos: arrayTypeItems,
-  balance: numberTypeItems,
-  lastUpdated: numberTypeItems,
-  hasBackedUpWallet: false,
-  walletBackupTimestamp: '',
-  keyDerivationPath: {
-    bitcoin: defaultKeyDerivationPath,
-    bitcoinTestnet: {
-      ...defaultKeyDerivationPath,
-      coinType: '0',
-    },
-    bitcoinRegtest: defaultKeyDerivationPath,
-  },
-  networkTypePath: {
-    bitcoin: '0',
-    bitcoinTestnet: '1',
-    bitcoinRegtest: '0',
-  },
-  addressType: {
-    bitcoin: EAddressType.p2wpkh,
-    bitcoinTestnet: EAddressType.p2wpkh,
-    bitcoinRegtest: EAddressType.p2wpkh,
-  },
-  rbfData: objectTypeItems,
-  transaction: bitcoinTransaction,
 };
 
 export const getDefaultWalletShape = (): IWallet => {
-  return cloneDeep(defaultWalletShape);
+  return cloneDeep(walletModel.walletinfo);
 };
