@@ -79,9 +79,10 @@ export const lightningModel: LightningNodeModelType = {
     // get number of secs since unix epoch at this time
     const nowInSecs = Math.floor(Date.now() / 1000);
     // filter out current invoices
-    state.invoices = state.invoices.filter(
+    const currentInvoices = state.invoices.filter(
       (invoice) => invoice.timestamp + invoice.expiry_time > nowInSecs
     );
+    state.invoices = currentInvoices;
   }),
   updateChannels: action((state, payload) => {
     state.channels = {

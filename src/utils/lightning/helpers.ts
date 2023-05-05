@@ -284,8 +284,6 @@ export const addPeers = async ({
 
 /**
  * Filters out and removes expired invoices from the invoices array
- * @param {TAvailableNetworks} [selectedNetwork]
- * @param {TWalletName} [selectedWallet]
  * @returns {Promise<Result<string>>}
  */
 export const removeExpiredInvoices = async (): Promise<Result<string>> => {
