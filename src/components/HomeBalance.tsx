@@ -1,20 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React from 'react';
 import { Platform, StyleProp, StyleSheet, Text, TextStyle, View } from 'react-native';
 import { Icon, TypographyPresets } from 'etta-ui';
-import { getTotalBalance } from '../utils/lightning/helpers';
+import { getLightningStore } from '../utils/lightning/helpers';
 
 export const HomeBalance = ({ style = styles.balance }: { style?: StyleProp<TextStyle> }) => {
-  const [balance, setBalance] = useState(0);
-
-  const getLightningBalance = useMemo(() => {
-    const totalBalance = getTotalBalance({});
-    setBalance(totalBalance);
-    return totalBalance;
-  }, []);
-
-  useEffect(() => {
-    getLightningBalance;
-  }, [getLightningBalance]);
+  const balance = getLightningStore().claimableBalance;
 
   const fiatValue: number = 0;
 

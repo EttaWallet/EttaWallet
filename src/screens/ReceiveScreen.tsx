@@ -59,7 +59,7 @@ const ReceiveScreen = (props: Props) => {
         await waitForLdk();
         // proceed to create invoice
         const invoiceString = await createLightningInvoice({
-          amountSats: amount, // amountSats is optional
+          amountSats: 10000, // amountSats is optional
           description: description,
           expiryDeltaSeconds: 3600,
         });

@@ -512,27 +512,23 @@ export const updateLightningChannels = async (): Promise<Result<TChannel[]>> => 
 /**
  * Retrieves the total wallet display values for the currently selected wallet and network.
  * @param {boolean} [subtractReserveBalance]
- * @param {TAvailableNetworks} [selectedNetwork]
  */
 export const getTotalBalance = ({
   subtractReserveBalance = true,
-  selectedNetwork,
 }: {
   subtractReserveBalance?: boolean;
-  selectedNetwork?: TAvailableNetworks;
 }): number => {
-  if (!selectedNetwork) {
-    selectedNetwork = getSelectedNetwork();
-  }
+  let balance = 0;
 
-  let balance: number = 0;
-
+  // get openchannel ids from lightning store
   const openChannelIds = getLightningStore().openChannelIds;
+  // get all channels from lightning store
   const channels = getLightningStore().channels;
+  // filter channels array so we only remain with open channels
   const openChannels = Object.values(channels).filter((channel) => {
     return openChannelIds.includes(channel.channel_id);
   });
-
+  // reduce the balance_sat from each ready channel into one sum and compute for punishment reserve if desired
   balance = Object.values(openChannels).reduce((previousValue, currentChannel) => {
     if (currentChannel.is_channel_ready) {
       let reserveBalance = 0;
@@ -544,6 +540,7 @@ export const getTotalBalance = ({
     return previousValue;
   }, balance);
 
+  console.log('@getTotalBalance:', balance);
   return balance;
 };
 
@@ -564,7 +561,6 @@ export const getClaimableBalance = async ({
     selectedNetwork = getSelectedNetwork();
   }
   const lightningBalance = getTotalBalance({
-    selectedNetwork,
     subtractReserveBalance: false,
   });
   const claimableBalanceRes = await ldk.claimableBalances(ignoreOpenChannels);

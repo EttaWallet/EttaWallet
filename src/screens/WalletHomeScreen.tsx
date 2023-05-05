@@ -18,11 +18,7 @@ import ContactsButton from '../navigation/components/ContactsButton';
 import { moderateScale, scale, verticalScale } from '../utils/sizing';
 import { HomeBalance } from '../components/HomeBalance';
 import { isLdkRunning, waitForLdk } from '../ldk';
-import {
-  startLightning,
-  updateClaimableBalance,
-  updateLightningChannels,
-} from '../utils/lightning/helpers';
+import { startLightning } from '../utils/lightning/helpers';
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
@@ -43,8 +39,6 @@ const WalletHomeScreen = () => {
     if (!isLdkUp) {
       await startLightning({});
     }
-    await updateLightningChannels();
-    await updateClaimableBalance({});
     await waitForLdk();
     setRefreshing(false);
   }, []);
