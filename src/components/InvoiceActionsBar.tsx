@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { Button } from 'etta-ui';
@@ -17,10 +17,14 @@ interface ActionProps {
 const InvoiceActionsBar = (props: ActionProps) => {
   const { t } = useTranslation();
 
+  const [copied, setCopied] = useState(false);
+
   const onPressCopy = () => {
+    setCopied(false);
     Clipboard.setString(props.paymentRequest || '');
     Logger.showMessage(t('Invoice copied to clipboard'));
     cueInformativeHaptic();
+    setCopied(true);
   };
 
   const onPressShare = () => {
@@ -46,12 +50,12 @@ const InvoiceActionsBar = (props: ActionProps) => {
         size={props.smallButtons === true ? 'small' : 'default'}
       />
       <Button
-        title="Copy"
+        title={copied ? 'Copied' : 'Copy'}
         style={{ marginLeft: 5, marginRight: 5 }}
-        icon="icon-copy"
+        icon={copied ? 'icon-check' : 'icon-copy'}
         iconPosition="left"
         onPress={onPressCopy}
-        appearance="outline"
+        appearance={copied ? 'filled' : 'outline'}
         size={props.smallButtons === true ? 'small' : 'default'}
       />
       {props.allowModifier ? (

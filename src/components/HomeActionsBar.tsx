@@ -7,15 +7,28 @@ import { HomeButton, Colors } from 'etta-ui';
 import { moderateScale, verticalScale } from '../utils/sizing';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 
-export default function HomeActionsBar() {
+interface Props {
+  onRequest?: () => void;
+  onSend?: () => void;
+}
+
+export default function HomeActionsBar(props: Props) {
   const onPressSend = () => {
     cueInformativeHaptic();
-    // if no open channels go lighting intro and channel setup
-    navigate(Screens.LightningChannelsIntroScreen);
+    if (props.onSend) {
+      props.onSend?.();
+    } else {
+      navigate(Screens.LightningChannelsIntroScreen);
+    }
   };
 
   const onPressRequest = () => {
-    navigate(Screens.ReceiveScreen, {});
+    cueInformativeHaptic();
+    if (props.onRequest) {
+      props.onRequest?.();
+    } else {
+      navigate(Screens.ReceiveScreen, {});
+    }
   };
 
   const onPressQrCode = () => {

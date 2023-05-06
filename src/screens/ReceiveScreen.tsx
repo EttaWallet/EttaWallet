@@ -19,6 +19,8 @@ import InvoiceActionsBar from '../components/InvoiceActionsBar';
 import usePaymentRequestBottomSheet from '../components/usePaymentRequestBottomSheet';
 import { StackParamList } from '../navigation/types';
 import { Screens } from '../navigation/Screens';
+import i18n from '../i18n';
+import { humanizeTimestamp } from '../utils/time';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
 const QR_CODE_WIDTH = WINDOW_WIDTH - 150;
@@ -28,25 +30,21 @@ type Props = RouteProps;
 
 const ReceiveScreen = (props: Props) => {
   const [invoice, setInvoice] = useState('');
-  const [amount, setAmount] = useState(0);
   const [timestamp, setTimestamp] = useState(0);
-  const [description, setDescription] = useState(`Pay lightining invoice for ${amount} sats`);
   const [expiry, setExpiry] = useState(3600);
   const [isLoading, setIsLoading] = useState(true);
 
-  const { openSheet, ModifyInvoiceBottomSheet } = usePaymentRequestBottomSheet({
+  const amount = props.route.params?.amount || '0';
+  const description =
+    props.route.params?.description || `Pay lightining invoice for ${amount} sats`;
+
+  // get expiry in epoch time as sum of timestamp/duration_since_epoch and expiry
+  const invoiceExpires = humanizeTimestamp(timestamp + expiry, i18n);
+
+  const { openPaymentRequestSheet, ModifyInvoiceBottomSheet } = usePaymentRequestBottomSheet({
     amountInSats: amount,
-    timestamp: timestamp,
-    valid_for: expiry,
+    description: description,
   });
-
-  const modifiedAmount = props.route.params?.modifiedAmount;
-  const modifiedDescription = props.route.params?.modifiedDescription;
-
-  if (modifiedAmount !== amount || modifiedDescription !== description) {
-    setAmount(modifiedAmount!);
-    setDescription(modifiedDescription!);
-  }
 
   useEffect(() => {
     async function fetchInvoice() {
@@ -59,7 +57,7 @@ const ReceiveScreen = (props: Props) => {
         await waitForLdk();
         // proceed to create invoice
         const invoiceString = await createLightningInvoice({
-          amountSats: 10000, // amountSats is optional
+          amountSats: parseInt(amount, 10), // amountSats is optional
           description: description,
           expiryDeltaSeconds: 3600,
         });
@@ -90,12 +88,15 @@ const ReceiveScreen = (props: Props) => {
         {isLoading ? (
           <ActivityIndicator color={Colors.orange.base} />
         ) : (
-          <QRCode
-            value={`lightning:${invoice}`}
-            size={QR_CODE_WIDTH}
-            backgroundColor={Colors.common.white}
-            color={Colors.common.black}
-          />
+          <>
+            <QRCode
+              value={`lightning:${invoice}`}
+              size={QR_CODE_WIDTH}
+              backgroundColor={Colors.common.white}
+              color={Colors.common.black}
+            />
+            <Text style={styles.advice}>{`This request will expire on ${invoiceExpires}`}</Text>
+          </>
         )}
       </View>
       <View style={styles.buttonContainer}>
@@ -105,7 +106,8 @@ const ReceiveScreen = (props: Props) => {
           <InvoiceActionsBar
             paymentRequest={invoice}
             allowModifier={true}
-            onPressModify={openSheet}
+            onPressModify={openPaymentRequestSheet}
+            smallButtons={true}
           />
         )}
       </View>
@@ -133,9 +135,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerContainer: {
+    marginTop: 32,
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
   },
   buttonContainer: {
     flex: 1,
@@ -149,6 +151,10 @@ const styles = StyleSheet.create({
     color: Colors.neutrals.light.neutral6,
     marginHorizontal: moderateScale(16),
     textAlign: 'center',
+  },
+  advice: {
+    ...TypographyPresets.Body5,
+    marginVertical: 20,
   },
 });
 

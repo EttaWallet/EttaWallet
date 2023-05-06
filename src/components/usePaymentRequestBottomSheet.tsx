@@ -2,7 +2,7 @@ import BottomSheet, {
   BottomSheetBackdrop,
   useBottomSheetDynamicSnapPoints,
 } from '@gorhom/bottom-sheet';
-import { Button, Colors, TypographyPresets } from 'etta-ui';
+import { Button, Colors, Icon, TypographyPresets } from 'etta-ui';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
@@ -10,48 +10,45 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import FormInput from './form/Input';
-import i18n from '../i18n';
-import { humanizeTimestamp } from '../utils/time';
+import CancelButton from '../navigation/components/CancelButton';
+import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 
 interface Props {
-  amountInSats?: number;
-  timestamp?: number; // since unix epoch
-  valid_for?: number;
+  amountInSats?: string;
+  description?: string;
 }
 const usePaymentRequestBottomSheet = (invoiceProps: Props) => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const paddingBottom = Math.max(insets.bottom, 24);
 
-  const [invoiceAmount, setInvoiceAmount] = useState(invoiceProps.amountInSats?.toString());
+  const [newAmount, setNewAmount] = useState('0');
+  const [newDescription, setNewDescription] = useState(`Request for ${newAmount} sats`);
+  const [modifiedAmount, setModifiedAmount] = useState(invoiceProps.amountInSats);
   const [senderName, setSenderName] = useState('');
-  const [invoiceNote, setInvoiceNote] = useState(
-    senderName
-      ? `Pay invoice for ${invoiceAmount} sats from ${senderName}`
-      : `Pay invoice for ${invoiceAmount} sats`
+  const [modifiedDescription, setModifiedDescription] = useState(
+    invoiceProps.description
+      ? invoiceProps.description
+      : `Payment request for ${modifiedAmount} sats`
   );
 
   // @TODO: get remote balance programatically
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [maxReceivable, setMaxReceivable] = useState(20000);
 
-  // handling updates via bottomSheet
-  const [modifiedAmount, setModifiedAmount] = useState(0);
-  const [modifiedDescription, setModifiedDescription] = useState('');
-
-  // get human readable date/time strings for invoice timestamp and expiry
-  const invoiceCreated = humanizeTimestamp(invoiceProps.timestamp!, i18n);
-  // get expiry in epoch time as sum of timestamp/duration_since_epoch and expiry
-  const invoiceExpires = humanizeTimestamp(invoiceProps.timestamp! + invoiceProps.valid_for!, i18n);
-
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  const paymentRequestBottomSheetRef = useRef<BottomSheet>(null);
+  const sendBottomSheetRef = useRef<BottomSheet>(null);
 
   const initialSnapPoints = useMemo(() => ['CONTENT_HEIGHT'], []);
   const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
     useBottomSheetDynamicSnapPoints(initialSnapPoints);
 
-  const openSheet = () => {
-    bottomSheetRef.current?.snapToIndex(0);
+  const openPaymentRequestSheet = () => {
+    paymentRequestBottomSheetRef.current?.snapToIndex(0);
+  };
+
+  const openSendSheet = () => {
+    sendBottomSheetRef.current?.snapToIndex(0);
   };
 
   const renderBackdrop = useCallback(
@@ -63,26 +60,26 @@ const usePaymentRequestBottomSheet = (invoiceProps: Props) => {
   );
 
   const maxReceiveColor =
-    parseInt(invoiceAmount!, 10)! < maxReceivable
+    parseInt(modifiedAmount!, 10)! < maxReceivable
       ? Colors.neutrals.light.neutral5
       : Colors.red.base;
 
-  const ModifyInvoiceBottomSheet = useMemo(() => {
-    const onPressUpdate = () => {
-      //@todo: validate amount. Should not exceed remote balance
-      // update the invoice in state and return to receive screen
-      setModifiedAmount(parseInt(invoiceAmount!, 10));
-      setModifiedDescription(invoiceNote);
-      bottomSheetRef.current?.close();
-      navigate(Screens.ReceiveScreen, {
-        modifiedAmount: modifiedAmount ? modifiedAmount : parseInt(invoiceAmount!, 10),
-        modifiedDescription: modifiedDescription ? modifiedDescription : invoiceNote,
-      });
+  const sendBitcoinBottomSheet = useMemo(() => {
+    const onPressSend = () => {
+      cueInformativeHaptic();
+      sendBottomSheetRef.current?.close();
+      // pay invoice and navigate to success screen
+    };
+
+    const onPressCancel = () => {
+      cueInformativeHaptic();
+      sendBottomSheetRef.current?.close();
+      // clear values in state first?
     };
 
     return (
       <BottomSheet
-        ref={bottomSheetRef}
+        ref={sendBottomSheetRef}
         index={-1}
         snapPoints={animatedSnapPoints}
         handleHeight={animatedHandleHeight}
@@ -92,13 +89,103 @@ const usePaymentRequestBottomSheet = (invoiceProps: Props) => {
         handleIndicatorStyle={styles.handle}
       >
         <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
-          <Text style={styles.title}>{t('Update payment request')}</Text>
-          <Text style={styles.timeCreated}>{`Created on ${invoiceCreated}`}</Text>
+          <View style={styles.cancelBtn}>
+            <CancelButton onCancel={onPressCancel} />
+          </View>
+          <View style={styles.iconContainer}>
+            <Icon name="icon-arrow-up" style={styles.actionIcon} />
+          </View>
+          <Text style={styles.title}>{t('Send bitcoin')}</Text>
           <FormInput
             label={t('Amount')}
             style={styles.amount}
-            onChangeText={setInvoiceAmount}
-            value={invoiceAmount}
+            onChangeText={setNewAmount}
+            value={newAmount}
+            enablesReturnKeyAutomatically={true}
+            placeholder="Amount in sats" // should pass value of amount from receive Screen
+            multiline={false}
+            keyboardType={'decimal-pad'}
+          />
+          {/* Calculate total amount receivable and validate on input
+           * This text should be clickable for more information bottom sheet about remote balance
+           */}
+          <Text
+            style={[styles.maxReceive, { color: maxReceiveColor }]}
+          >{`The maximum amount you can send is ${maxReceivable} sats`}</Text>
+          {/* @TODO: Add a section to select sender from the contact list */}
+          <FormInput
+            label={t('To')}
+            style={styles.field}
+            onChangeText={setSenderName}
+            value={senderName}
+            enablesReturnKeyAutomatically={true}
+            placeholder={t('Pick contact or paste invoice')!}
+            multiline={false}
+          />
+          <Button
+            title="Send payment"
+            onPress={onPressSend}
+            size="default"
+            appearance="filled"
+            style={styles.button}
+          />
+        </View>
+      </BottomSheet>
+    );
+  }, [
+    animatedSnapPoints,
+    animatedHandleHeight,
+    animatedContentHeight,
+    renderBackdrop,
+    paddingBottom,
+    handleContentLayout,
+    t,
+    newAmount,
+    maxReceiveColor,
+    maxReceivable,
+    senderName,
+  ]);
+
+  const newPaymentRequestBottomSheet = useMemo(() => {
+    const onPressCancel = () => {
+      cueInformativeHaptic();
+      paymentRequestBottomSheetRef.current?.close();
+      // clear values in state first?
+    };
+
+    const onPressContinue = () => {
+      cueInformativeHaptic();
+      paymentRequestBottomSheetRef.current?.close();
+      navigate(Screens.ReceiveScreen, {
+        amount: newAmount,
+        description: newDescription,
+      });
+    };
+
+    return (
+      <BottomSheet
+        ref={paymentRequestBottomSheetRef}
+        index={-1}
+        snapPoints={animatedSnapPoints}
+        handleHeight={animatedHandleHeight}
+        contentHeight={animatedContentHeight}
+        enablePanDownToClose
+        backdropComponent={renderBackdrop}
+        handleIndicatorStyle={styles.handle}
+      >
+        <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
+          <View style={styles.cancelBtn}>
+            <CancelButton onCancel={onPressCancel} />
+          </View>
+          <View style={styles.iconContainer}>
+            <Icon name="icon-arrow-down" style={styles.actionIcon} />
+          </View>
+          <Text style={styles.title}>{t('New payment request')}</Text>
+          <FormInput
+            label={t('Amount')}
+            style={styles.amount}
+            onChangeText={setNewAmount}
+            value={newAmount}
             enablesReturnKeyAutomatically={true}
             placeholder="Amount in sats" // should pass value of amount from receive Screen
             multiline={false}
@@ -112,26 +199,122 @@ const usePaymentRequestBottomSheet = (invoiceProps: Props) => {
           >{`The maximum amount you can receive is ${maxReceivable} sats`}</Text>
           {/* @TODO: Add a section to select sender from the contact list */}
           <FormInput
-            label={t('Your name')}
+            label={t('Description')}
+            style={styles.field}
+            onChangeText={setNewDescription}
+            value={newDescription}
+            enablesReturnKeyAutomatically={true}
+            placeholder={t('What is this transaction for?')!}
+            maxLength={25}
+            multiline={false}
+          />
+          <Button
+            title="Continue"
+            onPress={onPressContinue}
+            size="default"
+            appearance="filled"
+            style={styles.button}
+          />
+        </View>
+      </BottomSheet>
+    );
+  }, [
+    animatedSnapPoints,
+    animatedHandleHeight,
+    animatedContentHeight,
+    renderBackdrop,
+    paddingBottom,
+    handleContentLayout,
+    t,
+    newAmount,
+    maxReceiveColor,
+    maxReceivable,
+    newDescription,
+  ]);
+
+  const ModifyInvoiceBottomSheet = useMemo(() => {
+    const onPressCancel = () => {
+      cueInformativeHaptic();
+      paymentRequestBottomSheetRef.current?.close();
+      // clear values in state first?
+    };
+
+    const onPressUpdate = () => {
+      cueInformativeHaptic();
+      //@todo: validate amount. Should not exceed remote balance
+      // update the invoice in state and return to receive screen
+      paymentRequestBottomSheetRef.current?.close();
+      navigate(Screens.ReceiveScreen, {
+        amount: modifiedAmount ? modifiedAmount : newAmount,
+        description: modifiedDescription ? modifiedDescription : newDescription,
+      });
+    };
+
+    return (
+      <BottomSheet
+        ref={paymentRequestBottomSheetRef}
+        index={-1}
+        snapPoints={animatedSnapPoints}
+        handleHeight={animatedHandleHeight}
+        contentHeight={animatedContentHeight}
+        enablePanDownToClose
+        backdropComponent={renderBackdrop}
+        handleIndicatorStyle={styles.handle}
+      >
+        <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
+          <View style={styles.cancelBtn}>
+            <CancelButton onCancel={onPressCancel} />
+          </View>
+          <View style={styles.iconContainer}>
+            <Icon name="icon-arrow-down" style={styles.actionIcon} />
+          </View>
+          <Text style={styles.title}>{t('Update payment request')}</Text>
+          <FormInput
+            label={t('Amount')}
+            style={styles.amount}
+            onChangeText={setModifiedAmount}
+            value={modifiedAmount}
+            enablesReturnKeyAutomatically={true}
+            placeholder="Amount in sats" // should pass value of amount from receive Screen
+            multiline={false}
+            keyboardType={'decimal-pad'}
+          />
+          {/* Calculate total amount receivable and validate on input
+           * This text should be clickable for more information bottom sheet about remote balance
+           */}
+          <Text
+            style={[styles.maxReceive, { color: maxReceiveColor }]}
+          >{`The maximum amount you can receive is ${maxReceivable} sats`}</Text>
+          <FormInput
+            label={t('Description')}
+            style={styles.field}
+            onChangeText={setModifiedDescription}
+            value={modifiedDescription}
+            enablesReturnKeyAutomatically={true}
+            placeholder={t('What is this transaction for?')!}
+            maxLength={25}
+            multiline={false}
+          />
+          {/* @TODO: Add a section to select sender from the contact list */}
+          <FormInput
+            label={t('Sender')}
             style={styles.field}
             onChangeText={setSenderName}
             value={senderName}
             enablesReturnKeyAutomatically={true}
-            placeholder={t('Your name/nym for the sender')!}
-            multiline={false}
-          />
-          <FormInput
-            label={t('Note')}
-            style={styles.field}
-            onChangeText={setInvoiceNote}
-            value={invoiceNote}
-            enablesReturnKeyAutomatically={true}
-            placeholder={t('Short note for the sender (max 25chars)')!}
-            maxLength={25}
+            placeholder={t('Who will make this payment?')!}
             multiline={false}
           />
           {/* Add tags to invoice */}
-          <Text style={styles.expiry}>{`This request will expire on ${invoiceExpires}`}</Text>
+          <FormInput
+            label={t('Tags')}
+            style={styles.field}
+            onChangeText={setSenderName}
+            value={senderName}
+            enablesReturnKeyAutomatically={true}
+            placeholder={t('Attach tags to this request')!}
+            multiline={false}
+          />
           <Button
             title="Update"
             onPress={onPressUpdate}
@@ -150,19 +333,20 @@ const usePaymentRequestBottomSheet = (invoiceProps: Props) => {
     paddingBottom,
     handleContentLayout,
     t,
-    invoiceCreated,
-    invoiceAmount,
+    modifiedAmount,
     maxReceiveColor,
     maxReceivable,
-    senderName,
-    invoiceNote,
-    invoiceExpires,
-    modifiedAmount,
     modifiedDescription,
+    senderName,
+    newAmount,
+    newDescription,
   ]);
 
   return {
-    openSheet,
+    openPaymentRequestSheet,
+    openSendSheet,
+    sendBitcoinBottomSheet,
+    newPaymentRequestBottomSheet,
     ModifyInvoiceBottomSheet,
   };
 };
@@ -176,7 +360,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   title: {
-    ...TypographyPresets.Header4,
+    ...TypographyPresets.Header5,
     marginBottom: 16,
     textAlign: 'center',
   },
@@ -194,7 +378,7 @@ const styles = StyleSheet.create({
   },
   button: {
     justifyContent: 'center',
-    marginBottom: 16,
+    marginVertical: 16,
   },
   field: {
     marginVertical: 10,
@@ -202,6 +386,25 @@ const styles = StyleSheet.create({
   expiry: {
     ...TypographyPresets.Body5,
     marginVertical: 20,
+  },
+  cancelBtn: {
+    marginBottom: 5,
+    alignItems: 'flex-end',
+  },
+  actionIcon: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    fontSize: 32,
+    color: Colors.orange.base,
+  },
+  iconContainer: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    width: 64,
+    height: 64,
+    borderRadius: 50,
+    backgroundColor: Colors.common.black,
+    marginBottom: 10,
   },
 });
 

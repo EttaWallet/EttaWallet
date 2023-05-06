@@ -47,10 +47,12 @@ export type StackParamList = {
   [Screens.FAQScreen]: undefined;
   [Screens.TestScreen]: undefined;
   [Screens.StartLN]: undefined;
-  [Screens.ReceiveScreen]: {
-    modifiedAmount?: number;
-    modifiedDescription?: string;
-  };
+  [Screens.ReceiveScreen]:
+    | {
+        amount?: string;
+        description?: string;
+      }
+    | undefined;
   [Screens.LightningChannelsIntroScreen]: undefined;
   [Screens.JITLiquidityScreen]: {
     liquidityAmount?: string;

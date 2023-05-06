@@ -35,8 +35,8 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     justifyContent: 'center',
-    width: 50,
-    height: 50,
+    width: 30,
+    height: 30,
     borderRadius: 50,
     alignItems: 'center',
     backgroundColor: Colors.neutrals.light.neutral3,

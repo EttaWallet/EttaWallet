@@ -19,12 +19,20 @@ import { moderateScale, scale, verticalScale } from '../utils/sizing';
 import { HomeBalance } from '../components/HomeBalance';
 import { isLdkRunning, waitForLdk } from '../ldk';
 import { startLightning } from '../utils/lightning/helpers';
+import usePaymentRequestBottomSheet from '../components/usePaymentRequestBottomSheet';
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
 const WalletHomeScreen = () => {
   const nodeStarted = useStoreState((state) => state.lightning.nodeStarted);
   const currentBlockHeight = useStoreState((state) => state.wallet.header.height);
+
+  const {
+    openPaymentRequestSheet,
+    newPaymentRequestBottomSheet,
+    openSendSheet,
+    sendBitcoinBottomSheet,
+  } = usePaymentRequestBottomSheet({});
   const [refreshing, setRefreshing] = useState(false);
 
   const scrollPosition = useRef(new Animated.Value(0)).current;
@@ -93,7 +101,9 @@ const WalletHomeScreen = () => {
         contentContainerStyle={styles.balanceSection}
         showsVerticalScrollIndicator={false}
       />
-      <HomeActionsBar />
+      <HomeActionsBar onSend={openSendSheet} onRequest={openPaymentRequestSheet} />
+      {newPaymentRequestBottomSheet}
+      {sendBitcoinBottomSheet}
     </SafeAreaView>
   );
 };
