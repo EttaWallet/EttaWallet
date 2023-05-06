@@ -26,6 +26,7 @@ const usePaymentRequestBottomSheet = (invoiceProps: Props) => {
   const [newDescription, setNewDescription] = useState(`Request for ${newAmount} sats`);
   const [modifiedAmount, setModifiedAmount] = useState(invoiceProps.amountInSats);
   const [senderName, setSenderName] = useState('');
+  const [sendInvoice, setSendInvoice] = useState('');
   const [modifiedDescription, setModifiedDescription] = useState(
     invoiceProps.description
       ? invoiceProps.description
@@ -65,7 +66,7 @@ const usePaymentRequestBottomSheet = (invoiceProps: Props) => {
       : Colors.red.base;
 
   const sendBitcoinBottomSheet = useMemo(() => {
-    const onPressSend = () => {
+    const onPressContinue = () => {
       cueInformativeHaptic();
       sendBottomSheetRef.current?.close();
       // pay invoice and navigate to success screen
@@ -96,35 +97,21 @@ const usePaymentRequestBottomSheet = (invoiceProps: Props) => {
             <Icon name="icon-arrow-up" style={styles.actionIcon} />
           </View>
           <Text style={styles.title}>{t('Send bitcoin')}</Text>
-          <FormInput
-            label={t('Amount')}
-            style={styles.amount}
-            onChangeText={setNewAmount}
-            value={newAmount}
-            enablesReturnKeyAutomatically={true}
-            placeholder="Amount in sats" // should pass value of amount from receive Screen
-            multiline={false}
-            keyboardType={'decimal-pad'}
-          />
-          {/* Calculate total amount receivable and validate on input
-           * This text should be clickable for more information bottom sheet about remote balance
-           */}
-          <Text
-            style={[styles.maxReceive, { color: maxReceiveColor }]}
-          >{`The maximum amount you can send is ${maxReceivable} sats`}</Text>
+
           {/* @TODO: Add a section to select sender from the contact list */}
           <FormInput
             label={t('To')}
             style={styles.field}
-            onChangeText={setSenderName}
-            value={senderName}
+            onChangeText={setSendInvoice}
+            value={sendInvoice}
             enablesReturnKeyAutomatically={true}
             placeholder={t('Pick contact or paste invoice')!}
-            multiline={false}
+            multiline={true}
+            numberOfLines={5}
           />
           <Button
-            title="Send payment"
-            onPress={onPressSend}
+            title="Continue"
+            onPress={onPressContinue}
             size="default"
             appearance="filled"
             style={styles.button}
@@ -140,10 +127,7 @@ const usePaymentRequestBottomSheet = (invoiceProps: Props) => {
     paddingBottom,
     handleContentLayout,
     t,
-    newAmount,
-    maxReceiveColor,
-    maxReceivable,
-    senderName,
+    sendInvoice,
   ]);
 
   const newPaymentRequestBottomSheet = useMemo(() => {
