@@ -5,7 +5,14 @@ import lm, {
   TCreatePaymentReq,
   TInvoice,
 } from '@synonymdev/react-native-ldk';
-import { IWalletItem, TCreateLightningInvoice, TLightningNodeVersion, TWalletName } from '../types';
+import {
+  EPaymentType,
+  IWalletItem,
+  TCreateLightningInvoice,
+  TLightningNodeVersion,
+  TLightningPayment,
+  TWalletName,
+} from '../types';
 import Keychain from 'react-native-keychain';
 import { err, ok, Result } from '../result';
 import RNFS from 'react-native-fs';
@@ -27,6 +34,9 @@ import ldk from '@synonymdev/react-native-ldk/dist/ldk';
 
 import * as bitcoin from 'bitcoinjs-lib';
 import { reduceValue } from '../helpers';
+import { timeDeltaInDays } from '../time';
+import { transactionFeedHeader } from '../time';
+import i18n from '../../i18n';
 
 const LDK_ACCOUNT_SUFFIX = 'ldkaccount';
 
@@ -287,13 +297,18 @@ export const addPeers = async ({
  * @returns {Promise<Result<string>>}
  */
 export const removeExpiredInvoices = async (): Promise<Result<string>> => {
-  //dispatch action to update invoices in state
+  // get number of secs since unix epoch at this time
+  const nowInSecs = Math.floor(Date.now() / 1000);
+  // filter out current invoices
+  const currentInvoices = getLightningStore().invoices.filter(
+    (invoice) => invoice.timestamp + invoice.expiry_time > nowInSecs
+  );
+  //dispatch action to set invoices in state to only current invoices
   setInterval(() => {
-    store.dispatch.lightning.removeExpiredInvoices;
+    store.dispatch.lightning.removeExpiredInvoices(currentInvoices);
   }, 60 * 1000);
   return ok('');
 };
-
 export const startLightning = async ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   restore = false,
@@ -597,3 +612,123 @@ export const updateClaimableBalance = async ({
   store.dispatch.lightning.updateClaimableBalance(claimableBalance);
   return ok('Successfully Updated Claimable Balance.');
 };
+
+/**
+ * Removes a lightning invoice from the invoices array via its payment hash.
+ * @param {string} paymentHash
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {TWalletName} [selectedWallet]
+ * @returns {Promise<Result<string>>}
+ */
+export const removeInvoice = async ({
+  paymentHash,
+  selectedNetwork,
+}: {
+  paymentHash: string;
+  selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string>> => {
+  if (!paymentHash) {
+    return err('No payment hash provided.');
+  }
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+
+  const payload = {
+    paymentHash,
+  };
+
+  // get all invoices in state
+  const invoices = getLightningStore().invoices;
+  // find index of the invoice with matching payment_hash within the invoice array
+  const invoiceIndex = invoices.findIndex((i) => i.payment_hash === payload.paymentHash);
+
+  if (invoiceIndex !== -1) {
+    // use splice() to remove the invoice from the array
+    const invoiceToRemove = invoices.splice(invoiceIndex, 1)[0];
+    // remove invoice in store object
+    store.dispatch.lightning.removeInvoice(invoiceToRemove);
+  }
+
+  return ok('Successfully removed lightning invoice.');
+};
+
+/**
+ * Adds a paid lightning invoice to the payments object for future reference.
+ * @param {TInvoice} invoice
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Result<string>}
+ */
+export const addPayment = ({
+  invoice,
+  selectedNetwork,
+}: {
+  invoice: TInvoice;
+  selectedNetwork?: TAvailableNetworks;
+}): Result<string> => {
+  if (!invoice) {
+    return err('No payment invoice provided.');
+  }
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+  const lightningPayments = getLightningStore().payments;
+
+  // It's possible ldk.pay returned true for an invoice we already paid.
+  // Run another check here.
+  if (invoice.payment_hash in lightningPayments) {
+    return err('Lightning invoice has already been paid.');
+  }
+
+  const nodeId = getLightningStore().nodeId;
+
+  const payload = {
+    invoice: invoice,
+    type: invoice.payee_pub_key === nodeId ? EPaymentType.sent : EPaymentType.received,
+  };
+
+  // add payment to store once confirmed
+  store.dispatch.lightning.addPayment(payload);
+  // and remove associated invoice from store via matching payment_hash
+  store.dispatch.lightning.removeInvoice(invoice);
+  return ok('Successfully added lightning payment.');
+};
+
+// Groupings:
+// Recent -> Last 7 days.
+// [Current month] - "July" -> Captures transactions from the current month that aren’t captured in Recent.
+// [Previous months] - "June" -> Captures transactions by month.
+// [Months over a year ago] — "July 2019" -> Same as above, but with year appended.
+// Sections are hidden if they have no items.
+export function groupActivityInSections<T extends { timestamp: number }>(
+  items: TLightningPayment[]
+) {
+  const sectionsMap: {
+    [key: string]: {
+      data: T[];
+      daysSinceTransaction: number;
+    };
+  } = {};
+
+  items.reduce((sections, item) => {
+    const daysSinceTransaction = timeDeltaInDays(Date.now(), item.invoice.timestamp);
+    const key =
+      daysSinceTransaction <= 7
+        ? i18n.t('Last 7 days')
+        : transactionFeedHeader(item.invoice.timestamp, i18n);
+    sections[key] = sections[key] || {
+      daysSinceTransaction,
+      data: [],
+    };
+    // @ts-ignore
+    sections[key].data.push(item);
+    return sections;
+  }, sectionsMap);
+
+  return Object.entries(sectionsMap)
+    .sort((a, b) => a[1].daysSinceTransaction - b[1].daysSinceTransaction)
+    .map(([key, value]) => ({
+      title: key,
+      data: value.data,
+    }));
+}

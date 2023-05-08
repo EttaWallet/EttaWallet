@@ -59,4 +59,5 @@ export type StackParamList = {
     paymentRequest?: string;
   };
   [Screens.ChannelsScreen]: undefined;
+  [Screens.ActivityScreen]: undefined;
 };

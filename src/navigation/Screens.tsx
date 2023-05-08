@@ -25,4 +25,5 @@ export enum Screens {
   LightningChannelsIntroScreen = 'LightningChannelsIntroScreen',
   JITLiquidityScreen = 'JITLiquidityScreen',
   ChannelsScreen = 'ChannelsScreen',
+  ActivityScreen = 'ActivityScreen',
 }

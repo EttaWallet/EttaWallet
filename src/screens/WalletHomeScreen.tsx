@@ -13,13 +13,15 @@ import { noHeader } from '../navigation/Headers';
 import { useStoreState } from '../state/hooks';
 import DrawerHeader from '../navigation/components/DrawerHeader';
 import HomeActionsBar from '../components/HomeActionsBar';
-import { Colors } from 'etta-ui';
+import { Chip, Colors } from 'etta-ui';
 import ContactsButton from '../navigation/components/ContactsButton';
 import { moderateScale, scale, verticalScale } from '../utils/sizing';
 import { HomeBalance } from '../components/HomeBalance';
 import { isLdkRunning, waitForLdk } from '../ldk';
 import { startLightning } from '../utils/lightning/helpers';
 import usePaymentRequestBottomSheet from '../components/usePaymentRequestBottomSheet';
+import { navigate } from '../navigation/NavigationService';
+import { Screens } from '../navigation/Screens';
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
@@ -81,6 +83,10 @@ const WalletHomeScreen = () => {
     );
   };
 
+  const onPressTransactions = () => {
+    navigate(Screens.ActivityScreen);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <DrawerHeader
@@ -101,6 +107,9 @@ const WalletHomeScreen = () => {
         contentContainerStyle={styles.balanceSection}
         showsVerticalScrollIndicator={false}
       />
+      <Chip onPress={onPressTransactions} icon="icon-transactions" iconPosition="left">
+        Transactions
+      </Chip>
       <HomeActionsBar onSend={openSendSheet} onRequest={openPaymentRequestSheet} />
       {newPaymentRequestBottomSheet}
       {sendBitcoinBottomSheet}

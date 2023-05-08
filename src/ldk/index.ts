@@ -9,6 +9,10 @@ import {
 } from '../utils/electrum';
 import lm, {
   DefaultTransactionDataShape,
+  EEventTypes,
+  TChannelManagerClaim,
+  TChannelUpdate,
+  TInvoice,
   TTransactionData,
   TTransactionPosition,
   TUserConfig,
@@ -21,15 +25,21 @@ import {
   getLdkAccount,
   updateLightningChannels,
   updateClaimableBalance,
+  getLightningStore,
+  addPayment,
 } from '../utils/lightning/helpers';
 import { TLightningNodeVersion } from '../utils/types';
-import { InteractionManager } from 'react-native';
+import { EmitterSubscription, InteractionManager } from 'react-native';
 import { promiseTimeout, sleep, tryNTimes } from '../utils/helpers';
 import { getBestBlock, getTransactionMerkle } from '../utils/electrum/helpers';
 import { getLdkNetwork, TAvailableNetworks } from '../utils/networks';
 import { getReceiveAddress, getSelectedNetwork, getWalletStore } from '../utils/wallet';
 
 let LDKIsStayingSynced = false;
+
+// Subscribe to LDK module events
+let paymentSubscription: EmitterSubscription | undefined;
+let onChannelSubscription: EmitterSubscription | undefined;
 
 /**
  * Syncs LDK to the current height.
@@ -269,7 +279,11 @@ export const setupLdk = async ({
     if (shouldRefreshLdk) {
       await refreshLdk({ selectedNetwork });
     }
-    return ok(`LDK NodeID: ${nodeIdRes.value}`); //e2e test needs to see this string
+
+    // subscribe to events from LDK
+    subscribeToPayments({ selectedNetwork });
+
+    return ok(`LDK NodeID: ${nodeIdRes.value}`);
   } catch (e) {
     return err(e.toString());
   }
@@ -394,4 +408,102 @@ export const checkWatchTxs = async (): Promise<boolean> => {
     }
   }
   return false;
+};
+
+/**
+ * Retrieves any pending/unpaid invoices from the invoices array via payment hash.
+ * @param {string} paymentHash
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const getPendingInvoice = ({
+  paymentHash,
+  selectedNetwork,
+}: {
+  paymentHash: string;
+  selectedNetwork?: TAvailableNetworks;
+}): Result<TInvoice> => {
+  try {
+    if (!selectedNetwork) {
+      selectedNetwork = getSelectedNetwork();
+    }
+    const invoices = getLightningStore().invoices;
+    const invoice = invoices.filter((inv) => inv.payment_hash === paymentHash);
+    if (invoice.length > 0) {
+      return ok(invoice[0]);
+    }
+    return err('Unable to find any pending invoices.');
+  } catch (e) {
+    return err(e);
+  }
+};
+
+export const handlePaymentSubscription = async ({
+  payment,
+  selectedNetwork,
+}: {
+  payment: TChannelManagerClaim;
+  selectedNetwork?: TAvailableNetworks;
+}): Promise<void> => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+  console.log('Receiving Lightning Payment...', payment);
+  const invoice = getPendingInvoice({
+    paymentHash: payment.payment_hash,
+    selectedNetwork,
+  });
+  if (invoice.isOk()) {
+    addPayment({
+      invoice: invoice.value,
+      selectedNetwork,
+    });
+    // Show new payment received toast
+    // showBottomSheet('newTxPrompt', {
+    //   txId: invoice.value.payment_hash,
+    // });
+    // closeBottomSheet('receiveNavigation');
+    console.info('new payment received', invoice.value.payment_hash);
+    await refreshLdk({ selectedNetwork });
+  }
+};
+
+/**
+ * Subscribes to incoming lightning payments.
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const subscribeToPayments = ({
+  selectedNetwork,
+}: {
+  selectedNetwork?: TAvailableNetworks;
+}): void => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+  if (!paymentSubscription) {
+    paymentSubscription = ldk.onEvent(
+      EEventTypes.channel_manager_payment_claimed,
+      (res: TChannelManagerClaim) => {
+        handlePaymentSubscription({
+          payment: res,
+          selectedNetwork,
+        }).then();
+      }
+    );
+  }
+  if (!onChannelSubscription) {
+    onChannelSubscription = ldk.onEvent(EEventTypes.new_channel, (_res: TChannelUpdate) => {
+      // TODO: channel not open yet, change toast text or remove
+      // showSuccessNotification({
+      //   title: i18n.t('lightning:channel_opened_title'),
+      //   message: i18n.t('lightning:channel_opened_msg'),
+      // });
+      console.info('channel opened successfully. Make this a toast');
+      refreshLdk({ selectedNetwork }).then();
+    });
+  }
+};
+
+export const unsubscribeFromLDKSubscriptions = (): void => {
+  paymentSubscription?.remove();
+  onChannelSubscription?.remove();
 };

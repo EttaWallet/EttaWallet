@@ -29,6 +29,7 @@ import StartLN from '../screens/StartLN';
 import ReceiveScreen from '../screens/ReceiveScreen';
 import LightningChannelsIntroScreen from '../screens/LightningChannelsIntro';
 import JITLiquidityScreen from '../screens/JITLiquidityScreen';
+import ActivityScreen from '../screens/ActivityScreen';
 
 const TAG = 'Navigator';
 
@@ -51,7 +52,6 @@ const walletScreens = (Navigator: typeof Stack) => {
     <>
       <Navigator.Screen
         name={Screens.LightningChannelsIntroScreen}
-        // @ts-ignore until I resolve navOptions
         component={LightningChannelsIntroScreen}
         options={LightningChannelsIntroScreen.navigationOptions as NativeStackNavigationOptions}
       />
@@ -62,9 +62,13 @@ const walletScreens = (Navigator: typeof Stack) => {
       />
       <Navigator.Screen
         name={Screens.ReceiveScreen}
-        // @ts-ignore until I resolve navOptions
         component={ReceiveScreen}
         options={ReceiveScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.ActivityScreen}
+        component={ActivityScreen}
+        options={ActivityScreen.navigationOptions as NativeStackNavigationOptions}
       />
     </>
   );

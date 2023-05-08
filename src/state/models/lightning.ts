@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Action, action, Thunk, thunk } from 'easy-peasy';
-import { TLightningNodeVersion, TLightningPayment, TOpenChannelIds } from '../../utils/types';
+import {
+  EPaymentType,
+  TLightningNodeVersion,
+  TLightningPayment,
+  TOpenChannelIds,
+} from '../../utils/types';
 import { TChannel, TInvoice } from '@synonymdev/react-native-ldk';
 import { startLightning } from '../../utils/lightning/helpers';
 import logger from '../../utils/logger';
@@ -25,11 +30,13 @@ export interface LightningNodeModelType {
   startLdk: Thunk<LightningNodeModelType>;
   setLdkVersion: Action<LightningNodeModelType, TLightningNodeVersion>;
   addInvoice: Action<LightningNodeModelType, TInvoice>;
+  removeInvoice: Action<LightningNodeModelType, TInvoice>;
   updateInvoices: Action<LightningNodeModelType, { index: number; invoice: TInvoice }>;
   updateChannels: Action<LightningNodeModelType, { [key: string]: TChannel }>;
   updateOpenChannels: Action<LightningNodeModelType, string[]>;
   updateClaimableBalance: Action<LightningNodeModelType, number>;
-  removeExpiredInvoices: Action<LightningNodeModelType, TInvoice>;
+  removeExpiredInvoices: Action<LightningNodeModelType, TInvoice[]>;
+  addPayment: Action<LightningNodeModelType, TLightningPayment>;
 }
 
 export const lightningModel: LightningNodeModelType = {
@@ -72,17 +79,17 @@ export const lightningModel: LightningNodeModelType = {
   addInvoice: action((state, payload) => {
     state.invoices.push(payload);
   }),
+  removeInvoice: action((state, payload) => {
+    const invoices = state.invoices;
+    // create new invoice array with the invoice in payload removed
+    const newInvoices = invoices.filter((i) => i.payment_hash !== payload.payment_hash);
+    state.invoices = newInvoices;
+  }),
   updateInvoices: action((state, payload) => {
     state.invoices[payload.index] = payload.invoice;
   }),
-  removeExpiredInvoices: action((state) => {
-    // get number of secs since unix epoch at this time
-    const nowInSecs = Math.floor(Date.now() / 1000);
-    // filter out current invoices
-    const currentInvoices = state.invoices.filter(
-      (invoice) => invoice.timestamp + invoice.expiry_time > nowInSecs
-    );
-    state.invoices = currentInvoices;
+  removeExpiredInvoices: action((state, payload) => {
+    state.invoices = payload;
   }),
   updateChannels: action((state, payload) => {
     state.channels = {
@@ -99,5 +106,17 @@ export const lightningModel: LightningNodeModelType = {
   updateClaimableBalance: action((state, payload) => {
     state.claimableBalance = payload;
   }),
-  // open channel with LSP and receive inbound liquidity
+  addPayment: action((state, payload) => {
+    state.payments = {
+      ...state.payments,
+      [payload?.invoice.payment_hash]: {
+        invoice: payload?.invoice,
+        type:
+          // if payee_pubkey matches the nodeId, save as received payment
+          payload?.invoice.payee_pub_key === state.nodeId
+            ? EPaymentType.received
+            : EPaymentType.sent,
+      },
+    };
+  }),
 };

@@ -71,11 +71,11 @@ export const InfoListItem = ({
   );
 };
 
-type ExpandedListItemProps = {
+type ExpandedInfoListItemProps = {
   details?: string;
 } & BaseProps;
 
-export const ExpandListItem = ({ title, details, onPress }: ExpandedListItemProps) => {
+export const ExpandedInfoListItem = ({ title, details, onPress }: ExpandedInfoListItemProps) => {
   return (
     <Wrapper onPress={onPress}>
       <View style={styles.container}>
