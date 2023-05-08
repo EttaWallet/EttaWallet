@@ -30,6 +30,7 @@ import ReceiveScreen from '../screens/ReceiveScreen';
 import LightningChannelsIntroScreen from '../screens/LightningChannelsIntro';
 import JITLiquidityScreen from '../screens/JITLiquidityScreen';
 import ActivityScreen from '../screens/ActivityScreen';
+import ActivityDetailsScreen from '../screens/ActivityDetailsScreen';
 
 const TAG = 'Navigator';
 
@@ -69,6 +70,11 @@ const walletScreens = (Navigator: typeof Stack) => {
         name={Screens.ActivityScreen}
         component={ActivityScreen}
         options={ActivityScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.ActivityDetailsScreen}
+        component={ActivityDetailsScreen}
+        options={ActivityDetailsScreen.navigationOptions as NativeStackNavigationOptions}
       />
     </>
   );

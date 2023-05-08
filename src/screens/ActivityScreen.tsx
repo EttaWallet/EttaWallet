@@ -21,9 +21,10 @@ import { getLightningStore, groupActivityInSections } from '../utils/lightning/h
 import { humanizeTimestamp } from '../utils/time';
 import { TInvoice } from '@synonymdev/react-native-ldk';
 import { EPaymentType, TLightningPayment } from '../utils/types';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import i18n from '../i18n';
 import { useTranslation } from 'react-i18next';
+import { TouchableOpacity } from '@gorhom/bottom-sheet';
+import { navigate } from '../navigation/NavigationService';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ActivityScreen>;
 type Props = RouteProps;
@@ -78,7 +79,12 @@ const TransactionItem = ({ invoice, type, showFiat }: TransactionItemProps) => {
   const fiatAmount = 1000000;
   const transactionDate = humanizeTimestamp(invoice.timestamp, i18n);
   return (
-    <TouchableWithoutFeedback disabled={false} onPress={() => 0}>
+    <TouchableOpacity
+      disabled={false}
+      onPress={() =>
+        navigate(Screens.ActivityDetailsScreen, { transaction: { invoice: invoice, type: type } })
+      }
+    >
       <View style={styles.transactionContainer}>
         {type === EPaymentType.sent ? (
           <View style={[styles.iconContainer, { backgroundColor: 'rgba(45, 156, 219, 0.1)' }]}>
@@ -105,7 +111,7 @@ const TransactionItem = ({ invoice, type, showFiat }: TransactionItemProps) => {
           {showFiat ? <Text style={styles.fiatAmount}>+{fiatAmount} UGX</Text> : null}
         </View>
       </View>
-    </TouchableWithoutFeedback>
+    </TouchableOpacity>
   );
 };
 

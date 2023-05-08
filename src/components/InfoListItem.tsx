@@ -1,6 +1,10 @@
 import * as React from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Colors, Icon, ListItem, TypographyPresets } from 'etta-ui';
+import Clipboard from '@react-native-clipboard/clipboard';
+import Logger from '../utils/logger';
+import { useTranslation } from 'react-i18next';
+import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 
 interface WrapperProps {
   onPress?: () => void;
@@ -15,6 +19,12 @@ function Title({ value }: { value: string }) {
   return <View style={[styles.left]}>{<Text style={styles.title}>{value}</Text>}</View>;
 }
 
+function maskString(item: string): string {
+  const firstFour = item.slice(0, 4);
+  const lastFour = item.slice(-4);
+  return `${firstFour}...${lastFour}`;
+}
+
 type BaseProps = {
   title: string;
 } & Omit<WrapperProps, 'children'>;
@@ -24,6 +34,8 @@ type InfoListItemProps = {
   showChevron?: boolean;
   highlightValue?: boolean;
   valueIsNumeric?: boolean;
+  canCopy?: boolean;
+  maskValue?: boolean;
 } & BaseProps;
 
 export const InfoListItem = ({
@@ -33,7 +45,17 @@ export const InfoListItem = ({
   onPress,
   highlightValue,
   valueIsNumeric,
+  canCopy,
+  maskValue,
 }: InfoListItemProps) => {
+  const { t } = useTranslation();
+
+  const onPressCopy = () => {
+    Clipboard.setString(value?.toString() || '');
+    Logger.showMessage(t(`${title} copied to clipboard`));
+    cueInformativeHaptic();
+  };
+
   return (
     <Wrapper onPress={onPress}>
       <View style={styles.container}>
@@ -50,9 +72,19 @@ export const InfoListItem = ({
                     : styles.value
                 }
               >
-                {value}
+                {maskValue ? maskString(value.toString()) : value}
               </Text>
               {valueIsNumeric ? <Text>sats</Text> : null}
+              {canCopy ? (
+                <Icon
+                  name="icon-copy"
+                  // eslint-disable-next-line react-native/no-inline-styles
+                  style={{
+                    fontSize: 20,
+                  }}
+                  onPress={onPressCopy}
+                />
+              ) : null}
               {showChevron ? (
                 <Icon
                   name="icon-caret-right"

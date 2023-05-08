@@ -1,3 +1,4 @@
+import { TLightningPayment } from '../utils/types';
 import { Screens } from './Screens';
 
 export type StackParamList = {
@@ -60,4 +61,7 @@ export type StackParamList = {
   };
   [Screens.ChannelsScreen]: undefined;
   [Screens.ActivityScreen]: undefined;
+  [Screens.ActivityDetailsScreen]: {
+    transaction: TLightningPayment;
+  };
 };

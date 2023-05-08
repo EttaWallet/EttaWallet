@@ -26,4 +26,5 @@ export enum Screens {
   JITLiquidityScreen = 'JITLiquidityScreen',
   ChannelsScreen = 'ChannelsScreen',
   ActivityScreen = 'ActivityScreen',
+  ActivityDetailsScreen = 'ActivityDetailsScreen',
 }
