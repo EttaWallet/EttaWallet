@@ -17,19 +17,18 @@ interface Props {
   amountInSats?: string;
   description?: string;
 }
-const usePaymentRequestBottomSheet = (invoiceProps: Props) => {
+const usePaymentRequestBottomSheet = (receiveProps: Props) => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const paddingBottom = Math.max(insets.bottom, 24);
 
   const [newAmount, setNewAmount] = useState('0');
   const [newDescription, setNewDescription] = useState(`Request for ${newAmount} sats`);
-  const [modifiedAmount, setModifiedAmount] = useState(invoiceProps.amountInSats);
+  const [modifiedAmount, setModifiedAmount] = useState(receiveProps.amountInSats);
   const [senderName, setSenderName] = useState('');
-  const [sendInvoice, setSendInvoice] = useState('');
   const [modifiedDescription, setModifiedDescription] = useState(
-    invoiceProps.description
-      ? invoiceProps.description
+    receiveProps.description
+      ? receiveProps.description
       : `Payment request for ${modifiedAmount} sats`
   );
 
@@ -38,7 +37,6 @@ const usePaymentRequestBottomSheet = (invoiceProps: Props) => {
   const [maxReceivable, setMaxReceivable] = useState(20000);
 
   const paymentRequestBottomSheetRef = useRef<BottomSheet>(null);
-  const sendBottomSheetRef = useRef<BottomSheet>(null);
 
   const initialSnapPoints = useMemo(() => ['CONTENT_HEIGHT'], []);
   const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
@@ -46,10 +44,6 @@ const usePaymentRequestBottomSheet = (invoiceProps: Props) => {
 
   const openPaymentRequestSheet = () => {
     paymentRequestBottomSheetRef.current?.snapToIndex(0);
-  };
-
-  const openSendSheet = () => {
-    sendBottomSheetRef.current?.snapToIndex(0);
   };
 
   const renderBackdrop = useCallback(
@@ -64,71 +58,6 @@ const usePaymentRequestBottomSheet = (invoiceProps: Props) => {
     parseInt(modifiedAmount!, 10)! < maxReceivable
       ? Colors.neutrals.light.neutral5
       : Colors.red.base;
-
-  const sendBitcoinBottomSheet = useMemo(() => {
-    const onPressContinue = () => {
-      cueInformativeHaptic();
-      sendBottomSheetRef.current?.close();
-      // pay invoice and navigate to success screen
-    };
-
-    const onPressCancel = () => {
-      cueInformativeHaptic();
-      sendBottomSheetRef.current?.close();
-      // clear values in state first?
-    };
-
-    return (
-      <BottomSheet
-        ref={sendBottomSheetRef}
-        index={-1}
-        snapPoints={animatedSnapPoints}
-        handleHeight={animatedHandleHeight}
-        contentHeight={animatedContentHeight}
-        enablePanDownToClose
-        backdropComponent={renderBackdrop}
-        handleIndicatorStyle={styles.handle}
-      >
-        <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
-          <View style={styles.cancelBtn}>
-            <CancelButton onCancel={onPressCancel} />
-          </View>
-          <View style={styles.iconContainer}>
-            <Icon name="icon-arrow-up" style={styles.actionIcon} />
-          </View>
-          <Text style={styles.title}>{t('Send bitcoin')}</Text>
-
-          {/* @TODO: Add a section to select sender from the contact list */}
-          <FormInput
-            label={t('To')}
-            style={styles.field}
-            onChangeText={setSendInvoice}
-            value={sendInvoice}
-            enablesReturnKeyAutomatically={true}
-            placeholder={t('Pick contact or paste invoice')!}
-            multiline={true}
-            numberOfLines={5}
-          />
-          <Button
-            title="Continue"
-            onPress={onPressContinue}
-            size="default"
-            appearance="filled"
-            style={styles.button}
-          />
-        </View>
-      </BottomSheet>
-    );
-  }, [
-    animatedSnapPoints,
-    animatedHandleHeight,
-    animatedContentHeight,
-    renderBackdrop,
-    paddingBottom,
-    handleContentLayout,
-    t,
-    sendInvoice,
-  ]);
 
   const newPaymentRequestBottomSheet = useMemo(() => {
     const onPressCancel = () => {
@@ -328,8 +257,6 @@ const usePaymentRequestBottomSheet = (invoiceProps: Props) => {
 
   return {
     openPaymentRequestSheet,
-    openSendSheet,
-    sendBitcoinBottomSheet,
     newPaymentRequestBottomSheet,
     ModifyInvoiceBottomSheet,
   };

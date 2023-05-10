@@ -1,7 +1,8 @@
-import { TChannel, TCreatePaymentReq, TInvoice } from '@synonymdev/react-native-ldk';
+import { TCreatePaymentReq, TInvoice } from '@synonymdev/react-native-ldk';
 import { TAvailableNetworks } from './networks';
 import { objectKeys } from './helpers';
 import { cloneDeep } from 'lodash';
+import { ErrorMessages } from './errors';
 
 export enum AppState {
   Background = 'Background',
@@ -20,8 +21,51 @@ export interface IResponse<T> {
   data: T;
 }
 
-// Electrum
+export enum AlertActions {
+  SHOW = 'SHOW_ALERT',
+  HIDE = 'HIDE_ALERT',
+}
 
+export enum AlertTypes {
+  MESSAGE = 'message',
+  ERROR = 'error',
+  TOAST = 'toast',
+}
+
+export enum ErrorDisplayType {
+  'BANNER',
+  'INLINE',
+}
+
+export interface ShowAlertAction {
+  type: AlertActions.SHOW;
+  alertType: AlertTypes;
+  displayMethod: ErrorDisplayType;
+  message: string;
+  dismissAfter?: number | null;
+  buttonMessage?: string | null;
+  title?: string | null;
+  underlyingError?: ErrorMessages | null;
+}
+
+export interface HideAlertAction {
+  type: AlertActions.HIDE;
+}
+
+export type AlertActionTypes = ShowAlertAction | HideAlertAction;
+
+export interface Alert {
+  type: AlertTypes;
+  displayMethod: ErrorDisplayType;
+  message: string;
+  dismissAfter?: number | null;
+  buttonMessage?: string | null;
+  action?: object | null;
+  title?: string | null;
+  underlyingError?: ErrorMessages | null;
+}
+
+// Electrum
 export interface IFormattedPeerData {
   ip?: string;
   host: string;
@@ -147,28 +191,6 @@ export interface IWalletItem<T> {
   timestamp?: number | null;
 }
 
-export interface IFormattedTransaction {
-  address: string;
-  height: number;
-  scriptHash: string;
-  totalInputValue: number;
-  matchedInputValue: number;
-  totalOutputValue: number;
-  matchedOutputValue: number;
-  fee: number;
-  satsPerByte: number;
-  type: EPaymentType;
-  value: number;
-  txid: string;
-  messages: string[];
-  timestamp: number;
-  vin: IVin[];
-}
-
-export interface IFormattedTransactions {
-  [key: string]: IFormattedTransaction;
-}
-
 export interface IOutput {
   address?: string; //Address to send to.
   value?: number; //Amount denominated in sats.
@@ -209,48 +231,18 @@ export interface IGetFeeEstimatesResponse {
   hourFee: number;
   minimumFee: number;
 }
-
-export interface IBitcoinTransactionData {
-  outputs: IOutput[];
-  inputs: IUtxo[];
-  changeAddress: string;
-  fiatAmount: number;
-  fee: number; //Total fee in sats
-  satsPerByte: number;
-  selectedFeeId: EFeeId;
-  message: string; // OP_RETURN data for a given transaction.
-  label: string; // User set label for a given transaction.
-  rbf: boolean;
-  boostType: EBoostType;
-  minFee: number; // (sats) Used for RBF/CPFP transactions where the fee needs to be greater than the original.
-  max: boolean; // If the user intends to send the max amount.
-  tags: string[];
-  slashTagsUrl?: string;
-  lightningInvoice?: string;
-}
-
 export interface IWallet {
   id: TWalletName;
   name: string;
   type: string;
-  seedHash?: string; // Help components/hooks recognize when a seed is set/updated for the same wallet id/name.
-  transactions: IWalletItem<IFormattedTransactions>;
-  balance: IWalletItem<number>;
-  lastUpdated: IWalletItem<number>;
+  seedHash?: string;
+  balance: number;
+  lastUpdated: number;
   hasBackedUpWallet: boolean;
   walletBackupTimestamp: string;
-  keyDerivationPath: IWalletItem<IKeyDerivationPath>;
-  networkTypePath: IWalletItem<string>;
-  addressType: {
-    bitcoin: EAddressType;
-    bitcoinTestnet: EAddressType;
-    bitcoinRegtest: EAddressType;
-  };
-  transaction: IWalletItem<IBitcoinTransactionData>;
-}
-
-export interface IWallets {
-  [key: TWalletName]: IWallet;
+  keyDerivationPath: IKeyDerivationPath;
+  networkTypePath: string;
+  addressType: EAddressType;
 }
 
 export interface IVin {
@@ -262,42 +254,6 @@ export interface IVin {
   txid: string;
   txinwitness: string[];
   vout: number;
-}
-
-export interface IVout {
-  n: number; //0
-  scriptPubKey: {
-    addresses?: string[];
-    address?: string;
-    asm: string;
-    hex: string;
-    reqSigs?: number;
-    type?: string;
-  };
-  value: number;
-}
-
-export interface ITransaction<T> {
-  id: number;
-  jsonrpc: string;
-  param: string;
-  data: T;
-  result: {
-    blockhash: string;
-    blocktime: number;
-    confirmations: number;
-    hash: string;
-    hex: string;
-    locktime: number;
-    size: number;
-    txid: string;
-    version: number;
-    vin: IVin[];
-    vout: IVout[];
-    vsize: number;
-    weight: number;
-    time?: number;
-  };
 }
 
 export interface ITxHash {
@@ -338,6 +294,13 @@ export interface IKeyDerivationPathData {
 
 // Lightning
 
+export enum NodeState {
+  OFFLINE = 'offline',
+  ERROR = 'error',
+  START = 'start',
+  COMPLETE = 'complete',
+}
+
 export enum EPaymentType {
   sent = 'sent',
   received = 'received',
@@ -356,28 +319,6 @@ export type TLightningPayment = {
   invoice: TInvoice;
   type: EPaymentType;
 };
-
-export type TOpenChannelIds = string[];
-
-export interface IDefaultLightningShape {
-  nodeId: IWalletItem<string>;
-  channels: IWalletItem<{ [key: string]: TChannel }>;
-  openChannelIds: IWalletItem<TOpenChannelIds>;
-  info: IWalletItem<{}>;
-  invoices: IWalletItem<TInvoice[]>;
-  payments: IWalletItem<{ [key: string]: TLightningPayment }>;
-  peers: IWalletItem<string[]>;
-  claimableBalance: IWalletItem<number>;
-}
-
-export type TNodes = {
-  [key: TWalletName]: IDefaultLightningShape;
-};
-
-export interface ILightning {
-  version: TLightningNodeVersion;
-  nodes: TNodes;
-}
 
 export type TLightningNodeVersion = {
   ldk: string;
@@ -401,6 +342,26 @@ export type TLightningActivityItem = {
   message: string;
   timestamp: number;
 };
+
+export enum ELightningDataType {
+  paymentRequest = 'paymentRequest',
+  nodeId = 'nodeId',
+}
+
+export type TDecodedInput = {
+  type: ELightningDataType;
+  value?: string;
+  amount?: number;
+};
+
+export interface IDecodedData {
+  network?: TAvailableNetworks;
+  dataType: ELightningDataType;
+  sats?: number;
+  paymentRequest?: string;
+  message?: string;
+  url?: string; // possibly node URI
+}
 
 // Wallets
 export interface IGetAddress {

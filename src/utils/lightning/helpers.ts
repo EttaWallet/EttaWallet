@@ -2,12 +2,14 @@ import lm, {
   TAccount,
   TAvailableNetworks,
   TChannel,
+  TChannelManagerPaymentSent,
   TCreatePaymentReq,
   TInvoice,
 } from '@synonymdev/react-native-ldk';
 import {
   EPaymentType,
   IWalletItem,
+  NodeState,
   TCreateLightningInvoice,
   TLightningNodeVersion,
   TLightningPayment,
@@ -17,7 +19,7 @@ import Keychain from 'react-native-keychain';
 import { err, ok, Result } from '../result';
 import RNFS from 'react-native-fs';
 import mmkvStorage, { StorageItem } from '../../storage/disk';
-import { getNodeVersion, isLdkRunning, keepLdkSynced, setupLdk } from '../../ldk';
+import { getNodeVersion, isLdkRunning, keepLdkSynced, refreshLdk, setupLdk } from '../../ldk';
 import store from '../../state/store';
 import {
   createDefaultWallet,
@@ -37,6 +39,7 @@ import { reduceValue } from '../helpers';
 import { timeDeltaInDays } from '../time';
 import { transactionFeedHeader } from '../time';
 import i18n from '../../i18n';
+import { decodeLightningInvoice } from './decode';
 
 const LDK_ACCOUNT_SUFFIX = 'ldkaccount';
 
@@ -127,20 +130,11 @@ export const updateLdkVersion = async (): Promise<Result<TLightningNodeVersion>>
 
 /**
  * Returns whether the usern(checks state object) has any open lightning channels.
- * @param {TWalletName} [selectedWallet]
- * @param {TAvailableNetworks} [selectedNetwork]
  * @returns {boolean}
  */
-export const hasOpenLightningChannels = ({
-  selectedNetwork,
-}: {
-  selectedNetwork?: TAvailableNetworks;
-}): boolean => {
-  if (!selectedNetwork) {
-    selectedNetwork = getSelectedNetwork();
-  }
-  const availableChannels = getLightningStore().openChannelIds[selectedNetwork];
-  return availableChannels.length > 0;
+export const hasOpenLightningChannels = (): boolean => {
+  const availableChannels = getLightningStore().openChannelIds;
+  return Object.values(availableChannels).length > 0;
 };
 
 /**
@@ -149,24 +143,19 @@ export const hasOpenLightningChannels = ({
  * @param {string} [description]
  * @param {number} [expiryDeltaSeconds]
  * @param {TAvailableNetworks} [selectedNetwork]
- * @param {TWalletName} [selectedWallet]
  */
 export const createLightningInvoice = async ({
   amountSats,
   description,
   expiryDeltaSeconds,
   selectedNetwork,
-  selectedWallet,
 }: TCreateLightningInvoice): Promise<Result<TInvoice>> => {
   if (!selectedNetwork) {
     selectedNetwork = getSelectedNetwork();
   }
-  if (!selectedWallet) {
-    selectedWallet = getSelectedWallet();
+  if (!hasOpenLightningChannels()) {
+    return err('You have no open lightning channels so you can not receive yet.');
   }
-  // if (!hasOpenLightningChannels({ selectedNetwork })) {
-  //   return err('No lightning channels available to receive an invoice.');
-  // }
   const invoice = await createPaymentRequest({
     amountSats,
     description,
@@ -176,11 +165,55 @@ export const createLightningInvoice = async ({
     return err(invoice.error.message);
   }
 
-  addPeers({ selectedNetwork, selectedWallet }).then();
-
   // dispath action to add invoice to state object
   store.dispatch.lightning.addInvoice(invoice.value);
+
+  // addPeers({ selectedNetwork }).then();
+
   return ok(invoice.value);
+};
+
+/**
+ * Attempts to pay a bolt11 invoice.
+ * @param {string} paymentRequest
+ * @returns {Promise<Result<string>>}
+ */
+export const payInvoice = async (
+  paymentRequest: string
+): Promise<Result<TChannelManagerPaymentSent>> => {
+  try {
+    // const addPeersResponse = await addPeers();
+    // if (addPeersResponse.isErr()) {
+    //   return err(addPeersResponse.error.message);
+    // }
+    const decodedInvoice = await decodeLightningInvoice({
+      paymentRequest: paymentRequest,
+    });
+    if (decodedInvoice.isErr()) {
+      return err(decodedInvoice.error.message);
+    }
+
+    const payResponse = await lm.payWithTimeout({
+      paymentRequest: paymentRequest,
+      timeout: 60000,
+    });
+    if (payResponse.isErr()) {
+      return err(payResponse.error.message);
+    }
+    // Log payment in state once successful
+    const addLightningPaymentResponse = addPayment({
+      invoice: decodedInvoice.value,
+    });
+    if (addLightningPaymentResponse.isErr()) {
+      return err(addLightningPaymentResponse.error.message);
+    }
+
+    refreshLdk({}).then();
+    return ok(payResponse.value);
+  } catch (e) {
+    console.log(e);
+    return err(e);
+  }
 };
 
 /**
@@ -192,11 +225,11 @@ export const createPaymentRequest = (req: TCreatePaymentReq): Promise<Result<TIn
   ldk.createPaymentRequest(req);
 
 /**
- * Parses a lightning uri.
+ * Parses a node uri.
  * @param {string} str
  * @returns {{ publicKey: string; ip: string; port: number; }}
  */
-export const parseLightningUri = (
+export const parseNodeUri = (
   str: string
 ): Result<{
   publicKey: string;
@@ -222,6 +255,25 @@ export const parseLightningUri = (
 };
 
 /**
+ * Returns previously saved lightning peers from storage. (Excludes default lightning peers.)
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const getCustomLightningPeers = ({
+  selectedNetwork,
+}: {
+  selectedNetwork?: TAvailableNetworks;
+}): string[] => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+  const peers = getLightningStore().peers;
+  if (peers) {
+    return peers;
+  }
+  return [];
+};
+
+/**
  * Prompt LDK to add a specified peer.
  * @param {string} peer
  * @param {number} [timeout]
@@ -233,7 +285,7 @@ export const addPeer = async ({
   peer: string;
   timeout?: number;
 }): Promise<Result<string>> => {
-  const parsedUri = parseLightningUri(peer);
+  const parsedUri = parseNodeUri(peer);
   if (parsedUri.isErr()) {
     return err(parsedUri.error.message);
   }
@@ -250,16 +302,11 @@ export const addPeer = async ({
  * @returns {Promise<Result<string[]>>}
  */
 export const addPeers = async ({
-  selectedWallet,
   selectedNetwork,
 }: {
-  selectedWallet?: TWalletName;
   selectedNetwork?: TAvailableNetworks;
 } = {}): Promise<Result<string[]>> => {
   try {
-    if (!selectedWallet) {
-      selectedWallet = getSelectedWallet();
-    }
     if (!selectedNetwork) {
       selectedNetwork = getSelectedNetwork();
     }
@@ -268,10 +315,10 @@ export const addPeers = async ({
     // Defaulting to LSP and a few other well connected peers.
     // const customLightningPeers = getCustomLightningPeers({
     //   selectedNetwork,
-    //   selectedWallet,
     // });
     // const peers = [...defaultLightningPeers, ...customLightningPeers];
 
+    // focusing on default peers only for now.
     const addPeerRes = await Promise.all(
       defaultLightningPeers.map(async (peer) => {
         const addPeerResponse = await addPeer({
@@ -290,6 +337,43 @@ export const addPeers = async ({
     console.log(e);
     return err(e);
   }
+};
+
+/**
+ * Attempts to save a custom lightning peer to storage.
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} peer
+ */
+export const savePeer = ({
+  selectedNetwork,
+  peer,
+}: {
+  selectedNetwork?: TAvailableNetworks;
+  peer: string;
+}): Result<string> => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+
+  if (!peer) {
+    return err('Invalid Peer Data');
+  }
+  // Check that the URI is valid.
+  const parsedPeerData = parseNodeUri(peer);
+  if (parsedPeerData.isErr()) {
+    return err(parsedPeerData.error.message);
+  }
+  // Ensure we haven't already added this peer.
+  const existingPeers = getCustomLightningPeers({
+    selectedNetwork,
+  });
+  if (existingPeers.includes(peer)) {
+    return ok('Peer Already Added');
+  }
+
+  // add peer to state store
+  store.dispatch.lightning.addPeer(peer);
+  return ok('Successfully Saved Lightning Peer.');
 };
 
 /**
@@ -326,9 +410,7 @@ export const startLightning = async ({
     }
     let isConnectedToElectrum = false;
 
-    // get the LSP (Voltage at the moment) ready to buy liquidity
-    // await setupLSP(selectedNetwork);
-    // updateExchangeRates().then();
+    store.dispatch.lightning.setLdkState(NodeState.START);
 
     // connect to electrum
     const electrumResponse = await connectToElectrum({
@@ -363,6 +445,8 @@ export const startLightning = async ({
       }
     }
 
+    store.dispatch.lightning.setLdkState(NodeState.START);
+
     // Setup LDK
     if (isConnectedToElectrum) {
       const setupResponse = await setupLdk({
@@ -371,6 +455,8 @@ export const startLightning = async ({
       });
       if (setupResponse.isOk()) {
         keepLdkSynced({ selectedNetwork }).then();
+      } else {
+        store.dispatch.lightning.setLdkState(NodeState.ERROR);
       }
     }
 
@@ -392,7 +478,7 @@ export const startLightning = async ({
     if (!isRunning) {
       startLightning({ selectedNetwork });
     } else {
-      store.dispatch.lightning.setNodeStarted(true);
+      store.dispatch.lightning.setLdkState(NodeState.COMPLETE);
     }
 
     return ok('Wallet started');
@@ -492,7 +578,6 @@ export const getLightningChannels = (): Promise<Result<TChannel[]>> => {
 /**
  * Attempts to update the lightning channels for the given wallet and network.
  * This method will save all channels (both pending, open & closed) to redux and update openChannelIds to reference channels that are currently open.
- * @param {TWalletName} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
  */
 export const updateLightningChannels = async (): Promise<Result<TChannel[]>> => {
@@ -515,22 +600,28 @@ export const updateLightningChannels = async (): Promise<Result<TChannel[]>> => 
     channels,
     openChannelIds,
   };
-  // update channels in lightning store
-  store.dispatch.lightning.updateChannels(payload.channels);
-  // update open channels
-  store.dispatch.lightning.updateOpenChannels(payload.openChannelIds);
+
+  // update channels and openChannelIDs object in lightning store
+  store.dispatch.lightning.updateChannels(payload);
   return ok(lightningChannels.value);
 };
 
 /**
- * Retrieves the total wallet display values for the currently selected wallet and network.
+ * Retrieves the total wallet display values for the currently selected network.
  * @param {boolean} [subtractReserveBalance]
+ * @param {TAvailableNetworks} [selectedNetwork]
  */
 export const getTotalBalance = ({
   subtractReserveBalance = true,
+  selectedNetwork,
 }: {
+  selectedNetwork?: TAvailableNetworks;
   subtractReserveBalance?: boolean;
 }): number => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+
   let balance = 0;
 
   // get openchannel ids from lightning store
@@ -538,6 +629,7 @@ export const getTotalBalance = ({
   // get all channels from lightning store
   const channels = getLightningStore().channels;
   // filter channels array so we only remain with open channels
+
   const openChannels = Object.values(channels).filter((channel) => {
     return openChannelIds.includes(channel.channel_id);
   });
@@ -577,6 +669,7 @@ export const getClaimableBalance = async ({
     subtractReserveBalance: false,
   });
   const claimableBalanceRes = await ldk.claimableBalances(ignoreOpenChannels);
+  console.log('@claimableBalanceRes: ', claimableBalanceRes);
   if (claimableBalanceRes.isErr()) {
     return 0;
   }
@@ -606,8 +699,8 @@ export const updateClaimableBalance = async ({
 
   const claimableBalance = await getClaimableBalance({
     selectedNetwork,
+    ignoreOpenChannels: false,
   });
-
   // update claimable balance in store
   store.dispatch.lightning.updateClaimableBalance(claimableBalance);
   return ok('Successfully Updated Claimable Balance.');
@@ -616,13 +709,10 @@ export const updateClaimableBalance = async ({
 /**
  * Removes a lightning invoice from the invoices array via its payment hash.
  * @param {string} paymentHash
- * @param {TAvailableNetworks} [selectedNetwork]
- * @param {TWalletName} [selectedWallet]
  * @returns {Promise<Result<string>>}
  */
 export const removeInvoice = async ({
   paymentHash,
-  selectedNetwork,
 }: {
   paymentHash: string;
   selectedNetwork?: TAvailableNetworks;
@@ -630,25 +720,8 @@ export const removeInvoice = async ({
   if (!paymentHash) {
     return err('No payment hash provided.');
   }
-  if (!selectedNetwork) {
-    selectedNetwork = getSelectedNetwork();
-  }
 
-  const payload = {
-    paymentHash,
-  };
-
-  // get all invoices in state
-  const invoices = getLightningStore().invoices;
-  // find index of the invoice with matching payment_hash within the invoice array
-  const invoiceIndex = invoices.findIndex((i) => i.payment_hash === payload.paymentHash);
-
-  if (invoiceIndex !== -1) {
-    // use splice() to remove the invoice from the array
-    const invoiceToRemove = invoices.splice(invoiceIndex, 1)[0];
-    // remove invoice in store object
-    store.dispatch.lightning.removeInvoice(invoiceToRemove);
-  }
+  store.dispatch.lightning.removeInvoice(paymentHash);
 
   return ok('Successfully removed lightning invoice.');
 };
@@ -690,7 +763,7 @@ export const addPayment = ({
   // add payment to store once confirmed
   store.dispatch.lightning.addPayment(payload);
   // and remove associated invoice from store via matching payment_hash
-  store.dispatch.lightning.removeInvoice(invoice);
+  store.dispatch.lightning.removeInvoice(invoice.payment_hash);
   return ok('Successfully added lightning payment.');
 };
 

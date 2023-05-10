@@ -1,6 +1,10 @@
 apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"
 
+// added for react-native-camera-kit: https://github.com/teslamotors/react-native-camera-kit/blob/master/docs/kotlin.md
+apply plugin: "kotlin-android"
+apply plugin: "kotlin-android-extensions"
+
 import com.android.build.OutputFile
 
 /**

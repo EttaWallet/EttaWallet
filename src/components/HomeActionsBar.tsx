@@ -8,15 +8,16 @@ import { moderateScale, verticalScale } from '../utils/sizing';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 
 interface Props {
-  onRequest?: () => void;
-  onSend?: () => void;
+  onPressRequest?: () => void;
+  onPressSend?: () => void;
+  onPressScan?: () => void;
 }
 
 export default function HomeActionsBar(props: Props) {
   const onPressSend = () => {
     cueInformativeHaptic();
-    if (props.onSend) {
-      props.onSend?.();
+    if (props.onPressSend) {
+      props.onPressSend?.();
     } else {
       navigate(Screens.LightningChannelsIntroScreen);
     }
@@ -24,15 +25,20 @@ export default function HomeActionsBar(props: Props) {
 
   const onPressRequest = () => {
     cueInformativeHaptic();
-    if (props.onRequest) {
-      props.onRequest?.();
+    if (props.onPressRequest) {
+      props.onPressRequest?.();
     } else {
       navigate(Screens.ReceiveScreen, {});
     }
   };
 
   const onPressQrCode = () => {
-    navigate(Screens.TestScreen);
+    cueInformativeHaptic();
+    if (props.onPressScan) {
+      props.onPressScan?.();
+    } else {
+      navigate(Screens.ScanQRCodeScreen, {});
+    }
   };
 
   const { t } = useTranslation();

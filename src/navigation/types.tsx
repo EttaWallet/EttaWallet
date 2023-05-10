@@ -48,6 +48,7 @@ export type StackParamList = {
   [Screens.FAQScreen]: undefined;
   [Screens.TestScreen]: undefined;
   [Screens.StartLN]: undefined;
+  [Screens.StartLdkScreen]: undefined;
   [Screens.ReceiveScreen]:
     | {
         amount?: string;
@@ -64,4 +65,14 @@ export type StackParamList = {
   [Screens.ActivityDetailsScreen]: {
     transaction: TLightningPayment;
   };
+  [Screens.ActivityDetailsScreen]: {
+    transaction: TLightningPayment;
+  };
+  [Screens.ScanQRCodeScreen]: undefined;
+  [Screens.SendScreen]:
+    | {
+        amount?: string;
+        paymentRequest?: string;
+      }
+    | undefined;
 };

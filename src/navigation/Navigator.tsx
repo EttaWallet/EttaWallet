@@ -25,12 +25,14 @@ import DisclaimerScreen from '../shared/DisclaimerScreen';
 import SetPinScreen from '../screens/SetPinScreen';
 import EnableBiometry from '../screens/EnableBiometryScreen';
 import EnterPin from '../shared/EnterPinScreen';
-import StartLN from '../screens/StartLN';
 import ReceiveScreen from '../screens/ReceiveScreen';
 import LightningChannelsIntroScreen from '../screens/LightningChannelsIntro';
 import JITLiquidityScreen from '../screens/JITLiquidityScreen';
 import ActivityScreen from '../screens/ActivityScreen';
 import ActivityDetailsScreen from '../screens/ActivityDetailsScreen';
+import SendScreen from '../screens/SendScreen';
+import StartLdkScreen from '../screens/StartLdkScreen';
+import ScanQRCodeScreen from '../screens/ScanQRCodeScreen';
 
 const TAG = 'Navigator';
 
@@ -67,6 +69,16 @@ const walletScreens = (Navigator: typeof Stack) => {
         options={ReceiveScreen.navigationOptions as NativeStackNavigationOptions}
       />
       <Navigator.Screen
+        name={Screens.SendScreen}
+        component={SendScreen}
+        options={SendScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.ScanQRCodeScreen}
+        component={ScanQRCodeScreen}
+        options={ScanQRCodeScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
         name={Screens.ActivityScreen}
         component={ActivityScreen}
         options={ActivityScreen.navigationOptions as NativeStackNavigationOptions}
@@ -93,7 +105,11 @@ const onboardingScreens = (Navigator: typeof Stack) => {
         component={EnableBiometry}
         options={EnableBiometry.navigationOptions}
       />
-      <Navigator.Screen name={Screens.StartLN} component={StartLN} options={noHeader} />
+      <Navigator.Screen
+        name={Screens.StartLdkScreen}
+        component={StartLdkScreen}
+        options={StartLdkScreen.navOptions}
+      />
       <Navigator.Screen
         name={Screens.WelcomeScreen}
         component={WelcomeScreen}
@@ -118,7 +134,7 @@ export const MainStackScreen = () => {
     if (!acknowledgedDisclaimer || pinType === PinType.Unset) {
       initialRoute = Screens.WelcomeScreen;
     } else if (!nodeIsUp) {
-      initialRoute = choseRestoreWallet ? Screens.RestoreWalletScreen : Screens.StartLN;
+      initialRoute = choseRestoreWallet ? Screens.RestoreWalletScreen : Screens.StartLdkScreen;
     } else {
       initialRoute = Screens.DrawerNavigator;
     }

@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, TypographyPresets, Colors, Icon } from 'etta-ui';
+import { Button, TypographyPresets, Colors } from 'etta-ui';
 import { SafeAreaView, View, StyleSheet, Text } from 'react-native';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
@@ -12,6 +12,7 @@ import { PinType } from '../utils/types';
 import { sleep } from '../utils/helpers';
 import { createDefaultWallet } from '../utils/wallet';
 import Logger from '../utils/logger';
+import Logo from '../icons/Logo';
 
 const TAG = 'WelcomeScreen';
 
@@ -40,7 +41,7 @@ const WelcomeScreen = () => {
       navigate(Screens.EnableBiometryScreen);
       // check if node is available on device
     } else if (nodeIsUp === false || nodeId === '') {
-      navigate(Screens.StartLN);
+      navigate(Screens.StartLdkScreen);
     } else {
       navigate(Screens.DrawerNavigator);
     }
@@ -73,27 +74,23 @@ const WelcomeScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headers}>
-        <View style={styles.iconContainer}>
-          <Icon name="icon-lightning" style={styles.appIcon} />
-        </View>
+        <Logo height={80} />
         <Text style={styles.appName}>{APP_NAME}</Text>
         <Text style={styles.subtitle}>{t('welcome.subtitle')}</Text>
       </View>
-      <View style={styles.buttonContainer}>
-        <Button
-          style={styles.button}
-          title={!creatingWallet ? t('welcome.createNewWallet') : 'Creating wallet ...'}
-          appearance="filled"
-          onPress={createWalletHandler}
-          disabled={creatingWallet}
-        />
-        <Button
-          style={styles.button}
-          title={t('welcome.restoreWallet')}
-          appearance="transparent"
-          onPress={restoreWalletHandler}
-        />
-      </View>
+      <Button
+        style={styles.button}
+        title={!creatingWallet ? t('welcome.createNewWallet') : 'Creating wallet ...'}
+        appearance="filled"
+        onPress={createWalletHandler}
+        disabled={creatingWallet}
+      />
+      <Button
+        style={styles.button}
+        title={t('welcome.restoreWallet')}
+        appearance="transparent"
+        onPress={restoreWalletHandler}
+      />
       <View style={styles.footer}>
         <Text style={styles.footerText}>{t('welcome.footer')}</Text>
       </View>
@@ -109,36 +106,20 @@ const styles = StyleSheet.create({
   },
   headers: {
     flex: 1,
-    justifyContent: 'flex-start',
-  },
-  iconContainer: {
-    alignSelf: 'center',
     justifyContent: 'center',
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#401D18',
-    marginVertical: 20,
-  },
-  appIcon: {
-    alignSelf: 'center',
-    justifyContent: 'center',
-    fontSize: 52,
-    color: '#FF682C',
+    alignItems: 'center',
+    marginTop: 60,
   },
   appName: {
     ...TypographyPresets.Header1,
     textAlign: 'center',
-    color: '#401D18',
+    color: Colors.common.black,
   },
   subtitle: {
     ...TypographyPresets.Body3,
     marginBottom: 50,
     textAlign: 'center',
     color: Colors.neutrals.light.neutral7,
-  },
-  buttonContainer: {
-    marginTop: 100,
   },
   button: {
     marginBottom: 10,

@@ -1,9 +1,8 @@
 import * as electrum from 'rn-electrum-client/helpers';
 import { err, ok, Result } from '../result';
-import { getAddressFromScriptPubKey, subscribeToAddresses, updateHeader } from './helpers';
+import { getAddressFromScriptPubKey, updateHeader } from './helpers';
 import { Block } from 'bitcoinjs-lib';
 import {
-  IBitcoinTransactionData,
   ICustomElectrumPeer,
   IGetHeaderResponse,
   IHeader,
@@ -306,65 +305,15 @@ export const getAddressBalance = async ({
   }
 };
 
-/**
- * Returns onchain transaction data related to the specified network and wallet.
- * @param {TWalletName} [selectedWallet]
- * @param {TAvailableNetworks} [selectedNetwork]
- */
-export const getOnchainTransactionData = ({
-  selectedNetwork,
-}: {
-  selectedNetwork?: TAvailableNetworks;
-}): Result<IBitcoinTransactionData> => {
-  try {
-    if (!selectedNetwork) {
-      selectedNetwork = getSelectedNetwork();
-    }
-    const transaction = store.getState().wallet.walletinfo.transaction;
-    if (transaction) {
-      return ok(transaction);
-    }
-    return err('Unable to get transaction data.');
-  } catch (e) {
-    return err(e);
-  }
-};
-
 export const broadcastTransaction = async ({
   rawTx,
   selectedNetwork,
-  subscribeToOutputAddress = true,
 }: {
   rawTx: string;
   selectedNetwork?: TAvailableNetworks;
-  subscribeToOutputAddress?: boolean;
 }): Promise<Result<string>> => {
   if (!selectedNetwork) {
     selectedNetwork = getSelectedNetwork();
-  }
-
-  /**
-   * Subscribe to the output address and refresh the wallet when the Electrum server detects it.
-   * This prevents updating the wallet prior to the Electrum server detecting the new tx in the mempool.
-   */
-  if (subscribeToOutputAddress) {
-    const transaction = getOnchainTransactionData({
-      selectedNetwork,
-    });
-    if (transaction.isErr()) {
-      return err(transaction.error.message);
-    }
-    const address = transaction.value.outputs[0]?.address;
-    if (address) {
-      const scriptHash = await getBitcoinScriptHash(address, selectedNetwork);
-      console.log('@broadcastTransaction', scriptHash);
-      if (scriptHash) {
-        await subscribeToAddresses({
-          selectedNetwork,
-          scriptHashes: [scriptHash],
-        });
-      }
-    }
   }
 
   const broadcastResponse = await electrum.broadcastTransaction({

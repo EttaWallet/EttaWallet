@@ -165,7 +165,7 @@ export function navigateHome(options?: NavigateHomeOptions) {
   const { params } = options ?? {};
   navigationRef.current?.reset({
     index: 0,
-    routes: [{ name: Screens.WalletHomeScreen, params }],
+    routes: [{ name: Screens.DrawerNavigator, params }],
   });
 }
 

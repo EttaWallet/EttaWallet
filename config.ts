@@ -20,3 +20,5 @@ export const FAQ_LINK = 'https://ettawallet.app/faq';
 
 export const VOLTAGE_LSP_API_TESTNET = 'https://testnet-lsp.voltageapi.com/api/v1/proposal';
 export const VOLTAGE_LSP_FEE_ESTIMATE_API = 'https://testnet-lsp.voltageapi.com/api/v1/fee';
+
+export const ALERTS_DURATION = 5000;

@@ -6,9 +6,6 @@ import {
   IFormattedPeerData,
   IHeader,
   ISubscribeToAddress,
-  ITransaction,
-  ITxHash,
-  IUtxo,
   TWalletName,
 } from '../types';
 import { ok } from 'assert';
@@ -173,75 +170,6 @@ export const getAddressFromScriptPubKey = (
   }
   const network = networks[selectedNetwork];
   return bitcoin.address.fromOutputScript(Buffer.from(scriptPubKey, 'hex'), network);
-};
-
-interface IGetTransactions {
-  error: boolean;
-  id: number;
-  method: string;
-  network: string;
-  data: ITransaction<IUtxo>[];
-}
-
-/**
- * Returns available transactions from electrum based on the provided txHashes.
- * @param {ITxHash[]} txHashes
- * @param {TAvailableNetworks} [selectedNetwork]
- * @return {Promise<Result<IGetTransactions>>}
- */
-export const getTransactions = async ({
-  txHashes = [],
-  selectedNetwork,
-}: {
-  txHashes: ITxHash[];
-  selectedNetwork?: TAvailableNetworks;
-}): Promise<Result<IGetTransactions>> => {
-  console.log(`found ${txHashes.length} total hashes: ${JSON.stringify(txHashes)}`);
-  try {
-    if (!selectedNetwork) {
-      selectedNetwork = getSelectedNetwork();
-    }
-    // gracious fail if no tx hashes
-    if (txHashes.length < 1) {
-      return ok({
-        error: false,
-        id: 0,
-        method: 'getTransactions',
-        network: selectedNetwork,
-        data: [],
-      });
-    }
-
-    const result: ITransaction<IUtxo>[] = [];
-
-    // split payload in chunks of 10 transactions per-request
-    for (let i = 0; i < txHashes.length; i += CHUNK_LIMIT) {
-      const chunk = txHashes.slice(i, i + CHUNK_LIMIT);
-
-      const data = {
-        key: 'tx_hash',
-        data: chunk,
-      };
-      const response = await electrum.getTransactions({
-        txHashes: data,
-        network: selectedNetwork,
-      });
-      console.log('electrum getTransactions response: ', JSON.stringify(response));
-      if (response.error) {
-        return err(response);
-      }
-      result.push(...response.data);
-    }
-    return ok({
-      error: false,
-      id: 0,
-      method: 'getTransactions',
-      network: selectedNetwork,
-      data: result,
-    });
-  } catch (e) {
-    return err(e);
-  }
 };
 
 export const getTransactionMerkle = async ({

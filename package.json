@@ -16,7 +16,8 @@
     "clean:rn": "watchman watch-del-all && rimraf node_modules nodejs-assets/nodejs-project/node_modules && yarn && rimraf /tmp/metro-*",
     "clean:android": "cd android && rimraf build app/build && ./gradlew clean",
     "clean:ios": "cd ios && rimraf Pods Podfile.lock build && pod deintegrate && arch -x86_64 pod install",
-    "postinstall": "node postinstall.js"
+    "ios-permissions": "react-native setup-ios-permissions",
+    "postinstall": "yarn ios-permissions && node postinstall.js"
   },
   "dependencies": {
     "@bitcoinerlab/secp256k1": "^1.0.2",
@@ -54,6 +55,7 @@
     "react-async-hook": "^4.0.0",
     "react-i18next": "^12.1.5",
     "react-native": "0.70.6",
+    "react-native-camera-kit": "^13.0.0",
     "react-native-circular-progress-indicator": "^4.4.2",
     "react-native-config": "^1.5.0",
     "react-native-crypto": "^2.1.0",
@@ -66,6 +68,8 @@
     "react-native-localize": "^2.2.4",
     "react-native-mmkv": "2.5.1",
     "react-native-mmkv-flipper-plugin": "^1.0.0",
+    "react-native-modal": "^13.0.1",
+    "react-native-permissions": "^3.8.0",
     "react-native-qrcode-svg": "^6.2.0",
     "react-native-randombytes": "^3.6.1",
     "react-native-reanimated": "^2.14.4",
@@ -147,5 +151,12 @@
     "_stream_passthrough": "readable-stream/passthrough",
     "stream": "stream-browserify",
     "vm": "vm-browserify"
-  }
+  },
+  "reactNativePermissionsIOS": [
+    "Camera",
+    "FaceID",
+    "MediaLibrary",
+    "Microphone",
+    "Notifications"
+  ]
 }

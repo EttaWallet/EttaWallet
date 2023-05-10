@@ -2,9 +2,9 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import {
   EPaymentType,
+  NodeState,
   TLightningNodeVersion,
   TLightningPayment,
-  TOpenChannelIds,
 } from '../../utils/types';
 import { TChannel, TInvoice } from '@synonymdev/react-native-ldk';
 import { startLightning } from '../../utils/lightning/helpers';
@@ -16,11 +16,12 @@ const TAG = 'LightningStore';
 // @TODO: add translatable strings to error and success messages
 
 export interface LightningNodeModelType {
+  ldkState: NodeState;
   nodeId: string | null;
   nodeStarted: boolean;
   ldkVersion: TLightningNodeVersion;
   channels: { [key: string]: TChannel };
-  openChannelIds: TOpenChannelIds;
+  openChannelIds: string[];
   invoices: TInvoice[];
   payments: { [key: string]: TLightningPayment };
   peers: string[];
@@ -28,18 +29,20 @@ export interface LightningNodeModelType {
   setNodeId: Action<LightningNodeModelType, string>;
   setNodeStarted: Action<LightningNodeModelType, boolean>;
   startLdk: Thunk<LightningNodeModelType>;
+  setLdkState: Action<LightningNodeModelType, NodeState>;
   setLdkVersion: Action<LightningNodeModelType, TLightningNodeVersion>;
   addInvoice: Action<LightningNodeModelType, TInvoice>;
-  removeInvoice: Action<LightningNodeModelType, TInvoice>;
+  removeInvoice: Action<LightningNodeModelType, string>;
   updateInvoices: Action<LightningNodeModelType, { index: number; invoice: TInvoice }>;
-  updateChannels: Action<LightningNodeModelType, { [key: string]: TChannel }>;
-  updateOpenChannels: Action<LightningNodeModelType, string[]>;
+  updateChannels: Action<LightningNodeModelType, Partial<LightningNodeModelType>>;
   updateClaimableBalance: Action<LightningNodeModelType, number>;
   removeExpiredInvoices: Action<LightningNodeModelType, TInvoice[]>;
   addPayment: Action<LightningNodeModelType, TLightningPayment>;
+  addPeer: Action<LightningNodeModelType, string>;
 }
 
 export const lightningModel: LightningNodeModelType = {
+  ldkState: NodeState.OFFLINE,
   nodeStarted: false,
   nodeId: null,
   ldkVersion: {
@@ -65,12 +68,18 @@ export const lightningModel: LightningNodeModelType = {
       const isLdkUp = await isLdkRunning();
       // if nuh, start all lightning services (testnet)
       if (!isLdkUp) {
-        await startLightning({ selectedNetwork: 'bitcoinTestnet' });
+        await startLightning({});
         // check for node ID
         await waitForLdk();
       }
     } catch (error) {
       logger.error(TAG, '@startLdk', error.message);
+    }
+  }),
+  setLdkState: action((state, payload) => {
+    state.ldkState = payload;
+    if (payload === NodeState.COMPLETE) {
+      state.nodeStarted = true;
     }
   }),
   setNodeStarted: action((state, payload) => {
@@ -80,10 +89,10 @@ export const lightningModel: LightningNodeModelType = {
     state.invoices.push(payload);
   }),
   removeInvoice: action((state, payload) => {
-    const invoices = state.invoices;
-    // create new invoice array with the invoice in payload removed
-    const newInvoices = invoices.filter((i) => i.payment_hash !== payload.payment_hash);
-    state.invoices = newInvoices;
+    const index = state.invoices.findIndex((invoice) => invoice.payment_hash === payload);
+    if (index !== -1) {
+      state.invoices.splice(index, 1);
+    }
   }),
   updateInvoices: action((state, payload) => {
     state.invoices[payload.index] = payload.invoice;
@@ -94,14 +103,12 @@ export const lightningModel: LightningNodeModelType = {
   updateChannels: action((state, payload) => {
     state.channels = {
       ...state.channels,
-      ...payload,
+      ...(payload?.channels ?? {}),
     };
-  }),
-  updateOpenChannels: action((state, payload) => {
-    state.openChannelIds = {
-      ...state.openChannelIds,
-      ...payload,
-    };
+    // check if channel already exists in openChannelIDs array
+    const newChannelIds = payload?.openChannelIds ?? [];
+    const uniqueIds = newChannelIds.filter((id) => !state.openChannelIds.includes(id));
+    state.openChannelIds = [...state.openChannelIds, ...uniqueIds];
   }),
   updateClaimableBalance: action((state, payload) => {
     state.claimableBalance = payload;
@@ -118,5 +125,8 @@ export const lightningModel: LightningNodeModelType = {
             : EPaymentType.sent,
       },
     };
+  }),
+  addPeer: action((state, payload) => {
+    state.peers.push(payload);
   }),
 };

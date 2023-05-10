@@ -6,7 +6,6 @@ import {
   IKeyDerivationPath,
   IKeyDerivationPathData,
   IOnchainFees,
-  IWallets,
   TKeyDerivationAccount,
   TKeyDerivationAccountType,
   TKeyDerivationChange,
@@ -62,20 +61,12 @@ export const getSelectedWallet = (): TWalletName => {
  * Returns the currently selected address type (p2pkh | p2sh | p2wpkh | p2tr).
  * @returns {EAddressType}
  */
-export const getSelectedAddressType = ({
-  selectedNetwork,
-}: {
-  selectedNetwork?: TAvailableNetworks;
-} = {}): EAddressType => {
-  if (!selectedNetwork) {
-    selectedNetwork = getSelectedNetwork();
-  }
-
+export const getSelectedAddressType = ({}: {} = {}): EAddressType => {
   const wallet = getWalletStore().walletinfo;
-  if (wallet?.addressType[selectedNetwork]) {
-    return wallet.addressType[selectedNetwork];
+  if (wallet?.addressType) {
+    return wallet.addressType;
   } else {
-    return getDefaultWalletShape().addressType[selectedNetwork];
+    return getDefaultWalletShape().addressType;
   }
 };
 
@@ -421,7 +412,7 @@ export const createDefaultWallet = async ({
   bip39Passphrase = '',
   addressTypes,
   selectedNetwork,
-}: ICreateWallet): Promise<Result<IWallets>> => {
+}: ICreateWallet): Promise<Result<IWallet>> => {
   try {
     if (!selectedNetwork) {
       selectedNetwork = getSelectedNetwork();
@@ -471,11 +462,7 @@ export const createDefaultWallet = async ({
     const payload: IWallet = {
       ...defaultWalletShape,
       seedHash: hash,
-      addressType: {
-        bitcoin: selectedAddressType,
-        bitcoinTestnet: selectedAddressType,
-        bitcoinRegtest: selectedAddressType,
-      },
+      addressType: selectedAddressType,
       id: walletName,
     };
 

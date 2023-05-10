@@ -21,10 +21,13 @@ export enum Screens {
   FAQScreen = 'FAQScreen',
   TestScreen = 'TestScreen',
   StartLN = 'StartLN',
+  StartLdkScreen = 'StartLdkScreen',
   ReceiveScreen = 'ReceiveScreen',
   LightningChannelsIntroScreen = 'LightningChannelsIntroScreen',
   JITLiquidityScreen = 'JITLiquidityScreen',
   ChannelsScreen = 'ChannelsScreen',
   ActivityScreen = 'ActivityScreen',
   ActivityDetailsScreen = 'ActivityDetailsScreen',
+  ScanQRCodeScreen = 'ScanQRCodeScreen',
+  SendScreen = 'SendScreen',
 }

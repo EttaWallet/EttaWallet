@@ -24,6 +24,16 @@ const ActivityDetailsScreen = ({ route }: Props) => {
         </View>
         <View>
           <InfoListItem
+            title="When"
+            value={humanizeTimestamp(transaction.invoice.timestamp, i18n)}
+          />
+          <InfoListItem
+            title="Payment request"
+            value={transaction.invoice.to_str}
+            canCopy={true}
+            maskValue={true}
+          />
+          <InfoListItem
             title="From node"
             value={transaction.invoice.payee_pub_key}
             valueIsNumeric={false}
@@ -31,12 +41,9 @@ const ActivityDetailsScreen = ({ route }: Props) => {
             maskValue={true}
           />
           <InfoListItem
-            title="When"
-            value={humanizeTimestamp(transaction.invoice.timestamp, i18n)}
-          />
-          <InfoListItem
-            title="Payment request"
-            value={transaction.invoice.to_str}
+            title="Payment hash"
+            value={transaction.invoice.payment_hash}
+            valueIsNumeric={false}
             canCopy={true}
             maskValue={true}
           />

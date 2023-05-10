@@ -22,6 +22,7 @@ import { startLightning } from '../utils/lightning/helpers';
 import usePaymentRequestBottomSheet from '../components/usePaymentRequestBottomSheet';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
+import useSendBottomSheet from '../components/useSendBottomSheet';
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
@@ -29,12 +30,11 @@ const WalletHomeScreen = () => {
   const nodeStarted = useStoreState((state) => state.lightning.nodeStarted);
   const currentBlockHeight = useStoreState((state) => state.wallet.header.height);
 
-  const {
-    openPaymentRequestSheet,
-    newPaymentRequestBottomSheet,
-    openSendSheet,
-    sendBitcoinBottomSheet,
-  } = usePaymentRequestBottomSheet({});
+  const { openPaymentRequestSheet, newPaymentRequestBottomSheet } = usePaymentRequestBottomSheet(
+    {}
+  );
+
+  const { openOptionsSheet, sendOptionsBottomSheet } = useSendBottomSheet({});
   const [refreshing, setRefreshing] = useState(false);
 
   const scrollPosition = useRef(new Animated.Value(0)).current;
@@ -68,9 +68,19 @@ const WalletHomeScreen = () => {
     data: [{}],
     renderItem: () => <HomeBalance key={'HomeBalance'} />,
   };
-
   // @ts-ignore
   sections.push(balanceSection);
+
+  const transactionsSection = {
+    data: [{}],
+    renderItem: () => (
+      <View style={styles.transactionsSection}>
+        <Chip onPress={onPressTransactions}>Transactions</Chip>
+      </View>
+    ),
+  };
+  // @ts-ignore
+  sections.push(transactionsSection);
 
   const NodeStatus = () => {
     // @todo: setup an enum to track Node state and switch color i.e:
@@ -107,12 +117,9 @@ const WalletHomeScreen = () => {
         contentContainerStyle={styles.balanceSection}
         showsVerticalScrollIndicator={false}
       />
-      <Chip onPress={onPressTransactions} icon="icon-transactions" iconPosition="left">
-        Transactions
-      </Chip>
-      <HomeActionsBar onSend={openSendSheet} onRequest={openPaymentRequestSheet} />
+      <HomeActionsBar onPressSend={openOptionsSheet} onPressRequest={openPaymentRequestSheet} />
       {newPaymentRequestBottomSheet}
-      {sendBitcoinBottomSheet}
+      {sendOptionsBottomSheet}
     </SafeAreaView>
   );
 };
@@ -129,9 +136,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  homeButtonsGroup: {
-    flexDirection: 'row',
-    marginBottom: verticalScale(20),
+  transactionsSection: {
+    position: 'relative',
+    marginHorizontal: 'auto',
+    marginTop: 100,
   },
   dotContainer: {
     width: scale(8),

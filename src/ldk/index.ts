@@ -220,7 +220,6 @@ export const setupLdk = async ({
       const res = await broadcastTransaction({
         rawTx,
         selectedNetwork,
-        subscribeToOutputAddress: false,
       });
       if (res.isErr()) {
         return '';

@@ -115,9 +115,11 @@ const TransactionItem = ({ invoice, type, showFiat }: TransactionItemProps) => {
   );
 };
 
-const ActivityScreen = (props: Props) => {
+const ActivityScreen = ({}: Props) => {
   const [fetchingTransactions, setIsFetchingTransactions] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loading, setLoading] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState(Error);
 
   const paymentsStore = getLightningStore().payments;
@@ -163,6 +165,7 @@ const ActivityScreen = (props: Props) => {
         <SectionList
           renderItem={renderItem}
           renderSectionHeader={(item) => <FeedHeader text={item.section.title} />}
+          //@ts-ignore TODO: check data object and types
           sections={sections}
           keyExtractor={(item) =>
             `${item.invoice.payment_hash}-${item.invoice.timestamp.toString()}`

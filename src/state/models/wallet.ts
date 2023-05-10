@@ -2,51 +2,20 @@ import { Action, action } from 'easy-peasy';
 import { TAvailableNetworks } from '../../utils/networks';
 import {
   EAddressType,
-  EBoostType,
-  EFeeId,
   IAddressTypes,
-  IBitcoinTransactionData,
-  IFormattedTransactions,
   IHeader,
   IKeyDerivationPath,
   IOnchainFees,
   IWallet,
-  IWalletItem,
   TWalletName,
   addressTypes,
   defaultKeyDerivationPath,
-  numberTypeItems,
-  objectTypeItems,
 } from '../../utils/types';
 import { EAvailableNetworks } from '../../utils/networks';
 import { header as headerShape } from '../../utils/types';
 import { cloneDeep } from 'lodash';
 
 // @TODO: add translatable strings to error and success messages
-
-export const defaultBitcoinTransactionData: IBitcoinTransactionData = {
-  outputs: [],
-  inputs: [],
-  changeAddress: '',
-  fiatAmount: 0,
-  fee: 512,
-  satsPerByte: 2,
-  selectedFeeId: EFeeId.none,
-  message: '',
-  label: '',
-  rbf: false,
-  boostType: EBoostType.cpfp,
-  minFee: 1,
-  max: false,
-  tags: [],
-  lightningInvoice: '',
-};
-
-export const bitcoinTransaction: Readonly<IWalletItem<IBitcoinTransactionData>> = {
-  bitcoin: defaultBitcoinTransactionData,
-  bitcoinTestnet: defaultBitcoinTransactionData,
-  bitcoinRegtest: defaultBitcoinTransactionData,
-};
 
 export interface WalletModelType {
   walletExists: boolean;
@@ -59,19 +28,13 @@ export interface WalletModelType {
     name: string;
     type: string;
     addressIndex: number;
-    transactions: IWalletItem<IFormattedTransactions>;
-    balance: IWalletItem<number>;
-    lastUpdated: IWalletItem<number>;
+    balance: number;
+    lastUpdated: number;
     hasBackedUpWallet: boolean;
     walletBackupTimestamp: string;
-    keyDerivationPath: IWalletItem<IKeyDerivationPath>;
-    networkTypePath: IWalletItem<string>;
-    addressType: {
-      bitcoin: EAddressType;
-      bitcoinTestnet: EAddressType;
-      bitcoinRegtest: EAddressType;
-    };
-    transaction: IWalletItem<IBitcoinTransactionData>;
+    keyDerivationPath: IKeyDerivationPath;
+    networkTypePath: string;
+    addressType: EAddressType;
   };
   setWalletExists: Action<WalletModelType, boolean>;
   setAddressIndex: Action<WalletModelType, number>;
@@ -92,30 +55,13 @@ export const walletModel: WalletModelType = {
     name: '',
     type: 'default',
     addressIndex: 0,
-    transactions: objectTypeItems,
-    balance: numberTypeItems,
-    lastUpdated: numberTypeItems,
+    balance: 0,
+    lastUpdated: 0,
     hasBackedUpWallet: false,
     walletBackupTimestamp: '',
-    keyDerivationPath: {
-      bitcoin: defaultKeyDerivationPath,
-      bitcoinTestnet: {
-        ...defaultKeyDerivationPath,
-        coinType: '0',
-      },
-      bitcoinRegtest: defaultKeyDerivationPath,
-    },
-    networkTypePath: {
-      bitcoin: '0',
-      bitcoinTestnet: '1',
-      bitcoinRegtest: '0',
-    },
-    addressType: {
-      bitcoin: EAddressType.p2wpkh,
-      bitcoinTestnet: EAddressType.p2wpkh,
-      bitcoinRegtest: EAddressType.p2wpkh,
-    },
-    transaction: bitcoinTransaction,
+    keyDerivationPath: defaultKeyDerivationPath,
+    networkTypePath: '1', // bitcoinTestnet
+    addressType: EAddressType.p2wpkh,
   },
   fees: {
     fast: 4, // 10-20 mins
