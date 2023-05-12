@@ -152,19 +152,22 @@ export const createLightningInvoice = async ({
   description,
   expiryDeltaSeconds,
   selectedNetwork,
+  checkOpenChannels = true,
 }: TCreateLightningInvoice): Promise<Result<TInvoice>> => {
   if (!selectedNetwork) {
     selectedNetwork = getSelectedNetwork();
   }
-  if (!hasOpenLightningChannels()) {
-    showToastWithCTA({
-      message: 'You have no open lightning channels so you can not send or receive yet',
-      title: 'No channel',
-      dismissAfter: 5000,
-      buttonLabel: 'Resolve',
-      buttonAction: () => navigate(Screens.LightningChannelsIntroScreen),
-    });
-    return err('You have no open lightning channels so you can not receive yet.');
+  if (checkOpenChannels) {
+    if (!hasOpenLightningChannels()) {
+      showToastWithCTA({
+        message: 'You have no open lightning channels so you can not send or receive yet',
+        title: 'No channel',
+        dismissAfter: 15000,
+        buttonLabel: 'Resolve',
+        buttonAction: () => navigate(Screens.LightningChannelsIntroScreen),
+      });
+      return err('You have no open lightning channels so you can not receive yet.');
+    }
   }
   const invoice = await createPaymentRequest({
     amountSats,
@@ -177,8 +180,6 @@ export const createLightningInvoice = async ({
 
   // dispath action to add invoice to state object
   store.dispatch.lightning.addInvoice(invoice.value);
-
-  // addPeers({ selectedNetwork }).then();
 
   return ok(invoice.value);
 };
@@ -465,8 +466,6 @@ export const startLightning = async ({
       });
       if (setupResponse.isOk()) {
         keepLdkSynced({ selectedNetwork }).then();
-      } else {
-        store.dispatch.lightning.setLdkState(NodeState.ERROR);
       }
     }
 
@@ -493,6 +492,7 @@ export const startLightning = async ({
 
     return ok('Wallet started');
   } catch (e) {
+    store.dispatch.lightning.setLdkState(NodeState.ERROR);
     return err(e);
   }
 };

@@ -13,7 +13,7 @@ import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import FormInput from './form/Input';
 import RadioCardOption from './RadioCardOption';
 import { isLdkRunning, waitForLdk } from '../ldk';
-import { createLightningInvoice, startLightning } from '../utils/lightning/helpers';
+import { addPeers, createLightningInvoice, startLightning } from '../utils/lightning/helpers';
 import { sleep } from '../utils/helpers';
 
 const useLiquidityOptionBottomSheet = () => {
@@ -59,10 +59,16 @@ const useLiquidityOptionBottomSheet = () => {
         }
         await waitForLdk();
         // proceed to create invoice
+
+        // check that peers exist before we create invoice;
+        addPeers().then();
+
+        // generate invoice to wrap
         const generateInvoice = await createLightningInvoice({
           amountSats: parseInt(liquidityAmount, 10),
           description: 'Zero conf channel for inbound liquidity',
           expiryDeltaSeconds: 86400, // expires after 24 hours
+          checkOpenChannels: false, // don't check for channels yet, just need an invoice to wrap
         });
 
         if (generateInvoice.isErr()) {

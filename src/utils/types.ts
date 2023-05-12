@@ -295,7 +295,7 @@ export type IInvoice = {
 
 export type TCreateLightningInvoice = TCreatePaymentReq & {
   selectedNetwork?: TAvailableNetworks;
-  selectedWallet?: TWalletName;
+  checkOpenChannels?: boolean;
 };
 
 export type TLightningPayment = {

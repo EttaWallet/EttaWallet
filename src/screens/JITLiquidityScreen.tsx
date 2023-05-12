@@ -15,6 +15,9 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { InfoListItem } from '../components/InfoListItem';
 import CancelButton from '../navigation/components/CancelButton';
 import { navigate } from '../navigation/NavigationService';
+import { sha256 } from 'react-native-sha256';
+import { decodeLightningInvoice } from '../utils/lightning/decode';
+import { showSuccessBanner } from '../utils/alerts';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
 const QR_CODE_WIDTH = WINDOW_WIDTH - 150;
@@ -63,7 +66,7 @@ const JITLiquidityScreen = ({ navigation, route }: Props) => {
         .then((response) => response.json())
         .then((data) => {
           setWrappedInvoice(data.jit_bolt11);
-          console.log(wrappedInvoice);
+          console.log('wrapped: ', wrappedInvoice);
         });
       setIsLoading(false);
     } catch (e) {
@@ -71,10 +74,35 @@ const JITLiquidityScreen = ({ navigation, route }: Props) => {
     }
   };
 
-  const confirmPayment = () => {
-    setPaymentConfirmed(!paymentConfirmed);
-    return 0;
-  };
+  useEffect(() => {
+    async function confirmPayment() {
+      console.log('checking');
+      setPaymentConfirmed(false);
+      try {
+        if (!wrappedInvoice) {
+          return;
+        }
+        console.log('checking1');
+        const decodeResponse = await decodeLightningInvoice({ paymentRequest: wrappedInvoice });
+        if (decodeResponse.isErr()) {
+          return;
+        }
+        const invoiceHash = sha256(decodeResponse.value.payment_hash);
+        console.log('invoiceHash: ', invoiceHash);
+        if (invoiceHash === decodeResponse.value.payment_hash) {
+          setPaymentConfirmed(true);
+          showSuccessBanner({
+            message: 'Your payment is confirmed',
+            title: 'Paid!',
+          });
+        }
+      } catch (e) {
+        console.log('Error@decodePaymentRequest: ', e);
+      }
+    }
+
+    confirmPayment();
+  }, [wrappedInvoice]);
 
   const estimateFees = async () => {
     try {
@@ -112,7 +140,7 @@ const JITLiquidityScreen = ({ navigation, route }: Props) => {
 
   const DynamicButton = () => {
     const ctaButtonTitle = paymentConfirmed ? 'Continue' : 'Check for payment';
-    const ctaAction = wrappedInvoice === '' ? getWrappedInvoice : confirmPayment;
+    const ctaAction = getWrappedInvoice;
     return (
       <Button
         title={ctaButtonTitle}

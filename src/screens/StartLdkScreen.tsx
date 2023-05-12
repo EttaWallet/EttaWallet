@@ -1,13 +1,26 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ActivityIndicator, BackHandler, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  BackHandler,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { noHeader } from '../navigation/Headers';
-import { navigateHome } from '../navigation/NavigationService';
+import { navigate, navigateHome } from '../navigation/NavigationService';
 import LottieView from 'lottie-react-native';
 import { NodeState } from '../utils/types';
-import { Button, Colors, TypographyPresets } from 'etta-ui';
+import { Button, Colors, Icon, TypographyPresets } from 'etta-ui';
 import { useStoreActions, useStoreState } from '../state/hooks';
-import { cueSuccessHaptic } from '../utils/accessibility/haptics';
+import { cueInformativeHaptic, cueSuccessHaptic } from '../utils/accessibility/haptics';
+import { restartApp } from '../utils/restart';
+import Clipboard from '@react-native-clipboard/clipboard';
+import { showToast } from '../utils/alerts';
+import { pressableHitSlop } from '../utils/helpers';
+import { Screens } from '../navigation/Screens';
 
 export function StartLdkScreen() {
   const ldkState = useStoreState((state) => state.lightning.ldkState);
@@ -15,12 +28,19 @@ export function StartLdkScreen() {
   const nodeId = useStoreState((state) => state.lightning.nodeId);
   const startNode = useStoreActions((actions) => actions.lightning.startLdk);
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   if (!nodeStarted) {
+  //     startNode().then();
+  //   }
+  //   return;
+  // }, [nodeStarted, startNode]);
+
+  const onPressStart = useCallback(() => {
     if (!nodeStarted) {
       startNode().then();
     }
     return;
-  }, [nodeStarted, startNode]);
+  }, [nodeStarted]);
 
   const onPressDone = () => {
     cueSuccessHaptic();
@@ -29,19 +49,55 @@ export function StartLdkScreen() {
     });
   };
 
+  const onPressOpenChannel = () => {
+    cueInformativeHaptic();
+    // go to channels intro
+    navigate(Screens.LightningChannelsIntroScreen);
+  };
+
+  const onPressCopy = () => {
+    Clipboard.setString(nodeId || '');
+    cueInformativeHaptic();
+    showToast({
+      message: 'Copied to your clipboard',
+    });
+  };
+
   const navigationButtons = useMemo(() => {
     switch (ldkState) {
+      case NodeState.OFFLINE:
+        return (
+          <View style={styles.buttonContainer}>
+            <Button title="Start" onPress={onPressStart} style={styles.button} />
+          </View>
+        );
       case NodeState.ERROR:
         return (
-          <View style={styles.actionBar}>
+          <View style={styles.buttonContainer}>
             <Button title="Try again" onPress={() => 0} style={styles.button} />
-            <Button title="Done" onPress={onPressDone} appearance="outline" style={styles.button} />
+            <Button
+              title="Restart EttaLN"
+              onPress={restartApp}
+              appearance="outline"
+              style={styles.button}
+            />
           </View>
         );
       case NodeState.COMPLETE:
         return (
-          <View style={styles.actionBar}>
-            <Button title="Done" onPress={onPressDone} appearance="outline" style={styles.button} />
+          <View style={styles.buttonContainer}>
+            <Button
+              title="Open a channel"
+              onPress={onPressOpenChannel}
+              appearance="filled"
+              style={styles.button}
+            />
+            <Button
+              title="Proceed to wallet"
+              onPress={onPressDone}
+              appearance="outline"
+              style={styles.button}
+            />
           </View>
         );
       default:
@@ -52,25 +108,40 @@ export function StartLdkScreen() {
   const stateDisplay = useMemo(() => {
     switch (ldkState) {
       default:
+      case NodeState.OFFLINE:
+        return (
+          <>
+            <Text style={styles.text}>Start your lightning node</Text>
+            <Text style={styles.subText}>Send and receive instant payments ...</Text>
+          </>
+        );
       case NodeState.START:
         return (
           <>
             <Text style={styles.text}>Initializing</Text>
-            <Text style={styles.subText}>Starting your node ...</Text>
+            <Text style={styles.subText}>Starting your lightning node ...</Text>
           </>
         );
       case NodeState.ERROR:
         return (
           <View>
-            <Text style={styles.text}>Etta couldn't start your node</Text>
-            <Text style={styles.subText}>Please try again</Text>
+            <Text style={styles.text}>Couldn't start your node</Text>
+            <Text style={styles.subText}>
+              This could happen for any number of reasons. Please try again
+            </Text>
           </View>
         );
       case NodeState.COMPLETE:
         return (
           <>
-            <Text style={styles.text}>Completed</Text>
-            <Text style={styles.subText}>Your Node ID is: {nodeId}</Text>
+            <Text style={styles.text}>Your node is ready</Text>
+            <Text style={styles.subText}>Node ID</Text>
+            <TouchableOpacity onPress={onPressCopy} hitSlop={pressableHitSlop}>
+              <View style={styles.nodeIdBox}>
+                <Text>{nodeId}</Text>
+                <Text style={styles.copy}>Tap to copy</Text>
+              </View>
+            </TouchableOpacity>
           </>
         );
     }
@@ -79,10 +150,20 @@ export function StartLdkScreen() {
   const stateIcon = useMemo(() => {
     switch (ldkState) {
       default:
+      case NodeState.OFFLINE:
+        return (
+          <View style={styles.iconContainer}>
+            <Icon name="icon-lightning" style={styles.icon} />
+          </View>
+        );
       case NodeState.START:
-        return <ActivityIndicator color={Colors.orange.light} />;
+        return <ActivityIndicator color={Colors.orange.light} size="large" />;
       case NodeState.ERROR:
-        return <ActivityIndicator color={Colors.red.light} />;
+        return (
+          <View style={styles.errorIconContainer}>
+            <Icon name="icon-alert" style={styles.icon} />
+          </View>
+        );
       case NodeState.COMPLETE:
         return (
           <LottieView
@@ -105,7 +186,7 @@ export function StartLdkScreen() {
   return (
     <SafeAreaView style={styles.safeAreaView}>
       <ScrollView contentContainerStyle={styles.contentContainer}>
-        <View style={styles.iconContainer}>{stateIcon}</View>
+        <View>{stateIcon}</View>
         {stateDisplay}
       </ScrollView>
       {navigationButtons}
@@ -118,9 +199,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    padding: 16,
+    paddingHorizontal: 32,
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     flexGrow: 1,
   },
   text: {
@@ -129,27 +210,58 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   subText: {
-    ...TypographyPresets.Body3,
+    ...TypographyPresets.Body4,
     paddingHorizontal: 16,
     textAlign: 'center',
-    paddingBottom: 24,
+    paddingBottom: 10,
   },
   button: {
-    width: '100%',
-    paddingBottom: 16,
+    marginBottom: 16,
+    justifyContent: 'center',
   },
-  actionBar: {
+  buttonContainer: {
     flexDirection: 'column',
-    alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 32,
+  },
+  icon: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    fontSize: 52,
+    color: Colors.common.white,
   },
   iconContainer: {
-    marginTop: '32%',
-    marginBottom: 16,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    width: 80,
+    height: 80,
+    borderRadius: 50,
+    backgroundColor: Colors.purple.base,
+    marginBottom: 20,
+  },
+  errorIconContainer: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    width: 80,
+    height: 80,
+    borderRadius: 50,
+    backgroundColor: Colors.red.base,
+    marginBottom: 20,
   },
   lottieIcon: {
-    width: '50%',
+    width: '40%',
     aspectRatio: 1,
+  },
+  nodeIdBox: {
+    borderRadius: 4,
+    backgroundColor: Colors.neutrals.light.neutral3,
+    padding: 16,
+  },
+  copy: {
+    ...TypographyPresets.Body5,
+    paddingTop: 10,
+    textDecorationLine: 'underline',
+    color: Colors.neutrals.light.neutral7,
+    textAlign: 'center',
   },
 });
 
