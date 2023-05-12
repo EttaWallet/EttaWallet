@@ -11,7 +11,7 @@ const ContactsButton = () => {
         justifyContent: 'center',
       }}
     >
-      <Icon name="icon-address-book-2" style={{ paddingRight: 8, fontSize: 30 }} />
+      <Icon name="icon-address-book-2" style={{ paddingRight: 8, fontSize: 32 }} />
     </View>
   );
 };

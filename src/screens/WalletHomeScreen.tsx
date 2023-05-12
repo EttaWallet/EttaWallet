@@ -24,6 +24,7 @@ import usePaymentRequestBottomSheet from '../components/usePaymentRequestBottomS
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import useSendBottomSheet from '../components/useSendBottomSheet';
+import useSettingsBottomSheet from '../components/useSettingsBottomSheet';
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
@@ -36,6 +37,8 @@ const WalletHomeScreen = () => {
   );
 
   const { openOptionsSheet, sendOptionsBottomSheet } = useSendBottomSheet({});
+
+  const { openSettingsSheet, settingsBottomSheet } = useSettingsBottomSheet();
   const [refreshing, setRefreshing] = useState(false);
 
   const scrollPosition = useRef(new Animated.Value(0)).current;
@@ -105,9 +108,9 @@ const WalletHomeScreen = () => {
     <SafeAreaView style={styles.container}>
       <DrawerHeader
         middleElement={<NodeStatus />}
-        rightElement={<ContactsButton />}
+        leftElement={<ContactsButton />}
         scrollPosition={scrollPosition}
-        showLogo={false}
+        onPressLogo={openSettingsSheet}
       />
       <AnimatedSectionList
         scrollEventThrottle={16}
@@ -124,6 +127,7 @@ const WalletHomeScreen = () => {
       <HomeActionsBar onPressSend={openOptionsSheet} onPressRequest={openPaymentRequestSheet} />
       {newPaymentRequestBottomSheet}
       {sendOptionsBottomSheet}
+      {settingsBottomSheet}
     </SafeAreaView>
   );
 };

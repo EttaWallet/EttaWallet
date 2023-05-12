@@ -121,7 +121,33 @@ export const ListItemWithIcon = ({
       <View style={styles.withIconContainer}>
         {withIcon ? (
           <View style={styles.iconContainer}>
-            <Icon name={icon!} style={styles.sendIcon} />
+            <Icon name={icon!} style={styles.listIcon} />
+          </View>
+        ) : null}
+        <View style={styles.withIconContent}>
+          <Text style={[styles.withIconTitle, !subtitle ? { justifyContent: 'center' } : null]}>
+            {title}
+          </Text>
+          {subtitle ? <Text style={styles.withIconSubtitle}>{subtitle}</Text> : null}
+        </View>
+      </View>
+    </TouchableWithoutFeedback>
+  );
+};
+
+export const SettingsItemWithIcon = ({
+  title,
+  subtitle,
+  icon,
+  withIcon,
+  onPress,
+}: ListItemWithIconProps) => {
+  return (
+    <TouchableWithoutFeedback disabled={false} onPress={onPress}>
+      <View style={styles.settingsContainer}>
+        {withIcon ? (
+          <View style={styles.settingsIconContainer}>
+            <Icon name={icon!} style={styles.settingsIcon} />
           </View>
         ) : null}
         <View style={styles.withIconContent}>
@@ -197,7 +223,7 @@ const styles = StyleSheet.create({
     ...TypographyPresets.Body5,
     color: Colors.neutrals.light.neutral7,
   },
-  sendIcon: {
+  listIcon: {
     alignSelf: 'center',
     justifyContent: 'center',
     fontSize: 25,
@@ -210,5 +236,26 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 50,
     backgroundColor: 'rgba(247, 147, 26, 0.2)',
+  },
+  settingsContainer: {
+    flexDirection: 'row',
+    flex: 1,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.neutrals.light.neutral1,
+  },
+  settingsIconContainer: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: 50,
+    backgroundColor: Colors.neutrals.light.neutral3,
+  },
+  settingsIcon: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    fontSize: 20,
+    color: Colors.common.black,
   },
 });

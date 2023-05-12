@@ -1,4 +1,3 @@
-import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { processColor, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { cond, greaterThan } from 'react-native-reanimated';
@@ -9,13 +8,12 @@ import { pressableHitSlop } from '../../utils/helpers';
 
 interface Props {
   middleElement?: React.ReactNode;
-  rightElement?: React.ReactNode;
+  leftElement?: React.ReactNode;
   scrollPosition?: Animated.Value<number>;
-  testID?: string;
+  onPressLogo?: () => void;
 }
 
-function DrawerHeader({ middleElement, rightElement, scrollPosition }: Props) {
-  const navigation = useNavigation();
+function DrawerHeader({ middleElement, leftElement, scrollPosition, onPressLogo }: Props) {
   const viewStyle = React.useMemo(
     () => ({
       ...styles.container,
@@ -30,30 +28,21 @@ function DrawerHeader({ middleElement, rightElement, scrollPosition }: Props) {
     [scrollPosition]
   );
 
-  const onPressHamburger = () => {
-    // @ts-ignore Only used in a drawer
-    return navigation.toggleDrawer();
-  };
+  // const onPressHamburger = () => {
+  //   console.log('pressed etta logo');
+  // };
 
   return (
     <Animated.View style={viewStyle}>
-      <TouchableOpacity
-        style={styles.hamburger}
-        onPress={onPressHamburger}
-        hitSlop={pressableHitSlop}
-      >
+      <TouchableOpacity style={styles.hamburger} onPress={onPressLogo} hitSlop={pressableHitSlop}>
         {/* <Hamburger /> */}
         <Logo height={32} />
       </TouchableOpacity>
       {middleElement}
-      {rightElement && <View style={styles.rightElement}>{rightElement}</View>}
+      {leftElement && <View style={styles.leftElement}>{leftElement}</View>}
     </Animated.View>
   );
 }
-
-DrawerHeader.defaultProps = {
-  showLogo: true,
-};
 
 const styles = StyleSheet.create({
   container: {
@@ -66,16 +55,16 @@ const styles = StyleSheet.create({
   },
   hamburger: {
     position: 'absolute',
-    left: 0,
-    padding: 0,
-    marginLeft: 16,
-    marginBottom: 0,
-  },
-  rightElement: {
-    position: 'absolute',
     right: 0,
     padding: 0,
     marginRight: 16,
+    marginBottom: 0,
+  },
+  leftElement: {
+    position: 'absolute',
+    left: 0,
+    padding: 0,
+    marginLeft: 16,
     marginBottom: 0,
   },
 });
