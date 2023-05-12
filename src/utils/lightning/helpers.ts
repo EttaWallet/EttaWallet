@@ -40,6 +40,9 @@ import { timeDeltaInDays } from '../time';
 import { transactionFeedHeader } from '../time';
 import i18n from '../../i18n';
 import { decodeLightningInvoice } from './decode';
+import { showToastWithCTA } from '../alerts';
+import { navigate } from '../../navigation/NavigationService';
+import { Screens } from '../../navigation/Screens';
 
 const LDK_ACCOUNT_SUFFIX = 'ldkaccount';
 
@@ -154,6 +157,13 @@ export const createLightningInvoice = async ({
     selectedNetwork = getSelectedNetwork();
   }
   if (!hasOpenLightningChannels()) {
+    showToastWithCTA({
+      message: 'You have no open lightning channels so you can not send or receive yet',
+      title: 'No channel',
+      dismissAfter: 5000,
+      buttonLabel: 'Resolve',
+      buttonAction: () => navigate(Screens.LightningChannelsIntroScreen),
+    });
     return err('You have no open lightning channels so you can not receive yet.');
   }
   const invoice = await createPaymentRequest({

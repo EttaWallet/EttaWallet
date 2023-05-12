@@ -1,5 +1,5 @@
 import type { BIOMETRY_TYPE } from 'react-native-keychain';
-import { Alert, AppState } from '../../utils/types';
+import { AppState } from '../../utils/types';
 import { Screens } from '../../navigation/Screens';
 import { action, thunk } from 'easy-peasy';
 import type { Action, Thunk } from 'easy-peasy';
@@ -20,7 +20,6 @@ export interface AppModelType {
   biometricsEnabled: boolean;
   minAppVersion: string | null;
   isConnectedToElectrum: boolean;
-  alert: Alert | null;
   // actions
   setAppVersion: Action<AppModelType, number>;
   setAppBuild: Action<AppModelType, number>;
@@ -36,7 +35,6 @@ export interface AppModelType {
   setEnabledBiometrics: Action<AppModelType, boolean>;
   setSkippedBiometrics: Action<AppModelType, boolean>;
   setIsConnectedToElectrum: Action<AppModelType, boolean>;
-  setAlert: Action<AppModelType, Alert | null>;
   saveEnabledBiometrics: Thunk<AppModelType, boolean>;
   saveSkippedBiometrics: Thunk<AppModelType, boolean>;
 }
@@ -57,7 +55,6 @@ export const appModel: AppModelType = {
   biometricsEnabled: false,
   minAppVersion: null,
   isConnectedToElectrum: false,
-  alert: null,
   // wip actions
   setAppVersion: action((state, version) => {
     state.appVersion = version;
@@ -123,8 +120,5 @@ export const appModel: AppModelType = {
   }),
   setIsConnectedToElectrum: action((state, isConnectedToElectrum) => {
     state.isConnectedToElectrum = isConnectedToElectrum;
-  }),
-  setAlert: action((state, payload) => {
-    state.alert = payload ?? null;
   }),
 };

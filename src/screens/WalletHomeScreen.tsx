@@ -7,13 +7,14 @@ import {
   SectionList,
   Text,
   View,
+  TouchableOpacity,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { noHeader } from '../navigation/Headers';
 import { useStoreState } from '../state/hooks';
 import DrawerHeader from '../navigation/components/DrawerHeader';
 import HomeActionsBar from '../components/HomeActionsBar';
-import { Chip, Colors } from 'etta-ui';
+import { Colors, Icon, TypographyPresets } from 'etta-ui';
 import ContactsButton from '../navigation/components/ContactsButton';
 import { moderateScale, scale, verticalScale } from '../utils/sizing';
 import { HomeBalance } from '../components/HomeBalance';
@@ -75,7 +76,10 @@ const WalletHomeScreen = () => {
     data: [{}],
     renderItem: () => (
       <View style={styles.transactionsSection}>
-        <Chip onPress={onPressTransactions}>Transactions</Chip>
+        <TouchableOpacity onPress={onPressTransactions} style={styles.transactionsPill}>
+          <Icon style={styles.transactionsIcon} name="icon-caret-up" />
+          <Text style={styles.transactionsUpdate}>1 transaction today</Text>
+        </TouchableOpacity>
       </View>
     ),
   };
@@ -140,6 +144,23 @@ const styles = StyleSheet.create({
     position: 'relative',
     marginHorizontal: 'auto',
     marginTop: 100,
+  },
+  transactionsPill: {
+    height: 30,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    borderRadius: 15,
+    backgroundColor: Colors.neutrals.light.neutral2,
+  },
+  transactionsUpdate: {
+    ...TypographyPresets.Body4,
+    color: Colors.common.black,
+    marginLeft: 5,
+  },
+  transactionsIcon: {
+    paddingTop: 2,
   },
   dotContainer: {
     width: scale(8),

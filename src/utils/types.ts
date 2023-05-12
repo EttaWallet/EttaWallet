@@ -37,23 +37,6 @@ export enum ErrorDisplayType {
   'INLINE',
 }
 
-export interface ShowAlertAction {
-  type: AlertActions.SHOW;
-  alertType: AlertTypes;
-  displayMethod: ErrorDisplayType;
-  message: string;
-  dismissAfter?: number | null;
-  buttonMessage?: string | null;
-  title?: string | null;
-  underlyingError?: ErrorMessages | null;
-}
-
-export interface HideAlertAction {
-  type: AlertActions.HIDE;
-}
-
-export type AlertActionTypes = ShowAlertAction | HideAlertAction;
-
 export interface Alert {
   type: AlertTypes;
   displayMethod: ErrorDisplayType;

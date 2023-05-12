@@ -1,122 +1,146 @@
-import { Colors, TypographyPresets } from 'etta-ui';
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
-import Animated, {
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
-import { pressableHitSlop } from '../../utils/helpers';
+import React from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  ImageSourcePropType,
+  Image,
+  TextStyle,
+  ImageStyle,
+  ViewStyle,
+  StyleProp,
+  SafeAreaView,
+} from 'react-native';
+import { Button, Colors, TypographyPresets } from 'etta-ui';
 
-interface Props {
-  showToast: boolean;
-  title?: string;
-  message: string | React.ReactElement;
-  labelCTA: string;
-  onPress(): void;
-}
-
-// this value is used to ensure the toast is offset by its own height when transitioning in and out of view
-const TOAST_HEIGHT = 100;
-const SHOW_DURATION = 300;
-const HIDE_DURATION = 150;
-
-export const useShowHideAnimation = (
-  progress: Animated.SharedValue<number>,
-  showing: boolean,
-  onShow: () => void,
-  onHide: () => void
-) => {
-  useEffect(() => {
-    progress.value = withTiming(
-      showing ? 1 : 0,
-      { duration: showing ? SHOW_DURATION : HIDE_DURATION },
-      (isFinished) => {
-        if (isFinished && !showing) {
-          runOnJS(onHide)();
-        }
-      }
-    );
-    if (showing) {
-      onShow();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showing]);
-};
-
-// for now, this Toast component is launched from the bottom of the screen only
-const ToastWithCTA = ({ showToast, onPress, message, labelCTA, title }: Props) => {
-  const [isVisible, setIsVisible] = useState(showToast);
-
-  const progress = useSharedValue(0);
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: (1 - progress.value) * TOAST_HEIGHT }],
-    };
-  });
-
-  useShowHideAnimation(
-    progress,
-    showToast,
-    () => {
-      setIsVisible(true);
-    },
-    () => {
-      setIsVisible(false);
-    }
-  );
-
-  if (!isVisible) {
-    return null;
-  }
-
-  return (
-    <Animated.View style={[styles.container, animatedStyle]}>
-      <View style={styles.toast}>
-        <View style={styles.contentContainer}>
-          {!!title && <Text style={styles.title}>{title}</Text>}
-          <Text style={styles.message}>{message}</Text>
-        </View>
-        <TouchableWithoutFeedback onPress={onPress} hitSlop={pressableHitSlop}>
-          <Text style={styles.labelCTA}>{labelCTA}</Text>
-        </TouchableWithoutFeedback>
-      </View>
-    </Animated.View>
-  );
-};
-
-const styles = StyleSheet.create({
+const s = StyleSheet.create({
   container: {
-    position: 'absolute',
-    bottom: 24,
-    width: '100%',
-  },
-  toast: {
+    shadowColor: Colors.common.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+
+    elevation: 10,
+
     backgroundColor: Colors.common.black,
     borderRadius: 8,
+    marginTop: 10,
     marginHorizontal: 16,
     padding: 16,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
   },
-  contentContainer: {
+  image: {
+    alignItems: 'center',
+    marginRight: 5,
+    borderRadius: 5,
+    height: 45,
+    width: 45,
+  },
+  content: {
     flex: 1,
-    marginRight: 16,
+    marginHorizontal: 5,
   },
   title: {
     ...TypographyPresets.Header5,
     color: Colors.common.white,
   },
-  message: {
-    ...TypographyPresets.Body5,
-    color: Colors.common.white,
-  },
-  labelCTA: {
-    ...TypographyPresets.Body5,
-    color: Colors.green.base,
+  description: {
+    ...TypographyPresets.Body4,
+    color: Colors.neutrals.light.neutral1,
   },
 });
+
+export interface NotificationComponentProps {
+  /** Passed to `<Image />` as `source` param.
+   * @default null */
+  imageSource?: ImageSourcePropType;
+
+  /** The maximum number of lines to use for rendering title.
+   * @default null */
+  maxTitleLines?: number;
+
+  /** The maximum number of lines to use for rendering description.
+   * @default null */
+  maxDescriptionLines?: number;
+
+  /** A container of the component. Set it in case you use different SafeAreaView than the standard
+   * @default SafeAreaView */
+  ContainerComponent?: React.ElementType;
+
+  /** The style to use for rendering title
+   * @default null */
+  titleStyle?: StyleProp<TextStyle>;
+
+  /** The style to use for rendering description
+   * @default null */
+  descriptionStyle?: StyleProp<TextStyle>;
+
+  /** The style to use for notification container.
+   * Might be useful to change background color, shadows, paddings or margins
+   * @default null */
+  containerStyle?: StyleProp<ViewStyle>;
+
+  /** The style to use for rendering image
+   * @default null */
+  imageStyle?: StyleProp<ImageStyle>;
+}
+
+interface NotificationComponentAllProps extends NotificationComponentProps {
+  title?: string;
+  description?: string;
+  buttonLabel?: string;
+  buttonStyle?: StyleProp<TextStyle>;
+  buttonAction?(): void;
+}
+
+const ToastWithCTA: React.FunctionComponent<NotificationComponentAllProps> = ({
+  title,
+  titleStyle,
+  description,
+  descriptionStyle,
+  buttonLabel,
+  buttonStyle,
+  buttonAction,
+  imageSource,
+  imageStyle,
+  ContainerComponent,
+  maxTitleLines,
+  maxDescriptionLines,
+  containerStyle,
+}) => {
+  const Container = ContainerComponent ?? SafeAreaView;
+  return (
+    <Container>
+      <View style={[s.container, containerStyle]}>
+        {!!imageSource && <Image style={[s.image, imageStyle]} source={imageSource} />}
+        <View style={s.content}>
+          {!!title && (
+            <Text style={[s.title, titleStyle]} numberOfLines={maxTitleLines}>
+              {title}
+            </Text>
+          )}
+          {!!description && (
+            <Text style={[s.description, descriptionStyle]} numberOfLines={maxDescriptionLines}>
+              {description}
+            </Text>
+          )}
+          {!!buttonLabel && (
+            <Button
+              title={buttonLabel ? buttonLabel : 'Resolve'}
+              size="small"
+              appearance="outline"
+              style={buttonStyle}
+              onPress={buttonAction}
+            />
+          )}
+        </View>
+      </View>
+    </Container>
+  );
+};
 
 export default ToastWithCTA;

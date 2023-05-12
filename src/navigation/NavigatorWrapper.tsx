@@ -16,6 +16,7 @@ import UpgradeScreen from '../shared/UpgradeScreen';
 import PinLockScreen from '../shared/PinLockScreen';
 import { DEV_RESTORE_NAV_STATE_ON_RELOAD } from '../../config';
 import mmkvStorage, { StorageItem } from '../storage/disk';
+import { NotifierWrapper } from 'react-native-notifier';
 
 // @ts-ignore
 export const getActiveRouteName = (state: NavigationState) => {
@@ -142,7 +143,9 @@ export const NavigatorWrapper = () => {
       initialState={initialState}
     >
       <View style={styles.container}>
-        <Navigator />
+        <NotifierWrapper>
+          <Navigator />
+        </NotifierWrapper>
         {(isAppLocked || updateRequired) && (
           <View style={styles.locked}>
             {updateRequired ? <UpgradeScreen /> : <PinLockScreen />}

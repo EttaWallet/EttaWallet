@@ -69,6 +69,7 @@
     "react-native-mmkv": "2.5.1",
     "react-native-mmkv-flipper-plugin": "^1.0.0",
     "react-native-modal": "^13.0.1",
+    "react-native-notifier": "^1.9.0",
     "react-native-permissions": "^3.8.0",
     "react-native-qrcode-svg": "^6.2.0",
     "react-native-randombytes": "^3.6.1",

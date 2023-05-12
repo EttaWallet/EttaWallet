@@ -7,6 +7,14 @@ import ldk from '@synonymdev/react-native-ldk/dist/ldk';
 import { addPeer, getLightningStore, getTotalBalance, savePeer } from './helpers';
 import { navigate } from '../../navigation/NavigationService';
 import { Screens } from '../../navigation/Screens';
+import {
+  showErrorBanner,
+  showSuccessBanner,
+  showToast,
+  showToastWithCTA,
+  showWarningBanner,
+} from '../alerts';
+import { cueErrorHaptic, cueSuccessHaptic } from '../accessibility/haptics';
 
 export const decodeLightningInvoice = ({
   paymentRequest,
@@ -83,8 +91,11 @@ export const processTransactionData = async ({
     }
 
     if (error) {
-      // Show public toast
-      console.error('@processTransactionData1: ', error);
+      showErrorBanner({
+        message: error.message,
+        title: error.title,
+        dismissAfter: 5000,
+      });
     } else {
       if (requestedAmount) {
         error = {
@@ -97,8 +108,11 @@ export const processTransactionData = async ({
           message: 'Please add more sats to process payments.',
         };
       }
-      // Show public toast
-      console.error('@processTransactionData2: ', error);
+      showErrorBanner({
+        message: error.message,
+        title: error.title,
+        dismissAfter: 5000,
+      });
     }
     return err(error.title);
   } catch (e) {
@@ -206,9 +220,14 @@ export const processInputData = async ({
     const decodeRes = await decodeQRData(data, selectedNetwork);
     console.log('decodeRes: ', decodeRes);
     if (decodeRes.isErr()) {
+      const message = 'Etta could not decode that. Copy the invoice and try again';
       if (showErrors) {
-        // show public toast error
-        console.error('unable to decode ');
+        showWarningBanner({
+          message: message,
+          title: 'Try again',
+          dismissAfter: 5000,
+        });
+        // console.error('Etta could not decode that. Copy the invoice and retry');
       }
       return err('Decoding Error');
     }
@@ -217,8 +236,11 @@ export const processInputData = async ({
     if (!decodeRes.value.length) {
       const message = 'Unable to interpret the provided data.';
       if (showErrors) {
-        // show public toast error
-        console.error('unable to intepret this data ');
+        showErrorBanner({
+          message: message,
+          title: 'Error',
+          dismissAfter: 5000,
+        });
       }
       return err(message);
     }
@@ -272,26 +294,29 @@ export const handleProcessedData = async ({
     selectedNetwork = getSelectedNetwork();
   }
   if (data.network && data.network !== selectedNetwork) {
-    // should be a public toast
-    console.log('@handleProcessedData/wrongChain: Unable to read or interpret the provided data.');
+    const message = `Etta is currently set to ${selectedNetwork} but data is for ${data.network}.`;
+    showErrorBanner({
+      message: message,
+      title: 'Failed to intepret',
+      dismissAfter: 5000,
+    });
     return err(`Etta is currently set to ${selectedNetwork} but data is for ${data.network}.`);
   }
 
   const dataType = data.dataType;
   const paymentRequest = data.paymentRequest ?? '';
 
-  //TODO(slashtags): Register Bitkit to handle all slash?x:// protocols
   switch (dataType) {
     case ELightningDataType.paymentRequest: {
       const decodedInvoice = await decodeLightningInvoice({
         paymentRequest: paymentRequest,
       });
       if (decodedInvoice.isErr()) {
-        // showErrorNotification({
-        //   title: i18n.t('lightning:error_decode'),
-        //   message: decodedInvoice.error.message,
-        // });
-        // should be a public toast
+        showErrorBanner({
+          message: "Can't decode this invoice",
+          title: decodedInvoice.error.message,
+          dismissAfter: 5000,
+        });
         console.log('@decodedInvoice: ', decodedInvoice.error.message);
         return err(decodedInvoice.error.message);
       }
@@ -300,15 +325,23 @@ export const handleProcessedData = async ({
       const invoiceString = decodedInvoice.value.to_str || '';
 
       if (invoiceAmount) {
-        // navigate to sending review page
+        cueSuccessHaptic();
         navigate(Screens.SendScreen, {
           amount: invoiceAmount,
           paymentRequest: invoiceString,
         });
-        console.info('navigate to sending review page since amount present');
       } else {
-        // cue amount-entry bottom sheet
-        console.info('open bottom sheet to enter amount if invoice amount is null');
+        cueErrorHaptic();
+        showToastWithCTA({
+          message: '',
+          title: '',
+          dismissAfter: 0,
+          buttonLabel: 'Add amount',
+          buttonAction: () => {
+            // should be able to pull up send bottom sheet for amount
+            console.info('open bottom sheet to enter amount if invoice amount is null');
+          },
+        });
       }
 
       return ok({
@@ -322,8 +355,10 @@ export const handleProcessedData = async ({
         return err('Unable to interpret peer information.');
       }
       if (peer.includes('onion')) {
-        // should be a public toast
-        console.log('NodeURL includes onion', 'Unable to add tor nodes at this time.');
+        showToast({
+          title: 'Error',
+          message: 'Unable to add tor nodes at this time.',
+        });
         return err('Unable to add tor nodes at this time.');
       }
       const addPeerRes = await addPeer({
@@ -331,23 +366,39 @@ export const handleProcessedData = async ({
         timeout: 5000,
       });
       if (addPeerRes.isErr()) {
-        // should be a public toast
+        showToast({
+          title: 'Error',
+          message: 'Unable to add lightning peer.',
+        });
         console.log('processedNodeURI: ', 'Unable to add lightning peer.');
         return err('Unable to add lightning peer.');
       }
       const savePeerRes = savePeer({ selectedNetwork, peer });
       if (savePeerRes.isErr()) {
         //should show public toast
+        showToast({
+          title: 'Unable to save peer',
+          message: savePeerRes.error.message,
+        });
         console.log('savePeerRes: ', savePeerRes.error.message);
         return err(savePeerRes.error.message);
       }
 
       // should be a public toast
+      showSuccessBanner({
+        message: 'Lightning peer saved successfully',
+        title: 'Saved successfully',
+      });
       console.log('lightning peer saved successfully');
       return ok({ type: ELightningDataType.nodeId });
     }
 
     default:
+      showErrorBanner({
+        message: 'Unable to read or interpret the provided data',
+        title: 'Decoding error',
+        dismissAfter: 5000,
+      });
       return err('Unable to read or interpret the provided data.');
   }
 };
