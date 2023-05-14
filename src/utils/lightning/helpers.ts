@@ -392,15 +392,9 @@ export const savePeer = ({
  * @returns {Promise<Result<string>>}
  */
 export const removeExpiredInvoices = async (): Promise<Result<string>> => {
-  // get number of secs since unix epoch at this time
-  const nowInSecs = Math.floor(Date.now() / 1000);
-  // filter out current invoices
-  const currentInvoices = getLightningStore().invoices.filter(
-    (invoice) => invoice.timestamp + invoice.expiry_time > nowInSecs
-  );
   //dispatch action to set invoices in state to only current invoices
   setInterval(() => {
-    store.dispatch.lightning.removeExpiredInvoices(currentInvoices);
+    store.dispatch.lightning.removeExpiredInvoices;
   }, 60 * 1000);
   return ok('');
 };
@@ -434,7 +428,6 @@ export const startLightning = async ({
         refreshWallet({
           selectedNetwork,
         });
-        console.log('onReceive', onReceive);
       };
       // Ensure we are subscribed to and save new header information.
       subscribeToHeader({ selectedNetwork, onReceive }).then();
@@ -473,14 +466,14 @@ export const startLightning = async ({
       updateFeeEstimates({ selectedNetwork, forceUpdate: true }),
       // if we restore wallet, we need to generate addresses for all types
       refreshWallet(),
-    ]);
-    // await runChecks({ selectedNetwork });
 
-    // update channels
-    await updateLightningChannels();
-    await updateClaimableBalance({ selectedNetwork });
-    // remove invoices that have surpassed expiry time from state
-    await removeExpiredInvoices();
+      // update channels
+      await updateLightningChannels(),
+      // update balance
+      await updateClaimableBalance({ selectedNetwork }),
+      // remove invoices that have surpassed expiry time from state
+      await removeExpiredInvoices(),
+    ]);
 
     // ensure the node is up and running before we go anywhere
     const isRunning = await isLdkRunning();
@@ -655,7 +648,6 @@ export const getTotalBalance = ({
     return previousValue;
   }, balance);
 
-  console.log('@getTotalBalance:', balance);
   return balance;
 };
 
@@ -679,7 +671,6 @@ export const getClaimableBalance = async ({
     subtractReserveBalance: false,
   });
   const claimableBalanceRes = await ldk.claimableBalances(ignoreOpenChannels);
-  console.log('@claimableBalanceRes: ', claimableBalanceRes);
   if (claimableBalanceRes.isErr()) {
     return 0;
   }
@@ -690,6 +681,11 @@ export const getClaimableBalance = async ({
   if (claimableBalance.isErr()) {
     return 0;
   }
+  console.log(
+    `lightningBalance = ${lightningBalance}, claimableBalance = ${
+      claimableBalance.value
+    } thus walletBalance = ${Math.abs(lightningBalance - claimableBalance.value)}`
+  );
   return Math.abs(lightningBalance - claimableBalance.value);
 };
 

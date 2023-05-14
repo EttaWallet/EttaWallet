@@ -492,11 +492,9 @@ export const refreshWallet = async ({
     const isConnectedToElectrum = store.getState().app.isConnectedToElectrum;
 
     if (isConnectedToElectrum) {
-      await Promise.all([
-        subscribeToAddresses({
-          selectedNetwork,
-        }),
-      ]);
+      await subscribeToAddresses({
+        selectedNetwork,
+      });
     }
 
     await refreshLdk({ selectedNetwork });

@@ -293,6 +293,17 @@ export type IInvoice = {
   [key: string]: TInvoice;
 };
 
+export enum EPaymentRequestType {
+  channelopen = 'channelopen',
+  invoice = 'invoice',
+}
+
+export type TLdkInvoice = TInvoice & {
+  tags: {};
+  note: string;
+  category: EPaymentRequestType;
+};
+
 export type TCreateLightningInvoice = TCreatePaymentReq & {
   selectedNetwork?: TAvailableNetworks;
   checkOpenChannels?: boolean;
