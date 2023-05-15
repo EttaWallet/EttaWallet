@@ -37,7 +37,7 @@ export default function HomeActionsBar(props: Props) {
     if (props.onPressScan) {
       props.onPressScan?.();
     } else {
-      navigate(Screens.ScanQRCodeScreen, {});
+      navigate(Screens.ScanQRCodeScreen);
     }
   };
 

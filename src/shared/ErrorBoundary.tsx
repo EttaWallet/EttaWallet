@@ -1,9 +1,9 @@
 import * as Sentry from '@sentry/react-native';
 import * as React from 'react';
 import type { WithTranslation } from 'react-i18next';
-import ErrorScreen from './ErrorScreen';
 import { withTranslation } from '../i18n';
 import { getErrorMessage } from '../utils/helpers';
+import GenericErrorScreen from './GenericErrorScreen';
 
 interface State {
   childError: Error | null;
@@ -28,7 +28,7 @@ class ErrorBoundary extends React.Component<Props, State> {
   render() {
     const { childError } = this.state;
     if (childError) {
-      return <ErrorScreen errorMessage={getErrorMessage(childError)} />;
+      return <GenericErrorScreen errorMessage={getErrorMessage(childError)} />;
     }
 
     return this.props.children;

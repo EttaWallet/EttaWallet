@@ -66,6 +66,7 @@ const ReceiveScreen = (props: Props) => {
           console.log(invoiceString.error.message);
           return;
         }
+        console.log(invoiceString.value.to_str);
         setIsLoading(false);
         setInvoice(invoiceString.value.to_str);
         setTimestamp(invoiceString.value.timestamp);

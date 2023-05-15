@@ -10,7 +10,6 @@ import {
   useBottomSheetDynamicSnapPoints,
 } from '@gorhom/bottom-sheet';
 import { createBottomSheetNavigator } from '@th3rdwave/react-navigation-bottom-sheet';
-import ErrorScreen from '../shared/ErrorScreen';
 import { noHeader, emptyHeader } from './Headers';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import AppLoading from '../shared/AppLoading';
@@ -33,6 +32,8 @@ import ActivityDetailsScreen from '../screens/ActivityDetailsScreen';
 import SendScreen from '../screens/SendScreen';
 import StartLdkScreen from '../screens/StartLdkScreen';
 import ScanQRCodeScreen from '../screens/ScanQRCodeScreen';
+import GenericErrorScreen from '../shared/GenericErrorScreen';
+import TransactionErrorScreen from '../shared/TransactionErrorScreen';
 
 const TAG = 'Navigator';
 
@@ -45,7 +46,16 @@ type InitialRouteName = ExtractProps<typeof Stack.Navigator>['initialRouteName']
 const commonScreens = (Navigator: typeof Stack) => {
   return (
     <>
-      <Navigator.Screen name={Screens.ErrorScreen} component={ErrorScreen} options={noHeader} />
+      <Navigator.Screen
+        name={Screens.GenericErrorScreen}
+        component={GenericErrorScreen}
+        options={noHeader}
+      />
+      <Navigator.Screen
+        name={Screens.TransactionErrorScreen}
+        component={TransactionErrorScreen}
+        options={TransactionErrorScreen.navigationOptions as NativeStackNavigationOptions}
+      />
     </>
   );
 };

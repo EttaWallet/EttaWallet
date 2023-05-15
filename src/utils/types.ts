@@ -10,6 +10,12 @@ export enum AppState {
   Inactive = 'Inactive',
 }
 
+export enum ErrorCategory {
+  INFO = 'info',
+  WARNING = 'warning',
+  ERROR = 'error',
+}
+
 export enum PinType {
   Unset = 'Unset',
   Custom = 'Custom',

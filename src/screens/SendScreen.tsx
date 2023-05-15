@@ -12,9 +12,36 @@ import { decodeLightningInvoice } from '../utils/lightning/decode';
 import { TInvoice } from '@synonymdev/react-native-ldk';
 import { payInvoice } from '../utils/lightning/helpers';
 import { refreshWallet } from '../utils/wallet';
+import { navigate, navigateHome } from '../navigation/NavigationService';
+import { showWarningBanner } from '../utils/alerts';
+import LottieView from 'lottie-react-native';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.SendScreen>;
 type Props = RouteProps;
+
+const getReadableSendingError = (errorFound) => {
+  const SendingErrorEnum = {
+    invoice_payment_fail_resend_safe:
+      'Sorry, the payment failed but it is not permanent. We will keep trying to settle it.',
+    invoice_payment_fail_parameter_error:
+      'Sorry, the payment failed but it is not permanent. We will keep trying to settle it.',
+    invoice_payment_fail_partial: 'Sorry, the payment failed but we will keep trying to settle it.',
+    invoice_payment_fail_path_parameter_error:
+      'Sorry, the payment failed but it is not permanent. We will keep trying to settle it.',
+    invoice_payment_fail_sending:
+      'Sorry, the problem could not be identified. Your funds remain securely in your wallet.',
+    invoice_payment_fail_unknown:
+      'Sorry, the problem could not be identified. Your funds remain securely in your wallet.',
+    invoice_payment_fail_must_specify_amount: 'The payment request does not have an amount',
+    invoice_payment_fail_routing: 'No route hints were found in the payment request',
+  };
+
+  if (Object.prototype.hasOwnProperty.call(SendingErrorEnum, errorFound)) {
+    return SendingErrorEnum[errorFound];
+  }
+
+  return 'Sorry, the problem could not be identified. Your funds remain securely in your wallet.';
+};
 
 const SendScreen = ({ route }: Props) => {
   const amount = route.params?.amount || '0';
@@ -24,6 +51,7 @@ const SendScreen = ({ route }: Props) => {
   const { t } = useTranslation();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [paymentSuccessful, setPaymentSuccessful] = useState(false);
 
   const decodePaymentRequest = async (): Promise<void> => {
     try {
@@ -48,7 +76,12 @@ const SendScreen = ({ route }: Props) => {
   // attemps to pay the decoded invoice and adds the record to payments object in state
   const handleTransaction = useCallback(async () => {
     if (!paymentRequest) {
-      console.log('no payment request found');
+      const message = 'No payment request found';
+      showWarningBanner({
+        message: message,
+        title: 'Try again',
+        dismissAfter: 5000,
+      });
       setIsLoading(false);
       return;
     }
@@ -59,12 +92,25 @@ const SendScreen = ({ route }: Props) => {
     if (payInvoiceResponse.isErr()) {
       console.log('Error@payInvoiceResponse: ', payInvoiceResponse.error.message);
       setIsLoading(false);
+      if (payInvoiceResponse.error.message === 'invoice_payment_fail_sending') {
+        navigate(Screens.TransactionErrorScreen, {
+          errorMessage: getReadableSendingError(payInvoiceResponse.error.message),
+          canRetry: false,
+          showSuggestions: true,
+        });
+      } else {
+        navigate(Screens.TransactionErrorScreen, {
+          errorMessage: getReadableSendingError(payInvoiceResponse.error.message),
+          canRetry: true,
+        });
+      }
       return;
     }
 
     refreshWallet({}).then();
     setIsLoading(false);
-
+    setPaymentSuccessful(true);
+    console.log(payInvoiceResponse.value.fee_sat);
     // navigate to success page
     console.log('show success page here');
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -76,12 +122,31 @@ const SendScreen = ({ route }: Props) => {
     handleTransaction().then();
   }, [handleTransaction]);
 
+  const onPressOkay = () => {
+    cueInformativeHaptic();
+    navigateHome();
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.iconContainer}>
-        <Icon name="icon-arrow-up" style={styles.actionIcon} />
-      </View>
-      <Text style={styles.title}>{t('Send bitcoin')}</Text>
+      {!paymentSuccessful ? (
+        <>
+          <View style={styles.iconContainer}>
+            <Icon name="icon-arrow-up" style={styles.actionIcon} />
+          </View>
+          <Text style={styles.title}>{t('Send bitcoin')}</Text>
+        </>
+      ) : (
+        <View style={styles.centerContainer}>
+          <LottieView
+            style={styles.lottieIcon}
+            source={require('../../assets/lottie/success-check.json')}
+            autoPlay={true}
+            loop={false}
+          />
+          <Text style={styles.title}>{t('Payment sent!')}</Text>
+        </View>
+      )}
       <View style={styles.infoContainer}>
         <InfoListItem title="Amount" value={amount} valueIsNumeric={true} canCopy />
         <InfoListItem
@@ -98,10 +163,18 @@ const SendScreen = ({ route }: Props) => {
         </View>
       )}
 
+      {/* @TODO: Meta data like notes and tagging goes here */}
+
       <Button
-        title={isLoading ? 'Sending payment...' : 'Send payment'}
-        onPress={onPressSend}
-        size="default"
+        title="Share receipt"
+        onPress={() => 0}
+        appearance="outline"
+        style={styles.button}
+        disabled={isLoading}
+      />
+      <Button
+        title={isLoading ? 'Sending payment...' : paymentSuccessful ? 'Done' : 'Send payment'}
+        onPress={paymentSuccessful ? onPressOkay : onPressSend}
         appearance="filled"
         style={styles.button}
         disabled={isLoading}
@@ -127,7 +200,6 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     alignItems: 'center',
-    flex: 1,
   },
   title: {
     ...TypographyPresets.Header5,
@@ -139,7 +211,7 @@ const styles = StyleSheet.create({
   },
   button: {
     justifyContent: 'center',
-    marginVertical: 16,
+    marginBottom: 10,
   },
   field: {
     marginVertical: 16,
@@ -162,6 +234,10 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     backgroundColor: Colors.common.black,
     marginVertical: 16,
+  },
+  lottieIcon: {
+    width: '30%',
+    aspectRatio: 1,
   },
 });
 

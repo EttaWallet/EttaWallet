@@ -1,79 +1,203 @@
 import * as React from 'react';
-import { StyleSheet, Text, View, Dimensions, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { Button, TypographyPresets, Colors, Icon } from 'etta-ui';
+import { SafeAreaView, SafeAreaInsetsContext } from 'react-native-safe-area-context';
+import { ErrorCategory } from '../utils/types';
 
-export interface Props {
+interface Props {
+  category: ErrorCategory;
   title: string;
-  CTAText: string;
-  CTAHandler: () => void;
-  subtitle?: string | null;
-  children?: React.ReactNode;
+  description: string;
+  solution?: string;
+  primaryCTALabel: string;
+  primaryCTA(): void;
+  secondaryCTALabel?: string;
+  secondaryCTA?(): void;
+  tertiaryCTALabel?: string;
+  tertiaryCTA?(): void;
+  showSuggestions?: boolean;
 }
 
-const { height, width } = Dimensions.get('window');
-
-class FullScreenBanner extends React.PureComponent<Props> {
-  render() {
-    const { title, subtitle, CTAText, CTAHandler } = this.props;
-
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.iconContainer}>
-          <Icon name="icon-alert" style={styles.errorIcon} />
-        </View>
-        <View style={styles.header}>
-          <Text style={{ ...TypographyPresets.Header3, color: Colors.red.base }}>{title}</Text>
-          <Text
-            // eslint-disable-next-line react-native/no-inline-styles
-            style={{
-              ...TypographyPresets.Body4,
-              color: Colors.neutrals.light.neutral7,
-              paddingBottom: 20,
-              textAlign: 'center',
-            }}
+const FullScreenBanner = ({
+  category,
+  title,
+  description,
+  primaryCTALabel,
+  primaryCTA,
+  secondaryCTALabel,
+  secondaryCTA,
+  tertiaryCTALabel,
+  tertiaryCTA,
+  showSuggestions,
+}: Props) => {
+  const displayIcon = React.useMemo(() => {
+    switch (category) {
+      default:
+      case ErrorCategory.INFO:
+        return (
+          <View
+            style={[
+              styles.iconContainer,
+              {
+                backgroundColor: Colors.blue.base,
+              },
+            ]}
           >
-            {subtitle}
-          </Text>
-        </View>
-        {this.props.children}
-        <View style={styles.button}>
-          <Button onPress={CTAHandler} title={CTAText} appearance="filled" />
-        </View>
-      </SafeAreaView>
-    );
-  }
-}
+            <Icon name="icon-info" style={styles.icon} />
+          </View>
+        );
+      case ErrorCategory.WARNING:
+        return (
+          <View
+            style={[
+              styles.iconContainer,
+              {
+                backgroundColor: Colors.blue.base,
+              },
+            ]}
+          >
+            <Icon name="icon-alert" style={styles.icon} />
+          </View>
+        );
+      case ErrorCategory.ERROR:
+        return (
+          <View
+            style={[
+              styles.iconContainer,
+              {
+                backgroundColor: Colors.red.base,
+              },
+            ]}
+          >
+            <Icon name="icon-cross" style={styles.icon} />
+          </View>
+        );
+    }
+  }, [category]);
+
+  const suggestions = [
+    "Are you trying to pay an invoice you created? That won't work",
+    'Are you trying to pay an invoice that was already settled?',
+    'Are you connected to the internet?',
+    'Wait 2 minutes and try again',
+  ];
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        <>
+          <View>{displayIcon}</View>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.description}>{description}</Text>
+          {showSuggestions ? (
+            <View style={styles.suggestionsContainer}>
+              <Text style={styles.suggestionsHeader}>A few things to try or check:</Text>
+              {suggestions.map((suggestion) => (
+                <View
+                  style={{
+                    paddingVertical: 8,
+                    borderTopWidth: 1,
+                    borderTopColor: Colors.neutrals.light.neutral4,
+                  }}
+                >
+                  <Text style={styles.suggestion}>{suggestion}</Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
+        </>
+      </ScrollView>
+      <SafeAreaInsetsContext.Consumer>
+        {(insets) => (
+          <>
+            <Button
+              onPress={primaryCTA}
+              title={primaryCTALabel}
+              appearance="filled"
+              style={[
+                styles.button,
+                (insets && insets.bottom <= 40 && secondaryCTALabel) || tertiaryCTALabel
+                  ? { marginBottom: 10 }
+                  : { marginBottom: 40 },
+              ]}
+            />
+            {secondaryCTALabel ? (
+              <Button
+                onPress={secondaryCTA}
+                title={secondaryCTALabel!}
+                appearance="outline"
+                // eslint-disable-next-line react-native/no-inline-styles
+                style={[styles.button, insets && insets.bottom <= 40 && { marginBottom: 10 }]}
+              />
+            ) : null}
+            {tertiaryCTALabel ? (
+              <Button
+                onPress={tertiaryCTA}
+                title={tertiaryCTALabel!}
+                appearance="outline"
+                // eslint-disable-next-line react-native/no-inline-styles
+                style={[styles.button, insets && insets.bottom <= 40 && { marginBottom: 10 }]}
+              />
+            ) : null}
+          </>
+        )}
+      </SafeAreaInsetsContext.Consumer>
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.common.white,
-    height: height,
-    width: width,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingBottom: 30,
-    paddingHorizontal: 20,
+    flex: 1,
+    marginHorizontal: 16,
   },
-  errorIcon: {
+  contentContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    marginHorizontal: 16,
+  },
+  title: {
+    ...TypographyPresets.Header4,
+    marginBottom: 10,
+    textAlign: 'center',
+    color: Colors.common.black,
+  },
+  description: {
+    ...TypographyPresets.Body4,
+    textAlign: 'center',
+    color: Colors.neutrals.light.neutral7,
+  },
+  suggestionsContainer: {
+    marginTop: 20,
+  },
+  suggestionsHeader: {
+    ...TypographyPresets.Body4,
+    textAlign: 'center',
+    color: Colors.common.black,
+    paddingBottom: 10,
+  },
+  suggestion: {
+    ...TypographyPresets.Body4,
+    textAlign: 'center',
+    color: Colors.neutrals.light.neutral7,
+  },
+  button: {
+    justifyContent: 'center',
+  },
+  icon: {
     alignSelf: 'center',
     justifyContent: 'center',
-    fontSize: 52,
+    fontSize: 30,
     color: Colors.common.white,
   },
   iconContainer: {
     alignSelf: 'center',
     justifyContent: 'center',
-    width: 80,
-    height: 80,
+    width: 60,
+    height: 60,
     borderRadius: 50,
-    backgroundColor: Colors.red.base,
     marginBottom: 20,
   },
-  header: {
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  button: { alignItems: 'center', paddingTop: 50 },
 });
 
 export default FullScreenBanner;

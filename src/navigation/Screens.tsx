@@ -1,5 +1,5 @@
 export enum Screens {
-  ErrorScreen = 'ErrorScreen',
+  GenericErrorScreen = 'GenericErrorScreen',
   InitScreen = 'InitScreen',
   LangugageChooserScreen = 'LangugageChooserScreen',
   LanguageModal = 'LanguageModal',
@@ -30,4 +30,5 @@ export enum Screens {
   ActivityDetailsScreen = 'ActivityDetailsScreen',
   ScanQRCodeScreen = 'ScanQRCodeScreen',
   SendScreen = 'SendScreen',
+  TransactionErrorScreen = 'TransactionErrorScreen',
 }

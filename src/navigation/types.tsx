@@ -2,7 +2,7 @@ import { TLightningPayment } from '../utils/types';
 import { Screens } from './Screens';
 
 export type StackParamList = {
-  [Screens.ErrorScreen]: {
+  [Screens.GenericErrorScreen]: {
     errorMessage?: string;
   };
   [Screens.OnboardingSlidesScreen]: undefined;
@@ -75,4 +75,9 @@ export type StackParamList = {
         paymentRequest?: string;
       }
     | undefined;
+  [Screens.TransactionErrorScreen]: {
+    errorMessage?: string;
+    canRetry?: boolean;
+    showSuggestions?: boolean;
+  };
 };

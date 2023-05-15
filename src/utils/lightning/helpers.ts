@@ -193,10 +193,10 @@ export const payInvoice = async (
   paymentRequest: string
 ): Promise<Result<TChannelManagerPaymentSent>> => {
   try {
-    // const addPeersResponse = await addPeers();
-    // if (addPeersResponse.isErr()) {
-    //   return err(addPeersResponse.error.message);
-    // }
+    const addPeersResponse = await addPeers();
+    if (addPeersResponse.isErr()) {
+      return err(addPeersResponse.error.message);
+    }
     const decodedInvoice = await decodeLightningInvoice({
       paymentRequest: paymentRequest,
     });
