@@ -8,6 +8,10 @@ import { createRef, MutableRefObject } from 'react';
 import { Screens } from './Screens';
 import type { StackParamList } from './types';
 import Logger from '../utils/logger';
+import store from '../state/store';
+import { PinType } from '../utils/types';
+import { getPincodeWithBiometry, requestPincodeInput } from '../utils/pin/auth';
+import { isUserCancelledError } from '../utils/keychain';
 
 const TAG = 'NavigationService';
 
@@ -33,6 +37,45 @@ async function ensureNavigator() {
   }
   if (!navigationRef.current || !navigatorIsReadyRef.current) {
     throw new Error('navigator is not initialized');
+  }
+}
+
+export async function ensurePincode(): Promise<boolean> {
+  const pincodeType = store.getState().nuxt.pincodeType;
+
+  if (pincodeType === PinType.Unset) {
+    Logger.error(TAG + '@ensurePincode', 'Pin has never been set');
+    return false;
+  }
+
+  if (pincodeType !== PinType.Custom && pincodeType !== PinType.Device) {
+    Logger.error(TAG + '@ensurePincode', `Unsupported Pincode Type ${pincodeType}`);
+    return false;
+  }
+
+  if (pincodeType === PinType.Device) {
+    try {
+      await getPincodeWithBiometry();
+      return true;
+    } catch (error) {
+      if (!isUserCancelledError(error)) {
+        Logger.warn(`${TAG}@ensurePincode`, `Retrieve PIN by biometry error`, error);
+      }
+      // do not return here, the pincode input is the user's fallback if
+      // biometric auth fails
+    }
+  }
+
+  try {
+    await requestPincodeInput(true, false);
+    return true;
+  } catch (error) {
+    if (error === 'CANCELLED_PIN_INPUT') {
+      Logger.warn(`${TAG}@ensurePincode`, `PIN entering cancelled`, error);
+    } else {
+      Logger.error(`${TAG}@ensurePincode`, `PIN entering error`, error);
+    }
+    return false;
   }
 }
 
@@ -171,5 +214,5 @@ export function navigateHome(options?: NavigateHomeOptions) {
 
 export function navigateToError(errorMessage: string, error?: Error) {
   Logger.debug(`${TAG}@navigateToError`, `Navigating to error screen: ${errorMessage}`, error);
-  navigate(Screens.ErrorScreen, { errorMessage });
+  navigate(Screens.GenericErrorScreen, { errorMessage });
 }

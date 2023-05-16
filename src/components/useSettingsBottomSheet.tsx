@@ -9,6 +9,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import { SettingsItemWithIcon } from './InfoListItem';
 import CancelButton from '../navigation/components/CancelButton';
+import { navigate } from '../navigation/NavigationService';
+import { Screens } from '../navigation/Screens';
 
 const useSettingsBottomSheet = () => {
   const insets = useSafeAreaInsets();
@@ -33,6 +35,25 @@ const useSettingsBottomSheet = () => {
   );
 
   const settingsBottomSheet = useMemo(() => {
+    const onPressGeneral = () => {
+      cueInformativeHaptic();
+      navigate(Screens.GeneralSettingsScreen);
+    };
+    const onPressSecurity = () => {
+      cueInformativeHaptic();
+      navigate(Screens.SecuritySettingsScreen);
+    };
+
+    const onPressBackup = () => {
+      cueInformativeHaptic();
+      navigate(Screens.WalletBackupScreen);
+    };
+
+    const onPressLN = () => {
+      cueInformativeHaptic();
+      navigate(Screens.LightningSettingsScreen);
+    };
+
     const onPressContact = () => {
       cueInformativeHaptic();
       // open scanner
@@ -67,25 +88,25 @@ const useSettingsBottomSheet = () => {
             title="General"
             withIcon={true}
             icon="icon-gear"
-            onPress={onPressContact}
+            onPress={onPressGeneral}
           />
           <SettingsItemWithIcon
             title="Security"
             withIcon={true}
             icon="icon-lock"
-            onPress={onPressContact}
+            onPress={onPressSecurity}
           />
           <SettingsItemWithIcon
             title="Wallet backup"
             withIcon={true}
             icon="icon-mnemonic"
-            onPress={onPressContact}
+            onPress={onPressBackup}
           />
           <SettingsItemWithIcon
-            title="Network"
+            title="Lightning network"
             withIcon={true}
-            icon="icon-node"
-            onPress={onPressContact}
+            icon="icon-lightning"
+            onPress={onPressLN}
           />
           <SettingsItemWithIcon
             title="Help & support"

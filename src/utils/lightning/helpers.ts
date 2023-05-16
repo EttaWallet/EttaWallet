@@ -804,10 +804,29 @@ export function groupActivityInSections<T extends { timestamp: number }>(
     return sections;
   }, sectionsMap);
 
-  return Object.entries(sectionsMap)
-    .sort((a, b) => a[1].daysSinceTransaction - b[1].daysSinceTransaction)
-    .map(([key, value]) => ({
-      title: key,
-      data: value.data,
-    }));
+  const sectionsArray = Object.entries(sectionsMap).map(([key, value]) => ({
+    title: key,
+    data: value.data.sort((a, b) => b.timestamp - a.timestamp), // Sort the data in descending order of timestamp
+  }));
+
+  const sortedSections = sectionsArray.sort((a, b) => b.data[0].timestamp - a.data[0].timestamp);
+
+  return sortedSections;
+}
+
+export function countRecentTransactions(payments: TLightningPayment[]): number {
+  const now = Math.floor(Date.now() / 1000); // Current time since Unix epoch in seconds
+  const sevenDaysAgo = now - 7 * 24 * 60 * 60; // 7 days in seconds
+  let count = 0;
+
+  for (const paymentKey in payments) {
+    const payment = payments[paymentKey];
+    const { invoice } = payment;
+
+    if (invoice.timestamp >= sevenDaysAgo && invoice.timestamp <= now) {
+      count++;
+    }
+  }
+
+  return count;
 }

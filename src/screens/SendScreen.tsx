@@ -170,7 +170,7 @@ const SendScreen = ({ route }: Props) => {
           title="Share receipt"
           onPress={() => 0}
           appearance="outline"
-          style={styles.button}
+          style={styles.receiptButton}
         />
       ) : null}
       <Button
@@ -210,9 +210,13 @@ const styles = StyleSheet.create({
   amount: {
     marginVertical: 5,
   },
-  button: {
+  receiptButton: {
     justifyContent: 'center',
     marginBottom: 10,
+  },
+  button: {
+    justifyContent: 'center',
+    marginBottom: 40,
   },
   field: {
     marginVertical: 16,

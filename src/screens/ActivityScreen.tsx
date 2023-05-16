@@ -121,6 +121,7 @@ const ActivityScreen = ({}: Props) => {
   const [loading, setLoading] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState(Error);
+  const totalBalance = getLightningStore().claimableBalance;
 
   const paymentsStore = getLightningStore().payments;
   const transactions = Object.values(paymentsStore);
@@ -148,12 +149,12 @@ const ActivityScreen = ({}: Props) => {
     return 0;
   };
 
-  const totalBalance = transactions.reduce((total, transaction) => {
-    const invoice: TInvoice = transaction.invoice;
-    const satoshiAmount = invoice.amount_satoshis || 0;
+  // const totalBalance = transactions.reduce((total, transaction) => {
+  //   const invoice: TInvoice = transaction.invoice;
+  //   const satoshiAmount = invoice.amount_satoshis || 0;
 
-    return total + satoshiAmount;
-  }, 0);
+  //   return total + satoshiAmount;
+  // }, 0);
 
   return (
     <SafeAreaView style={styles.container}>

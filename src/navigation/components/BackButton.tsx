@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, StyleSheet, BackHandler } from 'react-native';
 import { Chip } from 'etta-ui';
 import { navigateBack } from '../NavigationService';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,13 @@ const BackButton = () => {
   const onPressBack = () => {
     navigateBack();
   };
+
+  // Prevent back button on Android
+  useEffect(() => {
+    const backPressListener = () => true;
+    BackHandler.addEventListener('hardwareBackPress', backPressListener);
+    return () => BackHandler.removeEventListener('hardwareBackPress', backPressListener);
+  }, []);
 
   return (
     <View style={styles.container}>

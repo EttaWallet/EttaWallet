@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    ...TypographyPresets.Header4,
+    ...TypographyPresets.Header5,
     margin: 16,
     color: Colors.common.black,
   },

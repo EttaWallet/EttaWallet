@@ -5,7 +5,7 @@ import BackButton from './components/BackButton';
 import CancelButton from './components/CancelButton';
 import { navigateBack } from './NavigationService';
 import DisconnectBanner from '../shared/DisconnectBanner';
-import { Colors, Icon } from 'etta-ui';
+import { Colors, Icon, TypographyPresets } from 'etta-ui';
 
 export const noHeader: NativeStackNavigationOptions = {
   headerShown: false,
@@ -18,8 +18,7 @@ export const noHeaderGestureDisabled: NativeStackNavigationOptions = {
 
 export const styles = StyleSheet.create({
   headerTitle: {
-    fontSize: 16,
-    lineHeight: 20,
+    ...TypographyPresets.Header5,
     maxWidth: Dimensions.get('window').width * 0.6,
   },
   headerSubTitle: {
@@ -63,8 +62,9 @@ export const emptyHeader: NativeStackNavigationOptions = {
   headerTitle: ' ',
   headerShown: true,
   // Prevents double back button on Android
+  headerBackVisible: false,
   headerBackTitleVisible: false,
-  headerTitleStyle: [styles.headerTitle, styles.screenHeader],
+  headerTitleStyle: [styles.screenHeader],
   headerShadowVisible: false,
   headerTitleAlign: 'center',
   headerStyle: {
@@ -103,12 +103,7 @@ export function HeaderTitleWithSubtitle({
   return (
     <View style={styles.header}>
       {title && (
-        <Text
-          testID="HeaderTitle"
-          style={styles.headerTitle}
-          numberOfLines={1}
-          allowFontScaling={false}
-        >
+        <Text style={styles.headerTitle} numberOfLines={1} allowFontScaling={false}>
           {title}
         </Text>
       )}

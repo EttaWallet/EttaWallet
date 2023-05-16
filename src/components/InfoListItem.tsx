@@ -1,12 +1,13 @@
 /* eslint-disable react-native/no-inline-styles */
 import * as React from 'react';
 import { Platform, StyleSheet, Text, View, TouchableWithoutFeedback } from 'react-native';
-import { Colors, Icon, ListItem, TypographyPresets, ValueOf } from 'etta-ui';
+import { Colors, Icon, ListItem, Switch, TypographyPresets, ValueOf } from 'etta-ui';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Logger from '../utils/logger';
 import { useTranslation } from 'react-i18next';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import { iconVars } from 'etta-ui/lib/typescript/components/icon/icon.vars';
+import { maskString } from '../utils/helpers';
 
 interface WrapperProps {
   onPress?: () => void;
@@ -19,12 +20,6 @@ function Wrapper({ onPress, children }: WrapperProps) {
 
 function Title({ value }: { value: string }) {
   return <View style={[styles.left]}>{<Text style={styles.title}>{value}</Text>}</View>;
-}
-
-function maskString(item: string): string {
-  const firstFour = item.slice(0, 4);
-  const lastFour = item.slice(-4);
-  return `${firstFour}...${lastFour}`;
 }
 
 type BaseProps = {
@@ -135,13 +130,19 @@ export const ListItemWithIcon = ({
   );
 };
 
+type SettingsItemWithIconProps = {
+  subtitle?: string;
+  withIcon?: boolean;
+  icon?: ValueOf<typeof iconVars.names>;
+} & BaseProps;
+
 export const SettingsItemWithIcon = ({
   title,
   subtitle,
   icon,
   withIcon,
   onPress,
-}: ListItemWithIconProps) => {
+}: SettingsItemWithIconProps) => {
   return (
     <TouchableWithoutFeedback disabled={false} onPress={onPress}>
       <View style={styles.settingsContainer}>
@@ -160,6 +161,63 @@ export const SettingsItemWithIcon = ({
     </TouchableWithoutFeedback>
   );
 };
+
+type SettingsItemWithTextValueProps = {
+  value?: string;
+  withChevron?: boolean;
+} & BaseProps;
+
+export const SettingsItemWithTextValue = ({
+  title,
+  value,
+  withChevron,
+  onPress,
+}: SettingsItemWithTextValueProps) => {
+  return (
+    <Wrapper onPress={onPress}>
+      <View style={[styles.container, { paddingVertical: 16 }]}>
+        <Title value={title} />
+        <View style={styles.right}>
+          {value && <Text style={styles.value}>{value}</Text>}
+          {withChevron && (
+            <View style={styles.iconTextContainer}>
+              <Icon name="icon-caret-right" style={styles.icon} />
+            </View>
+          )}
+        </View>
+      </View>
+    </Wrapper>
+  );
+};
+
+type SettingsItemSwitchProps = {
+  value: boolean;
+  onValueChange: (value: boolean) => void;
+  details?: string;
+} & Omit<BaseProps, 'onPress'>;
+
+export function SettingsItemSwitch({
+  title,
+  onValueChange,
+  value,
+  details,
+}: SettingsItemSwitchProps) {
+  return (
+    <Wrapper>
+      <View style={[styles.container, !details ? { paddingVertical: 16 } : { paddingTop: 16 }]}>
+        <Title value={title} />
+        <View style={styles.iconTextContainer}>
+          <Switch value={value} onValueChange={onValueChange} />
+        </View>
+      </View>
+      {details && (
+        <View>
+          <Text style={styles.details}>{details}</Text>
+        </View>
+      )}
+    </Wrapper>
+  );
+}
 
 const fontFamilyChoice = Platform.OS === 'ios' ? 'Menlo-Regular' : 'monospace';
 
@@ -195,9 +253,10 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyChoice,
   },
   details: {
-    ...TypographyPresets.Body5,
-    color: Colors.neutrals.light.neutral6,
+    ...TypographyPresets.Body4,
+    color: Colors.neutrals.light.neutral7,
     paddingRight: 16,
+    paddingBottom: 16,
   },
   row: {
     flexDirection: 'row',
@@ -253,6 +312,20 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutrals.light.neutral3,
   },
   settingsIcon: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    fontSize: 20,
+    color: Colors.common.black,
+  },
+  right: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconTextContainer: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
     alignSelf: 'center',
     justifyContent: 'center',
     fontSize: 20,

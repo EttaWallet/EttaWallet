@@ -515,7 +515,7 @@ export const subscribeToPayments = ({
     onPaymentPathSuccessSubscription = ldk.onEvent(
       EEventTypes.channel_manager_payment_path_successful,
       (_res: TChannelUpdate) => {
-        showToast({
+        showSuccessBanner({
           message: 'Your payment is on the way',
         });
         refreshLdk({ selectedNetwork }).then();

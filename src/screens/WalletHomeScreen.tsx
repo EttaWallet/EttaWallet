@@ -19,7 +19,11 @@ import ContactsButton from '../navigation/components/ContactsButton';
 import { moderateScale, scale, verticalScale } from '../utils/sizing';
 import { HomeBalance } from '../components/HomeBalance';
 import { isLdkRunning, waitForLdk } from '../ldk';
-import { startLightning } from '../utils/lightning/helpers';
+import {
+  countRecentTransactions,
+  getLightningStore,
+  startLightning,
+} from '../utils/lightning/helpers';
 import usePaymentRequestBottomSheet from '../components/usePaymentRequestBottomSheet';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
@@ -65,6 +69,10 @@ const WalletHomeScreen = () => {
     />
   ) as React.ReactElement<RefreshControlProps>;
 
+  const paymentsStore = getLightningStore().payments;
+  const transactions = Object.values(paymentsStore);
+  const recentTxCount = countRecentTransactions(transactions);
+
   // add sections showing balance, most recent transaction and a prompt to show all transactions. Keep clean
   const sections = [];
 
@@ -81,7 +89,7 @@ const WalletHomeScreen = () => {
       <View style={styles.transactionsSection}>
         <TouchableOpacity onPress={onPressTransactions} style={styles.transactionsPill}>
           <Icon style={styles.transactionsIcon} name="icon-caret-up" />
-          <Text style={styles.transactionsUpdate}>1 transaction today</Text>
+          <Text style={styles.transactionsUpdate}>{`${recentTxCount} recent transactions`}</Text>
         </TouchableOpacity>
       </View>
     ),

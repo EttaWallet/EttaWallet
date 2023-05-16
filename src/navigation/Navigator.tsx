@@ -34,6 +34,11 @@ import StartLdkScreen from '../screens/StartLdkScreen';
 import ScanQRCodeScreen from '../screens/ScanQRCodeScreen';
 import GenericErrorScreen from '../shared/GenericErrorScreen';
 import TransactionErrorScreen from '../shared/TransactionErrorScreen';
+import GeneralSettingsScreen from '../screens/settings/GeneralSettingsScreen';
+import SecuritySettingsScreen from '../screens/settings/SecuritySettingsScreen';
+import WalletBackupScreen from '../screens/settings/WalletBackupScreen';
+import LightningSettingsScreen from '../screens/settings/LightningSettingsScreen';
+import ChannelsScreen from '../screens/ChannelsScreen';
 
 const TAG = 'Navigator';
 
@@ -129,6 +134,38 @@ const onboardingScreens = (Navigator: typeof Stack) => {
   );
 };
 
+const settingsScreens = (Navigator: typeof Stack) => {
+  return (
+    <>
+      <Navigator.Screen
+        name={Screens.GeneralSettingsScreen}
+        component={GeneralSettingsScreen}
+        options={GeneralSettingsScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.SecuritySettingsScreen}
+        component={SecuritySettingsScreen}
+        options={SecuritySettingsScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.WalletBackupScreen}
+        component={WalletBackupScreen}
+        options={WalletBackupScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.LightningSettingsScreen}
+        component={LightningSettingsScreen}
+        options={LightningSettingsScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.ChannelsScreen}
+        component={ChannelsScreen}
+        options={ChannelsScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+    </>
+  );
+};
+
 export const MainStackScreen = () => {
   const [initialRouteName, setInitialRoute] = useState<InitialRouteName>(undefined);
   // @todo: updated state via thunk not being rehydrated on app reload. Look into this
@@ -166,6 +203,7 @@ export const MainStackScreen = () => {
       {onboardingScreens(Stack)}
       {walletScreens(Stack)}
       {commonScreens(Stack)}
+      {settingsScreens(Stack)}
     </Stack.Navigator>
   );
 };

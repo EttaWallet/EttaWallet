@@ -7,13 +7,7 @@ import ldk from '@synonymdev/react-native-ldk/dist/ldk';
 import { addPeer, getLightningStore, getTotalBalance, savePeer } from './helpers';
 import { navigate } from '../../navigation/NavigationService';
 import { Screens } from '../../navigation/Screens';
-import {
-  showErrorBanner,
-  showSuccessBanner,
-  showToast,
-  showToastWithCTA,
-  showWarningBanner,
-} from '../alerts';
+import { showErrorBanner, showSuccessBanner, showToast, showWarningBanner } from '../alerts';
 import { cueErrorHaptic, cueSuccessHaptic } from '../accessibility/haptics';
 
 export const decodeLightningInvoice = ({
@@ -285,7 +279,12 @@ export const handleProcessedData = async ({
   selectedNetwork?: TAvailableNetworks;
 }): Promise<Result<TDecodedInput>> => {
   if (!data) {
-    // should be a public toast
+    const message = 'Unable to read or interpret the provided data.';
+    showErrorBanner({
+      message: message,
+      title: 'Failed to intepret',
+      dismissAfter: 5000,
+    });
     console.log('@handleProcessedData/noData: Unable to read or interpret the provided data.');
     return err('Unable to read or interpret the provided data.');
   }
@@ -332,15 +331,10 @@ export const handleProcessedData = async ({
         });
       } else {
         cueErrorHaptic();
-        showToastWithCTA({
-          message: '',
-          title: '',
-          dismissAfter: 0,
-          buttonLabel: 'Add amount',
-          buttonAction: () => {
-            // should be able to pull up send bottom sheet for amount
-            console.info('open bottom sheet to enter amount if invoice amount is null');
-          },
+        showErrorBanner({
+          message: 'Specify an amount on this invoice and try again',
+          title: 'No amount specified',
+          dismissAfter: 5000,
         });
       }
 
@@ -375,7 +369,6 @@ export const handleProcessedData = async ({
       }
       const savePeerRes = savePeer({ selectedNetwork, peer });
       if (savePeerRes.isErr()) {
-        //should show public toast
         showToast({
           title: 'Unable to save peer',
           message: savePeerRes.error.message,

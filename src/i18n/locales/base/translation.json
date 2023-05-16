@@ -186,7 +186,7 @@
     },
     "biometry": {
         "header": "Enable biometrics",
-        "title": "Enable {{biometryType}} for extra security?",
+        "title": "Enable {{biometryType}}?",
         "subtitle": "This will allow you to conveniently access your wallet and approve transactions faster",
         "cta": "Enable {{biometryType}}",
         "type": {

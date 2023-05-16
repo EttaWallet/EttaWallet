@@ -43,7 +43,10 @@ export type StackParamList = {
   [Screens.DrawerNavigator]: undefined;
   [Screens.ManualBackupScreen]: undefined;
   [Screens.ManualBackupQuizScreen]: undefined;
-  [Screens.SettingsScreen]: undefined;
+  [Screens.GeneralSettingsScreen]: undefined;
+  [Screens.SecuritySettingsScreen]: undefined;
+  [Screens.WalletBackupScreen]: undefined;
+  [Screens.LightningSettingsScreen]: undefined;
   [Screens.HelpScreen]: undefined;
   [Screens.FAQScreen]: undefined;
   [Screens.TestScreen]: undefined;

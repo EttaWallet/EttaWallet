@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.neutrals.light.neutral4,
   },
   text: {
-    ...TypographyPresets.Body3,
+    ...TypographyPresets.Body4,
     flex: 1,
     color: Colors.common.black,
     marginRight: 16,

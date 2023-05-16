@@ -35,6 +35,12 @@ export const stringToBoolean = (inputString: string): boolean => {
   throw new Error(`Unable to parse '${inputString}' as boolean`);
 };
 
+export function maskString(item: string): string {
+  const firstFour = item.slice(0, 4);
+  const lastFour = item.slice(-4);
+  return `${firstFour}...${lastFour}`;
+}
+
 export function getErrorMessage(error: Error) {
   // This replacement is because when the error reaches here, it's been wrapped
   // by Error: multiple times

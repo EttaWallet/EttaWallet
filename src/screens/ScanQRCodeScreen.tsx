@@ -1,10 +1,7 @@
 /* eslint-disable no-fallthrough */
 import React, { useEffect, useState } from 'react';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { StyleSheet, Platform, Text, View } from 'react-native';
 import { noHeader } from '../navigation/Headers';
-import { StackParamList } from '../navigation/types';
-import { Screens } from '../navigation/Screens';
 import { SafeAreaView, useSafeAreaFrame, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Defs, Mask, Rect, Svg } from 'react-native-svg';
 import { Camera as CameraKit, CameraType } from 'react-native-camera-kit';
@@ -14,13 +11,6 @@ import { navigateBack } from '../navigation/NavigationService';
 import { check, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import { processInputData } from '../utils/lightning/decode';
-
-type RouteProps = NativeStackScreenProps<StackParamList, Screens.ScanQRCodeScreen>;
-
-interface ScannerScreenProps {
-  onDataFound: (data: string) => void;
-}
-type Props = ScannerScreenProps & RouteProps;
 
 const QrCodeFrame = () => {
   const { width, height } = useSafeAreaFrame();
@@ -64,7 +54,7 @@ const ScanActionsBar = () => {
   );
 };
 
-const ScanQRCodeScreen = ({}: Props) => {
+const ScanQRCodeScreen = () => {
   const inset = useSafeAreaInsets();
 
   enum CameraStatus {
@@ -182,7 +172,8 @@ const styles = StyleSheet.create({
   },
   cancel: {
     alignContent: 'flex-end',
-    paddingRight: 32,
+    paddingRight: 40,
+    paddingTop: 40,
   },
   camera: {
     ...StyleSheet.absoluteFillObject,
