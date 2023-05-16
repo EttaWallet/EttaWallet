@@ -116,21 +116,22 @@ const ScanQRCodeScreen = ({}: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onScanCode = async (code: string): Promise<void> => {
-    if (!code) {
-      console.log('No code found in scanned');
-    } else {
-      setScannedData(code);
-      console.log(scannedData);
+  const onScanCode = (event): void => {
+    if (event.nativeEvent.codeStringValue) {
+      setScannedData(event.nativeEvent.codeStringValue);
+      console.log('scannedData: ', scannedData);
       try {
         processInputData({
-          data: code,
+          data: event.nativeEvent.codeStringValue,
         }).then();
       } catch (e) {
         console.log('Error @onScanCode: ', e.message);
       }
+    } else {
+      console.log('No usable data found');
     }
   };
+
   return (
     <View>
       <CameraKit
