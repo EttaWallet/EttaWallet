@@ -34,12 +34,19 @@ import { promiseTimeout, sleep, tryNTimes } from '../utils/helpers';
 import { getBestBlock, getTransactionMerkle } from '../utils/electrum/helpers';
 import { getLdkNetwork, TAvailableNetworks } from '../utils/networks';
 import { getReceiveAddress, getSelectedNetwork, getWalletStore } from '../utils/wallet';
+import { showSuccessBanner, showToast, showToastWithCTA } from '../utils/alerts';
+import { navigate } from '../navigation/NavigationService';
+import { Screens } from '../navigation/Screens';
+import { showErrorBanner } from '../utils/alerts';
 
 let LDKIsStayingSynced = false;
 
 // Subscribe to LDK module events
 let paymentSubscription: EmitterSubscription | undefined;
 let onChannelSubscription: EmitterSubscription | undefined;
+let onPaymentFailedSubscription: EmitterSubscription | undefined;
+let onPaymentPathSuccessSubscription: EmitterSubscription | undefined;
+let onPaymentSuccessfulSubscription: EmitterSubscription | undefined;
 
 /**
  * Syncs LDK to the current height.
@@ -447,6 +454,10 @@ export const handlePaymentSubscription = async ({
     selectedNetwork = getSelectedNetwork();
   }
   console.log('Receiving Lightning Payment...', payment);
+  showToast({
+    title: 'Incoming',
+    message: "You've got a lightning payment on the way",
+  });
   const invoice = getPendingInvoice({
     paymentHash: payment.payment_hash,
     selectedNetwork,
@@ -456,11 +467,11 @@ export const handlePaymentSubscription = async ({
       invoice: invoice.value,
       selectedNetwork,
     });
-    // Show new payment received toast
-    // showBottomSheet('newTxPrompt', {
-    //   txId: invoice.value.payment_hash,
-    // });
-    // closeBottomSheet('receiveNavigation');
+    showSuccessBanner({
+      title: 'Received',
+      message: `You received ${invoice.value.amount_satoshis} sats`,
+      dismissAfter: 5000,
+    });
     console.info('new payment received', invoice.value.payment_hash);
     await refreshLdk({ selectedNetwork });
   }
@@ -491,18 +502,57 @@ export const subscribeToPayments = ({
   }
   if (!onChannelSubscription) {
     onChannelSubscription = ldk.onEvent(EEventTypes.new_channel, (_res: TChannelUpdate) => {
-      // TODO: channel not open yet, change toast text or remove
-      // showSuccessNotification({
-      //   title: i18n.t('lightning:channel_opened_title'),
-      //   message: i18n.t('lightning:channel_opened_msg'),
-      // });
+      showToastWithCTA({
+        message: 'New channel opened successfully',
+        buttonLabel: 'Explore',
+        buttonAction: () => navigate(Screens.ChannelsScreen),
+      });
       console.info('channel opened successfully. Make this a toast');
       refreshLdk({ selectedNetwork }).then();
     });
+  }
+  if (!onPaymentPathSuccessSubscription) {
+    onPaymentPathSuccessSubscription = ldk.onEvent(
+      EEventTypes.channel_manager_payment_path_successful,
+      (_res: TChannelUpdate) => {
+        showToast({
+          message: 'Your payment is on the way',
+        });
+        refreshLdk({ selectedNetwork }).then();
+      }
+    );
+  }
+  if (!onPaymentSuccessfulSubscription) {
+    onPaymentSuccessfulSubscription = ldk.onEvent(
+      EEventTypes.channel_manager_payment_sent,
+      (_res: TChannelUpdate) => {
+        showSuccessBanner({
+          message: 'Payment sent!',
+          dismissAfter: 5000,
+        });
+        refreshLdk({ selectedNetwork }).then();
+      }
+    );
+  }
+  if (!onPaymentFailedSubscription) {
+    onPaymentFailedSubscription = ldk.onEvent(
+      EEventTypes.channel_manager_payment_path_failed,
+      (_res: TChannelUpdate) => {
+        showErrorBanner({
+          title: 'Payment failed',
+          message: "Couldn't find a route to the payee",
+          dismissAfter: 5000,
+        });
+        refreshLdk({ selectedNetwork }).then();
+      }
+    );
   }
 };
 
 export const unsubscribeFromLDKSubscriptions = (): void => {
   paymentSubscription?.remove();
   onChannelSubscription?.remove();
+  onPaymentPathSuccessSubscription?.remove();
+  onPaymentFailedSubscription?.remove();
+  onPaymentSuccessfulSubscription?.remove();
 };

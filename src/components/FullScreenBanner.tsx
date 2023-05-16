@@ -75,12 +75,13 @@ const FullScreenBanner = ({
     }
   }, [category]);
 
-  const suggestions = [
-    "Are you trying to pay an invoice you created? That won't work",
-    'Are you trying to pay an invoice that was already settled?',
-    'Are you connected to the internet?',
-    'Wait 2 minutes and try again',
-  ];
+  const suggestions = {
+    0: "Are you trying to pay an invoice you created? That won't work",
+    1: 'Are you trying to pay an invoice that was already settled?',
+    2: 'Are you connected to the internet?',
+    3: 'Wait 2 minutes and try again',
+    4: 'Ask for support on Discord',
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -92,15 +93,17 @@ const FullScreenBanner = ({
           {showSuggestions ? (
             <View style={styles.suggestionsContainer}>
               <Text style={styles.suggestionsHeader}>A few things to try or check:</Text>
-              {suggestions.map((suggestion) => (
+              {Object.entries(suggestions).map(([key, value]) => (
                 <View
+                  key={key}
+                  // eslint-disable-next-line react-native/no-inline-styles
                   style={{
                     paddingVertical: 8,
                     borderTopWidth: 1,
                     borderTopColor: Colors.neutrals.light.neutral4,
                   }}
                 >
-                  <Text style={styles.suggestion}>{suggestion}</Text>
+                  <Text style={styles.suggestion}>{value}</Text>
                 </View>
               ))}
             </View>

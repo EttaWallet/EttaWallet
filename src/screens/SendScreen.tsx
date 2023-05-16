@@ -165,13 +165,14 @@ const SendScreen = ({ route }: Props) => {
 
       {/* @TODO: Meta data like notes and tagging goes here */}
 
-      <Button
-        title="Share receipt"
-        onPress={() => 0}
-        appearance="outline"
-        style={styles.button}
-        disabled={isLoading}
-      />
+      {paymentSuccessful ? (
+        <Button
+          title="Share receipt"
+          onPress={() => 0}
+          appearance="outline"
+          style={styles.button}
+        />
+      ) : null}
       <Button
         title={isLoading ? 'Sending payment...' : paymentSuccessful ? 'Done' : 'Send payment'}
         onPress={paymentSuccessful ? onPressOkay : onPressSend}
