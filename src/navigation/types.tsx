@@ -47,6 +47,8 @@ export type StackParamList = {
   [Screens.SecuritySettingsScreen]: undefined;
   [Screens.WalletBackupScreen]: undefined;
   [Screens.LightningSettingsScreen]: undefined;
+  [Screens.LightningSettingsScreen]: undefined;
+  [Screens.LogsScreen]: undefined;
   [Screens.HelpScreen]: undefined;
   [Screens.FAQScreen]: undefined;
   [Screens.TestScreen]: undefined;

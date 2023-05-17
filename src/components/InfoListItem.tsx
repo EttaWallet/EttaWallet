@@ -69,7 +69,7 @@ export const InfoListItem = ({
                     : styles.value
                 }
               >
-                {maskValue ? maskString(value.toString()) : value}
+                {maskValue ? maskString(value.toString(), 4) : value}
               </Text>
               {valueIsNumeric ? <Text>sats</Text> : null}
               {canCopy ? (

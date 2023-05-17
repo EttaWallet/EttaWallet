@@ -20,6 +20,7 @@ export enum Screens {
   SecuritySettingsScreen = 'SecuritySettingsScreen',
   WalletBackupScreen = 'WalletBackupScreen',
   LightningSettingsScreen = 'LightningSettingsScreen',
+  LogsScreen = 'LogsScreen',
   HelpScreen = 'HelpScreen',
   FAQScreen = 'FAQScreen',
   TestScreen = 'TestScreen',

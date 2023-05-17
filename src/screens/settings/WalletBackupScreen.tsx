@@ -6,6 +6,7 @@ import { HeaderTitleWithSubtitle, headerWithBackButton } from '../../navigation/
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SectionTitle from '../../components/SectionTitle';
 import { cueInformativeHaptic } from '../../utils/accessibility/haptics';
+import useWalletBackupBottomSheet from './useWalletBackupBottomSheet';
 
 const WalletBackupScreen = ({ navigation }) => {
   useLayoutEffect(() => {
@@ -15,10 +16,24 @@ const WalletBackupScreen = ({ navigation }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onToggleCloudBackupProvider = () => {
-    cueInformativeHaptic();
-    return;
-  };
+  const {
+    openRecoveryPhraseSheet,
+    cloudOptionsBottomSheet,
+    openCloudOptionsSheet,
+    recoveryPhraseBottomSheet,
+  } = useWalletBackupBottomSheet();
+
+  // const onToggleCloudBackupProvider = () => {
+  //   cueInformativeHaptic();
+  //   return;
+  // };
+
+  // const onPressRecoveryPhrase = async () => {
+  //   const pinIsCorrect = await ensurePincode();
+  //   if (pinIsCorrect) {
+  //     openRecoveryPhraseSheet;
+  //   }
+  // };
 
   const onToggleEncryptBackup = () => {
     cueInformativeHaptic();
@@ -29,14 +44,14 @@ const WalletBackupScreen = ({ navigation }) => {
     <SafeAreaView style={styles.container}>
       <SectionTitle
         title="Automatic cloud backups"
-        details="Last backup: 2 days ago"
+        details="Last backup: "
         style={styles.sectionHeading}
       />
       <SettingsItemWithTextValue
         title="Store cloud backup in"
         value="Apple iCloud"
         withChevron={true}
-        onPress={onToggleCloudBackupProvider}
+        onPress={openCloudOptionsSheet}
       />
       <SettingsItemSwitch
         title="Encrypt cloud backup"
@@ -61,8 +76,10 @@ const WalletBackupScreen = ({ navigation }) => {
       <SettingsItemWithTextValue
         title="View recovery phrase"
         withChevron={true}
-        onPress={() => 0}
+        onPress={openRecoveryPhraseSheet}
       />
+      {cloudOptionsBottomSheet}
+      {recoveryPhraseBottomSheet}
     </SafeAreaView>
   );
 };

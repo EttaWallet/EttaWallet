@@ -27,6 +27,10 @@ export interface LightningNodeModelType {
   payments: { [key: string]: TLightningPayment };
   peers: string[];
   claimableBalance: number;
+  defaultPRDescription: string;
+  defaultPRExpiry: number;
+  setDefaultPRDescription: Action<LightningNodeModelType, string>;
+  setDefaultPRExpiry: Action<LightningNodeModelType, number>;
   setNodeId: Action<LightningNodeModelType, string>;
   setNodeStarted: Action<LightningNodeModelType, boolean>;
   startLdk: Thunk<LightningNodeModelType>;
@@ -57,7 +61,14 @@ export const lightningModel: LightningNodeModelType = {
   peers: [],
   openChannelIds: [],
   claimableBalance: 0,
-
+  defaultPRDescription: 'Invoice from EttaWallet',
+  defaultPRExpiry: 604800, // 1 week
+  setDefaultPRDescription: action((state, payload) => {
+    state.defaultPRDescription = payload;
+  }),
+  setDefaultPRExpiry: action((state, payload) => {
+    state.defaultPRExpiry = payload;
+  }),
   setNodeId: action((state, payload) => {
     state.nodeId = payload;
   }),

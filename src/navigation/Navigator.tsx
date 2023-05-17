@@ -39,6 +39,7 @@ import SecuritySettingsScreen from '../screens/settings/SecuritySettingsScreen';
 import WalletBackupScreen from '../screens/settings/WalletBackupScreen';
 import LightningSettingsScreen from '../screens/settings/LightningSettingsScreen';
 import ChannelsScreen from '../screens/ChannelsScreen';
+import LogsScreen from '../screens/LogsScreen';
 
 const TAG = 'Navigator';
 
@@ -161,6 +162,11 @@ const settingsScreens = (Navigator: typeof Stack) => {
         name={Screens.ChannelsScreen}
         component={ChannelsScreen}
         options={ChannelsScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.LogsScreen}
+        component={LogsScreen}
+        options={LogsScreen.navigationOptions as NativeStackNavigationOptions}
       />
     </>
   );

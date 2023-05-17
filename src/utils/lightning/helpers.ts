@@ -169,6 +169,11 @@ export const createLightningInvoice = async ({
       return err('You have no open lightning channels so you can not receive yet.');
     }
   }
+
+  // get defaults from store
+  description = getLightningStore().defaultPRDescription;
+  expiryDeltaSeconds = getLightningStore().defaultPRExpiry;
+
   const invoice = await createPaymentRequest({
     amountSats,
     description,

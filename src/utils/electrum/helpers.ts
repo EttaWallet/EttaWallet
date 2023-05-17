@@ -3,6 +3,7 @@ import { TAvailableNetworks, networks } from '../networks';
 import { Result, err } from '../result';
 import {
   ICustomElectrumPeer,
+  IElectrumPeerData,
   IFormattedPeerData,
   IHeader,
   ISubscribeToAddress,
@@ -231,4 +232,27 @@ export const subscribeToAddresses = async ({
     })
   );
   return ok('Successfully subscribed to addresses.');
+};
+
+/**
+ * Returns the currently connected Electrum peer.
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @return {Promise<Result<IElectrumPeerData>>}
+ */
+export const getConnectedElectrumPeer = async (
+  selectedNetwork?: TAvailableNetworks
+): Promise<Result<IElectrumPeerData>> => {
+  try {
+    if (!selectedNetwork) {
+      selectedNetwork = getSelectedNetwork();
+    }
+    const response = await electrum.getConnectedPeer(selectedNetwork);
+    console.log('@getConnectedElectrumPeer: ', response);
+    if (response?.host && response?.port && response?.protocol) {
+      return ok(response);
+    }
+    return err('No peer available.');
+  } catch (e) {
+    return err(e);
+  }
 };

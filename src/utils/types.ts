@@ -1,7 +1,5 @@
 import { TCreatePaymentReq, TInvoice } from '@synonymdev/react-native-ldk';
 import { TAvailableNetworks } from './networks';
-import { objectKeys } from './helpers';
-import { cloneDeep } from 'lodash';
 import { ErrorMessages } from './errors';
 
 export enum AppState {
@@ -420,49 +418,8 @@ export const addressTypes: Readonly<IAddressTypes> = {
   },
 };
 
-export const getAddressTypeContent = <T>(data: T): IAddressTypeContent<T> => {
-  const addressTypeKeys = objectKeys(addressTypes);
-  const content = {} as IAddressTypeContent<T>;
-
-  addressTypeKeys.forEach((addressType) => {
-    content[addressType] = data;
-  });
-
-  return cloneDeep(content);
-};
-
-export const numberTypeItems: Readonly<IWalletItem<number>> = {
-  bitcoin: 0,
-  bitcoinTestnet: 0,
-  bitcoinRegtest: 0,
-  timestamp: null,
-};
-
-export const arrayTypeItems: Readonly<IWalletItem<[]>> = {
-  bitcoin: [],
-  bitcoinTestnet: [],
-  bitcoinRegtest: [],
-  timestamp: null,
-};
-
-export const objectTypeItems: Readonly<IWalletItem<{}>> = {
-  bitcoin: {},
-  bitcoinTestnet: {},
-  bitcoinRegtest: {},
-  timestamp: null,
-};
-
-export const stringTypeItems: Readonly<IWalletItem<string>> = {
-  bitcoin: '',
-  bitcoinTestnet: '',
-  bitcoinRegtest: '',
-  timestamp: null,
-};
-
-export const defaultKeyDerivationPath: Readonly<IKeyDerivationPath> = {
-  purpose: '84',
-  coinType: '0',
-  account: '0',
-  change: '0',
-  addressIndex: '0',
-};
+export interface IElectrumPeerData {
+  host: string;
+  port: string;
+  protocol: 'tcp' | 'ssl';
+}

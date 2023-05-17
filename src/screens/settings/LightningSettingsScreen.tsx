@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
 import React, { useLayoutEffect } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 import { SettingsItemWithTextValue } from '../../components/InfoListItem';
@@ -12,10 +11,11 @@ import { maskString } from '../../utils/helpers';
 import { navigate } from '../../navigation/NavigationService';
 import { Screens } from '../../navigation/Screens';
 import SectionTitle from '../../components/SectionTitle';
+import useLightningSettingsBottomSheet from './useLightningSettingsBottomSheet';
 
 const LightningSettingsScreen = ({ navigation }) => {
   const nodeID = useStoreState((state) => state.lightning.nodeId);
-  const maskedNodeId = maskString(nodeID!);
+  const maskedNodeId = maskString(nodeID!, 10);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -23,6 +23,15 @@ const LightningSettingsScreen = ({ navigation }) => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const {
+    openUpdateDescriptionSheet,
+    openUpdateExpirySheet,
+    updateDescriptionBottomSheet,
+    updateExpiryBottomSheet,
+    openElectrumSheet,
+    showElectrumBottomSheet,
+  } = useLightningSettingsBottomSheet();
 
   const onPressNodeId = () => {
     Clipboard.setString(nodeID || '');
@@ -37,9 +46,9 @@ const LightningSettingsScreen = ({ navigation }) => {
     navigate(Screens.ChannelsScreen);
   };
 
-  const onPressElectrum = () => {
+  const onPressViewLogs = () => {
     cueInformativeHaptic();
-    return;
+    navigate(Screens.LogsScreen);
   };
 
   return (
@@ -48,12 +57,12 @@ const LightningSettingsScreen = ({ navigation }) => {
       <SettingsItemWithTextValue
         title="Default payment description"
         withChevron={true}
-        onPress={onPressElectrum}
+        onPress={openUpdateDescriptionSheet}
       />
       <SettingsItemWithTextValue
         title="Default invoice expiry period"
         withChevron={true}
-        onPress={onPressElectrum}
+        onPress={openUpdateExpirySheet}
       />
       <SectionTitle title="Advanced" style={styles.sectionHeading} />
       <SettingsItemWithTextValue
@@ -69,15 +78,18 @@ const LightningSettingsScreen = ({ navigation }) => {
       />
       <SettingsItemWithTextValue title="Peers" withChevron={true} onPress={onPressChannels} />
       <SettingsItemWithTextValue
-        title="Electrum server"
+        title="Electrum servers"
         withChevron={true}
-        onPress={onPressElectrum}
+        onPress={openElectrumSheet}
       />
       <SettingsItemWithTextValue
         title="View LDK logs"
         withChevron={true}
-        onPress={onPressElectrum}
+        onPress={onPressViewLogs}
       />
+      {updateDescriptionBottomSheet}
+      {updateExpiryBottomSheet}
+      {showElectrumBottomSheet}
     </SafeAreaView>
   );
 };
