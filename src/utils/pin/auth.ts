@@ -15,6 +15,7 @@ import { sleep } from '../helpers';
 import { useStoreState } from '../../state/hooks';
 import mmkvStorage, { StorageItem } from '../../storage/disk';
 import store from '../../state/store';
+import { ok } from '../result';
 
 const TAG = 'pincode/authentication';
 
@@ -78,6 +79,7 @@ export async function setPincodeWithBiometry() {
     await storePinWithBiometry(pin);
     // allow native biometry verification animation to run fully
     await sleep(BIOMETRY_VERIFICATION_DELAY);
+    return ok('');
   } catch (error) {
     Logger.warn(TAG, 'Failed to save pin with biometry', error);
     throw error;

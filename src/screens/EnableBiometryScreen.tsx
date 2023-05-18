@@ -11,7 +11,7 @@ import { setPincodeWithBiometry } from '../utils/pin/auth';
 import { isUserCancelledError } from '../utils/keychain';
 import Logger from '../utils/logger';
 import { Button, Colors, TypographyPresets } from 'etta-ui';
-import { useStoreActions, useStoreState } from '../state/hooks';
+import { useStoreDispatch, useStoreState } from '../state/hooks';
 import SkipButton from '../navigation/components/SkipButton';
 import { PinType } from '../utils/types';
 import { BIOMETRY_TYPE } from 'react-native-keychain';
@@ -31,14 +31,11 @@ const biometryIconMap: { [key in BIOMETRY_TYPE]: JSX.Element } = {
 
 export const EnableBiometry = ({ navigation }: Props) => {
   const { t } = useTranslation();
-
-  const setPinType = useStoreActions((action) => action.nuxt.setPincodeType);
-  const setBiometricsStatus = useStoreActions((action) => action.app.setEnabledBiometrics);
+  const dispatch = useStoreDispatch();
 
   const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType)!;
   const choseRestoreWallet = useStoreState((state) => state.nuxt.choseRestoreWallet);
   const nodeIsUp = useStoreState((state) => state.lightning.nodeStarted);
-  const userSkippedBiometry = useStoreActions((action) => action.app.setSkippedBiometrics);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -62,10 +59,12 @@ export const EnableBiometry = ({ navigation }: Props) => {
 
   const onPressUseBiometry = async () => {
     try {
-      await setPincodeWithBiometry();
-      setPinType(PinType.Device);
-      // @issue: state keeps reverting to false on reload
-      setBiometricsStatus(true);
+      const response = await setPincodeWithBiometry();
+      if (response.isOk()) {
+        dispatch.nuxt.setPincodeType(PinType.Device);
+        // @issue: state keeps reverting to false on reload
+        dispatch.app.setEnabledBiometrics(true);
+      }
       handleNavigateToNextScreen();
     } catch (error: any) {
       if (!isUserCancelledError(error)) {
@@ -76,7 +75,7 @@ export const EnableBiometry = ({ navigation }: Props) => {
 
   const onPressSkip = async () => {
     // @issue: state keeps reverting to false on reload
-    userSkippedBiometry(true);
+    dispatch.app.setSkippedBiometrics(true);
     handleNavigateToNextScreen();
   };
 
