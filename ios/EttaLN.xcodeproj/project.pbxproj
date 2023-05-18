@@ -41,10 +41,10 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = EttaLN/main.m; sourceTree = "<group>"; };
 		21EE6B7037B3339D96901F3C /* Pods-EttaLN-EttaLNTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EttaLN-EttaLNTests.release.xcconfig"; path = "Target Support Files/Pods-EttaLN-EttaLNTests/Pods-EttaLN-EttaLNTests.release.xcconfig"; sourceTree = "<group>"; };
 		3CF9AB4DA35AFE84C0581667 /* Pods-EttaLN.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EttaLN.release.xcconfig"; path = "Target Support Files/Pods-EttaLN/Pods-EttaLN.release.xcconfig"; sourceTree = "<group>"; };
-		57018506BE2D4F80A958A340 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-SemiBold.ttf"; path = "../assets/fonts/Inter-SemiBold.ttf"; sourceTree = "<group>"; };
-		5CEB0162E2334C949004DD7F /* Inter-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Regular.ttf"; path = "../assets/fonts/Inter-Regular.ttf"; sourceTree = "<group>"; };
+		57018506BE2D4F80A958A340 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-SemiBold.ttf"; path = "../assets/fonts/Inter-SemiBold.ttf"; sourceTree = "<group>"; };
+		5CEB0162E2334C949004DD7F /* Inter-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Regular.ttf"; path = "../assets/fonts/Inter-Regular.ttf"; sourceTree = "<group>"; };
 		5E08D36AAC22F9015FA1E6F1 /* libPods-EttaLN-EttaLNTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-EttaLN-EttaLNTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		6EEDDF2017F943B48BCCC27C /* Bitcoin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = Bitcoin.ttf; path = ../assets/fonts/Bitcoin.ttf; sourceTree = "<group>"; };
+		6EEDDF2017F943B48BCCC27C /* Bitcoin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Bitcoin.ttf; path = ../assets/fonts/Bitcoin.ttf; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = EttaLN/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		99AD1008054962874F998994 /* Pods-EttaLN-EttaLNTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EttaLN-EttaLNTests.debug.xcconfig"; path = "Target Support Files/Pods-EttaLN-EttaLNTests/Pods-EttaLN-EttaLNTests.debug.xcconfig"; sourceTree = "<group>"; };
 		AE15C4A31260F03A980FA3FA /* Pods-EttaLN.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EttaLN.debug.xcconfig"; path = "Target Support Files/Pods-EttaLN/Pods-EttaLN.debug.xcconfig"; sourceTree = "<group>"; };
@@ -163,7 +163,6 @@
 				57018506BE2D4F80A958A340 /* Inter-SemiBold.ttf */,
 			);
 			name = Resources;
-			path = "";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

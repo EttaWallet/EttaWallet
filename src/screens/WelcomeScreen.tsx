@@ -114,6 +114,7 @@ const styles = StyleSheet.create({
     ...TypographyPresets.Header1,
     textAlign: 'center',
     color: Colors.common.black,
+    paddingTop: 16,
   },
   subtitle: {
     ...TypographyPresets.Body3,
