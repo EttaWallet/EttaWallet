@@ -1,6 +1,5 @@
 export enum Screens {
   GenericErrorScreen = 'GenericErrorScreen',
-  InitScreen = 'InitScreen',
   LangugageChooserScreen = 'LangugageChooserScreen',
   LanguageModal = 'LanguageModal',
   Disclaimer = 'Disclaimer',

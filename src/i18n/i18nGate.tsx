@@ -6,8 +6,7 @@ import { initI18n } from '.';
 import useChangeLanguage from './useChangeLanguage';
 import { navigateToError } from '../navigation/NavigationService';
 import Logger from '../utils/logger';
-// import { useStoreState } from '../state/hooks';
-import mmkvStorage, { StorageItem } from '../storage/disk';
+import { useStoreState } from '../state/hooks';
 
 interface Props {
   loading: React.ReactNode;
@@ -16,7 +15,7 @@ interface Props {
 
 const I18nGate = ({ loading, children }: Props) => {
   const changelanguage = useChangeLanguage();
-  const language = mmkvStorage.getItem(StorageItem.language);
+  const language = useStoreState((state) => state.nuxt.language);
   // const language = useStoreState((state) => state.nuxt.language);
   const bestLanguage = findBestAvailableLanguage(Object.keys(locales))?.languageTag;
 

@@ -39,7 +39,7 @@ const SetPinScreen = ({ route }: ScreenProps) => {
   const skippedBiometrics = useStoreState((state) => state.app.skippedBiometrics);
   const enabledBiometrics = useStoreState((state) => state.app.biometricsEnabled);
   // dispatch action from rootState
-  const setPinType = useStoreActions((action) => action.nuxt.savePinType);
+  const setPinType = useStoreActions((action) => action.nuxt.setPincodeType);
   const nodeIsUp = useStoreState((state) => state.lightning.nodeStarted);
 
   useEffect(() => {

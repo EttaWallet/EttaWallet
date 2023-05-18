@@ -30,10 +30,10 @@ const SecuritySettingsScreen = ({ navigation }) => {
     try {
       if (switchOn) {
         await setPincodeWithBiometry();
-        dispatch.nuxt.savePinType(PinType.Device);
+        dispatch.nuxt.setPincodeType(PinType.Device);
       } else {
         await removeStoredPin();
-        dispatch.nuxt.savePinType(PinType.Custom);
+        dispatch.nuxt.setPincodeType(PinType.Custom);
       }
     } catch (e) {}
   };

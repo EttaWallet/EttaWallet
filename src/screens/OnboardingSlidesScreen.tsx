@@ -6,7 +6,7 @@ import { Screens } from '../navigation/Screens';
 import { useStoreActions } from '../state/hooks';
 
 const OnboardingSlidesScreen = () => {
-  const setSeenSlides = useStoreActions((action) => action.nuxt.saveSeenSlides);
+  const setSeenSlides = useStoreActions((action) => action.nuxt.setSeenSlides);
   const { t } = useTranslation();
 
   // Define slides

@@ -19,9 +19,7 @@ const MARGIN = 24;
 const DisclaimerScreen = () => {
   const { t } = useTranslation();
 
-  const acknowledgedDisclaimer = useStoreActions(
-    (action) => action.nuxt.saveAcknowledgedDisclaimer
-  );
+  const acknowledgedDisclaimer = useStoreActions((action) => action.nuxt.setAcknowledgedDisclaimer);
 
   const onPressGoToFAQ = () => {
     navigateToURI(FAQ_LINK);

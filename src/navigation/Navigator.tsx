@@ -178,7 +178,6 @@ export const MainStackScreen = () => {
   const choseRestoreWallet = useStoreState((state) => state.nuxt.choseRestoreWallet);
   const acknowledgedDisclaimer = useStoreState((state) => state.nuxt.acknowledgedDisclaimer);
   const pinType = useStoreState((state) => state.nuxt.pincodeType);
-  const userStarted = useStoreState((state) => state.nuxt.userStarted);
   const slidesSeen = useStoreState((state) => state.nuxt.seenSlides);
   const nodeIsUp = useStoreState((state) => state.lightning.nodeStarted);
 
@@ -197,7 +196,7 @@ export const MainStackScreen = () => {
 
     // Wait for next frame to avoid slight gap when hiding the splash
     requestAnimationFrame(() => SplashScreen.hide());
-  }, [acknowledgedDisclaimer, choseRestoreWallet, slidesSeen, userStarted, pinType, nodeIsUp]);
+  }, [acknowledgedDisclaimer, choseRestoreWallet, slidesSeen, pinType, nodeIsUp]);
 
   if (!initialRouteName) {
     return <AppLoading />;

@@ -32,7 +32,7 @@ const biometryIconMap: { [key in BIOMETRY_TYPE]: JSX.Element } = {
 export const EnableBiometry = ({ navigation }: Props) => {
   const { t } = useTranslation();
 
-  const setPinType = useStoreActions((action) => action.nuxt.savePinType);
+  const setPinType = useStoreActions((action) => action.nuxt.setPincodeType);
   const setBiometricsStatus = useStoreActions((action) => action.app.setEnabledBiometrics);
 
   const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType)!;

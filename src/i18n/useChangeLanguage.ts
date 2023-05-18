@@ -5,7 +5,7 @@ import { useStoreActions } from '../state/hooks';
 const TAG = 'i18n/actions';
 
 export default function useChangeLanguage() {
-  const setAppLanguage = useStoreActions((action) => action.nuxt.saveLanguage);
+  const setAppLanguage = useStoreActions((action) => action.nuxt.setLanguage);
 
   const handleChangeLanguage = async (language: string) => {
     setAppLanguage(language); // update the language in state

@@ -1,13 +1,12 @@
 import type { BIOMETRY_TYPE } from 'react-native-keychain';
 import { AppState } from '../../utils/types';
 import { Screens } from '../../navigation/Screens';
-import { action, thunk } from 'easy-peasy';
-import type { Action, Thunk } from 'easy-peasy';
-import mmkvStorage, { StorageItem } from '../../storage/disk';
+import { action } from 'easy-peasy';
+import type { Action } from 'easy-peasy';
 
 export interface AppModelType {
-  appVersion: number;
-  appBuild: number;
+  appVersion: string;
+  appBuild: string;
   appReady: boolean;
   appState: AppState;
   requirePinOnOpen: boolean;
@@ -21,8 +20,8 @@ export interface AppModelType {
   minAppVersion: string | null;
   isConnectedToElectrum: boolean;
   // actions
-  setAppVersion: Action<AppModelType, number>;
-  setAppBuild: Action<AppModelType, number>;
+  setAppVersion: Action<AppModelType, string>;
+  setAppBuild: Action<AppModelType, string>;
   setAppReady: Action<AppModelType, boolean>;
   setAppState: Action<AppModelType, AppState>;
   setRequirePinOnOpen: Action<AppModelType, boolean>;
@@ -31,18 +30,16 @@ export interface AppModelType {
   setSessionId: Action<AppModelType, string>;
   setActiveScreen: Action<AppModelType, Screens>;
   setMinAppVersion: Action<AppModelType, string | null>;
-  setSupportedBiometryType: Action<AppModelType, BIOMETRY_TYPE>;
+  setSupportedBiometryType: Action<AppModelType, BIOMETRY_TYPE | null>;
   setEnabledBiometrics: Action<AppModelType, boolean>;
   setSkippedBiometrics: Action<AppModelType, boolean>;
   setIsConnectedToElectrum: Action<AppModelType, boolean>;
-  saveEnabledBiometrics: Thunk<AppModelType, boolean>;
-  saveSkippedBiometrics: Thunk<AppModelType, boolean>;
 }
 
 // model implementation
 export const appModel: AppModelType = {
-  appVersion: 0,
-  appBuild: 0,
+  appVersion: '0',
+  appBuild: '0',
   appReady: false,
   appState: AppState.Active,
   requirePinOnOpen: false,
@@ -109,14 +106,6 @@ export const appModel: AppModelType = {
   }),
   setSkippedBiometrics: action((state, skippedBiometrics) => {
     state.skippedBiometrics = skippedBiometrics;
-  }),
-  saveEnabledBiometrics: thunk(async (actions, payload) => {
-    await mmkvStorage.setItem(StorageItem.enabledBiometrics, payload);
-    actions.setEnabledBiometrics(payload);
-  }),
-  saveSkippedBiometrics: thunk(async (actions, payload) => {
-    await mmkvStorage.setItem(StorageItem.skippedBiometrics, payload);
-    actions.setSkippedBiometrics(payload);
   }),
   setIsConnectedToElectrum: action((state, isConnectedToElectrum) => {
     state.isConnectedToElectrum = isConnectedToElectrum;
