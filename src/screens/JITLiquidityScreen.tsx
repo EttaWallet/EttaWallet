@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Dimensions, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, Edge } from 'react-native-safe-area-context';
@@ -259,7 +259,7 @@ JITLiquidityScreen.navigationOptions = initOnboardingNavigationOptions;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 100,
+    paddingTop: 80,
   },
   contentContainer: {
     padding: 16,

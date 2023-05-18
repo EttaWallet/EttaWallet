@@ -54,10 +54,10 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
     []
   );
 
-  const maxReceiveColor =
-    parseInt(modifiedAmount!, 10)! < maxReceivable
-      ? Colors.neutrals.light.neutral5
-      : Colors.red.base;
+  // const maxReceiveColor =
+  //   parseInt(modifiedAmount!, 10)! < maxReceivable
+  //     ? Colors.neutrals.light.neutral5
+  //     : Colors.red.base;
 
   const newPaymentRequestBottomSheet = useMemo(() => {
     const onPressCancel = () => {
@@ -107,9 +107,9 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
           {/* Calculate total amount receivable and validate on input
            * This text should be clickable for more information bottom sheet about remote balance
            */}
-          <Text
+          {/* <Text
             style={[styles.maxReceive, { color: maxReceiveColor }]}
-          >{`The maximum amount you can receive is ${maxReceivable} sats`}</Text>
+          >{`The maximum amount you can receive is ${maxReceivable} sats`}</Text> */}
           {/* @TODO: Add a section to select sender from the contact list */}
           <FormInput
             label={t('Description')}
@@ -140,8 +140,6 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
     handleContentLayout,
     t,
     newAmount,
-    maxReceiveColor,
-    maxReceivable,
     newDescription,
   ]);
 
@@ -195,9 +193,9 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
           {/* Calculate total amount receivable and validate on input
            * This text should be clickable for more information bottom sheet about remote balance
            */}
-          <Text
+          {/* <Text
             style={[styles.maxReceive, { color: maxReceiveColor }]}
-          >{`The maximum amount you can receive is ${maxReceivable} sats`}</Text>
+          >{`The maximum amount you can receive is ${maxReceivable} sats`}</Text> */}
           <FormInput
             label={t('Description')}
             style={styles.field}
@@ -247,8 +245,6 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
     handleContentLayout,
     t,
     modifiedAmount,
-    maxReceiveColor,
-    maxReceivable,
     modifiedDescription,
     senderName,
     newAmount,
