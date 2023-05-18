@@ -55,11 +55,11 @@ const SetPinScreen = ({ route }: ScreenProps) => {
 
   const navigateToNextScreen = () => {
     if (isChangingPin()) {
-      navigate(Screens.SettingsScreen);
+      navigate(Screens.SecuritySettingsScreen);
     } else if (
       supportedBiometryType !== null &&
       skippedBiometrics === false &&
-      enabledBiometrics !== false
+      enabledBiometrics === false
     ) {
       navigate(Screens.EnableBiometryScreen);
     } else if (restoreWallet) {
