@@ -177,6 +177,9 @@ export const MainStackScreen = () => {
   // @todo: updated state via thunk not being rehydrated on app reload. Look into this
   const choseRestoreWallet = useStoreState((state) => state.nuxt.choseRestoreWallet);
   const acknowledgedDisclaimer = useStoreState((state) => state.nuxt.acknowledgedDisclaimer);
+  const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType);
+  const skippedBiometrics = useStoreState((state) => state.app.skippedBiometrics);
+  const enabledBiometrics = useStoreState((state) => state.app.biometricsEnabled);
   const pinType = useStoreState((state) => state.nuxt.pincodeType);
   const slidesSeen = useStoreState((state) => state.nuxt.seenSlides);
   const nodeIsUp = useStoreState((state) => state.lightning.nodeStarted);
@@ -185,6 +188,12 @@ export const MainStackScreen = () => {
     let initialRoute: InitialRouteName;
     if (!acknowledgedDisclaimer || pinType === PinType.Unset) {
       initialRoute = Screens.WelcomeScreen;
+    } else if (
+      supportedBiometryType !== null &&
+      skippedBiometrics === false &&
+      enabledBiometrics === false
+    ) {
+      initialRoute = Screens.EnableBiometryScreen;
     } else if (!nodeIsUp) {
       initialRoute = choseRestoreWallet ? Screens.RestoreWalletScreen : Screens.StartLdkScreen;
     } else {
@@ -196,7 +205,16 @@ export const MainStackScreen = () => {
 
     // Wait for next frame to avoid slight gap when hiding the splash
     requestAnimationFrame(() => SplashScreen.hide());
-  }, [acknowledgedDisclaimer, choseRestoreWallet, slidesSeen, pinType, nodeIsUp]);
+  }, [
+    acknowledgedDisclaimer,
+    choseRestoreWallet,
+    slidesSeen,
+    pinType,
+    nodeIsUp,
+    supportedBiometryType,
+    skippedBiometrics,
+    enabledBiometrics,
+  ]);
 
   if (!initialRouteName) {
     return <AppLoading />;
