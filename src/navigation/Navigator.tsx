@@ -40,6 +40,7 @@ import WalletBackupScreen from '../screens/settings/WalletBackupScreen';
 import LightningSettingsScreen from '../screens/settings/LightningSettingsScreen';
 import ChannelsScreen from '../screens/ChannelsScreen';
 import LogsScreen from '../screens/LogsScreen';
+import { getLightningStore } from '../utils/lightning/helpers';
 
 const TAG = 'Navigator';
 
@@ -184,6 +185,9 @@ export const MainStackScreen = () => {
   const slidesSeen = useStoreState((state) => state.nuxt.seenSlides);
   const nodeIsUp = useStoreState((state) => state.lightning.nodeStarted);
 
+  // check if channels set up
+  const channels = getLightningStore().channels;
+
   useEffect(() => {
     let initialRoute: InitialRouteName;
     if (!acknowledgedDisclaimer || pinType === PinType.Unset) {
@@ -195,7 +199,9 @@ export const MainStackScreen = () => {
     ) {
       initialRoute = Screens.EnableBiometryScreen;
     } else if (!nodeIsUp) {
-      initialRoute = choseRestoreWallet ? Screens.RestoreWalletScreen : Screens.StartLdkScreen;
+      initialRoute = Screens.StartLdkScreen;
+    } else if (Object.keys(channels).length === 0) {
+      initialRoute = Screens.StartLdkScreen;
     } else {
       initialRoute = Screens.DrawerNavigator;
     }
@@ -214,6 +220,7 @@ export const MainStackScreen = () => {
     supportedBiometryType,
     skippedBiometrics,
     enabledBiometrics,
+    channels,
   ]);
 
   if (!initialRouteName) {

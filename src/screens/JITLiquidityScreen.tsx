@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Dimensions, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, Edge } from 'react-native-safe-area-context';
@@ -17,10 +17,11 @@ import CancelButton from '../navigation/components/CancelButton';
 import { navigate } from '../navigation/NavigationService';
 import { sha256 } from 'react-native-sha256';
 import { decodeLightningInvoice } from '../utils/lightning/decode';
-import { showSuccessBanner } from '../utils/alerts';
+import { showSuccessBanner, showWarningBanner } from '../utils/alerts';
+import { getLightningStore } from '../utils/lightning/helpers';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
-const QR_CODE_WIDTH = WINDOW_WIDTH - 150;
+const QR_CODE_WIDTH = WINDOW_WIDTH - 170;
 
 type Props = NativeStackScreenProps<StackParamList, Screens.JITLiquidityScreen>;
 
@@ -37,6 +38,10 @@ const JITLiquidityScreen = ({ navigation, route }: Props) => {
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
 
   const onPressCancel = () => {
+    navigate(Screens.DrawerNavigator);
+  };
+
+  const onPressContinue = () => {
     navigate(Screens.DrawerNavigator);
   };
 
@@ -74,35 +79,54 @@ const JITLiquidityScreen = ({ navigation, route }: Props) => {
     }
   };
 
-  useEffect(() => {
-    async function confirmPayment() {
-      console.log('checking');
-      setPaymentConfirmed(false);
-      try {
-        if (!wrappedInvoice) {
-          return;
-        }
-        console.log('checking1');
-        const decodeResponse = await decodeLightningInvoice({ paymentRequest: wrappedInvoice });
-        if (decodeResponse.isErr()) {
-          return;
-        }
-        const invoiceHash = sha256(decodeResponse.value.payment_hash);
-        console.log('invoiceHash: ', invoiceHash);
-        if (invoiceHash === decodeResponse.value.payment_hash) {
-          setPaymentConfirmed(true);
-          showSuccessBanner({
-            message: 'Your payment is confirmed',
-            title: 'Paid!',
-          });
-        }
-      } catch (e) {
-        console.log('Error@decodePaymentRequest: ', e);
-      }
-    }
+  // const confirmPayment = async () => {
+  //   setPaymentConfirmed(false);
+  //   try {
+  //     const decodeResponse = await decodeLightningInvoice({ paymentRequest: wrappedInvoice });
+  //     if (decodeResponse.isErr()) {
+  //       return;
+  //     }
+  //     console.log('decodeResponse: ', decodeResponse);
+  //     const invoiceHash = sha256(decodeResponse.value.payment_hash);
+  //     console.log('invoiceHash: ', invoiceHash);
+  //     if (invoiceHash === decodeResponse.value.payment_hash) {
+  //       setPaymentConfirmed(true);
+  //       showSuccessBanner({
+  //         message: 'Your payment is confirmed',
+  //         title: 'Paid!',
+  //       });
+  //     } else {
+  //       showWarningBanner({
+  //         message: 'Payment pending',
+  //       });
+  //     }
+  //   } catch (e) {
+  //     console.log('Error@decodePaymentRequest: ', e);
+  //   }
+  // };
 
-    confirmPayment();
-  }, [wrappedInvoice]);
+  const confirmChannelOpen = () => {
+    setPaymentConfirmed(false);
+    // get openchannel ids from lightning store
+    const openChannelIds = getLightningStore().openChannelIds;
+    // get all channels from lightning store
+    const channels = getLightningStore().channels;
+
+    const openChannels = Object.values(channels).filter((channel) => {
+      return openChannelIds.includes(channel.channel_id);
+    });
+
+    if (openChannels.length > 0) {
+      setPaymentConfirmed(true);
+      showSuccessBanner({
+        message: 'Channel opened successfully',
+      });
+    } else {
+      showWarningBanner({
+        message: 'Channel open is still pending',
+      });
+    }
+  };
 
   const estimateFees = async () => {
     try {
@@ -139,8 +163,8 @@ const JITLiquidityScreen = ({ navigation, route }: Props) => {
   const edges: Edge[] | undefined = ['bottom'];
 
   const DynamicButton = () => {
-    const ctaButtonTitle = paymentConfirmed ? 'Continue' : 'Check for payment';
-    const ctaAction = getWrappedInvoice;
+    const ctaButtonTitle = paymentConfirmed ? 'Continue' : 'Confirm channel open';
+    const ctaAction = paymentConfirmed ? onPressContinue : confirmChannelOpen;
     return (
       <Button
         title={ctaButtonTitle}
@@ -195,7 +219,31 @@ const JITLiquidityScreen = ({ navigation, route }: Props) => {
                 allowModifier={false}
                 smallButtons={true}
               />
-              <Text style={styles.total}>Total for channel open: {totalInvoiceAmount} sats</Text>
+              {!paymentConfirmed ? (
+                <>
+                  <ActivityIndicator color={Colors.orange.base} />
+                  <Text
+                    style={[
+                      styles.total,
+                      paymentConfirmed
+                        ? { color: Colors.green.base }
+                        : { color: Colors.orange.base },
+                    ]}
+                  >
+                    Pending for channel open: {totalInvoiceAmount} sats. You may settle this testnet
+                    invoice via htlc.me
+                  </Text>
+                </>
+              ) : (
+                <Text
+                  style={[
+                    styles.total,
+                    paymentConfirmed ? { color: Colors.green.base } : { color: Colors.orange.base },
+                  ]}
+                >
+                  Channel opened successfully
+                </Text>
+              )}
             </>
           )}
         </View>
@@ -253,8 +301,8 @@ const styles = StyleSheet.create({
   },
   total: {
     ...TypographyPresets.Body4,
-    color: Colors.green.base,
     paddingVertical: 10,
+    textAlign: 'center',
   },
 });
 

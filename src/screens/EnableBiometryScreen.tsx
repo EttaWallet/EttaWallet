@@ -16,6 +16,7 @@ import SkipButton from '../navigation/components/SkipButton';
 import { PinType } from '../utils/types';
 import { BIOMETRY_TYPE } from 'react-native-keychain';
 import { Face, FaceID, Fingerprint } from '../icons';
+import { getLightningStore } from '../utils/lightning/helpers';
 
 const TAG = 'EnableBiometry';
 
@@ -36,6 +37,8 @@ export const EnableBiometry = ({ navigation }: Props) => {
   const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType)!;
   const choseRestoreWallet = useStoreState((state) => state.nuxt.choseRestoreWallet);
   const nodeIsUp = useStoreState((state) => state.lightning.nodeStarted);
+  // check if channels set up
+  const channels = getLightningStore().channels;
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -50,6 +53,10 @@ export const EnableBiometry = ({ navigation }: Props) => {
       navigate(Screens.RestoreWalletScreen);
     } else if (nodeIsUp === false) {
       // proceed to launch LDK node
+      navigate(Screens.StartLdkScreen);
+      // check if channels exist, if none, stay on startLdkScreen
+      // to negotiate a channel open
+    } else if (Object.keys(channels).length === 0) {
       navigate(Screens.StartLdkScreen);
     } else {
       navigate(Screens.DrawerNavigator);

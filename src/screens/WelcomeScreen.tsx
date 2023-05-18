@@ -13,6 +13,7 @@ import { sleep } from '../utils/helpers';
 import { createDefaultWallet } from '../utils/wallet';
 import Logger from '../utils/logger';
 import Logo from '../icons/Logo';
+import { getLightningStore } from '../utils/lightning/helpers';
 
 const TAG = 'WelcomeScreen';
 
@@ -28,6 +29,9 @@ const WelcomeScreen = () => {
   const nodeIsUp = useStoreState((state) => state.lightning.nodeStarted);
   const nodeId = useStoreState((state) => state.lightning.nodeId);
 
+  // check if channels set up
+  const channels = getLightningStore().channels;
+
   const navigateNext = () => {
     if (!acknowledgedDisclaimer) {
       navigate(Screens.Disclaimer);
@@ -41,6 +45,8 @@ const WelcomeScreen = () => {
       navigate(Screens.EnableBiometryScreen);
       // check if node is available on device
     } else if (nodeIsUp === false || nodeId === '') {
+      navigate(Screens.StartLdkScreen);
+    } else if (Object.keys(channels).length === 0) {
       navigate(Screens.StartLdkScreen);
     } else {
       navigate(Screens.DrawerNavigator);
