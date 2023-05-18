@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Keyboard, Text, View, LayoutAnimation } from 'react-native';
-import { useTheme, KeyPad } from 'etta-ui';
+import { useTheme } from 'etta-ui';
 import { getPincodeStyles } from './pincode.style';
+import Keypad from '../KeyPad';
 
 // How long the last entered digit is visible
 const LAST_DIGIT_VISIBLE_INTERVAL = 1000; // 1secs
@@ -64,7 +65,7 @@ const PincodeComponent = ({
       </View>
       <Text style={styles.error}>{errorText || ' '}</Text>
       <View style={styles.spacer} />
-      <KeyPad onDigitPress={onDigitPress} onBackspacePress={onBackspacePress} />
+      <Keypad onDigitPress={onDigitPress} onBackspacePress={onBackspacePress} />
     </View>
   );
 };
