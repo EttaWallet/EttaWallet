@@ -3,15 +3,7 @@ import { PinType } from '../types';
 import i18n from '../../i18n';
 import { navigate, navigateBack } from '../../navigation/NavigationService';
 import { Screens } from '../../navigation/Screens';
-import {
-  clearPasswordCaches,
-  getCachedPasswordHash,
-  getCachedPepper,
-  getCachedPin,
-  setCachedPasswordHash,
-  setCachedPepper,
-  setCachedPin,
-} from './PasswordCache';
+import { SecretCache, clearPasswordCaches, getCachedPin, setCachedPin } from './PasswordCache';
 import {
   isUserCancelledError,
   removeStoredItem,
@@ -21,14 +13,12 @@ import {
 import Logger from '../logger';
 import { sleep } from '../helpers';
 import { useStoreState } from '../../state/hooks';
-import { generateSecureRandom } from 'react-native-securerandom';
-import { sha256, sha256Bytes } from 'react-native-sha256';
+import mmkvStorage, { StorageItem } from '../../storage/disk';
+import store from '../../state/store';
 
 const TAG = 'pincode/authentication';
 
 const PIN_STORAGE_KEY = 'PIN';
-const PEPPER_STORAGE_KEY = 'PEPPER';
-const PASSWORD_HASH_STORAGE_KEY = 'PASSWORD_HASH';
 
 export const PIN_LENGTH = 6;
 export const DEFAULT_CACHE_ACCOUNT = 'etta';
@@ -170,69 +160,20 @@ export async function requestPincodeInput(
   return pin;
 }
 
-export async function retrieveOrGeneratePepper(account = DEFAULT_CACHE_ACCOUNT) {
-  if (!getCachedPepper(account)) {
-    let storedPepper = await retrieveStoredKeychainItem(PEPPER_STORAGE_KEY);
-    if (!storedPepper) {
-      const randomBytes = await generateSecureRandom(64);
-      const pepper = sha256Bytes(randomBytes).toString();
-      await storeKeychainItem({ key: PEPPER_STORAGE_KEY, value: pepper });
-      storedPepper = pepper;
-    }
-    setCachedPepper(account, storedPepper);
-  }
-  return getCachedPepper(account)!;
-}
-
-async function getPasswordForPin(pin: string) {
-  const pepper = await retrieveOrGeneratePepper();
-  const password = `${pepper}${pin}`;
-  return password;
-}
-
-async function getPasswordHashForPin(pin: string) {
-  const password = await getPasswordForPin(pin);
-  return getPasswordHash(password);
-}
-
-function getPasswordHash(password: string) {
-  //sha256 hashing
-  const hash = sha256(password);
-  return hash.toString();
-}
-
-async function retrievePasswordHash(account: string) {
-  if (!getCachedPasswordHash(account)) {
-    let hash: string | null = null;
-    try {
-      hash = await retrieveStoredKeychainItem(PASSWORD_HASH_STORAGE_KEY);
-    } catch (err: any) {
-      Logger.error(`${TAG}@retrievePasswordHash`, 'Error retrieving hash', err, true);
-      return null;
-    }
-    if (!hash) {
-      Logger.warn(`${TAG}@retrievePasswordHash`, 'No password hash found in store');
-      return null;
-    }
-    setCachedPasswordHash(account, hash);
-  }
-  return getCachedPasswordHash(account);
-}
-
 // Confirm pin is correct by checking it against the stored password hash
 export async function checkPin(pin: string, account: string) {
-  const hashForPin = await getPasswordHashForPin(pin);
-  const correctHash = await retrievePasswordHash(account);
+  const secretCache: SecretCache = await mmkvStorage.getItem(StorageItem.pinCache);
+  const cachedSecret = secretCache[account]?.secret;
 
-  return hashForPin === correctHash;
+  return cachedSecret === pin;
 }
 
 export const updatePin = async (newPin: string) => {
   try {
     clearPasswordCaches();
     setCachedPin(DEFAULT_CACHE_ACCOUNT, newPin);
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const pincodeType = useStoreState((state) => state.nuxt.pincodeType);
+    const pincodeType = store.getState().nuxt.pincodeType;
+    // see if biometrics are enabled
     if (pincodeType === PinType.Device) {
       await storePinWithBiometry(newPin);
     }

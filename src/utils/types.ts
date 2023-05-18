@@ -1,6 +1,5 @@
 import { TCreatePaymentReq, TInvoice } from '@synonymdev/react-native-ldk';
 import { TAvailableNetworks } from './networks';
-import { ErrorMessages } from './errors';
 
 export enum AppState {
   Background = 'Background',
@@ -24,34 +23,6 @@ export interface IResponse<T> {
   error: boolean;
   data: T;
 }
-
-export enum AlertActions {
-  SHOW = 'SHOW_ALERT',
-  HIDE = 'HIDE_ALERT',
-}
-
-export enum AlertTypes {
-  MESSAGE = 'message',
-  ERROR = 'error',
-  TOAST = 'toast',
-}
-
-export enum ErrorDisplayType {
-  'BANNER',
-  'INLINE',
-}
-
-export interface Alert {
-  type: AlertTypes;
-  displayMethod: ErrorDisplayType;
-  message: string;
-  dismissAfter?: number | null;
-  buttonMessage?: string | null;
-  action?: object | null;
-  title?: string | null;
-  underlyingError?: ErrorMessages | null;
-}
-
 // Electrum
 export interface IFormattedPeerData {
   ip?: string;

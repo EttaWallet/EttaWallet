@@ -1,26 +1,23 @@
-/**
- * This is a react navigation SCREEN to which we navigate,
- * when we need to fetch a PIN from a user.
- */
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ErrorMessages } from '../utils/errors';
 import { headerWithBackButton } from '../navigation/Headers';
 import { modalScreenOptions } from '../navigation/Navigator';
 import type { Screens } from '../navigation/Screens';
 import type { StackParamList } from '../navigation/types';
-import { checkPin, DEFAULT_CACHE_ACCOUNT } from '../utils/pin/auth';
-import { Pincode } from '../components/pincode'; // revert to etta component after merging changes
+import { DEFAULT_CACHE_ACCOUNT, checkPin } from '../utils/pin/auth';
+import { Pincode } from '../components/pincode';
+import { showErrorBanner } from '../utils/alerts';
+import { cueErrorHaptic, cueSuccessHaptic } from '../utils/accessibility/haptics';
 
 type Props = NativeStackScreenProps<StackParamList, Screens.EnterPinScreen>;
 
 export const EnterPin = ({ route }: Props) => {
   const { t } = useTranslation();
-  const [pin, setPin] = useState('');
-  const [errorText, setErrorText] = useState(undefined);
+  const [pinEntered, setPinEntered] = useState('');
+  const [errorText, setErrorText] = useState<string | undefined>(undefined);
   const [pinIsCorrect, setPinIsCorrect] = useState(false);
 
   useEffect(() => {
@@ -34,11 +31,12 @@ export const EnterPin = ({ route }: Props) => {
   }, []);
 
   const onChangePin = (pin: string) => {
-    setPin(pin);
+    setPinEntered(pin);
     setErrorText(undefined);
   };
 
   const onCorrectPin = (pin: string) => {
+    cueSuccessHaptic();
     setPinIsCorrect(true);
     const onSuccess = route.params.onSuccess;
     if (onSuccess) {
@@ -47,22 +45,22 @@ export const EnterPin = ({ route }: Props) => {
   };
 
   const onWrongPin = () => {
-    setPin('');
-    setErrorText(t(`${ErrorMessages.INCORRECT_PIN}`));
+    setPinEntered('');
+    cueErrorHaptic();
+    setErrorText('Incorrect PIN. Try again');
+    showErrorBanner({
+      title: 'Incorrect PIN.',
+      message: 'Try again, carefully',
+    });
   };
 
   const onPressConfirm = async () => {
-    const withVerification = route.params.withVerification;
-    const account = route.params.account;
-    if (withVerification && account) {
-      if (await checkPin(pin, account)) {
-        console.log('checking..', await checkPin(pin, account));
-        onCorrectPin(pin);
-      } else {
-        onWrongPin();
-      }
+    const account = route.params.account || DEFAULT_CACHE_ACCOUNT;
+    if (await checkPin(pinEntered, account)) {
+      console.log('checking..', await checkPin(pinEntered, account));
+      onCorrectPin(pinEntered);
     } else {
-      onCorrectPin(pin);
+      onWrongPin();
     }
   };
 
@@ -71,7 +69,7 @@ export const EnterPin = ({ route }: Props) => {
       <Pincode
         subtitle={t('pincode.confirmPin')!}
         errorText={errorText}
-        pin={pin}
+        pin={pinEntered}
         onChangePin={onChangePin}
         onCompletePin={onPressConfirm}
       />

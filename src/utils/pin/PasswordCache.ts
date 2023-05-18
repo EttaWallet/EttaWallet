@@ -2,7 +2,7 @@ import mmkvStorage, { StorageItem } from '../../storage/disk';
 
 const CACHE_TIMEOUT = 300000; // 5 minutes
 
-interface SecretCache {
+export interface SecretCache {
   [account: string]: {
     timestamp: number | null;
     secret: string | null;
@@ -30,6 +30,7 @@ function setCachedValue(cache: SecretCache, account: string, secret: string | nu
   }
   cache[account].timestamp = Date.now();
   cache[account].secret = secret;
+  // attempt to save on disk
   mmkvStorage.setItem(StorageItem.pinCache, cache);
 }
 

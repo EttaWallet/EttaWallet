@@ -16,16 +16,20 @@ import type { StackParamList } from '../navigation/types';
 import { DEFAULT_CACHE_ACCOUNT, isPinValid, updatePin } from '../utils/pin/auth';
 import { getCachedPin, setCachedPin } from '../utils/pin/PasswordCache';
 import Logger from '../utils/logger';
-import { useStoreState, useStoreActions } from '../state/hooks';
+import { useStoreState } from '../state/hooks';
 import { Colors } from 'etta-ui';
 import type { RouteProp } from '@react-navigation/core';
 import { Pincode } from '../components/pincode'; // revert to etta component after merging changes
 import { setPinInKeyChain } from '../utils/keychain';
+import { useStoreDispatch } from '../state/hooks';
+import { showErrorBanner, showSuccessBanner } from '../utils/alerts';
+import { cueErrorHaptic, cueSuccessHaptic } from '../utils/accessibility/haptics';
 
 type ScreenProps = NativeStackScreenProps<StackParamList, Screens.SetPinScreen>;
 
 const SetPinScreen = ({ route }: ScreenProps) => {
   const { t } = useTranslation();
+  const dispatch = useStoreDispatch();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [oldPin, setOldPin] = useState<string>('');
   const [pin1, setPin1] = useState<string>('');
@@ -39,7 +43,7 @@ const SetPinScreen = ({ route }: ScreenProps) => {
   const skippedBiometrics = useStoreState((state) => state.app.skippedBiometrics);
   const enabledBiometrics = useStoreState((state) => state.app.biometricsEnabled);
   // dispatch action from rootState
-  const setPinType = useStoreActions((action) => action.nuxt.setPincodeType);
+  const setPinType = dispatch.nuxt.setPincodeType;
   const nodeIsUp = useStoreState((state) => state.lightning.nodeStarted);
 
   useEffect(() => {
@@ -109,13 +113,21 @@ const SetPinScreen = ({ route }: ScreenProps) => {
         const updated = await updatePin(pin2);
         if (updated) {
           Logger.showMessage(t('pinChanged'));
+          cueSuccessHaptic();
+          showSuccessBanner({
+            message: 'PIN changed successfully',
+          });
         } else {
+          cueErrorHaptic();
+          showErrorBanner({
+            message: 'Could not change your PIN',
+          });
           Logger.showMessage(t('pinChangeFailed'));
         }
       } else {
+        setPinType(PinType.Custom);
         setCachedPin(DEFAULT_CACHE_ACCOUNT, pin1);
         await setPinInKeyChain(pin1);
-        setPinType(PinType.Custom);
       }
       navigateToNextScreen();
     } else {
