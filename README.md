@@ -1,5 +1,7 @@
 # Etta: A reference open-source non-custodial lightning wallet
 
+![Etta Wallet Preview](./etta-preview.png)
+
 - Built with React Native for Android & iOS.
 - Written in Typescript
 - Fully customizable with designed components
@@ -8,9 +10,9 @@
 - Open source 😸
 
 ![License](https://img.shields.io/badge/license-MIT-232323.svg?style=flat-square)
-[![Discord](https://img.shields.io/badge/Discord-Join%20the%20chat-5965f2.svg?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/mg8f26C)
+<!-- [![Discord](https://img.shields.io/badge/Discord-Join%20the%20chat-5965f2.svg?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/) -->
 [![Twitter](https://img.shields.io/badge/Twitter-Follow-00acee.svg?style=flat-square&logo=twitter&logoColor=white)](https://twitter.com/EttaWallet)
-[![Sponsor](https://img.shields.io/badge/GitHub-Code-232323.svg?style=flat-square&logo=github&logoColor=white)](https://github.com/EttaWallet/EttaWallet)
+[![Github](https://img.shields.io/badge/GitHub-Code-232323.svg?style=flat-square&logo=github&logoColor=white)](https://github.com/EttaWallet/EttaWallet)
 
 Etta Wallet will be a resource for experimenting with non-custodial lightning with a strong bias towards usability, accessibility and good UX.
 
