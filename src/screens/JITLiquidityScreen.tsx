@@ -15,8 +15,6 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { InfoListItem } from '../components/InfoListItem';
 import CancelButton from '../navigation/components/CancelButton';
 import { navigate } from '../navigation/NavigationService';
-import { sha256 } from 'react-native-sha256';
-import { decodeLightningInvoice } from '../utils/lightning/decode';
 import { showSuccessBanner, showWarningBanner } from '../utils/alerts';
 import { getLightningStore } from '../utils/lightning/helpers';
 
@@ -33,7 +31,7 @@ const JITLiquidityScreen = ({ navigation, route }: Props) => {
 
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
-  const [wrappedInvoice, setWrappedInvoice] = useState('');
+  const [wrappedInvoice, setWrappedInvoice] = useState(undefined);
   const [wrappedInvoiceFees, setWrappedInvoiceFees] = useState(0);
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
 
@@ -68,42 +66,32 @@ const JITLiquidityScreen = ({ navigation, route }: Props) => {
           bolt11: nodeInvoice,
         }),
       })
-        .then((response) => response.json())
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            // Handle error response
+            throw new Error('The LSP is unavailable to fulfill this order');
+          }
+        })
         .then((data) => {
           setWrappedInvoice(data.jit_bolt11);
           console.log('wrapped: ', wrappedInvoice);
+        })
+        .catch((error) => {
+          showWarningBanner({
+            title: "There's a problem!",
+            message: error.message,
+          });
         });
       setIsLoading(false);
     } catch (e) {
-      console.error(e.message);
+      // console.error(e.message);
+      showWarningBanner({
+        message: e.message,
+      });
     }
   };
-
-  // const confirmPayment = async () => {
-  //   setPaymentConfirmed(false);
-  //   try {
-  //     const decodeResponse = await decodeLightningInvoice({ paymentRequest: wrappedInvoice });
-  //     if (decodeResponse.isErr()) {
-  //       return;
-  //     }
-  //     console.log('decodeResponse: ', decodeResponse);
-  //     const invoiceHash = sha256(decodeResponse.value.payment_hash);
-  //     console.log('invoiceHash: ', invoiceHash);
-  //     if (invoiceHash === decodeResponse.value.payment_hash) {
-  //       setPaymentConfirmed(true);
-  //       showSuccessBanner({
-  //         message: 'Your payment is confirmed',
-  //         title: 'Paid!',
-  //       });
-  //     } else {
-  //       showWarningBanner({
-  //         message: 'Payment pending',
-  //       });
-  //     }
-  //   } catch (e) {
-  //     console.log('Error@decodePaymentRequest: ', e);
-  //   }
-  // };
 
   const confirmChannelOpen = () => {
     setPaymentConfirmed(false);
@@ -145,10 +133,18 @@ const JITLiquidityScreen = ({ navigation, route }: Props) => {
           const feeInSats = data.fee_amount_msat / 1000; // get fee in sats from msats
           setWrappedInvoiceFees(feeInSats);
           console.log('fee api', data);
+        })
+        .catch((error) => {
+          showWarningBanner({
+            message: error.message,
+          });
         });
       setIsLoading(false);
     } catch (e) {
-      console.error(e.message);
+      // console.error(e.message);
+      showWarningBanner({
+        message: e.message,
+      });
     }
   };
 
@@ -171,7 +167,7 @@ const JITLiquidityScreen = ({ navigation, route }: Props) => {
         onPress={ctaAction}
         style={styles.button}
         size="default"
-        disabled={isLoading}
+        disabled={isLoading || wrappedInvoice === undefined}
       />
     );
   };
@@ -204,7 +200,7 @@ const JITLiquidityScreen = ({ navigation, route }: Props) => {
           />
         </View>
         <View style={styles.qrContainer}>
-          {isLoading || wrappedInvoice === '' ? (
+          {isLoading || wrappedInvoice === undefined ? (
             <ActivityIndicator color={Colors.orange.base} />
           ) : (
             <>
@@ -230,8 +226,7 @@ const JITLiquidityScreen = ({ navigation, route }: Props) => {
                         : { color: Colors.orange.base },
                     ]}
                   >
-                    Pending for channel open: {totalInvoiceAmount} sats. You may settle this testnet
-                    invoice via htlc.me
+                    Pending for channel open: {totalInvoiceAmount} sats.
                   </Text>
                 </>
               ) : (
@@ -284,6 +279,7 @@ const styles = StyleSheet.create({
   },
   button: {
     justifyContent: 'center',
+    marginHorizontal: 16,
   },
   adviceWrapper: {
     paddingBottom: 24,
