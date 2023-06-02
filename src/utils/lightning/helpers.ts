@@ -11,6 +11,8 @@ import {
   IWalletItem,
   NodeState,
   TCreateLightningInvoice,
+  TCreateWrappedInvoice,
+  TLdkInvoice,
   TLightningNodeVersion,
   TLightningPayment,
   TWalletName,
@@ -40,9 +42,11 @@ import { timeDeltaInDays } from '../time';
 import { transactionFeedHeader } from '../time';
 import i18n from '../../i18n';
 import { decodeLightningInvoice } from './decode';
-import { showToastWithCTA } from '../alerts';
+import { showToastWithCTA, showWarningBanner } from '../alerts';
 import { navigate } from '../../navigation/NavigationService';
 import { Screens } from '../../navigation/Screens';
+import { VOLTAGE_LSP_API_TESTNET } from '../../../config';
+import Logger from '../logger';
 
 const LDK_ACCOUNT_SUFFIX = 'ldkaccount';
 
@@ -132,7 +136,15 @@ export const updateLdkVersion = async (): Promise<Result<TLightningNodeVersion>>
 };
 
 /**
- * Returns whether the usern(checks state object) has any open lightning channels.
+ * Attempts to create a bolt11 invoice.
+ * @param {TCreatePaymentReq} req
+ * @returns {Promise<Result<TInvoice>>}
+ */
+export const createPaymentRequest = (req: TCreatePaymentReq): Promise<Result<TInvoice>> =>
+  ldk.createPaymentRequest(req);
+
+/**
+ * Returns whether the user(checks state object) has any open lightning channels.
  * @returns {boolean}
  */
 export const hasOpenLightningChannels = (): boolean => {
@@ -141,7 +153,37 @@ export const hasOpenLightningChannels = (): boolean => {
 };
 
 /**
- * Creates and stores a lightning invoice, for the specified amount, and refreshes/re-adds peers.
+ * Returns whether the any of the open lightning channels has a sufficient remote balance
+ * or inbound liquidity to receive a payment.
+ * @param {number} amountSats
+ * @returns {boolean}
+ */
+export const hasEnoughRemoteBalance = ({ amountSats }: { amountSats?: number }): boolean => {
+  // get openchannel ids from lightning store
+  const openChannelIds = getLightningStore().openChannelIds;
+  // get all channels from lightning store
+  const AllChannels = getLightningStore().channels;
+
+  const openChannels = Object.values(AllChannels).filter((channel) => {
+    return openChannelIds.includes(channel.channel_id);
+  });
+
+  // loop through all open channels and check if any has sufficient inbound liquidity
+  for (const channel in openChannels) {
+    if (
+      openChannels[channel].is_channel_ready &&
+      openChannels[channel].inbound_capacity_sat > amountSats!
+    ) {
+      return true;
+    }
+  }
+  return false;
+};
+
+/**
+ * Creates and stores a lightning invoice, for the specified amount,
+ * Also, determines when to liase with LSP if liquidity requirements aren't fulfilled
+ * or if no channels exist
  * @param {number} amountSats
  * @param {string} [description]
  * @param {number} [expiryDeltaSeconds]
@@ -152,39 +194,127 @@ export const createLightningInvoice = async ({
   description,
   expiryDeltaSeconds,
   selectedNetwork,
-  checkOpenChannels = true,
 }: TCreateLightningInvoice): Promise<Result<TInvoice>> => {
   if (!selectedNetwork) {
     selectedNetwork = getSelectedNetwork();
   }
-  if (checkOpenChannels) {
-    if (!hasOpenLightningChannels()) {
-      showToastWithCTA({
-        message: 'You have no open lightning channels so you can not send or receive yet',
-        title: 'No channel',
-        dismissAfter: 15000,
-        buttonLabel: 'Resolve',
-        buttonAction: () => navigate(Screens.LightningChannelsIntroScreen),
-      });
-      return err('You have no open lightning channels so you can not receive yet.');
-    }
-  }
 
-  // get defaults from store
-  description = getLightningStore().defaultPRDescription;
-  expiryDeltaSeconds = getLightningStore().defaultPRExpiry;
+  description =
+    !hasOpenLightningChannels() || !hasEnoughRemoteBalance
+      ? 'Invoice + Channel open'
+      : getLightningStore().defaultPRDescription;
+  // LSP requires a max expiry period of 3600 so if conditions to use LSP return false, expiryDeltaSeconds should be 3600
+  expiryDeltaSeconds =
+    !hasOpenLightningChannels() || !hasEnoughRemoteBalance({ amountSats })
+      ? 3600
+      : getLightningStore().defaultPRExpiry;
 
   const invoice = await createPaymentRequest({
     amountSats,
     description,
     expiryDeltaSeconds,
   });
+
   if (invoice.isErr()) {
     return err(invoice.error.message);
   }
 
-  // dispath action to add invoice to state object
+  console.log('the invoice meh: ', invoice);
+  // add invoice to store
   store.dispatch.lightning.addInvoice(invoice.value);
+
+  if (!hasOpenLightningChannels()) {
+    // @todo: implement JIT at this point.
+    // get the generated invoice, send it to LSP
+    // calculate fees
+    // return wrapped invoice + fees
+    // dispath action to add invoice to state object
+    Logger.info('No open lightning channels found');
+    await fetch(VOLTAGE_LSP_API_TESTNET, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        bolt11: invoice.value.to_str,
+      }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          // Handle error response
+          throw new Error('The LSP is unavailable to fulfill this order');
+        }
+      })
+      .then((data) => {
+        // update the invoice in state object's to_str value with data.jit_bolt11;
+        const payload = {
+          payment_hash: invoice.value.payment_hash,
+          modified_request: data.jit_bolt11,
+        };
+        console.log('payload: ', payload);
+        try {
+          store.dispatch.lightning.updateInvoice(payload);
+        } catch (e) {
+          showWarningBanner({
+            message: e.message,
+          });
+        }
+      })
+      .catch((error) => {
+        showWarningBanner({
+          title: "There's a problem!",
+          message: error.message,
+        });
+      });
+  } else if (hasOpenLightningChannels() && !hasEnoughRemoteBalance({ amountSats })) {
+    Logger.info('Found open lightning channels but remote balance too low to receive');
+    // also has open channels, check if remoteBalance can handle amount requested,
+    // if yes, generate normal invoice and return
+    // if no, generate normal invoice, send to LSP, calculate fees and return wrapped invoice + fees
+    // dispath action to add invoice to state object
+    await fetch(VOLTAGE_LSP_API_TESTNET, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        bolt11: invoice.value.to_str,
+      }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          // Handle error response
+          throw new Error('The LSP is unavailable to fulfill this order');
+        }
+      })
+      .then((data) => {
+        // update the invoice in state object's to_str value with data.jit_bolt11;
+        const payload = {
+          payment_hash: invoice.value.payment_hash,
+          modified_request: data.jit_bolt11,
+        };
+        console.log('payload: ', payload);
+        try {
+          store.dispatch.lightning.updateInvoice(payload);
+        } catch (e) {
+          showWarningBanner({
+            message: e.message,
+          });
+        }
+      })
+      .catch((error) => {
+        showWarningBanner({
+          title: "There's a problem!",
+          message: error.message,
+        });
+      });
+  } else {
+    Logger.info('Got open channels and enough inbound liquidity to receive this amount');
+  }
 
   return ok(invoice.value);
 };
@@ -231,14 +361,6 @@ export const payInvoice = async (
     return err(e);
   }
 };
-
-/**
- * Attempts to create a bolt11 invoice.
- * @param {TCreatePaymentReq} req
- * @returns {Promise<Result<TInvoice>>}
- */
-export const createPaymentRequest = (req: TCreatePaymentReq): Promise<Result<TInvoice>> =>
-  ldk.createPaymentRequest(req);
 
 /**
  * Parses a node uri.
@@ -710,7 +832,7 @@ export const updateClaimableBalance = async ({
 
   const claimableBalance = await getClaimableBalance({
     selectedNetwork,
-    ignoreOpenChannels: false,
+    ignoreOpenChannels: true,
   });
   // update claimable balance in store
   store.dispatch.lightning.updateClaimableBalance(claimableBalance);

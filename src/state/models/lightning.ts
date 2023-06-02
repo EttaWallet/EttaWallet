@@ -16,6 +16,11 @@ const TAG = 'LightningStore';
 
 // @TODO: add translatable strings to error and success messages
 
+type TModifyInvoice = {
+  payment_hash: TLdkInvoice['payment_hash'];
+  modified_request: TLdkInvoice['to_str'];
+};
+
 export interface LightningNodeModelType {
   ldkState: NodeState;
   nodeId: string | null;
@@ -37,7 +42,7 @@ export interface LightningNodeModelType {
   setLdkState: Action<LightningNodeModelType, NodeState>;
   setLdkVersion: Action<LightningNodeModelType, TLightningNodeVersion>;
   addInvoice: Action<LightningNodeModelType, TLdkInvoice>;
-  updateInvoice: Action<LightningNodeModelType, Partial<TLdkInvoice>>;
+  updateInvoice: Action<LightningNodeModelType, TModifyInvoice>;
   removeInvoice: Action<LightningNodeModelType, string>;
   updateInvoices: Action<LightningNodeModelType, { index: number; invoice: TLdkInvoice }>;
   updateChannels: Action<LightningNodeModelType, Partial<LightningNodeModelType>>;
@@ -103,9 +108,11 @@ export const lightningModel: LightningNodeModelType = {
   }),
   updateInvoice: action((state, payload) => {
     // updates invoice, usually tags, notes or contacts
-    // state.invoices = state.invoices.map((invoice) =>
-    //   invoice.payment_hash === payload.payment_hash ? { ...invoice, ...payload.data } : invoice
-    // );
+    state.invoices = state.invoices.map((invoice) =>
+      invoice.payment_hash === payload?.payment_hash
+        ? { ...invoice, to_str: payload?.modified_request }
+        : invoice
+    );
   }),
   removeInvoice: action((state, payload) => {
     const index = state.invoices.findIndex((invoice) => invoice.payment_hash === payload);

@@ -10,7 +10,11 @@ import {
   Text,
 } from 'react-native';
 import { headerWithBackButton } from '../navigation/Headers';
-import { createLightningInvoice, startLightning } from '../utils/lightning/helpers';
+import {
+  createLightningInvoice,
+  getLightningStore,
+  startLightning,
+} from '../utils/lightning/helpers';
 import { isLdkRunning, waitForLdk } from '../ldk';
 import QRCode from 'react-native-qrcode-svg';
 import { Colors, TypographyPresets } from 'etta-ui';
@@ -21,6 +25,7 @@ import { StackParamList } from '../navigation/types';
 import { Screens } from '../navigation/Screens';
 import i18n from '../i18n';
 import { humanizeTimestamp } from '../utils/time';
+import { showErrorBanner, showWarningBanner } from '../utils/alerts';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
 const QR_CODE_WIDTH = WINDOW_WIDTH - 150;
@@ -66,13 +71,30 @@ const ReceiveScreen = (props: Props) => {
           console.log(invoiceString.error.message);
           return;
         }
-        console.log(invoiceString.value.to_str);
+
+        let updatedInvoice;
+
+        const storedInvoices = getLightningStore().invoices;
+
+        const matchingInvoice = storedInvoices.find(
+          (inv) => inv?.payment_hash === invoiceString.value.payment_hash
+        );
+        if (matchingInvoice) {
+          console.log('original invoice: ', invoiceString);
+          console.log('updated invoice: ', matchingInvoice);
+          updatedInvoice = matchingInvoice;
+        }
+
+        console.log('updated invoice: ', updatedInvoice);
         setIsLoading(false);
-        setInvoice(invoiceString.value.to_str);
-        setTimestamp(invoiceString.value.timestamp);
-        setExpiry(invoiceString.value.expiry_time);
+        setInvoice(updatedInvoice.to_str);
+        setTimestamp(updatedInvoice.timestamp);
+        setExpiry(updatedInvoice.expiry_time);
       } catch (e) {
-        setInvoice(`Error: ${e.message}`);
+        showErrorBanner({
+          title: 'Something went wrong',
+          message: e.message,
+        });
       }
     }
 
