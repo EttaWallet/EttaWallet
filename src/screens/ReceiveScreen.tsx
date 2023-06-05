@@ -25,7 +25,7 @@ import { StackParamList } from '../navigation/types';
 import { Screens } from '../navigation/Screens';
 import i18n from '../i18n';
 import { humanizeTimestamp } from '../utils/time';
-import { showErrorBanner, showWarningBanner } from '../utils/alerts';
+import { showErrorBanner } from '../utils/alerts';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
 const QR_CODE_WIDTH = WINDOW_WIDTH - 150;
@@ -34,21 +34,21 @@ type RouteProps = NativeStackScreenProps<StackParamList, Screens.ReceiveScreen>;
 type Props = RouteProps;
 
 const ReceiveScreen = (props: Props) => {
-  const [invoice, setInvoice] = useState('');
+  const [invoice, setInvoice] = useState(undefined);
   const [timestamp, setTimestamp] = useState(0);
   const [expiry, setExpiry] = useState(3600);
   const [isLoading, setIsLoading] = useState(true);
 
   const amount = props.route.params?.amount || '0';
-  const description =
-    props.route.params?.description || `Pay lightining invoice for ${amount} sats`;
+  const feesPayable = props.route.params?.feesPayable || 0;
 
   // get expiry in epoch time as sum of timestamp/duration_since_epoch and expiry
   const invoiceExpires = humanizeTimestamp(timestamp + expiry, i18n);
 
-  const { openPaymentRequestSheet, ModifyInvoiceBottomSheet } = usePaymentRequestBottomSheet({
+  const { openPaymentRequestSheet, DetailedInvoiceBottomSheet } = usePaymentRequestBottomSheet({
     amountInSats: amount,
-    description: description,
+    feesPayable: feesPayable,
+    expiresOn: invoiceExpires,
   });
 
   useEffect(() => {
@@ -63,7 +63,7 @@ const ReceiveScreen = (props: Props) => {
         // proceed to create invoice
         const invoiceString = await createLightningInvoice({
           amountSats: parseInt(amount, 10), // amountSats is optional
-          description: description,
+          description: '',
           expiryDeltaSeconds: 3600,
         });
 
@@ -81,7 +81,6 @@ const ReceiveScreen = (props: Props) => {
         );
         if (matchingInvoice) {
           console.log('original invoice: ', invoiceString);
-          console.log('updated invoice: ', matchingInvoice);
           updatedInvoice = matchingInvoice;
         }
 
@@ -99,7 +98,7 @@ const ReceiveScreen = (props: Props) => {
     }
 
     fetchInvoice();
-  }, [amount, description]);
+  }, [amount]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -127,14 +126,14 @@ const ReceiveScreen = (props: Props) => {
           ''
         ) : (
           <InvoiceActionsBar
-            paymentRequest={invoice}
+            paymentRequest={invoice!}
             allowModifier={true}
-            onPressModify={openPaymentRequestSheet}
+            onPressDetails={openPaymentRequestSheet}
             smallButtons={true}
           />
         )}
       </View>
-      {ModifyInvoiceBottomSheet}
+      {DetailedInvoiceBottomSheet}
     </SafeAreaView>
   );
 };

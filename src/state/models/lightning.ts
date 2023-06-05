@@ -32,6 +32,7 @@ export interface LightningNodeModelType {
   payments: { [key: string]: TLightningPayment };
   peers: string[];
   claimableBalance: number;
+  maxReceivable: number;
   defaultPRDescription: string;
   defaultPRExpiry: number;
   setDefaultPRDescription: Action<LightningNodeModelType, string>;
@@ -47,6 +48,7 @@ export interface LightningNodeModelType {
   updateInvoices: Action<LightningNodeModelType, { index: number; invoice: TLdkInvoice }>;
   updateChannels: Action<LightningNodeModelType, Partial<LightningNodeModelType>>;
   updateClaimableBalance: Action<LightningNodeModelType, number>;
+  setMaxReceivable: Action<LightningNodeModelType, number>;
   removeExpiredInvoices: Action<LightningNodeModelType, TLdkInvoice[]>;
   addPayment: Action<LightningNodeModelType, TLightningPayment>;
   addPeer: Action<LightningNodeModelType, string>;
@@ -66,6 +68,7 @@ export const lightningModel: LightningNodeModelType = {
   peers: [],
   openChannelIds: [],
   claimableBalance: 0,
+  maxReceivable: 0,
   defaultPRDescription: 'Invoice from EttaWallet',
   defaultPRExpiry: 604800, // 1 week
   setDefaultPRDescription: action((state, payload) => {
@@ -143,6 +146,9 @@ export const lightningModel: LightningNodeModelType = {
   }),
   updateClaimableBalance: action((state, payload) => {
     state.claimableBalance = payload;
+  }),
+  setMaxReceivable: action((state, payload) => {
+    state.maxReceivable = payload;
   }),
   addPayment: action((state, payload) => {
     state.payments = {

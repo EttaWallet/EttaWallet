@@ -12,29 +12,27 @@ import { Screens } from '../navigation/Screens';
 import FormInput from './form/Input';
 import CancelButton from '../navigation/components/CancelButton';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
+import FormLabel from './form/Label';
+import { estimateInvoiceFees } from '../utils/calculate';
+import { getLightningStore } from '../utils/lightning/helpers';
 
 interface Props {
   amountInSats?: string;
-  description?: string;
+  feesPayable?: number;
+  expiresOn?: string;
 }
 const usePaymentRequestBottomSheet = (receiveProps: Props) => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const paddingBottom = Math.max(insets.bottom, 24);
 
-  const [newAmount, setNewAmount] = useState('0');
-  const [newDescription, setNewDescription] = useState(`Request for ${newAmount} sats`);
-  const [modifiedAmount, setModifiedAmount] = useState(receiveProps.amountInSats);
+  const [invoiceAmount, setInvoiceAmount] = useState(receiveProps.amountInSats);
   const [senderName, setSenderName] = useState('');
-  const [modifiedDescription, setModifiedDescription] = useState(
-    receiveProps.description
-      ? receiveProps.description
-      : `Payment request for ${modifiedAmount} sats`
-  );
 
-  // @TODO: get remote balance programatically
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [maxReceivable, setMaxReceivable] = useState(20000);
+  const [invoiceFees, setInvoiceFees] = useState(receiveProps.feesPayable);
+  const totalReceivable = getLightningStore().maxReceivable;
+
+  const amountRequested = parseInt(invoiceAmount!, 10);
 
   const paymentRequestBottomSheetRef = useRef<BottomSheet>(null);
 
@@ -54,12 +52,17 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
     []
   );
 
-  // const maxReceiveColor =
-  //   parseInt(modifiedAmount!, 10)! < maxReceivable
-  //     ? Colors.neutrals.light.neutral5
-  //     : Colors.red.base;
-
   const newPaymentRequestBottomSheet = useMemo(() => {
+    let feeRequired: number = 0;
+    const getFeesPayable = async () => {
+      if (totalReceivable < amountRequested) {
+        feeRequired = await estimateInvoiceFees(amountRequested);
+        setInvoiceFees(feeRequired);
+      } else {
+        setInvoiceFees(feeRequired);
+      }
+    };
+
     const onPressCancel = () => {
       cueInformativeHaptic();
       paymentRequestBottomSheetRef.current?.close();
@@ -69,9 +72,13 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
     const onPressContinue = () => {
       cueInformativeHaptic();
       paymentRequestBottomSheetRef.current?.close();
-      navigate(Screens.ReceiveScreen, {
-        amount: newAmount,
-        description: newDescription,
+      // update invoice fees if necessary
+      getFeesPayable().then();
+      requestAnimationFrame(() => {
+        navigate(Screens.ReceiveScreen, {
+          amount: invoiceAmount,
+          feesPayable: invoiceFees,
+        });
       });
     };
 
@@ -97,29 +104,12 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
           <FormInput
             label={t('Amount')}
             style={styles.amount}
-            onChangeText={setNewAmount}
-            value={newAmount}
+            onChangeText={setInvoiceAmount}
+            value={invoiceAmount}
             enablesReturnKeyAutomatically={true}
             placeholder="Amount in sats" // should pass value of amount from receive Screen
             multiline={false}
             keyboardType={'decimal-pad'}
-          />
-          {/* Calculate total amount receivable and validate on input
-           * This text should be clickable for more information bottom sheet about remote balance
-           */}
-          {/* <Text
-            style={[styles.maxReceive, { color: maxReceiveColor }]}
-          >{`The maximum amount you can receive is ${maxReceivable} sats`}</Text> */}
-          {/* @TODO: Add a section to select sender from the contact list */}
-          <FormInput
-            label={t('Description')}
-            style={styles.field}
-            onChangeText={setNewDescription}
-            value={newDescription}
-            enablesReturnKeyAutomatically={true}
-            placeholder={t('What is this transaction for?')!}
-            maxLength={25}
-            multiline={false}
           />
           <Button
             title="Continue"
@@ -139,26 +129,32 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
     paddingBottom,
     handleContentLayout,
     t,
-    newAmount,
-    newDescription,
+    invoiceAmount,
+    totalReceivable,
+    amountRequested,
+    invoiceFees,
   ]);
 
-  const ModifyInvoiceBottomSheet = useMemo(() => {
+  const feeInfoDisplay = React.useMemo(() => {
+    const zeroAmountFees = `Your receive limit is ${totalReceivable} sats. Receiving more than this will incure a fee.`;
+    const noFeesText = `No fees will be charged to receive this payment as it is under your receive limit of ${totalReceivable} sats.`;
+    const withFeesText = `The amount exceeds your receive limit of ${totalReceivable} sats. A fee of ${invoiceFees} sats will be charged to increase this limit.`;
+    if (invoiceFees === 0) {
+      return <Text style={styles.maxReceive}>{noFeesText}</Text>;
+    } else if (amountRequested === 0 && invoiceFees === 0) {
+      return <Text style={styles.maxReceive}>{zeroAmountFees}</Text>;
+    } else {
+      return <Text style={styles.maxReceive}>{withFeesText}</Text>;
+    }
+  }, [totalReceivable, invoiceFees, amountRequested]);
+
+  const expiration = receiveProps.expiresOn!;
+
+  const DetailedInvoiceBottomSheet = useMemo(() => {
     const onPressCancel = () => {
       cueInformativeHaptic();
       paymentRequestBottomSheetRef.current?.close();
       // clear values in state first?
-    };
-
-    const onPressUpdate = () => {
-      cueInformativeHaptic();
-      //@todo: validate amount. Should not exceed remote balance
-      // update the invoice in state and return to receive screen
-      paymentRequestBottomSheetRef.current?.close();
-      navigate(Screens.ReceiveScreen, {
-        amount: modifiedAmount ? modifiedAmount : newAmount,
-        description: modifiedDescription ? modifiedDescription : newDescription,
-      });
     };
 
     return (
@@ -176,36 +172,21 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
           <View style={styles.cancelBtn}>
             <CancelButton onCancel={onPressCancel} />
           </View>
-          <View style={styles.iconContainer}>
-            <Icon name="icon-arrow-down" style={styles.actionIcon} />
-          </View>
-          <Text style={styles.title}>{t('Update payment request')}</Text>
           <FormInput
             label={t('Amount')}
             style={styles.amount}
-            onChangeText={setModifiedAmount}
-            value={modifiedAmount}
+            onChangeText={setInvoiceAmount}
+            value={invoiceAmount}
             enablesReturnKeyAutomatically={true}
             placeholder="Amount in sats" // should pass value of amount from receive Screen
             multiline={false}
             keyboardType={'decimal-pad'}
+            editable={false}
           />
-          {/* Calculate total amount receivable and validate on input
-           * This text should be clickable for more information bottom sheet about remote balance
-           */}
-          {/* <Text
-            style={[styles.maxReceive, { color: maxReceiveColor }]}
-          >{`The maximum amount you can receive is ${maxReceivable} sats`}</Text> */}
-          <FormInput
-            label={t('Description')}
-            style={styles.field}
-            onChangeText={setModifiedDescription}
-            value={modifiedDescription}
-            enablesReturnKeyAutomatically={true}
-            placeholder={t('What is this transaction for?')!}
-            maxLength={25}
-            multiline={false}
-          />
+          <View style={styles.field}>
+            <FormLabel style={{ marginBottom: 10 }}>Fees</FormLabel>
+            {feeInfoDisplay}
+          </View>
           {/* @TODO: Add a section to select sender from the contact list */}
           <FormInput
             label={t('Sender')}
@@ -216,23 +197,9 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
             placeholder={t('Who will make this payment?')!}
             multiline={false}
           />
-          {/* Add tags to invoice */}
-          <FormInput
-            label={t('Tags')}
-            style={styles.field}
-            onChangeText={setSenderName}
-            value={senderName}
-            enablesReturnKeyAutomatically={true}
-            placeholder={t('Attach tags to this request')!}
-            multiline={false}
-          />
-          <Button
-            title="Update"
-            onPress={onPressUpdate}
-            size="default"
-            appearance="filled"
-            style={styles.button}
-          />
+          <View style={styles.field}>
+            <Text style={styles.maxReceive}>{`This request will expire on ${expiration}`}</Text>
+          </View>
         </View>
       </BottomSheet>
     );
@@ -244,17 +211,16 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
     paddingBottom,
     handleContentLayout,
     t,
-    modifiedAmount,
-    modifiedDescription,
+    invoiceAmount,
+    feeInfoDisplay,
     senderName,
-    newAmount,
-    newDescription,
+    expiration,
   ]);
 
   return {
     openPaymentRequestSheet,
     newPaymentRequestBottomSheet,
-    ModifyInvoiceBottomSheet,
+    DetailedInvoiceBottomSheet,
   };
 };
 
@@ -281,7 +247,7 @@ const styles = StyleSheet.create({
   },
   maxReceive: {
     ...TypographyPresets.Body5,
-    marginBottom: 16,
+    color: Colors.neutrals.light.neutral7,
   },
   button: {
     justifyContent: 'center',

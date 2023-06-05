@@ -11,8 +11,6 @@ import {
   IWalletItem,
   NodeState,
   TCreateLightningInvoice,
-  TCreateWrappedInvoice,
-  TLdkInvoice,
   TLightningNodeVersion,
   TLightningPayment,
   TWalletName,
@@ -42,11 +40,10 @@ import { timeDeltaInDays } from '../time';
 import { transactionFeedHeader } from '../time';
 import i18n from '../../i18n';
 import { decodeLightningInvoice } from './decode';
-import { showToastWithCTA, showWarningBanner } from '../alerts';
-import { navigate } from '../../navigation/NavigationService';
-import { Screens } from '../../navigation/Screens';
+import { showWarningBanner } from '../alerts';
 import { VOLTAGE_LSP_API_TESTNET } from '../../../config';
 import Logger from '../logger';
+import { getMaxRemoteBalance } from '../calculate';
 
 const LDK_ACCOUNT_SUFFIX = 'ldkaccount';
 
@@ -200,7 +197,7 @@ export const createLightningInvoice = async ({
   }
 
   description =
-    !hasOpenLightningChannels() || !hasEnoughRemoteBalance
+    !hasOpenLightningChannels() || !hasEnoughRemoteBalance({ amountSats })
       ? 'Invoice + Channel open'
       : getLightningStore().defaultPRDescription;
   // LSP requires a max expiry period of 3600 so if conditions to use LSP return false, expiryDeltaSeconds should be 3600
@@ -598,6 +595,8 @@ export const startLightning = async ({
       await updateLightningChannels(),
       // update balance
       await updateClaimableBalance({ selectedNetwork }),
+      // update maximum receivable amount
+      await updateMaxReceivableAmount(),
       // remove invoices that have surpassed expiry time from state
       await removeExpiredInvoices(),
     ]);
@@ -817,15 +816,10 @@ export const getClaimableBalance = async ({
 };
 
 export const updateClaimableBalance = async ({
-  selectedWallet,
   selectedNetwork,
 }: {
-  selectedWallet?: TWalletName;
   selectedNetwork?: TAvailableNetworks;
 }): Promise<Result<string>> => {
-  if (!selectedWallet) {
-    selectedWallet = getSelectedWallet();
-  }
   if (!selectedNetwork) {
     selectedNetwork = getSelectedNetwork();
   }
@@ -837,6 +831,13 @@ export const updateClaimableBalance = async ({
   // update claimable balance in store
   store.dispatch.lightning.updateClaimableBalance(claimableBalance);
   return ok('Successfully Updated Claimable Balance.');
+};
+
+export const updateMaxReceivableAmount = async (): Promise<Result<string>> => {
+  const maxReceivable = getMaxRemoteBalance();
+  // update max receivable in store
+  store.dispatch.lightning.setMaxReceivable(maxReceivable);
+  return ok('Successfully updated maximum amount receivable.');
 };
 
 /**

@@ -10,7 +10,7 @@ import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 interface ActionProps {
   paymentRequest: string;
   allowModifier?: boolean;
-  onPressModify?: () => void;
+  onPressDetails?: () => void;
   smallButtons?: boolean;
 }
 
@@ -33,8 +33,8 @@ const InvoiceActionsBar = (props: ActionProps) => {
     return 0;
   };
 
-  const onPressModify = () => {
-    props.onPressModify?.();
+  const onPressDetails = () => {
+    props.onPressDetails?.();
     cueInformativeHaptic();
   };
 
@@ -60,11 +60,11 @@ const InvoiceActionsBar = (props: ActionProps) => {
       />
       {props.allowModifier ? (
         <Button
-          title="Modify"
+          title="Details"
           style={{ marginLeft: 5 }}
-          icon="icon-edit"
+          icon="icon-ellipsis"
           iconPosition="left"
-          onPress={onPressModify}
+          onPress={onPressDetails}
           appearance="outline"
           size={props.smallButtons === true ? 'small' : 'default'}
         />

@@ -4,11 +4,21 @@ import { Chip } from 'etta-ui';
 import { navigateBack } from '../NavigationService';
 import { useTranslation } from 'react-i18next';
 
-const BackButton = () => {
+interface Props {
+  title?: string;
+  onPressButton?: () => void;
+}
+
+const BackButton = ({ title, onPressButton }: Props) => {
   const { t } = useTranslation();
 
   const onPressBack = () => {
     navigateBack();
+    if (onPressButton) {
+      onPressButton?.();
+    } else {
+      navigateBack();
+    }
   };
 
   // Prevent back button on Android
@@ -21,7 +31,7 @@ const BackButton = () => {
   return (
     <View style={styles.container}>
       <Chip icon="icon-caret-left" onPress={onPressBack}>
-        {t('navigationLabels.back')}
+        {title ? title : t('navigationLabels.back')}
       </Chip>
     </View>
   );

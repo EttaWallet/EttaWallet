@@ -52,7 +52,7 @@ export type StackParamList = {
   [Screens.ReceiveScreen]:
     | {
         amount?: string;
-        description?: string;
+        feesPayable?: number;
       }
     | undefined;
   [Screens.LightningChannelsIntroScreen]: undefined;
