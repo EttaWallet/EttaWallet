@@ -117,6 +117,7 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
             size="default"
             appearance="filled"
             style={styles.button}
+            disabled={!invoiceAmount}
           />
         </View>
       </BottomSheet>
@@ -135,18 +136,29 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
     invoiceFees,
   ]);
 
-  const feeInfoDisplay = React.useMemo(() => {
-    const zeroAmountFees = `Your receive limit is ${totalReceivable} sats. Receiving more than this will incure a fee.`;
-    const noFeesText = `No fees will be charged to receive this payment as it is under your receive limit of ${totalReceivable} sats.`;
-    const withFeesText = `The amount exceeds your receive limit of ${totalReceivable} sats. A fee of ${invoiceFees} sats will be charged to increase this limit.`;
+  // const feeInfoDisplay = useMemo(() => {
+  //   const zeroAmountFees = `Your receive limit is ${totalReceivable} sats. Receiving more than this will incure a fee.`;
+  //   const noFeesText = `No fees will be charged to receive this payment as it is under your receive limit of ${totalReceivable} sats.`;
+  //   const withFeesText = `The amount exceeds your receive limit of ${totalReceivable} sats. A fee of ${invoiceFees} sats will be charged to increase this limit.`;
+  //   if (invoiceFees === 0) {
+  //     return <Text style={styles.maxReceive}>{noFeesText}</Text>;
+  //   } else if (amountRequested === 0 && invoiceFees === 0) {
+  //     return <Text style={styles.maxReceive}>{zeroAmountFees}</Text>;
+  //   } else {
+  //     return <Text style={styles.maxReceive}>{withFeesText}</Text>;
+  //   }
+  // }, [totalReceivable, invoiceFees, amountRequested]);
+
+  const feeInfoDisplay = useMemo(() => {
+    let feesText: string;
     if (invoiceFees === 0) {
-      return <Text style={styles.maxReceive}>{noFeesText}</Text>;
-    } else if (amountRequested === 0 && invoiceFees === 0) {
-      return <Text style={styles.maxReceive}>{zeroAmountFees}</Text>;
+      feesText = `No fees will be charged to receive this payment as it is under your receive limit of ${totalReceivable} sats.`;
     } else {
-      return <Text style={styles.maxReceive}>{withFeesText}</Text>;
+      feesText = `The amount exceeds your receive limit of ${totalReceivable} sats. A fee of ${invoiceFees} sats will be charged to increase this limit.`;
     }
-  }, [totalReceivable, invoiceFees, amountRequested]);
+
+    return <Text style={styles.maxReceive}>{feesText}</Text>;
+  }, [totalReceivable, invoiceFees]);
 
   const expiration = receiveProps.expiresOn!;
 

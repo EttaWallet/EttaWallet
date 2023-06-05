@@ -53,6 +53,12 @@ export const DEFAULT_LIGHTNING_PEERS: IWalletItem<string[]> = {
   bitcoinTestnet: [
     // voltage lsp for zero-conf channel
     '025804d4431ad05b06a1a1ee41f22fefeb8ce800b0be3a92ff3b9f594a263da34e@44.228.24.253:9735',
+    //aranguren.org
+    '038863cf8ab91046230f561cd5b386cbff8309fa02e3f0c3ed161a3aeb64a643b9@203.132.94.196:9735',
+    // openNode
+    '02eadbd9e7557375161df8b646776a547c5cbc2e95b3071ec81553f8ec2cea3b8c@18.191.253.246:9735',
+    // 1ML.com node ALPHA
+    '02312627fdf07fbdd7e5ddb136611bdde9b00d26821d14d94891395452f67af248@23.237.77.12:9735',
   ],
 };
 
@@ -195,6 +201,8 @@ export const createLightningInvoice = async ({
   if (!selectedNetwork) {
     selectedNetwork = getSelectedNetwork();
   }
+
+  // @TODO: Cater to zero amount invoices when dealing with LSP.
 
   description =
     !hasOpenLightningChannels() || !hasEnoughRemoteBalance({ amountSats })

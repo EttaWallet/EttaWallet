@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { headerWithBackButton } from '../navigation/Headers';
 import {
+  addPeers,
   createLightningInvoice,
   getLightningStore,
   startLightning,
@@ -60,6 +61,10 @@ const ReceiveScreen = (props: Props) => {
           await startLightning({});
         }
         await waitForLdk();
+
+        // check that peers exist before we create invoice;
+        addPeers().then();
+
         // proceed to create invoice
         const invoiceString = await createLightningInvoice({
           amountSats: parseInt(amount, 10), // amountSats is optional
