@@ -6,19 +6,13 @@ import { useTranslation } from 'react-i18next';
 
 interface Props {
   title?: string;
-  onPressButton?: () => void;
 }
 
-const BackButton = ({ title, onPressButton }: Props) => {
+const BackButton = ({ title }: Props) => {
   const { t } = useTranslation();
 
   const onPressBack = () => {
     navigateBack();
-    if (onPressButton) {
-      onPressButton?.();
-    } else {
-      navigateBack();
-    }
   };
 
   // Prevent back button on Android
