@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -10,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { noHeader } from '../navigation/Headers';
-import { navigate, navigateHome } from '../navigation/NavigationService';
+import { navigateHome } from '../navigation/NavigationService';
 import LottieView from 'lottie-react-native';
 import { NodeState } from '../utils/types';
 import { Button, Colors, Icon, TypographyPresets } from 'etta-ui';
@@ -20,7 +21,6 @@ import { restartApp } from '../utils/restart';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { showToast } from '../utils/alerts';
 import { pressableHitSlop } from '../utils/helpers';
-import { Screens } from '../navigation/Screens';
 
 export function StartLdkScreen() {
   const ldkState = useStoreState((state) => state.lightning.ldkState);
@@ -47,12 +47,6 @@ export function StartLdkScreen() {
     requestAnimationFrame(() => {
       navigateHome();
     });
-  };
-
-  const onPressOpenChannel = () => {
-    cueInformativeHaptic();
-    // go to channels intro
-    navigate(Screens.LightningChannelsIntroScreen);
   };
 
   const onPressCopy = () => {
@@ -87,15 +81,9 @@ export function StartLdkScreen() {
         return (
           <View style={styles.buttonContainer}>
             <Button
-              title="Open a channel"
-              onPress={onPressOpenChannel}
-              appearance="filled"
-              style={styles.button}
-            />
-            <Button
               title="Proceed to wallet"
               onPress={onPressDone}
-              appearance="outline"
+              appearance="filled"
               style={styles.button}
             />
           </View>
