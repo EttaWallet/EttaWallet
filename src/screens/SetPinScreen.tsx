@@ -24,7 +24,6 @@ import { setPinInKeyChain } from '../utils/keychain';
 import { useStoreDispatch } from '../state/hooks';
 import { showErrorBanner, showSuccessBanner } from '../utils/alerts';
 import { cueErrorHaptic, cueSuccessHaptic } from '../utils/accessibility/haptics';
-import { getLightningStore } from '../utils/lightning/helpers';
 
 type ScreenProps = NativeStackScreenProps<StackParamList, Screens.SetPinScreen>;
 
@@ -46,8 +45,6 @@ const SetPinScreen = ({ route }: ScreenProps) => {
   // dispatch action from rootState
   const setPinType = dispatch.nuxt.setPincodeType;
   const nodeIsUp = useStoreState((state) => state.lightning.nodeStarted);
-  // check if channels set up
-  const channels = getLightningStore().channels;
 
   useEffect(() => {
     if (isChangingPin()) {
@@ -74,8 +71,6 @@ const SetPinScreen = ({ route }: ScreenProps) => {
       navigate(Screens.RestoreWalletScreen);
     } else if (nodeIsUp === false) {
       // proceed to launch LDK node
-      navigate(Screens.StartLdkScreen);
-    } else if (Object.keys(channels).length === 0) {
       navigate(Screens.StartLdkScreen);
     } else {
       navigateClearingStack(Screens.DrawerNavigator);

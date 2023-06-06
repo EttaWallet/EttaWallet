@@ -7,6 +7,7 @@ import { SecretCache, clearPasswordCaches, getCachedPin, setCachedPin } from './
 import {
   isUserCancelledError,
   removeStoredItem,
+  resetKeychainValue,
   retrieveStoredKeychainItem,
   storeKeychainItem,
 } from '../keychain';
@@ -58,9 +59,13 @@ function storePinWithBiometry(pin: string) {
   });
 }
 
-export function removeStoredPin() {
-  return removeStoredItem(PIN_STORAGE_KEY);
-}
+export const removeStoredPin = async (): Promise<void> => {
+  // remove PIN in storage
+  removeStoredItem(PIN_STORAGE_KEY);
+  resetKeychainValue({ key: 'pin' });
+  // mark Pin unset
+  store.dispatch.nuxt.setPincodeType(PinType.Unset);
+};
 
 type PinCallback = (pin: string) => void;
 

@@ -21,19 +21,13 @@ import { restartApp } from '../utils/restart';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { showToast } from '../utils/alerts';
 import { pressableHitSlop } from '../utils/helpers';
+import { verticalScale } from '../utils/sizing';
 
 export function StartLdkScreen() {
   const ldkState = useStoreState((state) => state.lightning.ldkState);
   const nodeStarted = useStoreState((state) => state.lightning.nodeStarted);
   const nodeId = useStoreState((state) => state.lightning.nodeId);
   const startNode = useStoreActions((actions) => actions.lightning.startLdk);
-
-  // useEffect(() => {
-  //   if (!nodeStarted) {
-  //     startNode().then();
-  //   }
-  //   return;
-  // }, [nodeStarted, startNode]);
 
   const onPressStart = useCallback(() => {
     if (!nodeStarted) {
@@ -185,6 +179,7 @@ export function StartLdkScreen() {
 const styles = StyleSheet.create({
   safeAreaView: {
     flex: 1,
+    marginBottom: verticalScale(24),
   },
   contentContainer: {
     paddingHorizontal: 32,

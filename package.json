@@ -33,7 +33,7 @@
     "@react-navigation/stack": "^6.3.12",
     "@sentry/react-native": "^4.13.0",
     "@sentry/types": "^7.29.0",
-    "@synonymdev/react-native-ldk": "^0.0.89",
+    "@synonymdev/react-native-ldk": "^0.0.97",
     "@th3rdwave/react-navigation-bottom-sheet": "^0.2.2",
     "add": "^2.0.6",
     "assert": "^1.1.1",

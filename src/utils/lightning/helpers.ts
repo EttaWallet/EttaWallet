@@ -632,7 +632,7 @@ export const startLightning = async ({
 export const setLdkAccount = async ({ name, seed }: TAccount): Promise<boolean> => {
   try {
     if (!name) {
-      name = getSelectedWallet();
+      name = getSelectedNetwork();
       name = `${name}${LDK_ACCOUNT_SUFFIX}`;
     }
     const account: TAccount = {
@@ -653,19 +653,13 @@ export const setLdkAccount = async ({ name, seed }: TAccount): Promise<boolean> 
 
 /**
  * Retrieve LDK account info from storage.
- * @param {TWalletName} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
  */
 export const getLdkAccount = async ({
-  selectedWallet,
   selectedNetwork,
 }: {
-  selectedWallet?: TWalletName;
   selectedNetwork?: TAvailableNetworks;
 } = {}): Promise<Result<TAccount>> => {
-  if (!selectedWallet) {
-    selectedWallet = getSelectedWallet();
-  }
   if (!selectedNetwork) {
     selectedNetwork = getSelectedNetwork();
   }
@@ -673,7 +667,7 @@ export const getLdkAccount = async ({
   if (mnemonicPhrase.isErr()) {
     return err(mnemonicPhrase.error.message);
   }
-  const name = `${selectedWallet}${selectedNetwork}${LDK_ACCOUNT_SUFFIX}`;
+  const name = `${selectedNetwork}${LDK_ACCOUNT_SUFFIX}`;
   try {
     const result = await Keychain.getGenericPassword({ service: name });
     if (!!result && result?.password) {
@@ -749,17 +743,18 @@ export const updateLightningChannels = async (): Promise<Result<TChannel[]>> => 
  * @param {TAvailableNetworks} [selectedNetwork]
  */
 export const getTotalBalance = ({
-  subtractReserveBalance = true,
   selectedNetwork,
 }: {
   selectedNetwork?: TAvailableNetworks;
-  subtractReserveBalance?: boolean;
-}): number => {
+}): {
+  lightningBalance: number; // Total lightning funds (spendable + reserved + claimable)
+  spendableBalance: number; // Share of lightning funds that are spendable
+  reserveBalance: number; // Share of lightning funds that are locked up in channels
+  claimableBalance: number; // Funds that will be available after a channel opens/closes
+} => {
   if (!selectedNetwork) {
     selectedNetwork = getSelectedNetwork();
   }
-
-  let balance = 0;
 
   // get openchannel ids from lightning store
   const openChannelIds = getLightningStore().openChannelIds;
@@ -770,19 +765,40 @@ export const getTotalBalance = ({
   const openChannels = Object.values(channels).filter((channel) => {
     return openChannelIds.includes(channel.channel_id);
   });
-  // reduce the balance_sat from each ready channel into one sum and compute for punishment reserve if desired
-  balance = Object.values(openChannels).reduce((previousValue, currentChannel) => {
-    if (currentChannel.is_channel_ready) {
-      let reserveBalance = 0;
-      if (subtractReserveBalance) {
-        reserveBalance = currentChannel.unspendable_punishment_reserve ?? 0;
-      }
-      return previousValue + currentChannel.balance_sat - reserveBalance;
-    }
-    return previousValue;
-  }, balance);
 
-  return balance;
+  const claimableBalance = getLightningStore().claimableBalance;
+  let spendableBalance = 0;
+  let reserveBalance = 0;
+
+  openChannels.forEach((channel) => {
+    if (channel.is_channel_ready) {
+      const spendable = channel.outbound_capacity_sat;
+      const unspendable = channel.balance_sat - spendable;
+      reserveBalance += unspendable;
+      spendableBalance += spendable;
+    }
+  });
+
+  const lightningBalance = spendableBalance + reserveBalance + claimableBalance;
+
+  // // reduce the balance_sat from each ready channel into one sum and compute for punishment reserve if desired
+  // balance = Object.values(openChannels).reduce((previousValue, currentChannel) => {
+  //   if (currentChannel.is_channel_ready) {
+  //     let reserveBalance = 0;
+  //     if (subtractReserveBalance) {
+  //       reserveBalance = currentChannel.unspendable_punishment_reserve ?? 0;
+  //     }
+  //     return previousValue + currentChannel.balance_sat - reserveBalance;
+  //   }
+  //   return previousValue;
+  // }, balance);
+
+  return {
+    lightningBalance,
+    spendableBalance,
+    claimableBalance,
+    reserveBalance,
+  };
 };
 
 /**
@@ -801,9 +817,7 @@ export const getClaimableBalance = async ({
   if (!selectedNetwork) {
     selectedNetwork = getSelectedNetwork();
   }
-  const lightningBalance = getTotalBalance({
-    subtractReserveBalance: false,
-  });
+  const { spendableBalance, reserveBalance } = getTotalBalance({});
   const claimableBalanceRes = await ldk.claimableBalances(ignoreOpenChannels);
   if (claimableBalanceRes.isErr()) {
     return 0;
@@ -815,12 +829,8 @@ export const getClaimableBalance = async ({
   if (claimableBalance.isErr()) {
     return 0;
   }
-  console.log(
-    `lightningBalance = ${lightningBalance}, claimableBalance = ${
-      claimableBalance.value
-    } thus walletBalance = ${Math.abs(lightningBalance - claimableBalance.value)}`
-  );
-  return Math.abs(lightningBalance - claimableBalance.value);
+
+  return Math.abs(spendableBalance + reserveBalance - claimableBalance.value);
 };
 
 export const updateClaimableBalance = async ({
@@ -834,7 +844,6 @@ export const updateClaimableBalance = async ({
 
   const claimableBalance = await getClaimableBalance({
     selectedNetwork,
-    ignoreOpenChannels: true,
   });
   // update claimable balance in store
   store.dispatch.lightning.updateClaimableBalance(claimableBalance);
@@ -966,3 +975,41 @@ export function countRecentTransactions(payments: TLightningPayment[]): number {
 
   return count;
 }
+
+/**
+ * Wipes LDK data from storage
+ * @returns {Promise<Result<string>>}
+ */
+export const wipeLdkStorage = async ({
+  selectedNetwork,
+}: {
+  selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string>> => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+
+  await ldk.stop();
+  const path = `${RNFS.DocumentDirectoryPath}/ldk/${lm.account.name}`;
+
+  const deleteAllFiles = async (dirpath: string): Promise<void> => {
+    const items = await RNFS.readDir(dirpath);
+    for (const item of items) {
+      if (item.isFile()) {
+        await RNFS.unlink(item.path);
+      } else {
+        deleteAllFiles(item.path);
+      }
+    }
+  };
+
+  try {
+    // delete all files in the directory
+    // NOTE: this is a workaround for RNFS.unlink(folder) freezing the app
+    await deleteAllFiles(path);
+  } catch (e) {
+    return err(e);
+  }
+
+  return ok(`${selectedNetwork}'s LDK directory wiped successfully`);
+};

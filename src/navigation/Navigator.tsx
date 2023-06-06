@@ -200,8 +200,6 @@ export const MainStackScreen = () => {
       initialRoute = Screens.EnableBiometryScreen;
     } else if (!nodeIsUp) {
       initialRoute = Screens.StartLdkScreen;
-    } else if (Object.keys(channels).length === 0) {
-      initialRoute = Screens.StartLdkScreen;
     } else {
       initialRoute = Screens.DrawerNavigator;
     }

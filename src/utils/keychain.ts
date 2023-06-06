@@ -1,6 +1,7 @@
 import * as Keychain from 'react-native-keychain';
 import Logger from './logger';
 import { IResponse } from './types';
+import { Result, err, ok } from './result';
 
 const TAG = 'storage/keychain';
 
@@ -186,4 +187,39 @@ export const getKeychainValue = async ({ key = '' }): Promise<{ error: boolean; 
       resolve({ error: true, data: e });
     }
   });
+};
+
+/**
+ * Returns an array of all known Keychain keys.
+ * @returns {Promise<string[]>}
+ */
+export const getAllKeychainKeys = async (): Promise<string[]> => {
+  return await Keychain.getAllGenericPasswordServices();
+};
+
+/**
+ * Wipe the value of key specified in keychain store
+ * @returns {Promise<string[]>}
+ */
+export const resetKeychainValue = async ({ key }: { key: string }): Promise<Result<boolean>> => {
+  try {
+    const result = await Keychain.resetGenericPassword({ service: key });
+    return ok(result);
+  } catch (e) {
+    console.log(e);
+    return err(e);
+  }
+};
+
+/**
+ * Wipes all known device keychain data.
+ * @returns {Promise<void>}
+ */
+export const wipeEntireKeychain = async (): Promise<void> => {
+  const allServices = await getAllKeychainKeys();
+  await Promise.all(
+    allServices.map((key) => {
+      resetKeychainValue({ key });
+    })
+  );
 };

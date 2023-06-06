@@ -90,11 +90,18 @@ export const refreshLdk = async ({
   }
 };
 
-export const resetLdk = async (): Promise<Result<string>> => {
-  // wait for interactions/animations to be completed
+/* Attempt to restart Ldk */
+export const restartLdk = async (): Promise<Result<string>> => {
   await new Promise((resolve) => InteractionManager.runAfterInteractions(() => resolve(null)));
 
-  return await ldk.reset();
+  return await ldk.restart();
+};
+
+/* Attempt to stop Ldk */
+export const resetLdk = async (): Promise<Result<string>> => {
+  await new Promise((resolve) => InteractionManager.runAfterInteractions(() => resolve(null)));
+
+  return await ldk.stop();
 };
 
 /**
@@ -210,7 +217,6 @@ export const setupLdk = async ({
 
     const account = await getLdkAccount();
     if (account.isErr()) {
-      console.log('@setupLdk/getLdkAccount', account.error.message);
       return err(account.error.message);
     }
 
@@ -240,16 +246,16 @@ export const setupLdk = async ({
     }
 
     // derive fees from updated state
-    const fees = getWalletStore().fees;
+    const feesStore = getWalletStore().fees;
 
     // start the lightning manager
     const lmStart = await lm.start({
       account: account.value,
       getFees: () =>
         Promise.resolve({
-          highPriority: fees.fast,
-          normal: fees.normal,
-          background: fees.slow,
+          highPriority: feesStore.fast,
+          normal: feesStore.normal,
+          background: feesStore.slow,
         }),
       network: getLdkNetwork(selectedNetwork),
       getBestBlock,
