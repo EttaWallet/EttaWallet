@@ -33,6 +33,7 @@ export type StackParamList = {
         nextScreen: keyof StackParamList;
       }
     | undefined;
+  [Screens.CurrencyChooserScreen]: undefined;
   [Screens.Main]: undefined;
   [Screens.AnimatedModal]: undefined;
   [Screens.DrawerNavigator]: undefined;
@@ -49,6 +50,12 @@ export type StackParamList = {
   [Screens.TestScreen]: undefined;
   [Screens.StartLN]: undefined;
   [Screens.StartLdkScreen]: undefined;
+  [Screens.EnterAmountScreen]: undefined;
+  [Screens.ReviewRequestScreen]:
+    | {
+        amount?: string;
+      }
+    | undefined;
   [Screens.ReceiveScreen]:
     | {
         amount?: string;

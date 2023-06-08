@@ -11,6 +11,10 @@ import { useTranslation } from 'react-i18next';
 import { cueInformativeHaptic } from '../../utils/accessibility/haptics';
 
 const GeneralSettingsScreen = ({ navigation, route }) => {
+  const currentLanguage = useStoreState((state) => state.nuxt.language);
+  const preferedCurrency = useStoreState((state) => state.nuxt.localCurrency);
+  const { t } = useTranslation();
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: () => <HeaderTitleWithSubtitle title="General" />,
@@ -23,8 +27,10 @@ const GeneralSettingsScreen = ({ navigation, route }) => {
     navigate(Screens.LanguageModal, { nextScreen: route.name });
   };
 
-  const currentLanguage = useStoreState((state) => state.nuxt.language);
-  const { t } = useTranslation();
+  const onPressCurrency = () => {
+    cueInformativeHaptic();
+    navigate(Screens.CurrencyChooserScreen);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -36,9 +42,9 @@ const GeneralSettingsScreen = ({ navigation, route }) => {
       />
       <SettingsItemWithTextValue
         title="Local currency"
-        value="UGX"
+        value={preferedCurrency ? preferedCurrency : 'Not set'}
         withChevron={true}
-        onPress={() => 0}
+        onPress={onPressCurrency}
       />
       <SettingsItemWithTextValue
         title="Bitcoin unit"

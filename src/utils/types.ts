@@ -394,3 +394,25 @@ export interface IElectrumPeerData {
   port: string;
   protocol: 'tcp' | 'ssl';
 }
+
+export enum ELocalCurrencyCode {
+  USD = 'USD',
+  UGX = 'UGX',
+  KES = 'KES',
+  EUR = 'EUR',
+  GBP = 'GBP',
+  GHS = 'GHS',
+  NGN = 'NGN',
+  RWF = 'RWF',
+}
+
+export enum ELocalCurrencySymbol {
+  USD = '$',
+  UGX = 'UGX',
+  KES = 'KSh',
+  EUR = '€',
+  GBP = '£',
+  GHS = 'GH₵',
+  NGN = '₦',
+  RWF = 'FRw',
+}

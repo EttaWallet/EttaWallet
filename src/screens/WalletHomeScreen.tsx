@@ -24,7 +24,6 @@ import {
   getLightningStore,
   startLightning,
 } from '../utils/lightning/helpers';
-import usePaymentRequestBottomSheet from '../components/usePaymentRequestBottomSheet';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import useSendBottomSheet from '../components/useSendBottomSheet';
@@ -35,10 +34,6 @@ const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 const WalletHomeScreen = () => {
   const nodeStarted = useStoreState((state) => state.lightning.nodeStarted);
   const currentBlockHeight = useStoreState((state) => state.wallet.header.height);
-
-  const { openPaymentRequestSheet, newPaymentRequestBottomSheet } = usePaymentRequestBottomSheet(
-    {}
-  );
 
   const { openOptionsSheet, sendOptionsBottomSheet } = useSendBottomSheet({});
 
@@ -112,6 +107,10 @@ const WalletHomeScreen = () => {
     navigate(Screens.ActivityScreen);
   };
 
+  const onPressRequest = () => {
+    navigate(Screens.EnterAmountScreen);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <DrawerHeader
@@ -132,8 +131,7 @@ const WalletHomeScreen = () => {
         contentContainerStyle={styles.balanceSection}
         showsVerticalScrollIndicator={false}
       />
-      <HomeActionsBar onPressSend={openOptionsSheet} onPressRequest={openPaymentRequestSheet} />
-      {newPaymentRequestBottomSheet}
+      <HomeActionsBar onPressSend={openOptionsSheet} onPressRequest={onPressRequest} />
       {sendOptionsBottomSheet}
       {settingsBottomSheet}
     </SafeAreaView>

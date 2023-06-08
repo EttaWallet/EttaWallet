@@ -41,6 +41,9 @@ import LightningSettingsScreen from '../screens/settings/LightningSettingsScreen
 import ChannelsScreen from '../screens/ChannelsScreen';
 import LogsScreen from '../screens/LogsScreen';
 import { getLightningStore } from '../utils/lightning/helpers';
+import EnterAmountScreen from '../screens/EnterAmountScreen';
+import CurrencyChooserScreen from '../screens/CurrencyChooserScreen';
+import ReviewRequestScreen from '../screens/ReviewRequestScreen';
 
 const TAG = 'Navigator';
 
@@ -79,6 +82,16 @@ const walletScreens = (Navigator: typeof Stack) => {
         name={Screens.JITLiquidityScreen}
         component={JITLiquidityScreen}
         options={JITLiquidityScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.EnterAmountScreen}
+        component={EnterAmountScreen}
+        options={EnterAmountScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.ReviewRequestScreen}
+        component={ReviewRequestScreen}
+        options={ReviewRequestScreen.navigationOptions as NativeStackNavigationOptions}
       />
       <Navigator.Screen
         name={Screens.ReceiveScreen}
@@ -143,6 +156,11 @@ const settingsScreens = (Navigator: typeof Stack) => {
         name={Screens.GeneralSettingsScreen}
         component={GeneralSettingsScreen}
         options={GeneralSettingsScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.CurrencyChooserScreen}
+        component={CurrencyChooserScreen}
+        options={CurrencyChooserScreen.navigationOptions as NativeStackNavigationOptions}
       />
       <Navigator.Screen
         name={Screens.SecuritySettingsScreen}

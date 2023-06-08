@@ -3,6 +3,7 @@ import DeviceInfo from 'react-native-device-info';
 import Logger from './logger';
 import { APP_STORE_ID } from '../../config';
 import { err, ok, Result } from './result';
+import store from '../state/store';
 
 export const pressableHitSlop = { top: 10, right: 10, bottom: 10, left: 10 };
 
@@ -125,6 +126,59 @@ export function navigateAppStore() {
 
 export const collectBuildNumber: string = DeviceInfo.getBuildNumber();
 export const collectAppVersion: string = DeviceInfo.getVersion();
+
+export const getLocalCurrencyExchangeRate = async (): Promise<number> => {
+  const localCurrency = store.getState().nuxt.localCurrency;
+  let json;
+  try {
+    const res = await fetch(`https://api.yadio.io/convert/1/BTC/${localCurrency}`);
+    json = await res.json();
+  } catch (e: any) {
+    throw new Error(`Could not update rate for ${localCurrency}: ${e.message}`);
+  }
+  let rate = json?.rate;
+  if (!rate) {
+    throw new Error(`Could not update rate for ${localCurrency}: data is wrong`);
+  }
+
+  rate = Number(rate);
+  if (!(rate >= 0)) {
+    throw new Error(`Could not update rate for ${localCurrency}: data is wrong`);
+  }
+
+  return rate;
+};
+
+export const satsToLocalCurrency = async ({ amountInSats }: { amountInSats: number }) => {
+  const rate = await getLocalCurrencyExchangeRate();
+  let valueInBtc = amountInSats / 100000000;
+  const value = rate * valueInBtc;
+  let finalValue;
+
+  if (value >= 0.005 || value <= -0.005) {
+    finalValue = value.toFixed(2);
+  } else {
+    finalValue = value.toPrecision(2);
+  }
+
+  return finalValue;
+};
+
+export const localCurrencyToSats = async ({ localAmount }: { localAmount: number }) => {
+  const rate = await getLocalCurrencyExchangeRate();
+  const value = localAmount * (100000000 / rate);
+
+  let finalValue;
+
+  if (value >= 0.005 || value <= -0.005) {
+    finalValue = value.toFixed(2);
+  } else {
+    finalValue = value.toPrecision(2);
+  }
+
+  return finalValue;
+};
+
 /**
  * Simple async sleeper function
  *

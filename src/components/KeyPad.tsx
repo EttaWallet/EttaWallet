@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   digit: {
-    ...TypographyPresets.Header5,
+    ...TypographyPresets.Body2,
     width: 64,
     padding: 24,
     justifyContent: 'center',

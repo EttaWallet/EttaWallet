@@ -34,4 +34,7 @@ export enum Screens {
   ScanQRCodeScreen = 'ScanQRCodeScreen',
   SendScreen = 'SendScreen',
   TransactionErrorScreen = 'TransactionErrorScreen',
+  EnterAmountScreen = 'EnterAmountScreen',
+  CurrencyChooserScreen = 'CurrencyChooserScreen',
+  ReviewRequestScreen = 'ReviewRequestScreen',
 }

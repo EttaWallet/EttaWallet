@@ -2,19 +2,13 @@ import BottomSheet, {
   BottomSheetBackdrop,
   useBottomSheetDynamicSnapPoints,
 } from '@gorhom/bottom-sheet';
-import { Button, Colors, Icon, TypographyPresets } from 'etta-ui';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Colors, TypographyPresets } from 'etta-ui';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { navigate } from '../navigation/NavigationService';
-import { Screens } from '../navigation/Screens';
-import FormInput from './form/Input';
 import CancelButton from '../navigation/components/CancelButton';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import FormLabel from './form/Label';
-import { estimateInvoiceFees } from '../utils/calculate';
-import { getLightningStore } from '../utils/lightning/helpers';
 
 interface Props {
   amountInSats?: string;
@@ -22,17 +16,12 @@ interface Props {
   expiresOn?: string;
 }
 const usePaymentRequestBottomSheet = (receiveProps: Props) => {
-  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const paddingBottom = Math.max(insets.bottom, 24);
 
-  const [invoiceAmount, setInvoiceAmount] = useState(receiveProps.amountInSats);
-  const [senderName, setSenderName] = useState('');
+  const invoiceAmount = receiveProps.amountInSats;
 
-  const [invoiceFees, setInvoiceFees] = useState(receiveProps.feesPayable);
-  const totalReceivable = getLightningStore().maxReceivable;
-
-  const amountRequested = parseInt(invoiceAmount!, 10);
+  const feeEstimate = receiveProps.feesPayable;
 
   const paymentRequestBottomSheetRef = useRef<BottomSheet>(null);
 
@@ -51,114 +40,6 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
     ),
     []
   );
-
-  const newPaymentRequestBottomSheet = useMemo(() => {
-    let feeRequired: number = 0;
-    const getFeesPayable = async () => {
-      if (totalReceivable < amountRequested) {
-        feeRequired = await estimateInvoiceFees(amountRequested);
-        setInvoiceFees(feeRequired);
-      } else {
-        setInvoiceFees(feeRequired);
-      }
-    };
-
-    const onPressCancel = () => {
-      cueInformativeHaptic();
-      paymentRequestBottomSheetRef.current?.close();
-      // clear values in state first?
-    };
-
-    const onPressContinue = () => {
-      cueInformativeHaptic();
-      paymentRequestBottomSheetRef.current?.close();
-      // update invoice fees if necessary
-      getFeesPayable().then();
-      requestAnimationFrame(() => {
-        navigate(Screens.ReceiveScreen, {
-          amount: invoiceAmount,
-          feesPayable: invoiceFees,
-        });
-      });
-    };
-
-    return (
-      <BottomSheet
-        ref={paymentRequestBottomSheetRef}
-        index={-1}
-        snapPoints={animatedSnapPoints}
-        handleHeight={animatedHandleHeight}
-        contentHeight={animatedContentHeight}
-        enablePanDownToClose
-        backdropComponent={renderBackdrop}
-        handleIndicatorStyle={styles.handle}
-      >
-        <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
-          <View style={styles.cancelBtn}>
-            <CancelButton onCancel={onPressCancel} />
-          </View>
-          <View style={styles.iconContainer}>
-            <Icon name="icon-arrow-down" style={styles.actionIcon} />
-          </View>
-          <Text style={styles.title}>{t('New payment request')}</Text>
-          <FormInput
-            label={t('Amount')}
-            style={styles.amount}
-            onChangeText={setInvoiceAmount}
-            value={invoiceAmount}
-            enablesReturnKeyAutomatically={true}
-            placeholder="Amount in sats" // should pass value of amount from receive Screen
-            multiline={false}
-            keyboardType={'decimal-pad'}
-          />
-          <Button
-            title="Continue"
-            onPress={onPressContinue}
-            size="default"
-            appearance="filled"
-            style={styles.button}
-            disabled={!invoiceAmount}
-          />
-        </View>
-      </BottomSheet>
-    );
-  }, [
-    animatedSnapPoints,
-    animatedHandleHeight,
-    animatedContentHeight,
-    renderBackdrop,
-    paddingBottom,
-    handleContentLayout,
-    t,
-    invoiceAmount,
-    totalReceivable,
-    amountRequested,
-    invoiceFees,
-  ]);
-
-  // const feeInfoDisplay = useMemo(() => {
-  //   const zeroAmountFees = `Your receive limit is ${totalReceivable} sats. Receiving more than this will incure a fee.`;
-  //   const noFeesText = `No fees will be charged to receive this payment as it is under your receive limit of ${totalReceivable} sats.`;
-  //   const withFeesText = `The amount exceeds your receive limit of ${totalReceivable} sats. A fee of ${invoiceFees} sats will be charged to increase this limit.`;
-  //   if (invoiceFees === 0) {
-  //     return <Text style={styles.maxReceive}>{noFeesText}</Text>;
-  //   } else if (amountRequested === 0 && invoiceFees === 0) {
-  //     return <Text style={styles.maxReceive}>{zeroAmountFees}</Text>;
-  //   } else {
-  //     return <Text style={styles.maxReceive}>{withFeesText}</Text>;
-  //   }
-  // }, [totalReceivable, invoiceFees, amountRequested]);
-
-  const feeInfoDisplay = useMemo(() => {
-    let feesText: string;
-    if (invoiceFees === 0) {
-      feesText = `No fees will be charged to receive this payment as it is under your receive limit of ${totalReceivable} sats.`;
-    } else {
-      feesText = `The amount exceeds your receive limit of ${totalReceivable} sats. A fee of ${invoiceFees} sats will be charged to increase this limit.`;
-    }
-
-    return <Text style={styles.maxReceive}>{feesText}</Text>;
-  }, [totalReceivable, invoiceFees]);
 
   const expiration = receiveProps.expiresOn!;
 
@@ -184,22 +65,15 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
           <View style={styles.cancelBtn}>
             <CancelButton onCancel={onPressCancel} />
           </View>
-          <FormInput
-            label={t('Amount')}
-            style={styles.amount}
-            onChangeText={setInvoiceAmount}
-            value={invoiceAmount}
-            enablesReturnKeyAutomatically={true}
-            placeholder="Amount in sats" // should pass value of amount from receive Screen
-            multiline={false}
-            keyboardType={'decimal-pad'}
-            editable={false}
-          />
           <View style={styles.field}>
-            <FormLabel style={{ marginBottom: 10 }}>Fees</FormLabel>
-            {feeInfoDisplay}
+            <FormLabel style={styles.label}>Invoice Amount</FormLabel>
+            <Text style={styles.amount}>{invoiceAmount}</Text>
           </View>
-          {/* @TODO: Add a section to select sender from the contact list */}
+          <View style={styles.field}>
+            <FormLabel style={styles.label}>Estimated fee</FormLabel>
+            <Text style={styles.amount}>{feeEstimate}</Text>
+          </View>
+          {/* @TODO: Add a section to select sender from the contact list
           <FormInput
             label={t('Sender')}
             style={styles.field}
@@ -208,7 +82,7 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
             enablesReturnKeyAutomatically={true}
             placeholder={t('Who will make this payment?')!}
             multiline={false}
-          />
+          /> */}
           <View style={styles.field}>
             <Text style={styles.maxReceive}>{`This request will expire on ${expiration}`}</Text>
           </View>
@@ -222,16 +96,13 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
     renderBackdrop,
     paddingBottom,
     handleContentLayout,
-    t,
     invoiceAmount,
-    feeInfoDisplay,
-    senderName,
+    feeEstimate,
     expiration,
   ]);
 
   return {
     openPaymentRequestSheet,
-    newPaymentRequestBottomSheet,
     DetailedInvoiceBottomSheet,
   };
 };
@@ -250,7 +121,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   amount: {
-    marginVertical: 5,
+    ...TypographyPresets.Header4,
+    color: Colors.common.black,
   },
   timeCreated: {
     ...TypographyPresets.Body5,
@@ -267,6 +139,11 @@ const styles = StyleSheet.create({
   },
   field: {
     marginVertical: 10,
+  },
+  label: {
+    ...TypographyPresets.Body4,
+    marginBottom: 10,
+    color: Colors.common.black,
   },
   expiry: {
     ...TypographyPresets.Body5,
