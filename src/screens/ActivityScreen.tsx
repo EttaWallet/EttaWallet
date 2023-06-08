@@ -2,7 +2,6 @@
 import React, { useMemo, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
-  SafeAreaView,
   StyleSheet,
   View,
   Platform,
@@ -14,7 +13,6 @@ import {
 } from 'react-native';
 import { headerWithBackButton } from '../navigation/Headers';
 import { Colors, Icon, TypographyPresets } from 'etta-ui';
-import { moderateScale } from '../utils/sizing';
 import { StackParamList } from '../navigation/types';
 import { Screens } from '../navigation/Screens';
 import { getLightningStore, groupActivityInSections } from '../utils/lightning/helpers';
@@ -25,6 +23,8 @@ import i18n from '../i18n';
 import { useTranslation } from 'react-i18next';
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import { navigate } from '../navigation/NavigationService';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import TransactionAmount from '../components/TransactionAmount';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ActivityScreen>;
 type Props = RouteProps;
@@ -44,7 +44,7 @@ const FeedHeader = ({ text, style }: FeedHeaderProps) => {
 
 interface NoActivityProps {
   loading: boolean;
-  error: Error | undefined;
+  error: boolean | undefined;
 }
 
 const NoActivity = ({ loading, error }: NoActivityProps) => {
@@ -64,7 +64,7 @@ const NoActivity = ({ loading, error }: NoActivityProps) => {
       {loading && (
         <ActivityIndicator style={styles.noActivityIcon} size="large" color={Colors.orange.base} />
       )}
-      <Text style={styles.noActivityText}>{t('noTransactionActivity')} </Text>
+      <Text style={styles.noActivityText}>{t('There are no transactions at this time.')}</Text>
     </View>
   );
 };
@@ -75,8 +75,7 @@ type TransactionItemProps = {
   showFiat?: boolean;
 };
 
-const TransactionItem = ({ invoice, type, showFiat }: TransactionItemProps) => {
-  const fiatAmount = 1000000;
+const TransactionItem = ({ invoice, type }: TransactionItemProps) => {
   const transactionDate = humanizeTimestamp(invoice.timestamp, i18n);
   return (
     <TouchableOpacity
@@ -99,16 +98,12 @@ const TransactionItem = ({ invoice, type, showFiat }: TransactionItemProps) => {
           <Text style={styles.transactionTitle}>{invoice.description}</Text>
           <Text style={styles.transactionSubtitle}>{transactionDate}</Text>
         </View>
-        <View
-          style={[
-            styles.transactionAmountContainer,
-            !showFiat ? { justifyContent: 'center' } : null,
-          ]}
-        >
-          <Text style={[styles.transactionAmount, { color: Colors.green.base }]}>
-            +{invoice.amount_satoshis}
-          </Text>
-          {showFiat ? <Text style={styles.fiatAmount}>+{fiatAmount} UGX</Text> : null}
+        <View style={styles.transactionAmountContainer}>
+          <TransactionAmount
+            totalAmount={invoice.amount_satoshis!}
+            usingLocalCurrency={false}
+            transactionType={type}
+          />
         </View>
       </View>
     </TouchableOpacity>
@@ -117,11 +112,6 @@ const TransactionItem = ({ invoice, type, showFiat }: TransactionItemProps) => {
 
 const ActivityScreen = ({}: Props) => {
   const [fetchingTransactions, setIsFetchingTransactions] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [loading, setLoading] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [error, setError] = useState(Error);
-  const totalBalance = getLightningStore().claimableBalance;
 
   const paymentsStore = getLightningStore().payments;
   const transactions = Object.values(paymentsStore);
@@ -135,7 +125,7 @@ const ActivityScreen = ({}: Props) => {
   }, [transactions]);
 
   if (!transactions.length) {
-    return <NoActivity loading={loading} error={error} />;
+    return <NoActivity loading={false} error={false} />;
   }
 
   function renderItem({ item: tx }: { item: TLightningPayment; index: number }) {
@@ -149,18 +139,10 @@ const ActivityScreen = ({}: Props) => {
     return 0;
   };
 
-  // const totalBalance = transactions.reduce((total, transaction) => {
-  //   const invoice: TInvoice = transaction.invoice;
-  //   const satoshiAmount = invoice.amount_satoshis || 0;
-
-  //   return total + satoshiAmount;
-  // }, 0);
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.text}>Your balance in satoshi</Text>
-        <Text style={styles.totalBalance}>{totalBalance}</Text>
+        <Text style={styles.title}>All Transactions</Text>
       </View>
       <>
         <SectionList
@@ -196,16 +178,15 @@ const fontFamilyChoice = Platform.OS === 'ios' ? 'Menlo-Regular' : 'monospace';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 8,
+    paddingHorizontal: 16,
   },
   headerContainer: {
-    marginVertical: 32,
-    alignItems: 'center',
+    marginVertical: 5,
   },
-  text: {
-    color: Colors.neutrals.light.neutral6,
-    marginHorizontal: moderateScale(16),
-    textAlign: 'center',
+  title: {
+    ...TypographyPresets.Header5,
+    color: Colors.common.black,
+    marginBottom: 10,
   },
   totalBalance: {
     ...TypographyPresets.Header1,
@@ -225,7 +206,6 @@ const styles = StyleSheet.create({
   // Humanized time header
   feedHeaderContainer: {
     backgroundColor: Colors.common.white,
-    paddingHorizontal: 16,
     paddingVertical: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -241,7 +221,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flex: 1,
     paddingHorizontal: 16,
-    marginTop: 32,
   },
   noActivityIcon: {
     marginVertical: 20,
@@ -258,7 +237,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flex: 1,
     paddingVertical: 12,
-    paddingHorizontal: 16,
   },
   transactionContent: {
     paddingHorizontal: 10,
