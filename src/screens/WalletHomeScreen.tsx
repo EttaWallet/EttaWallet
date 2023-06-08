@@ -17,7 +17,6 @@ import HomeActionsBar from '../components/HomeActionsBar';
 import { Colors, Icon, TypographyPresets } from 'etta-ui';
 import ContactsButton from '../navigation/components/ContactsButton';
 import { moderateScale, scale, verticalScale } from '../utils/sizing';
-import { HomeBalance } from '../components/HomeBalance';
 import { isLdkRunning, waitForLdk } from '../ldk';
 import {
   countRecentTransactions,
@@ -28,12 +27,14 @@ import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import useSendBottomSheet from '../components/useSendBottomSheet';
 import useSettingsBottomSheet from '../components/useSettingsBottomSheet';
+import AmountDisplay from '../components/amount/AmountDisplay';
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
 const WalletHomeScreen = () => {
   const nodeStarted = useStoreState((state) => state.lightning.nodeStarted);
   const currentBlockHeight = useStoreState((state) => state.wallet.header.height);
+  const balance = getLightningStore().claimableBalance;
 
   const { openOptionsSheet, sendOptionsBottomSheet } = useSendBottomSheet({});
 
@@ -73,7 +74,7 @@ const WalletHomeScreen = () => {
 
   const balanceSection = {
     data: [{}],
-    renderItem: () => <HomeBalance key={'HomeBalance'} />,
+    renderItem: () => <AmountDisplay inputAmount={balance.toString()} usingLocalCurrency={false} />,
   };
   // @ts-ignore
   sections.push(balanceSection);
@@ -147,12 +148,11 @@ const styles = StyleSheet.create({
   },
   balanceSection: {
     flexGrow: 1,
-    alignItems: 'center',
     justifyContent: 'center',
   },
   transactionsSection: {
     position: 'relative',
-    marginHorizontal: 'auto',
+    alignItems: 'center',
     marginTop: 100,
   },
   transactionsPill: {

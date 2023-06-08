@@ -13,8 +13,8 @@ import { Screens } from '../navigation/Screens';
 
 const EnterAmountScreen = () => {
   const [amountEntered, setAmountEntered] = useState('');
-  const [isUsingLocalCurrency, setIsUsingLocalCurrency] = useState(true);
   const preferredCurrencyCode = useStoreState((state) => state.nuxt.localCurrency);
+  const [isUsingLocalCurrency, setIsUsingLocalCurrency] = useState(!!preferredCurrencyCode);
 
   const onPressNext = () => {
     cueInformativeHaptic();

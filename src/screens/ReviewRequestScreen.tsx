@@ -14,6 +14,7 @@ import { estimateInvoiceFees } from '../utils/calculate';
 import AmountDisplay from '../components/amount/AmountDisplay';
 import { navigate } from '../navigation/NavigationService';
 import TotalAmountDisplay from '../components/amount/TotalAmountDisplay';
+import { useStoreState } from '../state/hooks';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ReviewRequestScreen>;
 type Props = RouteProps;
@@ -30,6 +31,9 @@ const ReviewRequestScreen = ({ navigation, route }: Props) => {
   const amountRequested = parseInt(amountProp, 10);
 
   const [invoiceFees, setInvoiceFees] = useState(0);
+  const preferredCurrencyCode = useStoreState((state) => state.nuxt.localCurrency);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [isUsingLocalCurrency, setIsUsingLocalCurrency] = useState(!!preferredCurrencyCode);
   const totalReceivable = getLightningStore().maxReceivable;
   const totalInvoiceAmount = amountRequested + invoiceFees;
 
@@ -80,7 +84,10 @@ const ReviewRequestScreen = ({ navigation, route }: Props) => {
             </View>
             <View style={styles.field}>
               <FormLabel style={styles.label}>Total incl. fees</FormLabel>
-              <TotalAmountDisplay totalAmount={totalInvoiceAmount} usingLocalCurrency={false} />
+              <TotalAmountDisplay
+                totalAmount={totalInvoiceAmount}
+                usingLocalCurrency={isUsingLocalCurrency}
+              />
             </View>
           </>
         ) : null}

@@ -20,14 +20,21 @@ const TotalAmountDisplay = ({ totalAmount, usingLocalCurrency }: Props) => {
 
   useEffect(() => {
     async function formatInputAmount() {
-      const amountInLocal = await satsToLocalCurrency({
-        amountInSats: totalAmount,
-      });
-      setValueInLocalCurrency(amountInLocal);
-      const amountInSats = await localCurrencyToSats({
-        localAmount: totalAmount,
-      });
-      setValueInSats(amountInSats);
+      if (preferredCurrencyCode !== null) {
+        console.log('yes');
+        const amountInLocal = await satsToLocalCurrency({
+          amountInSats: totalAmount,
+        });
+        setValueInLocalCurrency(amountInLocal);
+
+        const amountInSats = await localCurrencyToSats({
+          localAmount: totalAmount,
+        });
+        setValueInSats(amountInSats);
+      } else {
+        setValueInLocalCurrency(totalAmount);
+        setValueInSats(totalAmount);
+      }
     }
 
     formatInputAmount();

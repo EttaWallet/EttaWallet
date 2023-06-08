@@ -156,9 +156,9 @@ export const satsToLocalCurrency = async ({ amountInSats }: { amountInSats: numb
   let finalValue;
 
   if (value >= 0.005 || value <= -0.005) {
-    finalValue = value.toFixed(2);
+    finalValue = value.toFixed(0);
   } else {
-    finalValue = value.toPrecision(2);
+    finalValue = value.toPrecision(1);
   }
 
   return finalValue;
@@ -171,9 +171,9 @@ export const localCurrencyToSats = async ({ localAmount }: { localAmount: number
   let finalValue;
 
   if (value >= 0.005 || value <= -0.005) {
-    finalValue = value.toFixed(2);
+    finalValue = value.toFixed(0);
   } else {
-    finalValue = value.toPrecision(2);
+    finalValue = value.toPrecision(1);
   }
 
   return finalValue;
