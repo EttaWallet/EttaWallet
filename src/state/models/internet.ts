@@ -1,6 +1,6 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import NetInfo from '@react-native-community/netinfo';
-import { showErrorBanner, showSuccessBanner } from '../../utils/alerts';
+import { showErrorBanner } from '../../utils/alerts';
 
 export interface InternetModelType {
   isConnected: boolean;
@@ -13,7 +13,6 @@ export const internetModel: InternetModelType = {
   setConnectedStatus: action((state, payload) => {
     if (payload === true) {
       state.isConnected = payload;
-      showSuccessBanner({ message: 'You are back online', title: 'Online!' });
     } else {
       state.isConnected = payload;
       showErrorBanner({ message: 'You are not connected to the internet', title: 'Offline!' });
