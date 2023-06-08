@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   SafeAreaView,
@@ -27,6 +27,8 @@ import { Screens } from '../navigation/Screens';
 import i18n from '../i18n';
 import { humanizeTimestamp } from '../utils/time';
 import { showErrorBanner } from '../utils/alerts';
+import { navigate } from '../navigation/NavigationService';
+import CancelButton from '../navigation/components/CancelButton';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
 const QR_CODE_WIDTH = WINDOW_WIDTH - 150;
@@ -34,14 +36,24 @@ const QR_CODE_WIDTH = WINDOW_WIDTH - 150;
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ReceiveScreen>;
 type Props = RouteProps;
 
-const ReceiveScreen = (props: Props) => {
+const ReceiveScreen = ({ navigation, route }: Props) => {
   const [invoice, setInvoice] = useState(undefined);
   const [timestamp, setTimestamp] = useState(0);
   const [expiry, setExpiry] = useState(3600);
   const [isLoading, setIsLoading] = useState(true);
 
-  const amount = props.route.params?.amount || '0';
-  const feesPayable = props.route.params?.feesPayable || 0;
+  const amount = route.params?.amount || '0';
+  const feesPayable = route.params?.feesPayable || 0;
+
+  const onPressCancel = () => {
+    navigate(Screens.DrawerNavigator);
+  };
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => <CancelButton onCancel={onPressCancel} />,
+    });
+  }, [navigation]);
 
   // get expiry in epoch time as sum of timestamp/duration_since_epoch and expiry
   const invoiceExpires = humanizeTimestamp(timestamp + expiry, i18n);

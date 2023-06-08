@@ -15,16 +15,22 @@ import AmountDisplay from '../components/amount/AmountDisplay';
 import { navigate } from '../navigation/NavigationService';
 import TotalAmountDisplay from '../components/amount/TotalAmountDisplay';
 import { useStoreState } from '../state/hooks';
+import CancelButton from '../navigation/components/CancelButton';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ReviewRequestScreen>;
 type Props = RouteProps;
 
 const ReviewRequestScreen = ({ navigation, route }: Props) => {
+  const onPressCancel = () => {
+    navigate(Screens.DrawerNavigator);
+  };
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
         <HeaderTitleWithSubtitle title="Review request" subTitle="Confirm and update" />
       ),
+      headerRight: () => <CancelButton onCancel={onPressCancel} />,
     });
   }, [navigation]);
   const amountProp = route.params?.amount || '0';
