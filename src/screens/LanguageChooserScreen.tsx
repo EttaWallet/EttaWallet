@@ -2,7 +2,7 @@ import React from 'react';
 import type { StackScreenProps } from '@react-navigation/stack';
 import { localesList } from '../i18n/locales';
 import { useTranslation } from 'react-i18next';
-import { FlatList, ListRenderItemInfo, SafeAreaView, StyleSheet, Text } from 'react-native';
+import { FlatList, ListRenderItemInfo, StyleSheet, Text } from 'react-native';
 import useChangeLanguage from '../i18n/useChangeLanguage';
 import { emptyHeader, headerWithBackButton } from '../navigation/Headers';
 import { navigate } from '../navigation/NavigationService';
@@ -10,6 +10,7 @@ import { Screens } from '../navigation/Screens';
 import type { StackParamList } from '../navigation/types';
 import { Colors, TypographyPresets } from 'etta-ui';
 import SelectionOption from '../components/SelectionOption';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type ScreenProps = StackScreenProps<
   StackParamList,
@@ -81,8 +82,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
+    marginHorizontal: 16,
+    marginBottom: 16,
     ...TypographyPresets.Header5,
-    margin: 16,
     color: Colors.common.black,
   },
 });

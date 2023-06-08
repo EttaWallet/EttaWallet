@@ -81,6 +81,9 @@ const ReviewRequestScreen = ({ navigation, route }: Props) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.contentContainer}>
+        <View style={styles.titleContainer}>
+          <FormLabel style={styles.title}>You are requesting</FormLabel>
+        </View>
         <AmountDisplay inputAmount={amountProp} usingLocalCurrency={false} />
         {invoiceFees !== 0 ? (
           <>
@@ -120,6 +123,12 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
+  },
+  titleContainer: {
+    alignItems: 'center',
+  },
+  title: {
+    ...TypographyPresets.Header5,
   },
   button: {
     justifyContent: 'center',
