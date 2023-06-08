@@ -1,6 +1,5 @@
-import { Colors, TypographyPresets } from 'etta-ui';
+import { Colors, Icon, TypographyPresets } from 'etta-ui';
 import React, { useEffect, useState } from 'react';
-import { BN } from 'react-native-bignumber';
 import { StyleSheet, View, Text, Platform } from 'react-native';
 import { useStoreState } from '../../state/hooks';
 import { ELocalCurrencySymbol } from '../../utils/types';
@@ -16,12 +15,10 @@ const AmountDisplay = ({ inputAmount, usingLocalCurrency }: Props) => {
   const [valueInSats, setValueInSats] = useState(0);
   const preferredCurrencyCode = useStoreState((state) => state.nuxt.localCurrency);
   const preferredCurrencySymbol = ELocalCurrencySymbol[preferredCurrencyCode!];
-  const btcDisplay = 'sats';
 
   useEffect(() => {
     async function formatInputAmount() {
       if (preferredCurrencyCode !== null) {
-        console.log('yes');
         const amountInLocal = await satsToLocalCurrency({
           amountInSats: parseInt(inputAmount ? inputAmount : '0', 10),
         });
@@ -38,9 +35,9 @@ const AmountDisplay = ({ inputAmount, usingLocalCurrency }: Props) => {
     }
 
     formatInputAmount();
-  }, [inputAmount, preferredCurrencyCode, valueInLocalCurrency]);
+  }, [inputAmount, preferredCurrencyCode]);
 
-  const secondaryAmount = usingLocalCurrency ? valueInSats : valueInLocalCurrency ?? new BN(0);
+  const secondaryAmount = usingLocalCurrency ? valueInSats : valueInLocalCurrency ?? 0;
 
   return (
     <>
@@ -59,6 +56,11 @@ const AmountDisplay = ({ inputAmount, usingLocalCurrency }: Props) => {
                 </Text>
               </View>
             )}
+            {!usingLocalCurrency && (
+              <View style={styles.symbolContainer}>
+                <Icon name="icon-satoshi-v2" style={styles.btcIcon} />
+              </View>
+            )}
             <View style={styles.amountContainer}>
               <Text
                 textBreakStrategy="simple"
@@ -73,18 +75,6 @@ const AmountDisplay = ({ inputAmount, usingLocalCurrency }: Props) => {
                 {inputAmount ? inputAmount : 0}
               </Text>
             </View>
-            {!usingLocalCurrency && (
-              <View style={styles.symbolContainer}>
-                <Text
-                  allowFontScaling={false}
-                  adjustsFontSizeToFit={true}
-                  numberOfLines={1}
-                  style={styles.mainSymbol}
-                >
-                  {btcDisplay}
-                </Text>
-              </View>
-            )}
           </View>
           {preferredCurrencyCode !== null ? (
             <View style={styles.valueContainer}>
@@ -107,14 +97,7 @@ const AmountDisplay = ({ inputAmount, usingLocalCurrency }: Props) => {
               </View>
               {usingLocalCurrency && (
                 <View style={styles.symbolContainer}>
-                  <Text
-                    allowFontScaling={false}
-                    adjustsFontSizeToFit={true}
-                    numberOfLines={1}
-                    style={styles.secondarySymbol}
-                  >
-                    {btcDisplay}
-                  </Text>
+                  <Icon name="icon-satoshi-v2" style={styles.btcIcon} />
                 </View>
               )}
             </View>
@@ -165,6 +148,10 @@ const styles = StyleSheet.create({
     ...TypographyPresets.Body2,
     fontFamily: fontFamilyChoice,
     color: Colors.neutrals.light.neutral7,
+  },
+  btcIcon: {
+    fontSize: 32,
+    color: '#ff9d00',
   },
 });
 

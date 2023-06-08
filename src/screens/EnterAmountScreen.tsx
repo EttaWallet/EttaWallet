@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { headerWithBackButton } from '../navigation/Headers';
@@ -10,11 +10,28 @@ import { useStoreState } from '../state/hooks';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
+import { localCurrencyToSats } from '../utils/helpers';
 
 const EnterAmountScreen = () => {
   const [amountEntered, setAmountEntered] = useState('');
+  const [amountInSats, setAmountInSats] = useState(0);
   const preferredCurrencyCode = useStoreState((state) => state.nuxt.localCurrency);
   const [isUsingLocalCurrency, setIsUsingLocalCurrency] = useState(!!preferredCurrencyCode);
+
+  useEffect(() => {
+    async function formatAmount() {
+      if (isUsingLocalCurrency) {
+        const amountEnteredInSats = await localCurrencyToSats({
+          localAmount: parseInt(amountEntered, 10),
+        });
+        setAmountInSats(amountEnteredInSats);
+      } else {
+        setAmountInSats(parseInt(amountEntered, 10));
+      }
+    }
+
+    formatAmount();
+  }, [amountEntered, isUsingLocalCurrency]);
 
   const onPressNext = () => {
     cueInformativeHaptic();
@@ -22,7 +39,7 @@ const EnterAmountScreen = () => {
     // getFeesPayable().then();
     requestAnimationFrame(() => {
       navigate(Screens.ReviewRequestScreen, {
-        amount: amountEntered, // @todo, parse this value so that we are only taking the amount in sats
+        amount: isUsingLocalCurrency ? amountInSats.toString() : amountEntered, // @todo, parse this value so that we are only taking the amount in sats
       });
     });
   };

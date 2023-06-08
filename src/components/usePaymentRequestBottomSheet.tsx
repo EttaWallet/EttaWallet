@@ -70,13 +70,16 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
           </View>
           <View style={styles.field}>
             <FormLabel style={styles.label}>Invoice Amount</FormLabel>
-            <Text style={styles.amount}>{invoiceAmount} sats</Text>
+            <TotalAmountDisplay
+              totalAmount={parseInt(invoiceAmount, 10)}
+              usingLocalCurrency={false}
+            />
           </View>
           {feeEstimate !== 0 ? (
             <>
               <View style={styles.field}>
                 <FormLabel style={styles.label}>Estimated fee</FormLabel>
-                <Text style={styles.amount}>{feeEstimate} sats</Text>
+                <TotalAmountDisplay totalAmount={feeEstimate} usingLocalCurrency={false} />
               </View>
               <View style={styles.field}>
                 <FormLabel style={styles.label}>Total incl. fees</FormLabel>

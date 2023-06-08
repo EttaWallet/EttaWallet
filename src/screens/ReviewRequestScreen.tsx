@@ -28,7 +28,7 @@ const ReviewRequestScreen = ({ navigation, route }: Props) => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
-        <HeaderTitleWithSubtitle title="Review request" subTitle="Confirm and update" />
+        <HeaderTitleWithSubtitle title="Review request" subTitle="Confirm amount" />
       ),
       headerRight: () => <CancelButton onCancel={onPressCancel} />,
     });
@@ -72,7 +72,7 @@ const ReviewRequestScreen = ({ navigation, route }: Props) => {
     if (invoiceFees === 0) {
       feesText = `No fees will be charged to receive this payment as it is under your receive limit of ${totalReceivable} sats.`;
     } else {
-      feesText = `The amount exceeds your receive limit of ${totalReceivable} sats. A fee of ${invoiceFees} sats will be charged to increase this limit.`;
+      feesText = `The amount you are requesting exceeds your receive limit of ${totalReceivable} sats. \n \nThis fee is necessary to increase this limit for future transactions.`;
     }
 
     return <Text style={styles.maxReceive}>{feesText}</Text>;
@@ -86,14 +86,12 @@ const ReviewRequestScreen = ({ navigation, route }: Props) => {
           <>
             <View style={styles.field}>
               <FormLabel style={styles.label}>Estimated fee</FormLabel>
+              <TotalAmountDisplay totalAmount={invoiceFees} usingLocalCurrency={false} />
               {feeInfoDisplay}
             </View>
             <View style={styles.field}>
               <FormLabel style={styles.label}>Total incl. fees</FormLabel>
-              <TotalAmountDisplay
-                totalAmount={totalInvoiceAmount}
-                usingLocalCurrency={isUsingLocalCurrency}
-              />
+              <TotalAmountDisplay totalAmount={totalInvoiceAmount} usingLocalCurrency={false} />
             </View>
           </>
         ) : null}
@@ -142,6 +140,7 @@ const styles = StyleSheet.create({
   maxReceive: {
     ...TypographyPresets.Body4,
     color: Colors.neutrals.light.neutral7,
+    marginVertical: 10,
   },
 });
 

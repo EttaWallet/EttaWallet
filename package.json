@@ -55,7 +55,6 @@
     "react-async-hook": "^4.0.0",
     "react-i18next": "^12.1.5",
     "react-native": "0.70.6",
-    "react-native-bignumber": "^0.2.1",
     "react-native-camera-kit": "^13.0.0",
     "react-native-circular-progress-indicator": "^4.4.2",
     "react-native-config": "^1.5.0",
