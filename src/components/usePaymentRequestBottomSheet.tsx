@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CancelButton from '../navigation/components/CancelButton';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import FormLabel from './form/Label';
+import TotalAmountDisplay from './amount/TotalAmountDisplay';
 
 interface Props {
   amountInSats?: string;
@@ -19,9 +20,11 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
   const insets = useSafeAreaInsets();
   const paddingBottom = Math.max(insets.bottom, 24);
 
-  const invoiceAmount = receiveProps.amountInSats;
+  const invoiceAmount = receiveProps.amountInSats!;
 
-  const feeEstimate = receiveProps.feesPayable;
+  const feeEstimate = receiveProps.feesPayable!;
+
+  const totalAmount = parseInt(invoiceAmount, 10) + feeEstimate;
 
   const paymentRequestBottomSheetRef = useRef<BottomSheet>(null);
 
@@ -67,12 +70,20 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
           </View>
           <View style={styles.field}>
             <FormLabel style={styles.label}>Invoice Amount</FormLabel>
-            <Text style={styles.amount}>{invoiceAmount}</Text>
+            <Text style={styles.amount}>{invoiceAmount} sats</Text>
           </View>
-          <View style={styles.field}>
-            <FormLabel style={styles.label}>Estimated fee</FormLabel>
-            <Text style={styles.amount}>{feeEstimate}</Text>
-          </View>
+          {feeEstimate !== 0 ? (
+            <>
+              <View style={styles.field}>
+                <FormLabel style={styles.label}>Estimated fee</FormLabel>
+                <Text style={styles.amount}>{feeEstimate} sats</Text>
+              </View>
+              <View style={styles.field}>
+                <FormLabel style={styles.label}>Total incl. fees</FormLabel>
+                <TotalAmountDisplay totalAmount={totalAmount} usingLocalCurrency={false} />
+              </View>
+            </>
+          ) : null}
           {/* @TODO: Add a section to select sender from the contact list
           <FormInput
             label={t('Sender')}
@@ -98,6 +109,7 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
     handleContentLayout,
     invoiceAmount,
     feeEstimate,
+    totalAmount,
     expiration,
   ]);
 

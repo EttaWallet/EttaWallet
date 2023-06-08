@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Share } from 'react-native';
 import { Button } from 'etta-ui';
 import { moderateScale, verticalScale } from '../utils/sizing';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Logger from '../utils/logger';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
+import { showWarningBanner } from '../utils/alerts';
 
 interface ActionProps {
   paymentRequest: string;
@@ -27,10 +28,27 @@ const InvoiceActionsBar = (props: ActionProps) => {
     setCopied(true);
   };
 
-  const onPressShare = () => {
+  const onPressShare = async () => {
     // pull up device share flow (QR code image or invoice?)
     cueInformativeHaptic();
-    return 0;
+    try {
+      const result = await Share.share({
+        message: `lightning: ${props.paymentRequest.toUpperCase()}`,
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error: any) {
+      showWarningBanner({
+        message: error.message,
+      });
+    }
   };
 
   const onPressDetails = () => {
