@@ -132,20 +132,20 @@ export const connectToElectrum = async ({
   //Attempt to disconnect from any old/lingering connections
   await electrum.stop({ network: selectedNetwork });
 
-  // Fetch any stored custom peers.
-  if (!customPeers) {
-    customPeers = getCustomElectrumPeers({ selectedNetwork });
-  }
-  // if no custom peers, use default peers from state
-  if (customPeers.length < 1) {
-    customPeers = tempElectrumServers[selectedNetwork];
-  }
+  // // Fetch any stored custom peers.
+  // if (!customPeers) {
+  //   customPeers = getCustomElectrumPeers({ selectedNetwork });
+  // }
+  // // if no custom peers, use default peers from state
+  // if (customPeers.length < 1) {
+  //   customPeers = tempElectrumServers[selectedNetwork];
+  // }
 
   let startResponse = { error: true, data: '' };
   for (let i = 0; i < retryAttempts; i++) {
     startResponse = await electrum.start({
       network: selectedNetwork,
-      customPeers,
+      customPeers: tempElectrumServers[selectedNetwork],
       net,
       tls: _tls,
     });
