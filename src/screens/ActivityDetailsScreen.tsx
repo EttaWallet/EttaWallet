@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SafeAreaView, StyleSheet, View, Platform, Text, ScrollView } from 'react-native';
 import { headerWithBackButton } from '../navigation/Headers';
@@ -11,12 +11,36 @@ import { humanizeTimestamp } from '../utils/time';
 import i18n from '../i18n';
 import AmountDisplay from '../components/amount/AmountDisplay';
 import SectionTitle from '../components/SectionTitle';
+import { TextInput } from 'react-native-gesture-handler';
+import store from '../state/store';
+import { getLightningStore } from '../utils/lightning/helpers';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ActivityDetailsScreen>;
 type Props = RouteProps;
 
 const ActivityDetailsScreen = ({ route }: Props) => {
   const { transaction } = route.params;
+  // get transaction in question from payments object in lightning store
+  const payment = Object.values(getLightningStore().payments).filter(
+    (p) => p.invoice.payment_hash === transaction.invoice.payment_hash
+  )[0];
+  const [userNote, setUserNote] = useState(payment.note!);
+
+  const onBlur = () => {
+    const trimmedComment = userNote.trim();
+    setUserNote(trimmedComment);
+  };
+
+  useEffect(() => {
+    // update payment note if changed by user
+    store.dispatch.lightning.updatePayment({
+      invoice: transaction.invoice,
+      type: transaction.type,
+      note: userNote,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userNote]);
+
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
       <SafeAreaView style={styles.content}>
@@ -29,6 +53,20 @@ const ActivityDetailsScreen = ({ route }: Props) => {
         </View>
         <View>
           <SectionTitle title="Transaction details" style={styles.sectionHeader} />
+          <TextInput
+            style={styles.inputContainer}
+            autoFocus={false}
+            multiline={true}
+            numberOfLines={5}
+            maxLength={140}
+            onChangeText={setUserNote}
+            value={userNote}
+            placeholder="✍️ Add a note"
+            placeholderTextColor={Colors.orange.base}
+            returnKeyType={'done'}
+            onBlur={onBlur}
+            blurOnSubmit={true}
+          />
           <InfoListItem
             title="When"
             value={humanizeTimestamp(transaction.invoice.timestamp, i18n)}
@@ -93,6 +131,14 @@ const styles = StyleSheet.create({
   total: {
     ...TypographyPresets.Header1,
     fontFamily: fontFamilyChoice,
+  },
+  inputContainer: {
+    height: 100,
+    textAlignVertical: 'top',
+    alignSelf: 'stretch',
+    ...TypographyPresets.Body4,
+    marginLeft: 16,
+    color: Colors.neutrals.light.neutral8,
   },
 });
 

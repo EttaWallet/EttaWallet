@@ -45,6 +45,7 @@ export interface LightningNodeModelType {
   setMaxReceivable: Action<LightningNodeModelType, number>;
   removeExpiredInvoices: Action<LightningNodeModelType, TInvoice[]>;
   addPayment: Action<LightningNodeModelType, TLightningPayment>;
+  updatePayment: Action<LightningNodeModelType, TLightningPayment>;
   addPeer: Action<LightningNodeModelType, string>;
 }
 
@@ -156,6 +157,19 @@ export const lightningModel: LightningNodeModelType = {
             : EPaymentType.sent,
       },
     };
+  }),
+  updatePayment: action((state, payload) => {
+    // updates invoice, usually tags, notes or contacts
+    try {
+      const payment = Object.values(state.payments).filter(
+        (p) => p.invoice.payment_hash === payload.invoice.payment_hash
+      )[0];
+      if (payment) {
+        Object.assign(payment, payload);
+      }
+    } catch (e) {
+      console.log(e.message);
+    }
   }),
   addPeer: action((state, payload) => {
     state.peers.push(payload);
