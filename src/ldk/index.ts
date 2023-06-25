@@ -34,7 +34,7 @@ import { promiseTimeout, sleep, tryNTimes } from '../utils/helpers';
 import { getBestBlock, getTransactionMerkle } from '../utils/electrum/helpers';
 import { getLdkNetwork, TAvailableNetworks } from '../utils/networks';
 import { getReceiveAddress, getSelectedNetwork, getWalletStore } from '../utils/wallet';
-import { showSuccessBanner, showToast, showToastWithCTA } from '../utils/alerts';
+import { showSuccessBanner, showToast } from '../utils/alerts';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { showErrorBanner } from '../utils/alerts';
@@ -449,6 +449,33 @@ export const getPendingInvoice = ({
   }
 };
 
+/**
+ * Retrieves any pending channels from the channels object via announced channelId.
+ * @param {string} channelId
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const getPendingChannel = ({
+  channelId,
+  selectedNetwork,
+}: {
+  channelId: string;
+  selectedNetwork?: TAvailableNetworks;
+}): Result<TInvoice> => {
+  try {
+    if (!selectedNetwork) {
+      selectedNetwork = getSelectedNetwork();
+    }
+    const channels = getLightningStore().channels;
+    const channel = Object.values(channels).filter((c) => c.channel_id === channelId);
+    if (channel.length > 0) {
+      return ok(channel[0]);
+    }
+    return err('Unable to find any pending channels.');
+  } catch (e) {
+    return err(e);
+  }
+};
+
 export const handlePaymentSubscription = async ({
   payment,
   selectedNetwork,
@@ -469,17 +496,46 @@ export const handlePaymentSubscription = async ({
     selectedNetwork,
   });
   if (invoice.isOk()) {
+    // add payment
     addPayment({
       invoice: invoice.value,
       selectedNetwork,
     });
-    showSuccessBanner({
-      title: 'Received',
-      message: `You received ${invoice.value.amount_satoshis} sats`,
-      dismissAfter: 5000,
-    });
-    console.info('new payment received', invoice.value.payment_hash);
+    // showSuccessBanner({
+    //   title: 'Received',
+    //   message: `You received ${invoice.value.amount_satoshis} sats`,
+    //   dismissAfter: 5000,
+    // });
+    // console.info('new payment received', invoice.value.payment_hash);
+
     await refreshLdk({ selectedNetwork });
+
+    navigate(Screens.TransactionSuccessScreen, {
+      txId: invoice.value.payment_hash,
+      amountInSats: invoice.value.amount_satoshis,
+    });
+  }
+};
+
+export const handleNewChannelSubscription = async ({
+  channel,
+  selectedNetwork,
+}: {
+  channel: TChannelUpdate;
+  selectedNetwork?: TAvailableNetworks;
+}): Promise<void> => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+  const pendingChannel = getPendingChannel({
+    channelId: channel.channel_id,
+    selectedNetwork,
+  });
+  if (pendingChannel.isOk()) {
+    // show channel opening screen
+    navigate(Screens.ChannelStatusScreen, {
+      channel: pendingChannel,
+    });
   }
 };
 
@@ -508,12 +564,16 @@ export const subscribeToPayments = ({
   }
   if (!onChannelSubscription) {
     onChannelSubscription = ldk.onEvent(EEventTypes.new_channel, (_res: TChannelUpdate) => {
-      showToastWithCTA({
-        message: 'New channel opened successfully',
-        buttonLabel: 'Explore',
-        buttonAction: () => navigate(Screens.ChannelsScreen),
-      });
-      console.info('channel opened successfully. Make this a toast');
+      // showToastWithCTA({
+      //   message: 'New channel opened successfully',
+      //   buttonLabel: 'Explore',
+      //   buttonAction: () => navigate(Screens.ChannelsScreen),
+      // });
+      // console.info('channel opened successfully. Make this a toast');
+      handleNewChannelSubscription({
+        channel: _res,
+        selectedNetwork,
+      }).then();
       refreshLdk({ selectedNetwork }).then();
     });
   }

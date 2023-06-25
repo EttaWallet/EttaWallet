@@ -904,7 +904,6 @@ export const addPayment = ({
     invoice: invoice,
     type: invoice.payee_pub_key === nodeId ? EPaymentType.sent : EPaymentType.received,
   };
-
   // add payment to store once confirmed
   store.dispatch.lightning.addPayment(payload);
   // and remove associated invoice from store via matching payment_hash

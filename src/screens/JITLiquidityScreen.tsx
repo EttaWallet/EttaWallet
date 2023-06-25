@@ -154,6 +154,7 @@ const JITLiquidityScreen = ({ navigation, route }: Props) => {
     if (wrappedInvoiceFees === 0) {
       estimateFees();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestLiquidity, nodeInvoice]);
 
   const edges: Edge[] | undefined = ['bottom'];

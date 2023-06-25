@@ -2,10 +2,11 @@ import * as React from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { Button, TypographyPresets, Colors, Icon } from 'etta-ui';
 import { SafeAreaView, SafeAreaInsetsContext } from 'react-native-safe-area-context';
-import { ErrorCategory } from '../utils/types';
+import { ErrorCategory, TransactionState } from '../utils/types';
+import LottieView from 'lottie-react-native';
 
 interface Props {
-  category: ErrorCategory;
+  category: ErrorCategory | TransactionState;
   title: string;
   description: string;
   solution?: string;
@@ -71,6 +72,15 @@ const FullScreenBanner = ({
           >
             <Icon name="icon-cross" style={styles.icon} />
           </View>
+        );
+      case TransactionState.Success:
+        return (
+          <LottieView
+            style={styles.lottieIcon}
+            source={require('../../assets/lottie/success-transaction.json')}
+            autoPlay={true}
+            loop={false}
+          />
         );
     }
   }, [category]);
@@ -152,7 +162,7 @@ const FullScreenBanner = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginHorizontal: 16,
+    marginHorizontal: 24,
   },
   contentContainer: {
     flexGrow: 1,
@@ -200,6 +210,12 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 50,
     marginBottom: 20,
+  },
+  lottieIcon: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    width: '75%',
+    aspectRatio: 1,
   },
 });
 

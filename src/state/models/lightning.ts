@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import {
   EPaymentType,
@@ -6,6 +5,7 @@ import {
   TLdkInvoice,
   TLightningNodeVersion,
   TLightningPayment,
+  TModifyInvoice,
 } from '../../utils/types';
 import { TChannel } from '@synonymdev/react-native-ldk';
 import { startLightning } from '../../utils/lightning/helpers';
@@ -15,11 +15,6 @@ import { isLdkRunning, waitForLdk } from '../../ldk';
 const TAG = 'LightningStore';
 
 // @TODO: add translatable strings to error and success messages
-
-type TModifyInvoice = {
-  payment_hash: TLdkInvoice['payment_hash'];
-  modified_request: TLdkInvoice['to_str'];
-};
 
 export interface LightningNodeModelType {
   ldkState: NodeState;

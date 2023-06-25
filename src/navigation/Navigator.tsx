@@ -44,6 +44,8 @@ import { getLightningStore } from '../utils/lightning/helpers';
 import EnterAmountScreen from '../screens/EnterAmountScreen';
 import CurrencyChooserScreen from '../screens/CurrencyChooserScreen';
 import ReviewRequestScreen from '../screens/ReviewRequestScreen';
+import TransactionSuccessScreen from '../shared/TransactionSuccessScreen';
+import ChannelStatusScreen from '../screens/ChannelStatusScreen';
 
 const TAG = 'Navigator';
 
@@ -65,6 +67,16 @@ const commonScreens = (Navigator: typeof Stack) => {
         name={Screens.TransactionErrorScreen}
         component={TransactionErrorScreen}
         options={TransactionErrorScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.TransactionSuccessScreen}
+        component={TransactionSuccessScreen}
+        options={TransactionSuccessScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.ChannelStatusScreen}
+        component={ChannelStatusScreen}
+        options={ChannelStatusScreen.navigationOptions as NativeStackNavigationOptions}
       />
     </>
   );

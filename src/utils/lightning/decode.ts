@@ -37,8 +37,8 @@ export const processTransactionData = async ({
     let error: { title: string; message: string } | undefined;
     let requestedAmount = 0;
 
-    const lightningBalance = await getTotalBalance({ subtractReserveBalance: false });
-    // const lightningBalance = 1000000;
+    let { lightningBalance } = getTotalBalance({});
+
     const openLightningChannels = getLightningStore().openChannelIds;
 
     // Filter for the lightning invoice.
@@ -94,7 +94,7 @@ export const processTransactionData = async ({
       if (requestedAmount) {
         error = {
           title: `${requestedAmount} more sats needed`,
-          message: 'Unable to pay the provided invoice',
+          message: `Unable to pay the provided invoice. You have ${lightningBalance} `,
         };
       } else {
         error = {

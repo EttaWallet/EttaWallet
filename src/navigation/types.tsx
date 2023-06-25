@@ -1,3 +1,4 @@
+import { TChannel } from '@synonymdev/react-native-ldk';
 import { TLightningPayment } from '../utils/types';
 import { Screens } from './Screens';
 
@@ -86,5 +87,12 @@ export type StackParamList = {
     errorMessage?: string;
     canRetry?: boolean;
     showSuggestions?: boolean;
+  };
+  [Screens.TransactionSuccessScreen]: {
+    amountInSats?: number;
+    txId?: string;
+  };
+  [Screens.ChannelStatusScreen]: {
+    channel?: TChannel;
   };
 };

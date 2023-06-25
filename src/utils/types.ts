@@ -13,6 +13,12 @@ export enum ErrorCategory {
   ERROR = 'error',
 }
 
+export enum TransactionState {
+  Success = 'Successful',
+  Pending = 'Pending',
+  Failed = 'Failed',
+}
+
 export enum PinType {
   Unset = 'Unset',
   Custom = 'Custom',
@@ -416,3 +422,8 @@ export enum ELocalCurrencySymbol {
   NGN = '₦',
   RWF = 'FRw',
 }
+
+export type TModifyInvoice = {
+  payment_hash: TLdkInvoice['payment_hash'];
+  modified_request: TLdkInvoice['to_str'];
+};
