@@ -293,6 +293,10 @@ export type TCreateLightningInvoice = TCreatePaymentReq & {
 export type TLightningPayment = {
   invoice: TInvoice;
   type: EPaymentType;
+  fee?: number; // if necessitated channel open
+  tags?: {};
+  note?: string;
+  contact?: string; // if assigned to contact
 };
 
 export type TLightningNodeVersion = {
@@ -424,6 +428,6 @@ export enum ELocalCurrencySymbol {
 }
 
 export type TModifyInvoice = {
-  payment_hash: TLdkInvoice['payment_hash'];
-  modified_request: TLdkInvoice['to_str'];
+  payment_hash: TInvoice['payment_hash'];
+  modified_request: TInvoice['to_str'];
 };

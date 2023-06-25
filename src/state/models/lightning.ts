@@ -2,12 +2,11 @@ import { Action, action, Thunk, thunk } from 'easy-peasy';
 import {
   EPaymentType,
   NodeState,
-  TLdkInvoice,
   TLightningNodeVersion,
   TLightningPayment,
   TModifyInvoice,
 } from '../../utils/types';
-import { TChannel } from '@synonymdev/react-native-ldk';
+import { TChannel, TInvoice } from '@synonymdev/react-native-ldk';
 import { startLightning } from '../../utils/lightning/helpers';
 import logger from '../../utils/logger';
 import { isLdkRunning, waitForLdk } from '../../ldk';
@@ -23,7 +22,7 @@ export interface LightningNodeModelType {
   ldkVersion: TLightningNodeVersion;
   channels: { [key: string]: TChannel };
   openChannelIds: string[];
-  invoices: TLdkInvoice[];
+  invoices: TInvoice[];
   payments: { [key: string]: TLightningPayment };
   peers: string[];
   claimableBalance: number;
@@ -37,14 +36,14 @@ export interface LightningNodeModelType {
   startLdk: Thunk<LightningNodeModelType>;
   setLdkState: Action<LightningNodeModelType, NodeState>;
   setLdkVersion: Action<LightningNodeModelType, TLightningNodeVersion>;
-  addInvoice: Action<LightningNodeModelType, TLdkInvoice>;
+  addInvoice: Action<LightningNodeModelType, TInvoice>;
   updateInvoice: Action<LightningNodeModelType, TModifyInvoice>;
   removeInvoice: Action<LightningNodeModelType, string>;
-  updateInvoices: Action<LightningNodeModelType, { index: number; invoice: TLdkInvoice }>;
+  updateInvoices: Action<LightningNodeModelType, { index: number; invoice: TInvoice }>;
   updateChannels: Action<LightningNodeModelType, Partial<LightningNodeModelType>>;
   updateClaimableBalance: Action<LightningNodeModelType, number>;
   setMaxReceivable: Action<LightningNodeModelType, number>;
-  removeExpiredInvoices: Action<LightningNodeModelType, TLdkInvoice[]>;
+  removeExpiredInvoices: Action<LightningNodeModelType, TInvoice[]>;
   addPayment: Action<LightningNodeModelType, TLightningPayment>;
   addPeer: Action<LightningNodeModelType, string>;
 }
