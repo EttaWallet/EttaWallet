@@ -140,7 +140,7 @@ const FullScreenBanner = ({
                 title={secondaryCTALabel!}
                 appearance="outline"
                 // eslint-disable-next-line react-native/no-inline-styles
-                style={[styles.button, insets && insets.bottom <= 40 && { marginBottom: 10 }]}
+                style={[styles.button, insets && insets.bottom <= 40 && { marginBottom: 40 }]}
               />
             ) : null}
             {tertiaryCTALabel ? (

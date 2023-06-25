@@ -26,7 +26,7 @@ const TransactionErrorScreen = (props: RouteProps) => {
       title="The transaction could not be completed"
       description={props.route.params.errorMessage || defaultError}
       secondaryCTALabel="Okay"
-      secondaryCTA={() => 0}
+      secondaryCTA={navigateHome}
       showSuggestions={showSuggestions}
     />
   ) : (
