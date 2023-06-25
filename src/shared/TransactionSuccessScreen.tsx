@@ -6,8 +6,9 @@ import { StackParamList } from '../navigation/types';
 import { Screens } from '../navigation/Screens';
 import { noHeader } from '../navigation/Headers';
 import { Platform } from 'react-native';
-import { navigateHome } from '../navigation/NavigationService';
+import { navigate, navigateHome } from '../navigation/NavigationService';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
+import { getLightningStore } from '../utils/lightning/helpers';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.TransactionSuccessScreen>;
 
@@ -15,18 +16,30 @@ const TransactionSuccessScreen = (props: RouteProps) => {
   const txId = props.route.params.txId || '';
   const amountInSats = props.route.params.amountInSats || 0;
 
+  const payments = getLightningStore().payments;
+  const payment = Object.values(payments).filter((p) => p.invoice.payment_hash === txId)[0];
+
   const onPressDone = () => {
     cueInformativeHaptic();
     navigateHome();
   };
 
+  const onPressDetails = () => {
+    cueInformativeHaptic();
+    navigate(Screens.ActivityDetailsScreen, {
+      transaction: { invoice: payment.invoice, type: payment.type },
+    });
+  };
+
   return (
     <FullScreenBanner
       category={TransactionState.Success}
-      primaryCTALabel="Got it"
-      primaryCTA={onPressDone}
+      primaryCTALabel="Details"
+      primaryCTA={onPressDetails}
       title={`You received ${amountInSats} sats`}
       description={txId}
+      secondaryCTALabel="Okay"
+      secondaryCTA={onPressDone}
     />
   );
 };
