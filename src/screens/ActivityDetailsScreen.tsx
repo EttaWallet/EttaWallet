@@ -9,6 +9,8 @@ import { Screens } from '../navigation/Screens';
 import { InfoListItem } from '../components/InfoListItem';
 import { humanizeTimestamp } from '../utils/time';
 import i18n from '../i18n';
+import AmountDisplay from '../components/amount/AmountDisplay';
+import SectionTitle from '../components/SectionTitle';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ActivityDetailsScreen>;
 type Props = RouteProps;
@@ -20,9 +22,13 @@ const ActivityDetailsScreen = ({ route }: Props) => {
       <SafeAreaView style={styles.content}>
         <View style={styles.headerContainer}>
           <Text style={styles.text}>You {transaction.type}</Text>
-          <Text style={styles.total}>{transaction.invoice.amount_satoshis}</Text>
+          <AmountDisplay
+            inputAmount={transaction.invoice.amount_satoshis?.toString()!}
+            usingLocalCurrency={false}
+          />
         </View>
         <View>
+          <SectionTitle title="Transaction details" style={styles.sectionHeader} />
           <InfoListItem
             title="When"
             value={humanizeTimestamp(transaction.invoice.timestamp, i18n)}
@@ -67,7 +73,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   headerContainer: {
-    marginVertical: 32,
+    paddingVertical: 32,
     alignItems: 'center',
   },
   content: {
@@ -78,6 +84,11 @@ const styles = StyleSheet.create({
     color: Colors.neutrals.light.neutral6,
     marginHorizontal: moderateScale(16),
     textAlign: 'center',
+  },
+  sectionHeader: {
+    paddingTop: 20,
+    paddingBottom: 10,
+    borderTopWidth: 1,
   },
   total: {
     ...TypographyPresets.Header1,
