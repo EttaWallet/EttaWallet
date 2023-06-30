@@ -1,5 +1,5 @@
 import { TChannel } from '@synonymdev/react-native-ldk';
-import { TLightningPayment } from '../utils/types';
+import { TContact, TLightningPayment } from '../utils/types';
 import { Screens } from './Screens';
 
 export type StackParamList = {
@@ -94,5 +94,9 @@ export type StackParamList = {
   };
   [Screens.ChannelStatusScreen]: {
     channel?: TChannel;
+  };
+  [Screens.ContactsScreen]: undefined;
+  [Screens.ContactDetailScreen]: {
+    contact?: TContact;
   };
 };

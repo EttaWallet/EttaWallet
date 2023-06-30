@@ -2,6 +2,7 @@ import { Action, action, Thunk, thunk } from 'easy-peasy';
 import {
   EPaymentType,
   NodeState,
+  TContact,
   TLightningNodeVersion,
   TLightningPayment,
   TModifyInvoice,
@@ -25,6 +26,7 @@ export interface LightningNodeModelType {
   invoices: TInvoice[];
   payments: { [key: string]: TLightningPayment };
   peers: string[];
+  contacts: TContact[];
   claimableBalance: number;
   maxReceivable: number;
   defaultPRDescription: string;
@@ -47,6 +49,10 @@ export interface LightningNodeModelType {
   addPayment: Action<LightningNodeModelType, TLightningPayment>;
   updatePayment: Action<LightningNodeModelType, TLightningPayment>;
   addPeer: Action<LightningNodeModelType, string>;
+  addContact: Action<LightningNodeModelType, TContact>;
+  updateContact: Action<LightningNodeModelType, { contactId: string; updatedContact: TContact }>;
+  deleteContact: Action<LightningNodeModelType, string>;
+  deleteContactAddress: Action<LightningNodeModelType, { contactId: string; addressId: string }>;
 }
 
 export const lightningModel: LightningNodeModelType = {
@@ -61,6 +67,7 @@ export const lightningModel: LightningNodeModelType = {
   invoices: [],
   payments: {},
   peers: [],
+  contacts: [],
   openChannelIds: [],
   claimableBalance: 0,
   maxReceivable: 0,
@@ -173,5 +180,52 @@ export const lightningModel: LightningNodeModelType = {
   }),
   addPeer: action((state, payload) => {
     state.peers.push(payload);
+  }),
+  addContact: action((state, payload) => {
+    state.contacts.push(payload);
+  }),
+  updateContact: action((state, payload) => {
+    const { contactId, updatedContact } = payload;
+    if (contactId && updatedContact) {
+      state.contacts = state.contacts.map((contact) => {
+        if (contact.id === contactId) {
+          // update identifiers
+          const mergedIdentifiers = updatedContact.identifiers
+            ? [...(contact.identifiers || []), ...updatedContact.identifiers]
+            : contact.identifiers || [];
+          return {
+            ...contact,
+            ...updatedContact,
+            identifiers: mergedIdentifiers,
+          };
+        }
+        return contact;
+      });
+    }
+  }),
+  deleteContact: action((state, payload) => {
+    const index = state.contacts.findIndex((contact) => contact.id === payload);
+    if (index !== -1) {
+      state.contacts.splice(index, 1);
+    }
+  }),
+  deleteContactAddress: action((state, payload) => {
+    const { contactId, addressId } = payload;
+    state.contacts = state.contacts.map((contact) => {
+      if (contact.id === contactId) {
+        const updatedIdentifiers = contact.identifiers!.filter(
+          (identity) => identity.id !== addressId
+        );
+        return { ...contact, identifiers: updatedIdentifiers };
+      }
+      return contact;
+    });
+
+    state.contacts = state.contacts.map((contact) => {
+      const updatedIdentifiers = contact.identifiers!.filter(
+        (identity) => identity.id !== addressId
+      );
+      return { ...contact, items: updatedIdentifiers };
+    });
   }),
 };

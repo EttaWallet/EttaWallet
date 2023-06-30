@@ -38,7 +38,11 @@
 	<key>NSCameraUsageDescription</key>
 	<string>To scan QR codes for lightning payments</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>This is required for you to use Face ID to secure your account.</string>
+	<string>This is required for you to use Face ID to secure your wallet.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Connecting your photo library allows you to personalize your contacts' images and save QR codes</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This is required for you to choose a profile picture.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>UIAppFonts</key>

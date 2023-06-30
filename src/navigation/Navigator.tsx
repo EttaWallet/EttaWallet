@@ -46,6 +46,8 @@ import CurrencyChooserScreen from '../screens/CurrencyChooserScreen';
 import ReviewRequestScreen from '../screens/ReviewRequestScreen';
 import TransactionSuccessScreen from '../shared/TransactionSuccessScreen';
 import ChannelStatusScreen from '../screens/ChannelStatusScreen';
+import ContactsScreen from '../screens/ContactsScreen';
+import ContactDetailScreen from '../screens/ContactDetailsScreen';
 
 const TAG = 'Navigator';
 
@@ -76,7 +78,17 @@ const commonScreens = (Navigator: typeof Stack) => {
       <Navigator.Screen
         name={Screens.ChannelStatusScreen}
         component={ChannelStatusScreen}
-        options={ChannelStatusScreen.navigationOptions as NativeStackNavigationOptions}
+        options={ChannelStatusScreen.navOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.ContactsScreen}
+        component={ContactsScreen}
+        options={ContactsScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.ContactDetailScreen}
+        component={ContactDetailScreen}
+        options={ContactDetailScreen.navigationOptions as NativeStackNavigationOptions}
       />
     </>
   );

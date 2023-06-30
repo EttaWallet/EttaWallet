@@ -39,4 +39,6 @@ export enum Screens {
   EnterAmountScreen = 'EnterAmountScreen',
   CurrencyChooserScreen = 'CurrencyChooserScreen',
   ReviewRequestScreen = 'ReviewRequestScreen',
+  ContactsScreen = 'ContactsScreen',
+  ContactDetailScreen = 'ContactDetailScreen',
 }

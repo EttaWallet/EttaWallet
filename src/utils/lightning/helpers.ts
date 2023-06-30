@@ -10,6 +10,7 @@ import {
   EPaymentType,
   IWalletItem,
   NodeState,
+  TContact,
   TCreateLightningInvoice,
   TLightningNodeVersion,
   TLightningPayment,
@@ -1005,4 +1006,16 @@ export const wipeLdkStorage = async ({
   }
 
   return ok(`${selectedNetwork}'s LDK directory wiped successfully`);
+};
+
+export const getContact = ({ contactId }: { contactId: string }): Result<TContact> => {
+  try {
+    const allContacts = getLightningStore().contacts;
+    const contact = allContacts.filter((c) => c.id === contactId);
+    if (contact.length > 0) {
+      return ok(contact[0]);
+    }
+  } catch (e) {
+    return err(e.message);
+  }
 };

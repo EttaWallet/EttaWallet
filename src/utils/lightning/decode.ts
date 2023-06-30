@@ -1,7 +1,7 @@
 import { TInvoice, TPaymentReq } from '@synonymdev/react-native-ldk';
 import { TAvailableNetworks } from '../networks';
 import { Result, err, ok } from '../result';
-import { ELightningDataType, IDecodedData, TDecodedInput } from '../types';
+import { EIdentifierType, ELightningDataType, IDecodedData, TDecodedInput } from '../types';
 import { getSelectedNetwork } from '../wallet';
 import ldk from '@synonymdev/react-native-ldk/dist/ldk';
 import { addPeer, getLightningStore, getTotalBalance, savePeer } from './helpers';
@@ -9,6 +9,16 @@ import { navigate } from '../../navigation/NavigationService';
 import { Screens } from '../../navigation/Screens';
 import { showErrorBanner, showSuccessBanner, showToast, showWarningBanner } from '../alerts';
 import { cueErrorHaptic, cueSuccessHaptic } from '../accessibility/haptics';
+
+export const validateInternetIdentifier = (internetIdentifier) => {
+  var re = /\S+@\S+\.\S+/;
+  return re.test(internetIdentifier);
+};
+
+const LIGHTNING_SCHEME = 'lightning';
+const BOLT11_SCHEME_MAINNET = 'lnbc';
+const BOLT11_SCHEME_TESTNET = 'lntb';
+const LNURL_SCHEME = 'lnurl';
 
 export const decodeLightningInvoice = ({
   paymentRequest,
@@ -137,8 +147,8 @@ export const decodeQRData = async (
   //Lightning URI or plain lightning payment request
   if (
     data.toLowerCase().indexOf('lightning:') > -1 ||
-    data.toLowerCase().startsWith('lntb') ||
-    data.toLowerCase().startsWith('lnbc')
+    data.toLowerCase().startsWith(BOLT11_SCHEME_TESTNET) ||
+    data.toLowerCase().startsWith(BOLT11_SCHEME_MAINNET)
   ) {
     //If it's a lightning URI, remove "lightning:", everything to the left of it.
     let invoice = data
@@ -393,5 +403,57 @@ export const handleProcessedData = async ({
         dismissAfter: 5000,
       });
       return err('Unable to read or interpret the provided data.');
+  }
+};
+
+/**
+ * This method will attempt to decode the input address/data set under a contact
+ * to determine whether it's valid and acceptable as a persistent identity.
+ * @param identifier
+ * @returns {string}
+ */
+export const parseInputAddress = async (identifier: string) => {
+  if (!identifier || identifier === '') {
+    return null;
+  }
+
+  const inputString = identifier.trim().toLowerCase();
+  let requestCode = inputString;
+
+  // Check if this is a Lightning Address
+  if (validateInternetIdentifier(requestCode)) {
+    return {
+      isLNURL: true,
+      data: EIdentifierType.LNURL,
+    };
+  }
+
+  // Check if Invoice has `lightning` or `lnurl` prefixes
+  // (9 chars + the `:` or `=` chars) --> 10 characters total
+  const hasLightningPrefix = inputString.indexOf(`${LIGHTNING_SCHEME}:`) !== -1;
+  if (hasLightningPrefix) {
+    // Remove the `lightning` prefix
+    requestCode = inputString.slice(10, inputString.length);
+  }
+
+  // (5 chars + the `:` or `=` chars) --> 6 characters total
+  const hasLNURLPrefix = inputString.indexOf(`${LNURL_SCHEME}:`) !== -1;
+  if (hasLNURLPrefix) {
+    // Remove the `lightning` prefix
+    requestCode = inputString.slice(6, inputString.length);
+  }
+
+  // Parse LNURL or BOLT11
+  const isLNURL = requestCode.startsWith(LNURL_SCHEME);
+  if (isLNURL) {
+    return {
+      isLNURL: true,
+      data: EIdentifierType.LNURL,
+    };
+  } else {
+    return {
+      isLNURL: false,
+      data: EIdentifierType.BOLT11_INVOICE,
+    };
   }
 };

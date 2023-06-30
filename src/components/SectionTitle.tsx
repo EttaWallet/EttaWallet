@@ -27,7 +27,6 @@ const SectionTitle = ({ title, details, style }: Props) => {
 const styles = StyleSheet.create({
   titleContainer: {
     backgroundColor: Colors.common.white,
-    paddingHorizontal: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

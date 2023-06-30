@@ -431,3 +431,30 @@ export type TModifyInvoice = {
   payment_hash: TInvoice['payment_hash'];
   modified_request: TInvoice['to_str'];
 };
+
+export enum EIdentifierType {
+  LNURL = 'Lightning address',
+  NODEID = 'Node Id',
+  ONCHAIN_ADDRESS = 'BTC address',
+  BOLT12_OFFER = 'BOLT12 Offer',
+  BOLT11_INVOICE = 'BOLT11 Invoice',
+}
+
+export type TIdentifier = {
+  id: string;
+  label: string;
+  address: string;
+};
+
+export type TContact = {
+  id: string;
+  alias?: string | null;
+  avatarUri?: string | null;
+  identifiers?: TIdentifier[];
+  date_added?: number;
+};
+
+export interface IContactSection {
+  key: string;
+  data: TContact[];
+}
