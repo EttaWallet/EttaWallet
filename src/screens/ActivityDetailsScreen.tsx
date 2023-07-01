@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SafeAreaView, StyleSheet, View, Platform, Text, ScrollView } from 'react-native';
 import { headerWithBackButton } from '../navigation/Headers';
-import { Colors, TypographyPresets } from 'etta-ui';
+import { Button, Colors, TypographyPresets } from 'etta-ui';
 import { moderateScale } from '../utils/sizing';
 import { StackParamList } from '../navigation/types';
 import { Screens } from '../navigation/Screens';
@@ -10,10 +10,10 @@ import { InfoListItem } from '../components/InfoListItem';
 import { humanizeTimestamp } from '../utils/time';
 import i18n from '../i18n';
 import AmountDisplay from '../components/amount/AmountDisplay';
-import SectionTitle from '../components/SectionTitle';
 import { TextInput } from 'react-native-gesture-handler';
 import store from '../state/store';
 import { getLightningStore } from '../utils/lightning/helpers';
+import useContactsBottomSheet from '../components/useContactsBottomSheet';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ActivityDetailsScreen>;
 type Props = RouteProps;
@@ -26,8 +26,11 @@ const ActivityDetailsScreen = ({ route }: Props) => {
   )[0];
   const [userNote, setUserNote] = useState(payment.note!);
 
+  const { openPickContactSheet, PickContactBottomSheet, NewContactBottomSheet } =
+    useContactsBottomSheet({});
+
   const onBlur = () => {
-    const trimmedComment = userNote.trim();
+    const trimmedComment = userNote?.trim();
     setUserNote(trimmedComment);
   };
 
@@ -49,10 +52,16 @@ const ActivityDetailsScreen = ({ route }: Props) => {
           <AmountDisplay
             inputAmount={transaction.invoice.amount_satoshis?.toString()!}
             usingLocalCurrency={false}
+            receivedPayment={true}
+          />
+          <Button
+            title="Link contact"
+            onPress={openPickContactSheet}
+            appearance="outline"
+            size="small"
           />
         </View>
         <View>
-          <SectionTitle title="Transaction details" style={styles.sectionHeader} />
           <TextInput
             style={styles.inputContainer}
             autoFocus={false}
@@ -92,6 +101,8 @@ const ActivityDetailsScreen = ({ route }: Props) => {
             maskValue={true}
           />
         </View>
+        {PickContactBottomSheet}
+        {NewContactBottomSheet}
       </SafeAreaView>
     </ScrollView>
   );
@@ -126,7 +137,9 @@ const styles = StyleSheet.create({
   sectionHeader: {
     paddingTop: 20,
     paddingBottom: 10,
+    paddingLeft: 12,
     borderTopWidth: 1,
+    borderTopColor: Colors.neutrals.light.neutral4,
   },
   total: {
     ...TypographyPresets.Header1,

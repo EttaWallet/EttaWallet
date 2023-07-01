@@ -8,9 +8,10 @@ import { localCurrencyToSats, satsToLocalCurrency } from '../../utils/helpers';
 interface Props {
   inputAmount: string;
   usingLocalCurrency: boolean;
+  receivedPayment?: boolean;
 }
 
-const AmountDisplay = ({ inputAmount, usingLocalCurrency }: Props) => {
+const AmountDisplay = ({ inputAmount, usingLocalCurrency, receivedPayment }: Props) => {
   const [valueInLocalCurrency, setValueInLocalCurrency] = useState(0);
   const [valueInSats, setValueInSats] = useState(0);
   const preferredCurrencyCode = useStoreState((state) => state.nuxt.localCurrency);
@@ -58,7 +59,13 @@ const AmountDisplay = ({ inputAmount, usingLocalCurrency }: Props) => {
             )}
             {!usingLocalCurrency && (
               <View style={styles.symbolContainer}>
-                <Icon name="icon-satoshi-v2" style={styles.btcIcon} />
+                <Icon
+                  name="icon-satoshi-v2"
+                  style={[
+                    styles.btcIcon,
+                    receivedPayment ? { color: Colors.green.base } : { color: Colors.orange.base },
+                  ]}
+                />
               </View>
             )}
             <View style={styles.amountContainer}>
@@ -70,7 +77,7 @@ const AmountDisplay = ({ inputAmount, usingLocalCurrency }: Props) => {
                 minimumFontScale={0.4}
                 selectable={true}
                 ellipsizeMode="tail"
-                style={styles.mainAmount}
+                style={receivedPayment ? styles.receivedPayment : styles.mainAmount}
               >
                 {inputAmount ? inputAmount : 0}
               </Text>
@@ -142,16 +149,20 @@ const styles = StyleSheet.create({
     ...TypographyPresets.Header1,
     fontFamily: fontFamilyChoice,
     width: '100%',
-    paddingRight: 2,
   },
   secondaryAmount: {
     ...TypographyPresets.Body2,
     fontFamily: fontFamilyChoice,
     color: Colors.neutrals.light.neutral7,
   },
+  receivedPayment: {
+    ...TypographyPresets.Header1,
+    fontFamily: fontFamilyChoice,
+    width: '100%',
+    color: Colors.green.base,
+  },
   btcIcon: {
     fontSize: 32,
-    color: '#ff9d00',
   },
 });
 

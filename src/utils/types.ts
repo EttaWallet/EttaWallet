@@ -279,12 +279,6 @@ export enum EPaymentRequestType {
   invoice = 'invoice',
 }
 
-export type TLdkInvoice = TInvoice & {
-  tags: {};
-  note: string;
-  category: EPaymentRequestType;
-};
-
 export type TCreateLightningInvoice = TCreatePaymentReq & {
   selectedNetwork?: TAvailableNetworks;
   checkOpenChannels?: boolean;
@@ -452,6 +446,7 @@ export type TContact = {
   avatarUri?: string | null;
   identifiers?: TIdentifier[];
   date_added?: number;
+  transactions?: string[];
 };
 
 export interface IContactSection {

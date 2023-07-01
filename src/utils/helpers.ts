@@ -4,6 +4,7 @@ import Logger from './logger';
 import { APP_STORE_ID } from '../../config';
 import { err, ok, Result } from './result';
 import store from '../state/store';
+import { TContact } from './types';
 
 export const pressableHitSlop = { top: 10, right: 10, bottom: 10, left: 10 };
 
@@ -98,6 +99,22 @@ export function isVersionInRange(
   }
   return true;
 }
+
+export const nameCompare = (a: TContact, b: TContact) => {
+  const nameA = a.alias?.toUpperCase() ?? '';
+  const nameB = b.alias?.toUpperCase() ?? '';
+
+  if (nameA > nameB) {
+    return 1;
+  } else if (nameA < nameB) {
+    return -1;
+  }
+  return 0;
+};
+
+export const sortContacts = (contacts: TContact[]) => {
+  return contacts?.sort(nameCompare);
+};
 
 export function navigateToURI(uri: string, backupUri?: string) {
   Logger.debug('Navigating to URI', uri);

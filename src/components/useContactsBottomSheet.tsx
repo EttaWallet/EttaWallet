@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import BottomSheet, {
   BottomSheetBackdrop,
+  BottomSheetFlatList,
+  BottomSheetTextInput,
   useBottomSheetDynamicSnapPoints,
 } from '@gorhom/bottom-sheet';
-import { Button, Colors, TypographyPresets } from 'etta-ui';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { Button, Colors, Icon, TypographyPresets } from 'etta-ui';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,6 +22,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { showErrorBanner, showSuccessBanner } from '../utils/alerts';
+import SelectContactItem from './SelectContactItem';
+import { getLightningStore } from '../utils/lightning/helpers';
+import { BottomSheetSearchInput } from './SearchInput';
+import { sortContacts } from '../utils/helpers';
 
 interface Props {
   contact?: TContact;
@@ -34,8 +40,10 @@ const useContactsBottomSheet = (addressProps: Props) => {
   const editContactBottomSheetRef = useRef<BottomSheet>(null);
   const contactMenuBottomSheetRef = useRef<BottomSheet>(null);
   const addAddressBottomSheetRef = useRef<BottomSheet>(null);
+  const pickContactBottomSheetRef = useRef<BottomSheet>(null);
 
   const initialSnapPoints = useMemo(() => ['35%', 'CONTENT_HEIGHT'], []);
+  const pickContactSnapPoints = useMemo(() => ['40%', '75%'], []);
   const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
     useBottomSheetDynamicSnapPoints(initialSnapPoints);
 
@@ -59,6 +67,11 @@ const useContactsBottomSheet = (addressProps: Props) => {
     addAddressBottomSheetRef.current?.snapToIndex(0);
   };
 
+  const openPickContactSheet = () => {
+    cueInformativeHaptic();
+    pickContactBottomSheetRef.current?.snapToIndex(0);
+  };
+
   const renderBackdrop = useCallback(
     (props) => (
       // added opacity here, default is 0.5
@@ -77,6 +90,9 @@ const useContactsBottomSheet = (addressProps: Props) => {
   const [newAddress, setNewAddress] = useState('');
   const [newAddressLabel, setNewAddressLabel] = useState('');
   const [newContactName, setNewContactName] = useState(updatingContact?.alias!);
+  const [searchText, setSearchText] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+  const [allContacts, setAllContacts] = useState<TContact[]>([]);
 
   const NewContactBottomSheet = useMemo(() => {
     const onPressSave = () => {
@@ -417,6 +433,119 @@ const useContactsBottomSheet = (addressProps: Props) => {
     updatingContact,
   ]);
 
+  function onSelect(contact: TContact) {
+    console.log('selected: ', contact.id);
+  }
+
+  const renderItem = useCallback(
+    ({ item: contact }: { item: TContact }) => (
+      <SelectContactItem contact={contact} onSelect={onSelect} isSelected={false} />
+    ),
+    []
+  );
+
+  const renderItemSeparator = () => <View style={styles.separator} />;
+
+  const keyExtractor = (item: TContact) => item.id;
+
+  const filteredContacts = useMemo(() => {
+    if (!searchText) {
+      return allContacts;
+    }
+
+    const filtered = allContacts.filter((contact) =>
+      contact.alias?.toLowerCase().includes(searchText.toLowerCase())
+    );
+
+    return filtered;
+  }, [allContacts, searchText]);
+
+  const refreshContacts = () => {
+    setRefreshing(true);
+    const contacts = getLightningStore().contacts;
+    const sortedContacts = sortContacts(contacts);
+    setAllContacts(sortedContacts);
+    setRefreshing(false);
+    return;
+  };
+
+  useEffect(() => {
+    // get current contacts
+    refreshContacts();
+    console.log('refreshed contact list');
+  }, []);
+
+  const handleContactsRefresh = useCallback(() => {
+    refreshContacts();
+    console.log('refreshing contacts in bottomsheet');
+  }, []);
+
+  const PickContactBottomSheet = useMemo(() => {
+    const NoContactsView = () => (
+      <View style={styles.emptyView}>
+        {searchText !== '' ? (
+          <Text style={styles.emptyText}>{`No results found for ${searchText} `}</Text>
+        ) : (
+          <>
+            <Text style={styles.emptyTitle}>Add your first contact</Text>
+            <Text style={styles.emptyText}>
+              Send and receive more easily, and keep your payments well organized.
+            </Text>
+            <View style={styles.btnContainer}>
+              <Button title="Add contact" style={styles.button} onPress={openNewContactSheet} />
+            </View>
+          </>
+        )}
+      </View>
+    );
+
+    return (
+      <BottomSheet
+        ref={pickContactBottomSheetRef}
+        index={-1}
+        snapPoints={pickContactSnapPoints}
+        handleHeight={animatedHandleHeight}
+        contentHeight={animatedContentHeight}
+        enablePanDownToClose
+        backdropComponent={renderBackdrop}
+        handleIndicatorStyle={styles.handle}
+      >
+        <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
+          <View style={styles.pickContactContainer}>
+            <Text style={styles.title}>Pick a contact</Text>
+            <Icon name="icon-plus" onPress={openNewContactSheet} style={styles.addIcon} />
+          </View>
+          <BottomSheetSearchInput
+            value={searchText}
+            onChangeText={setSearchText}
+            style={styles.searchBox}
+          />
+          <BottomSheetFlatList
+            data={filteredContacts}
+            keyExtractor={keyExtractor}
+            renderItem={renderItem}
+            contentContainerStyle={{ backgroundColor: Colors.common.white }}
+            ItemSeparatorComponent={renderItemSeparator}
+            ListEmptyComponent={NoContactsView}
+            refreshing={false}
+            onRefresh={handleContactsRefresh}
+          />
+        </View>
+      </BottomSheet>
+    );
+  }, [
+    pickContactSnapPoints,
+    animatedHandleHeight,
+    animatedContentHeight,
+    renderBackdrop,
+    paddingBottom,
+    handleContentLayout,
+    searchText,
+    filteredContacts,
+    renderItem,
+    handleContactsRefresh,
+  ]);
+
   return {
     openNewContactSheet,
     NewContactBottomSheet,
@@ -426,6 +555,8 @@ const useContactsBottomSheet = (addressProps: Props) => {
     AddAddressBottomSheet,
     openContactMenuSheet,
     ContactMenuBottomSheet,
+    openPickContactSheet,
+    PickContactBottomSheet,
   };
 };
 
@@ -458,6 +589,41 @@ const styles = StyleSheet.create({
     color: Colors.common.black,
     height: 80,
     maxHeight: 150,
+  },
+  searchBox: {
+    marginVertical: 10,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: Colors.neutrals.light.neutral4,
+  },
+  emptyView: {
+    paddingHorizontal: 24,
+    justifyContent: 'center',
+  },
+  emptyTitle: {
+    ...TypographyPresets.Header5,
+    textAlign: 'center',
+    paddingBottom: 10,
+  },
+  emptyText: {
+    ...TypographyPresets.Body4,
+    color: Colors.neutrals.light.neutral7,
+    textAlign: 'center',
+  },
+  btnContainer: {
+    marginTop: 24,
+  },
+  addIcon: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 18,
+    color: Colors.common.black,
+  },
+  pickContactContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 });
 
