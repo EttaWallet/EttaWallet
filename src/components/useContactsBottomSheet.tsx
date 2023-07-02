@@ -22,10 +22,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { showErrorBanner, showSuccessBanner } from '../utils/alerts';
-import SelectContactItem from './SelectContactItem';
 import { getLightningStore } from '../utils/lightning/helpers';
 import { BottomSheetSearchInput } from './SearchInput';
 import { sortContacts } from '../utils/helpers';
+import ContactItem from './ContactItem';
 
 interface Props {
   contact?: TContact;
@@ -439,7 +439,7 @@ const useContactsBottomSheet = (addressProps: Props) => {
 
   const renderItem = useCallback(
     ({ item: contact }: { item: TContact }) => (
-      <SelectContactItem contact={contact} onSelect={onSelect} isSelected={false} />
+      <ContactItem contact={contact} onSelect={onSelect} isSelected={false} />
     ),
     []
   );

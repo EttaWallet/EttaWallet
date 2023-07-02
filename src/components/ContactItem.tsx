@@ -1,37 +1,48 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { TContact } from '../utils/types';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import ContactAvatar from './ContactAvatar';
 import { Colors, Icon, TypographyPresets } from 'etta-ui';
+import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 
 interface Props {
   contact: TContact;
+  isSelected?: boolean;
+  onSelect?: (contact: TContact) => void;
+  prefix?: string;
+  suffix?: string;
 }
 
-const ContactItem = ({ contact }: Props) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const ContactItem = ({ contact, isSelected, onSelect, prefix, suffix }: Props) => {
   const onPress = () => {
-    navigate(Screens.ContactDetailScreen, {
-      contact: contact,
-    });
+    if (onSelect) {
+      onSelect(contact);
+    } else {
+      navigate(Screens.ContactDetailScreen, {
+        contact: contact,
+      });
+    }
   };
 
   return (
-    <TouchableWithoutFeedback onPress={onPress}>
+    <TouchableOpacity onPress={onPress}>
       <View style={styles.row}>
         <ContactAvatar style={styles.avatar} contact={contact} />
         <View style={styles.contentContainer}>
+          {prefix ? <Text style={styles.prefix}>{prefix}</Text> : null}
           <Text numberOfLines={1} ellipsizeMode={'tail'} style={styles.alias}>
             {contact?.alias}
           </Text>
+          {suffix ? <Text style={styles.suffix}>{suffix}</Text> : null}
         </View>
         <View style={styles.rightIconContainer}>
           <Icon name="icon-caret-right" style={styles.icon} />
         </View>
       </View>
-    </TouchableWithoutFeedback>
+    </TouchableOpacity>
   );
 };
 
@@ -59,6 +70,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  prefix: {
+    ...TypographyPresets.Body5,
+    color: Colors.neutrals.light.neutral7,
+  },
+  suffix: {
+    ...TypographyPresets.Body5,
+    color: Colors.neutrals.light.neutral7,
+  },
 });
 
-export default memo(ContactItem);
+export default ContactItem;
