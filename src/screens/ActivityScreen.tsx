@@ -97,7 +97,9 @@ const TransactionItem = ({ invoice, type, memo }: TransactionItemProps) => {
         )}
         <View style={styles.transactionContent}>
           <Text style={styles.transactionTitle}>{invoice.description}</Text>
-          <Text style={styles.transactionSubtitle}>{transactionSubText}</Text>
+          <Text style={styles.transactionSubtitle} numberOfLines={1}>
+            {transactionSubText}
+          </Text>
         </View>
         <View style={styles.transactionAmountContainer}>
           <TransactionAmount
