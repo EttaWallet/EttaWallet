@@ -290,7 +290,7 @@ export type TLightningPayment = {
   fee?: number; // if necessitated channel open
   tags?: {};
   note?: string;
-  contact?: string; // if assigned to contact
+  contact?: TContact; // if assigned to contact
 };
 
 export type TLightningNodeVersion = {

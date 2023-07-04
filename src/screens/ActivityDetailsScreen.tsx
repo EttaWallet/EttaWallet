@@ -38,8 +38,7 @@ const ActivityDetailsScreen = ({ route }: Props) => {
     (p) => p.invoice.payment_hash === transaction.invoice.payment_hash
   )[0];
   const [userNote, setUserNote] = useState(payment.note!);
-  const [hasTags, setHasTags] = useState(false);
-  const [selectedContact, setSelectedContact] = useState<TContact>();
+  const [selectedContact, setSelectedContact] = useState<TContact>(payment?.contact!);
 
   const [searchText, setSearchText] = useState('');
   const [refreshing, setRefreshing] = useState(false);
@@ -85,7 +84,7 @@ const ActivityDetailsScreen = ({ route }: Props) => {
     store.dispatch.lightning.updatePayment({
       invoice: transaction.invoice,
       type: transaction.type,
-      contact: selectedContact?.id,
+      contact: selectedContact,
     });
   }, [selectedContact]);
 
@@ -194,7 +193,7 @@ const ActivityDetailsScreen = ({ route }: Props) => {
             contentContainerStyle={{ backgroundColor: Colors.common.white }}
             ItemSeparatorComponent={renderItemSeparator}
             ListEmptyComponent={NoContactsView}
-            refreshing={false}
+            refreshing={refreshing}
             onRefresh={handleContactsRefresh}
           />
         </View>
@@ -257,7 +256,7 @@ const ActivityDetailsScreen = ({ route }: Props) => {
             onBlur={onBlur}
             blurOnSubmit={true}
           />
-          {hasTags ? (
+          {/* {hasTags ? (
             <>
               <ContactItem contact={fakeContact} prefix="From" />
               <ActivitySeparator />
@@ -269,7 +268,7 @@ const ActivityDetailsScreen = ({ route }: Props) => {
               onPress={openPickContactSheet}
               highlightValue={true}
             />
-          )}
+          )} */}
           <InfoListItem
             title="When"
             value={humanizeTimestamp(transaction.invoice.timestamp, i18n)}
