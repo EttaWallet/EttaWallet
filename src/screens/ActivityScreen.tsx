@@ -73,10 +73,11 @@ type TransactionItemProps = {
   invoice: TInvoice;
   type: EPaymentType;
   showFiat?: boolean;
+  memo?: string;
 };
 
-const TransactionItem = ({ invoice, type }: TransactionItemProps) => {
-  const transactionDate = humanizeTimestamp(invoice.timestamp, i18n);
+const TransactionItem = ({ invoice, type, memo }: TransactionItemProps) => {
+  const transactionSubText = memo ?? humanizeTimestamp(invoice.timestamp, i18n);
   return (
     <TouchableOpacity
       disabled={false}
@@ -96,7 +97,7 @@ const TransactionItem = ({ invoice, type }: TransactionItemProps) => {
         )}
         <View style={styles.transactionContent}>
           <Text style={styles.transactionTitle}>{invoice.description}</Text>
-          <Text style={styles.transactionSubtitle}>{transactionDate}</Text>
+          <Text style={styles.transactionSubtitle}>{transactionSubText}</Text>
         </View>
         <View style={styles.transactionAmountContainer}>
           <TransactionAmount
@@ -129,7 +130,14 @@ const ActivityScreen = ({}: Props) => {
   }
 
   function renderItem({ item: tx }: { item: TLightningPayment; index: number }) {
-    return <TransactionItem key={tx.invoice.payment_hash} invoice={tx.invoice} type={tx.type} />;
+    return (
+      <TransactionItem
+        key={tx.invoice.payment_hash}
+        invoice={tx.invoice}
+        type={tx.type}
+        memo={tx.note}
+      />
+    );
   }
 
   const fetchMoreActivity = () => {
