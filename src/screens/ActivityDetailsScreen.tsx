@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { SafeAreaView, StyleSheet, View, Platform, Text, ScrollView } from 'react-native';
+import { SafeAreaView, StyleSheet, View, Platform, Text, ScrollView, LogBox } from 'react-native';
 import { headerWithBackButton } from '../navigation/Headers';
 import { Button, Colors, Icon, TypographyPresets } from 'etta-ui';
 import { moderateScale } from '../utils/sizing';
@@ -32,6 +32,10 @@ type RouteProps = NativeStackScreenProps<StackParamList, Screens.ActivityDetails
 type Props = RouteProps;
 
 const ActivityDetailsScreen = ({ route }: Props) => {
+  // @TODO: Fix the issue on the bottomsheetFlatList when picking a contact.
+  useEffect(() => {
+    LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
+  }, []);
   const { transaction } = route.params;
   // get transaction in question from payments object in lightning store
   const payment = Object.values(getLightningStore().payments).filter(
@@ -195,6 +199,8 @@ const ActivityDetailsScreen = ({ route }: Props) => {
             ListEmptyComponent={NoContactsView}
             refreshing={refreshing}
             onRefresh={handleContactsRefresh}
+            ListHeaderComponent={null}
+            ListFooterComponent={null}
           />
         </View>
       </BottomSheet>
