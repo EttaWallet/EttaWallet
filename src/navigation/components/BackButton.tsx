@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet, BackHandler } from 'react-native';
-import { Chip } from 'etta-ui';
+import { View, StyleSheet, BackHandler, Text } from 'react-native';
+import { Colors, Icon } from 'etta-ui';
 import { navigateBack } from '../NavigationService';
 import { useTranslation } from 'react-i18next';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { pressableHitSlop } from '../../utils/helpers';
 
 interface Props {
   title?: string;
@@ -23,11 +25,16 @@ const BackButton = ({ title }: Props) => {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Chip icon="icon-caret-left" onPress={onPressBack}>
-        {title ? title : t('navigationLabels.back')}
-      </Chip>
-    </View>
+    <TouchableWithoutFeedback
+      onPress={onPressBack}
+      style={styles.container}
+      hitSlop={pressableHitSlop}
+    >
+      <View style={styles.iconContainer}>
+        <Icon name="icon-caret-left" style={styles.icon} />
+      </View>
+      {title ? <Text style={styles.text}>{title ? title : t('navigationLabels.back')}</Text> : null}
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -36,6 +43,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  icon: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    fontSize: 20,
+    color: Colors.common.black,
+  },
+  iconContainer: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    width: 20,
+    height: 20,
+  },
+  text: {
+    fontSize: 18,
+    lineHeight: 18,
+    fontWeight: '500',
   },
 });
 

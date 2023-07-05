@@ -4,7 +4,7 @@ import Logger from './logger';
 import { APP_STORE_ID } from '../../config';
 import { err, ok, Result } from './result';
 import store from '../state/store';
-import { TContact } from './types';
+import { TContact, TLightningPayment } from './types';
 
 export const pressableHitSlop = { top: 10, right: 10, bottom: 10, left: 10 };
 
@@ -114,6 +114,22 @@ export const nameCompare = (a: TContact, b: TContact) => {
 
 export const sortContacts = (contacts: TContact[]) => {
   return contacts?.sort(nameCompare);
+};
+
+export const txCompare = (a: TLightningPayment, b: TLightningPayment) => {
+  const txA = a.invoice.timestamp ?? null;
+  const txB = b.invoice.timestamp ?? null;
+
+  if (txA < txB) {
+    return 1;
+  } else if (txA > txB) {
+    return -1;
+  }
+  return 0;
+};
+
+export const sortTxs = (transactions: TLightningPayment[]) => {
+  return transactions?.sort(txCompare);
 };
 
 export function navigateToURI(uri: string, backupUri?: string) {

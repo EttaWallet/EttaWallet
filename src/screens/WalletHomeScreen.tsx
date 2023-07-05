@@ -28,6 +28,7 @@ import { Screens } from '../navigation/Screens';
 import useSendBottomSheet from '../components/useSendBottomSheet';
 import useSettingsBottomSheet from '../components/useSettingsBottomSheet';
 import AmountDisplay from '../components/amount/AmountDisplay';
+import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
@@ -68,6 +69,8 @@ const WalletHomeScreen = () => {
   const paymentsStore = getLightningStore().payments;
   const transactions = Object.values(paymentsStore);
   const recentTxCount = countRecentTransactions(transactions);
+  const allTxCount = transactions.length;
+  const absoluteTxCount = allTxCount > recentTxCount ? allTxCount : recentTxCount;
 
   // add sections showing balance, most recent transaction and a prompt to show all transactions. Keep clean
   const sections = [];
@@ -85,7 +88,9 @@ const WalletHomeScreen = () => {
       <View style={styles.transactionsSection}>
         <TouchableOpacity onPress={onPressTransactions} style={styles.transactionsPill}>
           <Icon style={styles.transactionsIcon} name="icon-caret-up" />
-          <Text style={styles.transactionsUpdate}>{`${recentTxCount} recent transactions`}</Text>
+          <Text style={styles.transactionsUpdate}>
+            {absoluteTxCount > 0 ? `${absoluteTxCount} recent transactions` : 'Transaction history'}
+          </Text>
         </TouchableOpacity>
       </View>
     ),
@@ -105,10 +110,12 @@ const WalletHomeScreen = () => {
   };
 
   const onPressTransactions = () => {
+    cueInformativeHaptic();
     navigate(Screens.ActivityScreen);
   };
 
   const onPressRequest = () => {
+    cueInformativeHaptic();
     navigate(Screens.EnterAmountScreen);
   };
 
@@ -118,7 +125,10 @@ const WalletHomeScreen = () => {
         middleElement={<NodeStatus />}
         leftElement={<ContactsButton />}
         scrollPosition={scrollPosition}
-        onPressLogo={openSettingsSheet}
+        onPressLogo={() => {
+          cueInformativeHaptic();
+          openSettingsSheet();
+        }}
       />
       <AnimatedSectionList
         scrollEventThrottle={16}

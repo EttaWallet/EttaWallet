@@ -25,6 +25,8 @@ import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import { navigate } from '../navigation/NavigationService';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TransactionAmount from '../components/TransactionAmount';
+import { sortTxs } from '../utils/helpers';
+import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ActivityScreen>;
 type Props = RouteProps;
@@ -81,9 +83,10 @@ const TransactionItem = ({ invoice, type, memo }: TransactionItemProps) => {
   return (
     <TouchableOpacity
       disabled={false}
-      onPress={() =>
-        navigate(Screens.ActivityDetailsScreen, { transaction: { invoice: invoice, type: type } })
-      }
+      onPress={() => {
+        cueInformativeHaptic();
+        navigate(Screens.ActivityDetailsScreen, { transaction: { invoice: invoice, type: type } });
+      }}
     >
       <View style={styles.transactionContainer}>
         {type === EPaymentType.sent ? (
@@ -117,7 +120,7 @@ const ActivityScreen = ({}: Props) => {
   const [fetchingTransactions, setIsFetchingTransactions] = useState(false);
 
   const paymentsStore = getLightningStore().payments;
-  const transactions = Object.values(paymentsStore);
+  const transactions = sortTxs(Object.values(paymentsStore));
 
   const sections = useMemo(() => {
     if (transactions.length === 0) {

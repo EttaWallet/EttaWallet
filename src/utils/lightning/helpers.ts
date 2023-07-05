@@ -945,12 +945,12 @@ export function groupActivityInSections<T extends { timestamp: number }>(
 
   const sectionsArray = Object.entries(sectionsMap).map(([key, value]) => ({
     title: key,
-    data: value.data.sort((a, b) => b.timestamp - a.timestamp), // Sort the data in descending order of timestamp
+    data: value.data.sort((a, b) => a.timestamp - b.timestamp), // Sort the data in descending order of timestamp
   }));
 
-  const sortedSections = sectionsArray.sort((a, b) => b.data[0].timestamp - a.data[0].timestamp);
+  // const sortedSections = sectionsArray.sort((a, b) => b.data[0].timestamp - a.data[0].timestamp);
 
-  return sortedSections;
+  return sectionsArray;
 }
 
 export function countRecentTransactions(payments: TLightningPayment[]): number {

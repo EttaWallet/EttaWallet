@@ -199,8 +199,6 @@ const ActivityDetailsScreen = ({ route }: Props) => {
             ListEmptyComponent={NoContactsView}
             refreshing={refreshing}
             onRefresh={handleContactsRefresh}
-            ListHeaderComponent={null}
-            ListFooterComponent={null}
           />
         </View>
       </BottomSheet>
@@ -311,7 +309,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
-    padding: 16,
+    paddingHorizontal: 5,
   },
   text: {
     color: Colors.neutrals.light.neutral6,
