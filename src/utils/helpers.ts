@@ -5,6 +5,7 @@ import { APP_STORE_ID } from '../../config';
 import { err, ok, Result } from './result';
 import store from '../state/store';
 import { TContact, TLightningPayment } from './types';
+import { showErrorBanner } from './alerts';
 
 export const pressableHitSlop = { top: 10, right: 10, bottom: 10, left: 10 };
 
@@ -183,33 +184,46 @@ export const getLocalCurrencyExchangeRate = async (): Promise<number> => {
 };
 
 export const satsToLocalCurrency = async ({ amountInSats }: { amountInSats: number }) => {
-  const rate = await getLocalCurrencyExchangeRate();
-  let valueInBtc = amountInSats / 100000000;
-  const value = rate * valueInBtc;
-  let finalValue;
+  try {
+    const rate = await getLocalCurrencyExchangeRate();
+    let valueInBtc = amountInSats / 100000000;
+    const value = rate * valueInBtc;
+    let finalValue;
 
-  if (value >= 0.005 || value <= -0.005) {
-    finalValue = value.toFixed(0);
-  } else {
-    finalValue = value.toPrecision(1);
+    if (value >= 0.005 || value <= -0.005) {
+      finalValue = value.toFixed(0);
+    } else {
+      finalValue = value.toPrecision(1);
+    }
+
+    return finalValue;
+  } catch (e) {
+    showErrorBanner({
+      title: 'Exchange rate error',
+      message: e.message,
+    });
   }
-
-  return finalValue;
 };
 
 export const localCurrencyToSats = async ({ localAmount }: { localAmount: number }) => {
-  const rate = await getLocalCurrencyExchangeRate();
-  const value = localAmount * (100000000 / rate);
+  try {
+    const rate = await getLocalCurrencyExchangeRate();
+    const value = localAmount * (100000000 / rate);
 
-  let finalValue;
+    let finalValue;
 
-  if (value >= 0.005 || value <= -0.005) {
-    finalValue = value.toFixed(0);
-  } else {
-    finalValue = value.toPrecision(1);
+    if (value >= 0.005 || value <= -0.005) {
+      finalValue = value.toFixed(0);
+    } else {
+      finalValue = value.toPrecision(1);
+    }
+
+    return finalValue;
+  } catch (e) {
+    showErrorBanner({
+      message: e.message,
+    });
   }
-
-  return finalValue;
 };
 
 /**
