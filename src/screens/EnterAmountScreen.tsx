@@ -54,7 +54,7 @@ const EnterAmountScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.contentContainer}>
         <AmountDisplay inputAmount={amountEntered} usingLocalCurrency={isUsingLocalCurrency} />
         {preferredCurrencyCode !== null ? (

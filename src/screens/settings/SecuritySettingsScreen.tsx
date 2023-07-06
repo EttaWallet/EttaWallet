@@ -47,7 +47,7 @@ const SecuritySettingsScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <SettingsItemWithTextValue title="Change PIN" onPress={onPressChangePin} withChevron={true} />
       {supportedBiometryType && (
         <SettingsItemSwitch

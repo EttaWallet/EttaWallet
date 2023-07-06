@@ -1,14 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import {
-  SafeAreaView,
-  StyleSheet,
-  View,
-  Platform,
-  ActivityIndicator,
-  Dimensions,
-  Text,
-} from 'react-native';
+import { StyleSheet, View, Platform, ActivityIndicator, Dimensions, Text } from 'react-native';
 import { headerWithBackButton } from '../navigation/Headers';
 import {
   addPeers,
@@ -29,6 +21,7 @@ import { humanizeTimestamp } from '../utils/time';
 import { showErrorBanner } from '../utils/alerts';
 import { navigate } from '../navigation/NavigationService';
 import CancelButton from '../navigation/components/CancelButton';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
 const QR_CODE_WIDTH = WINDOW_WIDTH - 150;
@@ -118,7 +111,7 @@ const ReceiveScreen = ({ navigation, route }: Props) => {
   }, [amount]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.headerContainer}>
         <Text style={styles.heading}>Share payment request</Text>
         <Text style={styles.text}>Keep the app open until the payment is received</Text>

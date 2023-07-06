@@ -36,8 +36,8 @@ const AvatarPicker = ({ avatar, onImageChosen, contact }: Props) => {
         cropperCancelText: t('cancel') ?? undefined,
       });
       if (image) {
-        // @ts-ignore
-        onPhotoChosen(getDataURL(image.mime, image.data));
+        //@ts-ignore
+        onImageChosen(getDataURL(image.mime, image.data));
       }
     } catch (e) {
       const MISSING_PERMISSION_ERR_MSG = 'Required permission missing';
@@ -87,9 +87,9 @@ const AvatarPicker = ({ avatar, onImageChosen, contact }: Props) => {
       <OptionsActionSheet
         isVisible={showOptions}
         options={[
-          t('chooseFromLibrary'),
-          t('takePhoto'),
-          showRemoveOption ? t('removePhoto') : '',
+          'Choose from Photo Library',
+          'Take Photo with Camera',
+          showRemoveOption ? 'Remove avatar' : '',
         ].filter((option) => option.length > 0)}
         includeCancelButton={true}
         isLastOptionDestructive={showRemoveOption}

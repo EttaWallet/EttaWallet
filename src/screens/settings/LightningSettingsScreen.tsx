@@ -52,7 +52,7 @@ const LightningSettingsScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <SectionTitle title="Defaults" style={styles.sectionHeading} />
       <SettingsItemWithTextValue
         title="Default payment description"
@@ -109,8 +109,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   sectionHeading: {
-    marginTop: 20,
-    marginBottom: 8,
+    marginVertical: 10,
+    marginHorizontal: 16,
   },
 });
 

@@ -72,7 +72,7 @@ const TotalAmountDisplay = ({ totalAmount, usingLocalCurrency }: Props) => {
                 ellipsizeMode="tail"
                 style={styles.mainAmount}
               >
-                {totalAmount ? totalAmount : 0}
+                {totalAmount ? totalAmount.toLocaleString() : 0}
               </Text>
             </View>
           </View>
@@ -92,7 +92,7 @@ const TotalAmountDisplay = ({ totalAmount, usingLocalCurrency }: Props) => {
               )}
               <View style={styles.amountContainer}>
                 <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.secondaryAmount}>
-                  {secondaryAmount}
+                  {secondaryAmount.toLocaleString()}
                 </Text>
               </View>
               {usingLocalCurrency && (

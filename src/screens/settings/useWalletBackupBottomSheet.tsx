@@ -31,6 +31,7 @@ const useWalletBackupBottomSheet = () => {
   const [mnemonic, setMnemonic] = useState<string[]>([]);
 
   const initialSnapPoints = useMemo(() => ['CONTENT_HEIGHT'], []);
+  const phraseContainerSnapPoints = useMemo(() => ['85%'], []);
   const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
     useBottomSheetDynamicSnapPoints(initialSnapPoints);
 
@@ -129,9 +130,7 @@ const useWalletBackupBottomSheet = () => {
       <BottomSheet
         ref={recoveryPhraseBottomSheetRef}
         index={-1}
-        snapPoints={animatedSnapPoints}
-        handleHeight={animatedHandleHeight}
-        contentHeight={animatedContentHeight}
+        snapPoints={phraseContainerSnapPoints}
         enablePanDownToClose
         backdropComponent={renderBackdrop}
         handleIndicatorStyle={styles.handle}
@@ -173,9 +172,7 @@ const useWalletBackupBottomSheet = () => {
       </BottomSheet>
     );
   }, [
-    animatedSnapPoints,
-    animatedHandleHeight,
-    animatedContentHeight,
+    phraseContainerSnapPoints,
     renderBackdrop,
     paddingBottom,
     handleContentLayout,

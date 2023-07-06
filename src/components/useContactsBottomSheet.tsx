@@ -42,7 +42,7 @@ const useContactsBottomSheet = (addressProps: Props) => {
   const addAddressBottomSheetRef = useRef<BottomSheet>(null);
   const pickContactBottomSheetRef = useRef<BottomSheet>(null);
 
-  const initialSnapPoints = useMemo(() => ['35%', 'CONTENT_HEIGHT'], []);
+  const initialSnapPoints = useMemo(() => ['45%', 'CONTENT_HEIGHT'], []);
   const pickContactSnapPoints = useMemo(() => ['40%', '75%'], []);
   const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
     useBottomSheetDynamicSnapPoints(initialSnapPoints);
@@ -527,7 +527,7 @@ const useContactsBottomSheet = (addressProps: Props) => {
             contentContainerStyle={{ backgroundColor: Colors.common.white }}
             ItemSeparatorComponent={renderItemSeparator}
             ListEmptyComponent={NoContactsView}
-            refreshing={false}
+            refreshing={refreshing}
             onRefresh={handleContactsRefresh}
           />
         </View>
@@ -543,6 +543,7 @@ const useContactsBottomSheet = (addressProps: Props) => {
     searchText,
     filteredContacts,
     renderItem,
+    refreshing,
     handleContactsRefresh,
   ]);
 

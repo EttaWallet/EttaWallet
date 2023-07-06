@@ -29,6 +29,7 @@ import useSendBottomSheet from '../components/useSendBottomSheet';
 import useSettingsBottomSheet from '../components/useSettingsBottomSheet';
 import AmountDisplay from '../components/amount/AmountDisplay';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
+import useContactsBottomSheet from '../components/useContactsBottomSheet';
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
@@ -38,6 +39,7 @@ const WalletHomeScreen = () => {
   const balance = getLightningStore().claimableBalance;
 
   const { openOptionsSheet, sendOptionsBottomSheet } = useSendBottomSheet({});
+  const { PickContactBottomSheet } = useContactsBottomSheet({});
 
   const { openSettingsSheet, settingsBottomSheet } = useSettingsBottomSheet();
   const [refreshing, setRefreshing] = useState(false);
@@ -145,6 +147,7 @@ const WalletHomeScreen = () => {
       <HomeActionsBar onPressSend={openOptionsSheet} onPressRequest={onPressRequest} />
       {sendOptionsBottomSheet}
       {settingsBottomSheet}
+      {PickContactBottomSheet}
     </SafeAreaView>
   );
 };

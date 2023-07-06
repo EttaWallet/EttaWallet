@@ -109,7 +109,7 @@ const useSendBottomSheet = (sendProps: Props) => {
 
     const onPressContact = () => {
       cueInformativeHaptic();
-      // open scanner
+      // open contacts bottomsheet
       console.info('@SendOptions: chose contacts');
       //   sendOptionsBottomSheetRef.current?.close();
     };

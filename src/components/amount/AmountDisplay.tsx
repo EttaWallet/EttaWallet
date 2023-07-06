@@ -79,7 +79,7 @@ const AmountDisplay = ({ inputAmount, usingLocalCurrency, receivedPayment }: Pro
                 ellipsizeMode="tail"
                 style={receivedPayment ? styles.receivedPayment : styles.mainAmount}
               >
-                {inputAmount ? inputAmount : 0}
+                {inputAmount ? inputAmount.toLocaleString() : 0}
               </Text>
             </View>
           </View>
@@ -99,7 +99,7 @@ const AmountDisplay = ({ inputAmount, usingLocalCurrency, receivedPayment }: Pro
               )}
               <View style={styles.amountContainer}>
                 <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.secondaryAmount}>
-                  {secondaryAmount}
+                  {secondaryAmount.toLocaleString()}
                 </Text>
               </View>
               {usingLocalCurrency && (

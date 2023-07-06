@@ -15,6 +15,7 @@ import { maskString, pressableHitSlop } from '../utils/helpers';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { getLightningStore } from '../utils/lightning/helpers';
 import useContactsBottomSheet from '../components/useContactsBottomSheet';
+import store from '../state/store';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ContactDetailScreen>;
 type Props = RouteProps;
@@ -36,7 +37,9 @@ export const sortAddresses = (identifiers: TIdentifier[]) => {
 };
 
 const ContactDetailScreen = ({ route, navigation }: Props) => {
-  const contact = route.params.contact!;
+  const routedContact = route.params.contact!;
+  const contact = getLightningStore().contacts.filter((c) => c.id === routedContact.id)[0];
+  const [newAvatarUri, setNewAvatarUri] = useState(contact?.avatarUri);
 
   const {
     openAddAddressSheet,
@@ -61,8 +64,6 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation]);
 
-  const [newAvatarUri, setNewAvatarUri] = useState(contact?.avatarUri || null);
-
   const onAvatarChosen = async (avatarDataUrl: string | null) => {
     if (!avatarDataUrl) {
       setNewAvatarUri(null);
@@ -70,6 +71,14 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
       try {
         const newAvatarPath = await saveContactAvatar(avatarDataUrl, contact.id);
         setNewAvatarUri(newAvatarPath);
+        const payload: TContact = {
+          id: contact.id,
+          avatarUri: newAvatarPath,
+        };
+        store.dispatch.lightning.updateContact({
+          contactId: contact.id,
+          updatedContact: payload,
+        });
       } catch (error) {
         console.log(error.message || "Avatar wasn't uploaded right");
       }
@@ -129,7 +138,11 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.profileContainer}>
-        <AvatarPicker avatar={newAvatarUri} onImageChosen={onAvatarChosen} contact={contact} />
+        <AvatarPicker
+          avatar={newAvatarUri || null}
+          onImageChosen={onAvatarChosen}
+          contact={contact}
+        />
         <Text style={styles.alias}>{contact?.alias}</Text>
         <View style={styles.ctaContainer}>
           <Button

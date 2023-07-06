@@ -79,7 +79,7 @@ const ReviewRequestScreen = ({ navigation, route }: Props) => {
   }, [totalReceivable, invoiceFees]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.contentContainer}>
         <View style={styles.titleContainer}>
           <FormLabel style={styles.title}>You are requesting</FormLabel>
@@ -123,6 +123,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
+    marginTop: 24,
   },
   titleContainer: {
     alignItems: 'center',

@@ -54,7 +54,7 @@ const LanguageChooser = ({ route }: Props) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <Text style={styles.title}>{t('selectLanguage')}</Text>
       <FlatList
         initialNumToRender={localesList.length}

@@ -41,7 +41,7 @@ const WalletBackupScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <SectionTitle
         title="Automatic cloud backups"
         details="Last backup: "
@@ -99,7 +99,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   sectionHeading: {
-    marginVertical: 16,
+    marginVertical: 10,
+    marginHorizontal: 16,
   },
 });
 

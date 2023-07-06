@@ -46,7 +46,7 @@ const CurrencyChooserScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <Text style={styles.title}>{t('selectCurrency')}</Text>
       <FlatList
         style={styles.container}

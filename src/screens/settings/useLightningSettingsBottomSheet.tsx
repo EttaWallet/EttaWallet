@@ -34,7 +34,7 @@ const useLightningSettingsBottomSheet = () => {
 
   const dispatch = useStoreDispatch();
 
-  const initialSnapPoints = useMemo(() => ['CONTENT_HEIGHT'], []);
+  const initialSnapPoints = useMemo(() => ['60%'], []);
   const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
     useBottomSheetDynamicSnapPoints(initialSnapPoints);
 
@@ -79,11 +79,6 @@ const useLightningSettingsBottomSheet = () => {
   );
 
   const updateDescriptionBottomSheet = useMemo(() => {
-    const onPressCancel = () => {
-      cueInformativeHaptic();
-      updateDescriptionBottomSheetRef.current?.close();
-    };
-
     const onPressUpdate = () => {
       dispatch.lightning.setDefaultPRDescription(newDescription);
       updateDescriptionBottomSheetRef.current?.close();
@@ -101,9 +96,6 @@ const useLightningSettingsBottomSheet = () => {
         handleIndicatorStyle={styles.handle}
       >
         <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
-          <View style={styles.cancelBtn}>
-            <CancelButton onCancel={onPressCancel} />
-          </View>
           <FormInput
             label={t('Default description (max 25char)')}
             style={styles.field}
@@ -142,11 +134,6 @@ const useLightningSettingsBottomSheet = () => {
       updateExpiryBottomSheetRef.current?.close();
     };
 
-    const onPressCancel = () => {
-      cueInformativeHaptic();
-      updateExpiryBottomSheetRef.current?.close();
-    };
-
     const onSelect = (title: string, option: number) => {
       // eslint-disable-next-line no-void
       void setNewExpiry(option);
@@ -164,9 +151,6 @@ const useLightningSettingsBottomSheet = () => {
         handleIndicatorStyle={styles.handle}
       >
         <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
-          <View style={styles.cancelBtn}>
-            <CancelButton onCancel={onPressCancel} />
-          </View>
           <Text style={styles.title}>{t('Choose default expiry')}</Text>
           <RadioCardOption
             hideRadio={!true}

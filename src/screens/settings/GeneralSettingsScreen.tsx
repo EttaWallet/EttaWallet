@@ -33,7 +33,7 @@ const GeneralSettingsScreen = ({ navigation, route }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <SettingsItemWithTextValue
         title="Language"
         value={locales[currentLanguage ?? '']?.name ?? t('unknown')!}

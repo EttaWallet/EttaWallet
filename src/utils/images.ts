@@ -1,5 +1,6 @@
 import * as RNFS from 'react-native-fs';
-import Logger from './logger';
+import { showSuccessBanner } from './alerts';
+import { cueSuccessHaptic } from './accessibility/haptics';
 
 const mimeTypeToExtension: { [key: string]: string | undefined } = {
   'image/png': 'png',
@@ -25,15 +26,18 @@ export const saveImageDataUrlToFile = async (
   const mimeType = dataUrl.split(':')[1].split(',')[0].split(';')[0];
   const extension = mimeTypeToExtension[mimeType] || 'jpg';
   const fileName = `${fileNameWithoutExtension}.${extension}`;
-  const data = dataUrl.substr(dataUrl.indexOf(',') + 1);
+  const data = dataUrl.substring(dataUrl.indexOf(',') + 1);
   await RNFS.writeFile(fileName, data, 'base64');
-  Logger.info('Image saved successfully');
+  cueSuccessHaptic();
+  showSuccessBanner({
+    message: 'New avatar looks great',
+  });
   return fileName;
 };
 
 export const saveContactAvatar = async (dataUrl: string, contactId: string): Promise<string> => {
   return saveImageDataUrlToFile(
     dataUrl,
-    `file://${RNFS.DocumentDirectoryPath}/avatars/${contactId}`
+    `file://${RNFS.DocumentDirectoryPath}/avatars-${contactId}`
   );
 };

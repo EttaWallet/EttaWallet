@@ -114,7 +114,7 @@ const ContactsScreen = ({ navigation }) => {
   }, []);
 
   return (
-    <SafeAreaView style={styles.body} edges={['top']}>
+    <SafeAreaView style={styles.body} edges={['bottom']}>
       <SafeAreaInsetsContext.Consumer>
         {(insets) => (
           <>

@@ -153,7 +153,7 @@ const ActivityScreen = ({}: Props) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.headerContainer}>
         <Text style={styles.title}>All Transactions</Text>
       </View>
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   headerContainer: {
-    marginVertical: 5,
+    marginBottom: 5,
   },
   title: {
     ...TypographyPresets.Header5,

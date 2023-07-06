@@ -26,7 +26,6 @@ const SectionTitle = ({ title, details, style }: Props) => {
 
 const styles = StyleSheet.create({
   titleContainer: {
-    backgroundColor: Colors.common.white,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -36,8 +35,6 @@ const styles = StyleSheet.create({
     color: Colors.common.black,
   },
   detailsContainer: {
-    backgroundColor: Colors.common.white,
-    paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
   },
