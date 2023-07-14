@@ -44,30 +44,16 @@ const FeedHeader = ({ text, style }: FeedHeaderProps) => {
   );
 };
 
-interface NoActivityProps {
-  loading: boolean;
-  error: boolean | undefined;
-}
-
-const NoActivity = ({ loading, error }: NoActivityProps) => {
+const NoActivity = () => {
   const { t } = useTranslation();
-  if (error) {
-    return (
-      <View style={styles.noActivityContainer}>
-        <Text style={styles.noActivityText}>
-          {t('Unable to load activity. Please try again later')}
-        </Text>
-      </View>
-    );
-  }
 
   return (
-    <View style={styles.noActivityContainer}>
-      {loading && (
-        <ActivityIndicator style={styles.noActivityIcon} size="large" color={Colors.orange.base} />
-      )}
+    <SafeAreaView style={styles.noActivityContainer} edges={['bottom']}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.title}>Nothing to see here yet</Text>
+      </View>
       <Text style={styles.noActivityText}>{t('There are no transactions at this time.')}</Text>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -131,7 +117,7 @@ const ActivityScreen = ({}: Props) => {
   }, [transactions]);
 
   if (!transactions.length) {
-    return <NoActivity loading={false} error={false} />;
+    return <NoActivity />;
   }
 
   function renderItem({ item: tx }: { item: TLightningPayment; index: number }) {
@@ -233,7 +219,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
-    paddingHorizontal: 16,
   },
   noActivityIcon: {
     marginVertical: 20,

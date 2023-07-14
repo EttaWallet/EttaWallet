@@ -221,6 +221,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   emptyView: {
+    flex: 1,
     paddingHorizontal: 24,
     justifyContent: 'center',
   },

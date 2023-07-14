@@ -11,6 +11,7 @@ import { SettingsItemWithIcon } from './InfoListItem';
 import CancelButton from '../navigation/components/CancelButton';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
+import { wipeEttaWallet } from '../utils/helpers';
 
 const useSettingsBottomSheet = () => {
   const insets = useSafeAreaInsets();
@@ -113,6 +114,12 @@ const useSettingsBottomSheet = () => {
             withIcon={true}
             icon="icon-question"
             onPress={onPressContact}
+          />
+          <SettingsItemWithIcon
+            title="Reset EttaWallet"
+            withIcon={true}
+            icon="icon-cross"
+            onPress={wipeEttaWallet}
           />
         </View>
       </BottomSheet>

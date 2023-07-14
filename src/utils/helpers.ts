@@ -5,7 +5,11 @@ import { APP_STORE_ID } from '../../config';
 import { err, ok, Result } from './result';
 import store from '../state/store';
 import { TContact, TLightningPayment } from './types';
-import { showErrorBanner } from './alerts';
+import { showErrorBanner, showSuccessBanner } from './alerts';
+import { removePinFromKeyChain, wipeEntireKeychain } from './keychain';
+import { wipeLdkStorage } from './lightning/helpers';
+import mmkvStorage from '../storage/disk';
+import RNRestart from 'react-native-restart';
 
 export const pressableHitSlop = { top: 10, right: 10, bottom: 10, left: 10 };
 
@@ -234,6 +238,49 @@ export const localCurrencyToSats = async ({ localAmount }: { localAmount: number
  */
 export const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+/**
+ * This method will wipe all data for the specified wallet.
+ * @async
+ * @param {TWalletName} [selectedWallet]
+ * @param {boolean} [showNotification]
+ * @param {boolean} [restartApp]
+ * @return {Promise<Result<string>>}
+ */
+export const wipeEttaWallet = async ({
+  showNotification = true,
+  restartApp = true,
+}: {
+  showNotification?: boolean;
+  restartApp?: boolean;
+} = {}): Promise<Result<string>> => {
+  try {
+    // Reset everything else
+    await Promise.all([removePinFromKeyChain(), wipeEntireKeychain(), wipeLdkStorage({})]);
+
+    // Reset stores & persisted storage
+    mmkvStorage.clearStorage();
+
+    if (showNotification) {
+      showSuccessBanner({
+        title: 'EttaWallet wiped successfully',
+        message: 'All app data is gone',
+      });
+    }
+
+    if (restartApp) {
+      // avoid freeze on iOS
+      await sleep(1000);
+      // restart EttaWallet
+      RNRestart.Restart();
+    }
+
+    return ok('');
+  } catch (e) {
+    console.log(e);
+    return err(e);
+  }
 };
 
 /**
