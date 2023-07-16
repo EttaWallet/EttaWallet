@@ -413,12 +413,17 @@ export enum ELocalCurrencyCode {
 export enum ELocalCurrencySymbol {
   USD = '$',
   UGX = 'UGX',
-  KES = 'KSh',
+  KES = 'KES',
   EUR = '€',
   GBP = '£',
   GHS = 'GH₵',
   NGN = '₦',
   RWF = 'FRw',
+}
+
+export interface ILocalExchangeRate {
+  value?: string | null;
+  lastUpdated?: number;
 }
 
 export type TModifyInvoice = {

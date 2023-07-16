@@ -10,30 +10,30 @@ import { useStoreState } from '../state/hooks';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
-import { localCurrencyToSats } from '../utils/helpers';
+import BigNumber from 'bignumber.js';
+import { convertLocalAmountToSats } from '../utils/hooks';
 
 const EnterAmountScreen = () => {
   const [amountEntered, setAmountEntered] = useState('');
-  const [amountInSats, setAmountInSats] = useState(0);
+  const [amountInSats, setAmountInSats] = useState(new BigNumber(0));
   const preferredCurrencyCode = useStoreState((state) => state.nuxt.localCurrency);
   const [isUsingLocalCurrency, setIsUsingLocalCurrency] = useState(!!preferredCurrencyCode);
+  const exchangeRate = useStoreState((state) => state.nuxt.exchangeRate.value);
 
   useEffect(() => {
     async function formatAmount() {
       if (isUsingLocalCurrency) {
-        const amountEnteredInSats = await localCurrencyToSats({
-          localAmount: parseInt(amountEntered, 10),
-        });
-        setAmountInSats(amountEnteredInSats);
+        const amountEnteredInSats = convertLocalAmountToSats(amountEntered, exchangeRate);
+        setAmountInSats(new BigNumber(amountEnteredInSats!));
       } else {
-        setAmountInSats(parseInt(amountEntered, 10));
+        setAmountInSats(new BigNumber(amountEntered));
       }
     }
 
     formatAmount();
-  }, [amountEntered, isUsingLocalCurrency]);
+  }, [amountEntered, exchangeRate, isUsingLocalCurrency]);
 
-  const onPressNext = () => {
+  const onPressContinue = () => {
     cueInformativeHaptic();
     // update invoice fees if necessary
     // getFeesPayable().then();
@@ -65,10 +65,10 @@ const EnterAmountScreen = () => {
         <AmountKeypad amount={amountEntered} maxDecimals={2} onAmountChange={onAmountChange} />
       </View>
       <Button
-        title="Next"
+        title="Continue"
         style={styles.button}
         appearance="filled"
-        onPress={onPressNext}
+        onPress={onPressContinue}
         disabled={!amountEntered}
       />
     </SafeAreaView>

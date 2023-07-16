@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import * as React from 'react';
-import { Platform, StyleSheet, Text, View, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, Text, View, TouchableWithoutFeedback } from 'react-native';
 import { Colors, Icon, ListItem, Switch, TypographyPresets, ValueOf } from 'etta-ui';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Logger from '../utils/logger';
@@ -219,8 +219,6 @@ export function SettingsItemSwitch({
   );
 }
 
-const fontFamilyChoice = Platform.OS === 'ios' ? 'Menlo-Regular' : 'monospace';
-
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
@@ -250,7 +248,6 @@ const styles = StyleSheet.create({
     ...TypographyPresets.Body4,
     color: Colors.neutrals.light.neutral7,
     marginRight: 5,
-    fontFamily: fontFamilyChoice,
   },
   details: {
     ...TypographyPresets.Body4,

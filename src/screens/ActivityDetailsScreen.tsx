@@ -27,6 +27,7 @@ import { BottomSheetSearchInput } from '../components/SearchInput';
 import { sortContacts } from '../utils/helpers';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
+import FormLabel from '../components/form/Label';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ActivityDetailsScreen>;
 type Props = RouteProps;
@@ -246,6 +247,7 @@ const ActivityDetailsScreen = ({ route }: Props) => {
               highlightValue={true}
             />
           )}
+          <FormLabel style={styles.memoLabel}>Memo</FormLabel>
           <TextInput
             style={styles.inputContainer}
             autoFocus={false}
@@ -254,8 +256,8 @@ const ActivityDetailsScreen = ({ route }: Props) => {
             maxLength={140}
             onChangeText={setUserNote}
             value={userNote}
-            placeholder="Add memo"
-            placeholderTextColor={Colors.neutrals.light.neutral8}
+            placeholder="Write a short memo"
+            placeholderTextColor={Colors.neutrals.light.neutral6}
             returnKeyType={'done'}
             onBlur={onBlur}
             blurOnSubmit={true}
@@ -297,8 +299,6 @@ ActivityDetailsScreen.navigationOptions = {
   }),
 };
 
-const fontFamilyChoice = Platform.OS === 'ios' ? 'Menlo-Regular' : 'monospace';
-
 const styles = StyleSheet.create({
   contentContainer: {
     flexGrow: 1,
@@ -323,18 +323,14 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: Colors.neutrals.light.neutral4,
   },
-  total: {
-    ...TypographyPresets.Header1,
-    fontFamily: fontFamilyChoice,
-  },
   inputContainer: {
     height: 80,
     textAlignVertical: 'top',
     alignSelf: 'stretch',
     ...TypographyPresets.Body4,
     marginLeft: 16,
-    color: Colors.neutrals.light.neutral8,
-    paddingTop: 16,
+    color: Colors.common.black,
+    paddingTop: 8,
   },
   btnContainer: {
     flexDirection: 'row',
@@ -348,12 +344,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutrals.light.neutral4,
     marginHorizontal: 16,
   },
-  memoContainer: {
-    padding: 16,
-  },
-  memo: {
-    ...TypographyPresets.Body4,
+  memoLabel: {
+    paddingLeft: 20,
+    paddingTop: 10,
     color: Colors.common.black,
+    ...TypographyPresets.Body4,
   },
   emptyView: {
     paddingHorizontal: 24,

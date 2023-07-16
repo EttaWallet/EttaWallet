@@ -1,9 +1,11 @@
 import { Colors, Icon, TypographyPresets } from 'etta-ui';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, Platform } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { useStoreState } from '../../state/hooks';
 import { ELocalCurrencySymbol } from '../../utils/types';
-import { localCurrencyToSats, satsToLocalCurrency } from '../../utils/helpers';
+import { convertLocalAmountToSats, convertSatsToLocalAmount } from '../../utils/hooks';
+import BigNumber from 'bignumber.js';
+import * as RNLocalize from 'react-native-localize';
 
 interface Props {
   inputAmount: string;
@@ -12,33 +14,37 @@ interface Props {
 }
 
 const AmountDisplay = ({ inputAmount, usingLocalCurrency, receivedPayment }: Props) => {
-  const [valueInLocalCurrency, setValueInLocalCurrency] = useState(0);
-  const [valueInSats, setValueInSats] = useState(0);
+  const [valueInLocalCurrency, setValueInLocalCurrency] = useState(new BigNumber(0));
+  const [valueInSats, setValueInSats] = useState(new BigNumber(0));
   const preferredCurrencyCode = useStoreState((state) => state.nuxt.localCurrency);
   const preferredCurrencySymbol = ELocalCurrencySymbol[preferredCurrencyCode!];
+  const exchangeRate = useStoreState((state) => state.nuxt.exchangeRate.value);
 
   useEffect(() => {
     async function formatInputAmount() {
       if (preferredCurrencyCode !== null) {
-        const amountInLocal = await satsToLocalCurrency({
-          amountInSats: parseInt(inputAmount ? inputAmount : '0', 10),
-        });
-        setValueInLocalCurrency(amountInLocal);
+        const amountInLocal = convertSatsToLocalAmount(inputAmount, exchangeRate);
+        setValueInLocalCurrency(amountInLocal!);
 
-        const amountInSats = await localCurrencyToSats({
-          localAmount: parseInt(inputAmount ? inputAmount : '0', 10),
-        });
-        setValueInSats(amountInSats);
+        const amountInSats = convertLocalAmountToSats(inputAmount, exchangeRate);
+        setValueInSats(amountInSats!);
       } else {
-        setValueInLocalCurrency(parseInt(inputAmount ? inputAmount : '0', 10));
-        setValueInSats(parseInt(inputAmount ? inputAmount : '0', 10));
+        setValueInLocalCurrency(new BigNumber(inputAmount));
+        setValueInSats(new BigNumber(inputAmount));
       }
     }
 
     formatInputAmount();
-  }, [inputAmount, preferredCurrencyCode]);
+  }, [exchangeRate, inputAmount, preferredCurrencyCode]);
 
-  const secondaryAmount = usingLocalCurrency ? valueInSats : valueInLocalCurrency ?? 0;
+  const secondaryAmount = usingLocalCurrency
+    ? valueInSats
+    : valueInLocalCurrency ?? new BigNumber(0);
+
+  const formatStringToLocale = (value) => {
+    const deviceLocale = RNLocalize.getLocales()[0].languageTag;
+    return new Intl.NumberFormat(deviceLocale).format(value);
+  };
 
   return (
     <>
@@ -79,7 +85,7 @@ const AmountDisplay = ({ inputAmount, usingLocalCurrency, receivedPayment }: Pro
                 ellipsizeMode="tail"
                 style={receivedPayment ? styles.receivedPayment : styles.mainAmount}
               >
-                {inputAmount ? inputAmount.toLocaleString() : 0}
+                {inputAmount ? formatStringToLocale(inputAmount) : 0}
               </Text>
             </View>
           </View>
@@ -93,13 +99,14 @@ const AmountDisplay = ({ inputAmount, usingLocalCurrency, receivedPayment }: Pro
                     numberOfLines={1}
                     style={styles.secondarySymbol}
                   >
+                    {'~ '}
                     {preferredCurrencySymbol || preferredCurrencyCode}
                   </Text>
                 </View>
               )}
               <View style={styles.amountContainer}>
                 <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.secondaryAmount}>
-                  {secondaryAmount.toLocaleString()}
+                  {secondaryAmount ? secondaryAmount.toFormat() : '0'}
                 </Text>
               </View>
               {usingLocalCurrency && (
@@ -115,8 +122,6 @@ const AmountDisplay = ({ inputAmount, usingLocalCurrency, receivedPayment }: Pro
   );
 };
 
-const fontFamilyChoice = Platform.OS === 'ios' ? 'Menlo-Regular' : 'monospace';
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -129,9 +134,9 @@ const styles = StyleSheet.create({
   valueContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   amountContainer: {
-    justifyContent: 'center',
     maxWidth: '90%',
   },
   symbolContainer: {
@@ -139,30 +144,28 @@ const styles = StyleSheet.create({
   },
   mainSymbol: {
     ...TypographyPresets.Body1,
+    color: Colors.neutrals.light.neutral7,
   },
   secondarySymbol: {
     ...TypographyPresets.Body3,
-    marginHorizontal: 2,
-    color: Colors.neutrals.light.neutral7,
+    paddingRight: 2,
   },
   mainAmount: {
     ...TypographyPresets.Header1,
-    fontFamily: fontFamilyChoice,
     width: '100%',
   },
   secondaryAmount: {
-    ...TypographyPresets.Body2,
-    fontFamily: fontFamilyChoice,
-    color: Colors.neutrals.light.neutral7,
+    ...TypographyPresets.Body3,
   },
   receivedPayment: {
     ...TypographyPresets.Header1,
-    fontFamily: fontFamilyChoice,
     width: '100%',
     color: Colors.green.base,
   },
   btcIcon: {
     fontSize: 32,
+    color: Colors.neutrals.light.neutral7,
+    marginHorizontal: -3,
   },
 });
 

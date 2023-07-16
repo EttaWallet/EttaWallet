@@ -12,6 +12,7 @@ import {
 } from '../types';
 import { TAvailableNetworks } from '../networks';
 import { getSelectedNetwork } from '../wallet';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { getCustomElectrumPeers, hardcodedPeers } from './helpers';
 import store from '../../state/store';
 import { getBitcoinScriptHash } from '../bitcoin';

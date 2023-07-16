@@ -8,6 +8,7 @@ import SelectionOption from '../components/SelectionOption';
 import { useStoreDispatch, useStoreState } from '../state/hooks';
 import { ELocalCurrencyCode } from '../utils/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { fetchExchangeRate } from '../utils/helpers';
 
 export const LOCAL_CURRENCY_CODES = Object.values(ELocalCurrencyCode);
 
@@ -20,8 +21,12 @@ const CurrencyChooserScreen = () => {
   const dispatch = useStoreDispatch();
   const chosenCurrency = useStoreState((state) => state.nuxt.localCurrency);
 
-  const onSelect = (code: string) => {
+  const onSelect = async (code: string) => {
     dispatch.nuxt.setLocalCurrency(code as ELocalCurrencyCode);
+    // get new exchange rate and update store values
+    const rate = await fetchExchangeRate();
+    // update exchange rate in store
+    dispatch.nuxt.updateExchangeRate({ rate: rate.toString(), updated: Date.now() });
     requestAnimationFrame(() => {
       navigateBack();
     });

@@ -6,8 +6,6 @@ import { Colors, TypographyPresets } from 'etta-ui';
 import React, { useCallback, useMemo, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CancelButton from '../navigation/components/CancelButton';
-import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import FormLabel from './form/Label';
 import TotalAmountDisplay from './amount/TotalAmountDisplay';
 
@@ -47,12 +45,6 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
   const expiration = receiveProps.expiresOn!;
 
   const DetailedInvoiceBottomSheet = useMemo(() => {
-    const onPressCancel = () => {
-      cueInformativeHaptic();
-      paymentRequestBottomSheetRef.current?.close();
-      // clear values in state first?
-    };
-
     return (
       <BottomSheet
         ref={paymentRequestBottomSheetRef}
@@ -65,9 +57,6 @@ const usePaymentRequestBottomSheet = (receiveProps: Props) => {
         handleIndicatorStyle={styles.handle}
       >
         <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
-          <View style={styles.cancelBtn}>
-            <CancelButton onCancel={onPressCancel} />
-          </View>
           <View style={styles.field}>
             <FormLabel style={styles.label}>Invoice Amount</FormLabel>
             <TotalAmountDisplay

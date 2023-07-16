@@ -70,9 +70,9 @@ const ReviewRequestScreen = ({ navigation, route }: Props) => {
   const feeInfoDisplay = useMemo(() => {
     let feesText: string;
     if (invoiceFees === 0) {
-      feesText = `No fees will be charged to receive this payment as it is under your receive limit of ${totalReceivable} sats.`;
+      feesText = `No fees will be charged to receive this payment as it is under your receive limit of ${totalReceivable.toLocaleString()} sats.`;
     } else {
-      feesText = `The amount you are requesting exceeds your receive limit of ${totalReceivable} sats. \n \nThis fee is necessary to increase this limit for future transactions.`;
+      feesText = `The amount you are requesting exceeds your receive limit of ${totalReceivable.toLocaleString()} sats. \n \nThis fee is necessary to increase this limit for future transactions.`;
     }
 
     return <Text style={styles.maxReceive}>{feesText}</Text>;

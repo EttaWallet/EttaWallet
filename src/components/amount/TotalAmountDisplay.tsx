@@ -1,9 +1,10 @@
 import { Colors, Icon, TypographyPresets } from 'etta-ui';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, Platform } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { useStoreState } from '../../state/hooks';
 import { ELocalCurrencySymbol } from '../../utils/types';
-import { localCurrencyToSats, satsToLocalCurrency } from '../../utils/helpers';
+import BigNumber from 'bignumber.js';
+import { convertLocalAmountToSats, convertSatsToLocalAmount } from '../../utils/hooks';
 
 interface Props {
   totalAmount: number;
@@ -11,33 +12,32 @@ interface Props {
 }
 
 const TotalAmountDisplay = ({ totalAmount, usingLocalCurrency }: Props) => {
-  const [valueInLocalCurrency, setValueInLocalCurrency] = useState(0);
-  const [valueInSats, setValueInSats] = useState(0);
+  const [valueInLocalCurrency, setValueInLocalCurrency] = useState(new BigNumber(0));
+  const [valueInSats, setValueInSats] = useState(new BigNumber(0));
   const preferredCurrencyCode = useStoreState((state) => state.nuxt.localCurrency);
   const preferredCurrencySymbol = ELocalCurrencySymbol[preferredCurrencyCode!];
+  const exchangeRate = useStoreState((state) => state.nuxt.exchangeRate.value);
 
   useEffect(() => {
     async function formatInputAmount() {
       if (preferredCurrencyCode !== null) {
-        const amountInLocal = await satsToLocalCurrency({
-          amountInSats: totalAmount,
-        });
-        setValueInLocalCurrency(amountInLocal);
+        const amountInLocal = convertSatsToLocalAmount(totalAmount, exchangeRate);
+        setValueInLocalCurrency(amountInLocal!);
 
-        const amountInSats = await localCurrencyToSats({
-          localAmount: totalAmount,
-        });
-        setValueInSats(amountInSats);
+        const amountInSats = convertLocalAmountToSats(totalAmount, exchangeRate);
+        setValueInSats(amountInSats!);
       } else {
-        setValueInLocalCurrency(totalAmount);
-        setValueInSats(totalAmount);
+        setValueInLocalCurrency(new BigNumber(totalAmount));
+        setValueInSats(new BigNumber(totalAmount));
       }
     }
 
     formatInputAmount();
-  }, [totalAmount, preferredCurrencyCode]);
+  }, [totalAmount, preferredCurrencyCode, exchangeRate]);
 
-  const secondaryAmount = usingLocalCurrency ? valueInSats : valueInLocalCurrency ?? 0;
+  const secondaryAmount = usingLocalCurrency
+    ? valueInSats
+    : valueInLocalCurrency ?? new BigNumber(0);
 
   return (
     <>
@@ -86,13 +86,14 @@ const TotalAmountDisplay = ({ totalAmount, usingLocalCurrency }: Props) => {
                     numberOfLines={1}
                     style={styles.secondarySymbol}
                   >
+                    {'~ '}
                     {preferredCurrencySymbol || preferredCurrencyCode}
                   </Text>
                 </View>
               )}
               <View style={styles.amountContainer}>
                 <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.secondaryAmount}>
-                  {secondaryAmount.toLocaleString()}
+                  {secondaryAmount ? secondaryAmount.toFormat() : '0'}
                 </Text>
               </View>
               {usingLocalCurrency && (
@@ -108,8 +109,6 @@ const TotalAmountDisplay = ({ totalAmount, usingLocalCurrency }: Props) => {
   );
 };
 
-const fontFamilyChoice = Platform.OS === 'ios' ? 'Menlo-Regular' : 'monospace';
-
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
@@ -123,7 +122,6 @@ const styles = StyleSheet.create({
   },
   amountContainer: {
     justifyContent: 'center',
-    maxWidth: '90%',
   },
   symbolContainer: {
     justifyContent: 'center',
@@ -132,24 +130,23 @@ const styles = StyleSheet.create({
     ...TypographyPresets.Body3,
   },
   secondarySymbol: {
-    ...TypographyPresets.Body4,
-    marginHorizontal: 2,
+    ...TypographyPresets.Body3,
+    paddingHorizontal: 2,
     color: Colors.neutrals.light.neutral7,
   },
   mainAmount: {
     ...TypographyPresets.Header3,
-    fontFamily: fontFamilyChoice,
     width: '100%',
     paddingRight: 2,
   },
   secondaryAmount: {
-    ...TypographyPresets.Body4,
-    fontFamily: fontFamilyChoice,
+    ...TypographyPresets.Body3,
     color: Colors.neutrals.light.neutral7,
   },
   btcIcon: {
     fontSize: 24,
     color: '#ff9d00',
+    marginHorizontal: -3,
   },
 });
 

@@ -1,7 +1,7 @@
 import { Platform, Linking } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import Logger from './logger';
-import { APP_STORE_ID } from '../../config';
+import { APP_STORE_ID, EXCHANGE_RATE_UPDATE_INTERVAL } from '../../config';
 import { err, ok, Result } from './result';
 import store from '../state/store';
 import { TContact, TLightningPayment } from './types';
@@ -165,9 +165,10 @@ export function navigateAppStore() {
 export const collectBuildNumber: string = DeviceInfo.getBuildNumber();
 export const collectAppVersion: string = DeviceInfo.getVersion();
 
-export const getLocalCurrencyExchangeRate = async (): Promise<number> => {
+export const fetchExchangeRate = async (): Promise<number> => {
   const localCurrency = store.getState().nuxt.localCurrency;
   let json;
+  let localRate;
   try {
     const res = await fetch(`https://api.yadio.io/convert/1/BTC/${localCurrency}`);
     json = await res.json();
@@ -183,8 +184,49 @@ export const getLocalCurrencyExchangeRate = async (): Promise<number> => {
   if (!(rate >= 0)) {
     throw new Error(`Could not update rate for ${localCurrency}: data is wrong`);
   }
+  localRate = rate;
 
-  return rate;
+  return localRate;
+};
+
+export const getLocalCurrencyExchangeRate = async (): Promise<number> => {
+  const lastRateUpdate = store.getState().nuxt.exchangeRate.lastUpdated!;
+  const currentRate = store.getState().nuxt.exchangeRate.value;
+  const localCurrency = store.getState().nuxt.localCurrency;
+  let json;
+  let localRate;
+  // only attempt to update:
+  // - if the rates are at least 12 hours old
+  // - if no rate in store yet
+  // if last updated is undefined
+  if (
+    !currentRate ||
+    !lastRateUpdate ||
+    Date.now() - lastRateUpdate > EXCHANGE_RATE_UPDATE_INTERVAL
+  ) {
+    try {
+      const res = await fetch(`https://api.yadio.io/convert/1/BTC/${localCurrency}`);
+      json = await res.json();
+    } catch (e: any) {
+      throw new Error(`Could not update rate for ${localCurrency}: ${e.message}`);
+    }
+    let rate = json?.rate;
+    if (!rate) {
+      throw new Error(`Could not update rate for ${localCurrency}: data is wrong`);
+    }
+
+    rate = Number(rate);
+    if (!(rate >= 0)) {
+      throw new Error(`Could not update rate for ${localCurrency}: data is wrong`);
+    }
+    localRate = rate;
+
+    // update exchange rate in store
+    store.dispatch.nuxt.updateExchangeRate({ rate: localRate, updated: Date.now() });
+  } else {
+    localRate = currentRate;
+  }
+  return localRate;
 };
 
 export const satsToLocalCurrency = async ({ amountInSats }: { amountInSats: number }) => {

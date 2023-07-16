@@ -30,12 +30,13 @@ import useSettingsBottomSheet from '../components/useSettingsBottomSheet';
 import AmountDisplay from '../components/amount/AmountDisplay';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import useContactsBottomSheet from '../components/useContactsBottomSheet';
+import { getBlockHeader } from '../utils/electrum';
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
 const WalletHomeScreen = () => {
   const nodeStarted = useStoreState((state) => state.lightning.nodeStarted);
-  const currentBlockHeight = useStoreState((state) => state.wallet.header.height);
+  const { height } = getBlockHeader();
   const balance = getLightningStore().claimableBalance;
 
   const { openOptionsSheet, sendOptionsBottomSheet } = useSendBottomSheet({});
@@ -57,6 +58,7 @@ const WalletHomeScreen = () => {
       await startLightning({});
     }
     await waitForLdk();
+
     setRefreshing(false);
   }, []);
 
@@ -106,7 +108,7 @@ const WalletHomeScreen = () => {
     return (
       <>
         <View style={styles.dotContainer} />
-        <Text>{currentBlockHeight}</Text>
+        <Text>{height}</Text>
       </>
     );
   };
@@ -136,7 +138,7 @@ const WalletHomeScreen = () => {
         scrollEventThrottle={16}
         onScroll={() => 0}
         refreshControl={refresh}
-        onRefresh={() => 0}
+        onRefresh={onRefreshLdk}
         refreshing={!nodeStarted}
         style={styles.container}
         sections={sections}

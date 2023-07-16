@@ -1,6 +1,6 @@
 import { Colors, Icon, TypographyPresets } from 'etta-ui';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, Platform } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { useStoreState } from '../state/hooks';
 import { ELocalCurrencySymbol, EPaymentType } from '../utils/types';
 import { localCurrencyToSats, satsToLocalCurrency } from '../utils/helpers';
@@ -17,7 +17,17 @@ const TransactionAmount = ({ totalAmount, usingLocalCurrency, transactionType }:
   const preferredCurrencyCode = useStoreState((state) => state.nuxt.localCurrency);
   const preferredCurrencySymbol = ELocalCurrencySymbol[preferredCurrencyCode!];
 
-  const sign = transactionType === EPaymentType.sent ? '+' : '-';
+  const transactionSign = (txType: EPaymentType) => {
+    let symbol: string;
+    if (txType === EPaymentType.received) {
+      symbol = '+';
+    } else {
+      symbol = '-';
+    }
+    return symbol;
+  };
+
+  const sign = transactionSign(transactionType);
 
   useEffect(() => {
     async function formatInputAmount() {
@@ -60,11 +70,7 @@ const TransactionAmount = ({ totalAmount, usingLocalCurrency, transactionType }:
                 </Text>
               </View>
             )}
-            {!usingLocalCurrency && (
-              <View style={styles.symbolContainer}>
-                <Icon name="icon-satoshi-v2" style={styles.btcIcon} />
-              </View>
-            )}
+
             <View style={styles.amountContainer}>
               <Text
                 textBreakStrategy="simple"
@@ -76,12 +82,30 @@ const TransactionAmount = ({ totalAmount, usingLocalCurrency, transactionType }:
                 ellipsizeMode="tail"
                 style={[styles.mainAmount, sign === '+' ? { color: Colors.green.base } : null]}
               >
+                {sign}
                 {totalAmount ? totalAmount : 0}
               </Text>
             </View>
+            {!usingLocalCurrency && (
+              <View style={styles.symbolContainer}>
+                <Icon
+                  name="icon-satoshi-v2"
+                  style={[
+                    styles.btcIcon,
+                    sign === '+' ? { color: Colors.green.base } : { color: Colors.red.base },
+                  ]}
+                />
+              </View>
+            )}
           </View>
           {preferredCurrencyCode !== null ? (
             <View style={styles.valueContainer}>
+              <View style={styles.amountContainer}>
+                <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.secondaryAmount}>
+                  {sign}
+                  {secondaryAmount}
+                </Text>
+              </View>
               {!usingLocalCurrency && (
                 <View style={styles.symbolContainer}>
                   <Text
@@ -94,14 +118,15 @@ const TransactionAmount = ({ totalAmount, usingLocalCurrency, transactionType }:
                   </Text>
                 </View>
               )}
-              <View style={styles.amountContainer}>
-                <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.secondaryAmount}>
-                  {secondaryAmount}
-                </Text>
-              </View>
               {usingLocalCurrency && (
                 <View style={styles.symbolContainer}>
-                  <Icon name="icon-satoshi-v2" style={styles.btcIcon} />
+                  <Icon
+                    name="icon-satoshi-v2"
+                    style={[
+                      styles.btcIcon,
+                      sign === '+' ? { color: Colors.green.base } : { color: Colors.red.base },
+                    ]}
+                  />
                 </View>
               )}
             </View>
@@ -111,8 +136,6 @@ const TransactionAmount = ({ totalAmount, usingLocalCurrency, transactionType }:
     </>
   );
 };
-
-const fontFamilyChoice = Platform.OS === 'ios' ? 'Menlo-Regular' : 'monospace';
 
 const styles = StyleSheet.create({
   container: {
@@ -131,27 +154,26 @@ const styles = StyleSheet.create({
   },
   mainSymbol: {
     ...TypographyPresets.Body4,
-    marginHorizontal: 2,
+    paddingHorizontal: 2,
   },
   secondarySymbol: {
-    ...TypographyPresets.Body5,
-    marginHorizontal: 2,
+    fontSize: 15,
+    lineHeight: 21,
+    paddingHorizontal: 2,
     color: Colors.neutrals.light.neutral7,
   },
   mainAmount: {
-    ...TypographyPresets.Body4,
-    fontFamily: fontFamilyChoice,
+    ...TypographyPresets.Body3,
     width: '100%',
-    paddingRight: 2,
   },
   secondaryAmount: {
-    ...TypographyPresets.Body5,
-    fontFamily: fontFamilyChoice,
+    ...TypographyPresets.Body4,
     color: Colors.neutrals.light.neutral7,
   },
   btcIcon: {
     fontSize: 24,
-    color: '#ff9d00',
+    lineHeight: 24,
+    marginHorizontal: -3,
   },
 });
 

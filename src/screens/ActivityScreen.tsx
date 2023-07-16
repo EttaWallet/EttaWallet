@@ -18,7 +18,7 @@ import { Screens } from '../navigation/Screens';
 import { getLightningStore, groupActivityInSections } from '../utils/lightning/helpers';
 import { humanizeTimestamp } from '../utils/time';
 import { TInvoice } from '@synonymdev/react-native-ldk';
-import { EPaymentType, TLightningPayment } from '../utils/types';
+import { EPaymentType, TContact, TLightningPayment } from '../utils/types';
 import i18n from '../i18n';
 import { useTranslation } from 'react-i18next';
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
@@ -27,6 +27,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import TransactionAmount from '../components/TransactionAmount';
 import { sortTxs } from '../utils/helpers';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
+import ContactAvatar from '../components/ContactAvatar';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ActivityScreen>;
 type Props = RouteProps;
@@ -59,23 +60,27 @@ const NoActivity = () => {
 
 type TransactionItemProps = {
   invoice: TInvoice;
-  type: EPaymentType;
-  showFiat?: boolean;
+  txType: EPaymentType;
   memo?: string;
+  contact?: TContact;
 };
 
-const TransactionItem = ({ invoice, type, memo }: TransactionItemProps) => {
-  const transactionSubText = memo ?? humanizeTimestamp(invoice.timestamp, i18n);
+const TransactionItem = ({ invoice, txType, memo, contact }: TransactionItemProps) => {
+  const transactionSubText = memo ? memo : humanizeTimestamp(invoice.timestamp, i18n);
   return (
     <TouchableOpacity
       disabled={false}
       onPress={() => {
         cueInformativeHaptic();
-        navigate(Screens.ActivityDetailsScreen, { transaction: { invoice: invoice, type: type } });
+        navigate(Screens.ActivityDetailsScreen, {
+          transaction: { invoice: invoice, type: txType },
+        });
       }}
     >
       <View style={styles.transactionContainer}>
-        {type === EPaymentType.sent ? (
+        {contact ? (
+          <ContactAvatar contact={contact} />
+        ) : txType === EPaymentType.sent ? (
           <View style={[styles.iconContainer, { backgroundColor: 'rgba(45, 156, 219, 0.1)' }]}>
             <Icon name="icon-arrow-up" style={styles.sentIcon} />
           </View>
@@ -85,7 +90,9 @@ const TransactionItem = ({ invoice, type, memo }: TransactionItemProps) => {
           </View>
         )}
         <View style={styles.transactionContent}>
-          <Text style={styles.transactionTitle}>{invoice.description}</Text>
+          <Text style={styles.transactionTitle}>
+            {contact ? contact.alias : invoice.description}
+          </Text>
           <Text style={styles.transactionSubtitle} numberOfLines={1}>
             {transactionSubText}
           </Text>
@@ -94,7 +101,7 @@ const TransactionItem = ({ invoice, type, memo }: TransactionItemProps) => {
           <TransactionAmount
             totalAmount={invoice.amount_satoshis!}
             usingLocalCurrency={false}
-            transactionType={type}
+            transactionType={txType}
           />
         </View>
       </View>
@@ -122,12 +129,16 @@ const ActivityScreen = ({}: Props) => {
 
   function renderItem({ item: tx }: { item: TLightningPayment; index: number }) {
     return (
-      <TransactionItem
-        key={tx.invoice.payment_hash}
-        invoice={tx.invoice}
-        type={tx.type}
-        memo={tx.note}
-      />
+      <>
+        <TransactionItem
+          key={tx.invoice.payment_hash}
+          invoice={tx.invoice}
+          txType={tx.type}
+          memo={tx?.note}
+          contact={tx?.contact}
+        />
+        <View style={styles.separator} />
+      </>
     );
   }
 
@@ -172,8 +183,6 @@ ActivityScreen.navigationOptions = {
   }),
 };
 
-const fontFamilyChoice = Platform.OS === 'ios' ? 'Menlo-Regular' : 'monospace';
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -189,7 +198,6 @@ const styles = StyleSheet.create({
   },
   totalBalance: {
     ...TypographyPresets.Header1,
-    fontFamily: fontFamilyChoice,
   },
   // Activity Feed
   loadingIcon: {
@@ -235,6 +243,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flex: 1,
     paddingVertical: 12,
+    alignItems: 'center',
   },
   transactionContent: {
     paddingHorizontal: 10,
@@ -257,7 +266,6 @@ const styles = StyleSheet.create({
   },
   transactionAmount: {
     ...TypographyPresets.Body4,
-    fontFamily: fontFamilyChoice,
     color: Colors.common.black,
     paddingTop: 2,
     flexWrap: 'wrap',
@@ -265,7 +273,6 @@ const styles = StyleSheet.create({
   },
   fiatAmount: {
     ...TypographyPresets.Body5,
-    fontFamily: fontFamilyChoice,
     color: Colors.neutrals.light.neutral8,
     flexWrap: 'wrap',
     textAlign: 'right',
@@ -283,11 +290,15 @@ const styles = StyleSheet.create({
     color: Colors.green.base,
   },
   iconContainer: {
-    alignSelf: 'center',
+    alignSelf: 'flex-end',
     justifyContent: 'center',
-    width: 40,
-    height: 40,
+    width: 30,
+    height: 30,
     borderRadius: 50,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: Colors.neutrals.light.neutral4,
   },
 });
 
