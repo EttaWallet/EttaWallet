@@ -71,10 +71,9 @@ const OptionsActionSheet = ({
           color: index === destructiveButtonIndex ? Colors.orange.base : buttonsColor,
         };
         return (
-          <>
+          <View key={`separator-${option}`}>
             {index > 0 && (
               <View
-                key={`separator-${option}`}
                 style={[
                   styles.separator,
                   index === cancelButtonIndex ? styles.cancelSeparator : {},
@@ -84,7 +83,7 @@ const OptionsActionSheet = ({
             <TouchableOpacity key={option} onPress={onItemPressed(index)}>
               <Text style={[styles.option, extraStyles]}>{option}</Text>
             </TouchableOpacity>
-          </>
+          </View>
         );
       })}
     </Modal>
