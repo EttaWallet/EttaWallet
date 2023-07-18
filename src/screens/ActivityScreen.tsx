@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   StyleSheet,
@@ -10,12 +10,13 @@ import {
   StyleProp,
   ViewStyle,
   ActivityIndicator,
+  RefreshControlProps,
 } from 'react-native';
 import { headerWithBackButton } from '../navigation/Headers';
 import { Colors, Icon, TypographyPresets } from 'etta-ui';
 import { StackParamList } from '../navigation/types';
 import { Screens } from '../navigation/Screens';
-import { getLightningStore, groupActivityInSections } from '../utils/lightning/helpers';
+import { groupActivityInSections } from '../utils/lightning/helpers';
 import { humanizeTimestamp } from '../utils/time';
 import { TInvoice } from '@synonymdev/react-native-ldk';
 import { EPaymentType, TContact, TLightningPayment } from '../utils/types';
@@ -28,6 +29,8 @@ import TransactionAmount from '../components/TransactionAmount';
 import { sortTxs } from '../utils/helpers';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import ContactAvatar from '../components/ContactAvatar';
+import { RefreshControl } from 'react-native-gesture-handler';
+import { useStoreState } from '../state/hooks';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ActivityScreen>;
 type Props = RouteProps;
@@ -63,10 +66,13 @@ type TransactionItemProps = {
   txType: EPaymentType;
   memo?: string;
   contact?: TContact;
+  txTimestamp?: number;
 };
 
-const TransactionItem = ({ invoice, txType, memo, contact }: TransactionItemProps) => {
-  const transactionSubText = memo ? memo : humanizeTimestamp(invoice.timestamp, i18n);
+const TransactionItem = ({ invoice, txType, memo, contact, txTimestamp }: TransactionItemProps) => {
+  const transactionSubText = memo
+    ? memo
+    : humanizeTimestamp(txTimestamp || invoice.timestamp, i18n);
   return (
     <TouchableOpacity
       disabled={false}
@@ -110,10 +116,17 @@ const TransactionItem = ({ invoice, txType, memo, contact }: TransactionItemProp
 };
 
 const ActivityScreen = ({}: Props) => {
-  const [fetchingTransactions, setIsFetchingTransactions] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const paymentsStore = getLightningStore().payments;
+  const paymentsStore = useStoreState((state) => state.lightning.payments);
+
   const transactions = sortTxs(Object.values(paymentsStore));
+
+  useEffect(() => {
+    handleRefresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // update transactions list if payments object changes
+  }, [paymentsStore]);
 
   const sections = useMemo(() => {
     if (transactions.length === 0) {
@@ -136,18 +149,27 @@ const ActivityScreen = ({}: Props) => {
           txType={tx.type}
           memo={tx?.note}
           contact={tx?.contact}
+          txTimestamp={tx?.timestamp}
         />
         <View style={styles.separator} />
       </>
     );
   }
 
-  const fetchMoreActivity = () => {
-    setIsFetchingTransactions(true);
-    console.log('fetching transactions');
-    setIsFetchingTransactions(false);
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    // maybe do something?
+    setIsRefreshing(false);
     return 0;
   };
+
+  const refresh: React.ReactElement<RefreshControlProps> = (
+    <RefreshControl
+      refreshing={isRefreshing}
+      onRefresh={handleRefresh}
+      colors={[Colors.orange.base]}
+    />
+  ) as React.ReactElement<RefreshControlProps>;
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -160,13 +182,12 @@ const ActivityScreen = ({}: Props) => {
           renderSectionHeader={(item) => <FeedHeader text={item.section.title} />}
           //@ts-ignore TODO: check data object and types
           sections={sections}
-          keyExtractor={(item) =>
-            `${item.invoice.payment_hash}-${item.invoice.timestamp.toString()}`
-          }
+          keyExtractor={(item) => `${item.invoice.payment_hash}`}
           keyboardShouldPersistTaps="always"
-          onEndReached={fetchMoreActivity}
+          onEndReached={handleRefresh}
+          refreshControl={refresh}
         />
-        {fetchingTransactions && (
+        {isRefreshing && (
           <View style={styles.centerContainer}>
             <ActivityIndicator style={styles.loadingIcon} size="large" color={Colors.orange.base} />
           </View>
@@ -242,7 +263,7 @@ const styles = StyleSheet.create({
   transactionContainer: {
     flexDirection: 'row',
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 10,
     alignItems: 'center',
   },
   transactionContent: {
@@ -262,7 +283,6 @@ const styles = StyleSheet.create({
   transactionSubtitle: {
     ...TypographyPresets.Body5,
     color: Colors.neutrals.light.neutral7,
-    paddingTop: 2,
   },
   transactionAmount: {
     ...TypographyPresets.Body4,

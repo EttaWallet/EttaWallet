@@ -26,6 +26,7 @@ import { getLightningStore } from '../utils/lightning/helpers';
 import { BottomSheetSearchInput } from './SearchInput';
 import { sortContacts } from '../utils/helpers';
 import ContactItem from './ContactItem';
+import { useStoreState } from '../state/hooks';
 
 interface Props {
   contact?: TContact;
@@ -93,6 +94,7 @@ const useContactsBottomSheet = (addressProps: Props) => {
   const [searchText, setSearchText] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [allContacts, setAllContacts] = useState<TContact[]>([]);
+  const contacts = useStoreState((state) => state.lightning.contacts);
 
   const NewContactBottomSheet = useMemo(() => {
     const onPressSave = () => {
@@ -100,7 +102,7 @@ const useContactsBottomSheet = (addressProps: Props) => {
         setIsLoading(true);
         const payload: TContact = {
           id: generatedContactId,
-          alias: contactName.trim(),
+          alias: contactName,
           date_added: Date.now(),
         };
         store.dispatch.lightning.addContact(payload);
@@ -113,6 +115,16 @@ const useContactsBottomSheet = (addressProps: Props) => {
       } catch (e) {
         console.log(e.message);
       }
+    };
+
+    const handleNewContact = (alias) => {
+      setContactName(alias);
+      setGeneratedContactId(uuidv4());
+    };
+
+    const onBlur = () => {
+      const trimmed = contactName?.trim();
+      setContactName(trimmed);
     };
 
     return (
@@ -129,8 +141,9 @@ const useContactsBottomSheet = (addressProps: Props) => {
         <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
           <Text style={styles.title}>{t('Add new contact')}</Text>
           <FormTextInput
-            onChangeText={setContactName}
+            onChangeText={handleNewContact}
             value={contactName}
+            onBlur={onBlur}
             multiline={false}
             placeholder="Enter name or alias"
           />
@@ -185,6 +198,15 @@ const useContactsBottomSheet = (addressProps: Props) => {
       }
     };
 
+    const onBlur = () => {
+      const trimmed = newContactName?.trim();
+      setNewContactName(trimmed);
+    };
+
+    const handleEditAlias = (alias) => {
+      setNewContactName(alias);
+    };
+
     return (
       <BottomSheet
         ref={editContactBottomSheetRef}
@@ -199,8 +221,9 @@ const useContactsBottomSheet = (addressProps: Props) => {
         <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
           <Text style={styles.title}>{t('Change alias')}</Text>
           <FormTextInput
-            onChangeText={setNewContactName}
+            onChangeText={handleEditAlias}
             value={newContactName}
+            onBlur={onBlur}
             multiline={false}
             placeholder="Enter name or alias"
           />
@@ -230,22 +253,6 @@ const useContactsBottomSheet = (addressProps: Props) => {
     updatingContact,
   ]);
 
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     async function validateAddress() {
-  //       const parsedInput = await parseInputAddress(newAddress);
-  //       if (parsedInput?.data === 'Lightning address') {
-  //         setValidationMsg('Lightning address');
-  //       }
-  //     }
-  //     setIsValidating(true);
-  //     validateAddress();
-  //     setIsValidating(false);
-  //   }, 1500); // Set the desired delay in milliseconds (e.g., 500ms)
-
-  //   return () => clearTimeout(timer);
-  // }, [newAddress]);
-
   const AddAddressBottomSheet = useMemo(() => {
     const onPressSave = () => {
       try {
@@ -266,7 +273,9 @@ const useContactsBottomSheet = (addressProps: Props) => {
             updatedContact: payload,
           });
           setIsLoading(false);
-          Alert.alert('Saved', 'Contact was updated successfully');
+          showSuccessBanner({
+            message: 'Contact was updated successfully',
+          });
           cueSuccessHaptic();
           addAddressBottomSheetRef.current?.close();
           requestAnimationFrame(() => {
@@ -283,6 +292,20 @@ const useContactsBottomSheet = (addressProps: Props) => {
       }
     };
 
+    const handleNewAddressLabel = (label) => {
+      setNewAddressLabel(label);
+    };
+
+    const handleNewAddress = (address) => {
+      setNewAddress(address);
+      setGeneratedAddressId(uuidv4());
+    };
+
+    const onBlur = () => {
+      const trimmed = newAddressLabel?.trim();
+      setNewAddressLabel(trimmed);
+    };
+
     return (
       <BottomSheet
         ref={addAddressBottomSheetRef}
@@ -297,14 +320,15 @@ const useContactsBottomSheet = (addressProps: Props) => {
         <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
           <Text style={styles.title}>{t('Add address')}</Text>
           <FormTextInput
-            onChangeText={setNewAddressLabel}
+            onChangeText={handleNewAddressLabel}
             value={newAddressLabel}
+            onBlur={onBlur}
             multiline={false}
             placeholder="Enter label"
             autoCapitalize="none"
           />
           <FormTextInput
-            onChangeText={setNewAddress}
+            onChangeText={handleNewAddress}
             value={newAddress}
             multiline={true}
             placeholder="Paste address"
@@ -462,22 +486,20 @@ const useContactsBottomSheet = (addressProps: Props) => {
 
   const refreshContacts = () => {
     setRefreshing(true);
-    const contacts = getLightningStore().contacts;
     const sortedContacts = sortContacts(contacts);
     setAllContacts(sortedContacts);
     setRefreshing(false);
-    return;
   };
 
   useEffect(() => {
     // get current contacts
     refreshContacts();
-    console.log('refreshed contact list');
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contacts]);
 
   const handleContactsRefresh = useCallback(() => {
     refreshContacts();
-    console.log('refreshing contacts in bottomsheet');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const PickContactBottomSheet = useMemo(() => {

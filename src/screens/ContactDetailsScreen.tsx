@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useMemo, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { StyleSheet, Text, View } from 'react-native';
 import { headerWithBackButton } from '../navigation/Headers';
@@ -13,9 +13,9 @@ import { TContact, TIdentifier } from '../utils/types';
 import FormLabel from '../components/form/Label';
 import { maskString, pressableHitSlop } from '../utils/helpers';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
-import { getLightningStore } from '../utils/lightning/helpers';
 import useContactsBottomSheet from '../components/useContactsBottomSheet';
 import store from '../state/store';
+import { useStoreState } from '../state/hooks';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ContactDetailScreen>;
 type Props = RouteProps;
@@ -38,8 +38,10 @@ export const sortAddresses = (identifiers: TIdentifier[]) => {
 
 const ContactDetailScreen = ({ route, navigation }: Props) => {
   const routedContact = route.params.contact!;
-  const contact = getLightningStore().contacts.filter((c) => c.id === routedContact.id)[0];
+  const allContacts = useStoreState((state) => state.lightning.contacts);
+  const contact = allContacts.filter((c) => c.id === routedContact.id)[0];
   const [newAvatarUri, setNewAvatarUri] = useState(contact?.avatarUri);
+  const [currentAddresses, setCurrentAddresses] = useState<TIdentifier[]>([]);
 
   const {
     openAddAddressSheet,
@@ -85,24 +87,26 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
     }
   };
 
-  const getCurrentIdentifiers = (currentContact: TContact) => {
-    const allContacts = getLightningStore().contacts;
-    const filtered = allContacts.filter((c) => c.id === currentContact.id);
-    if (filtered.length > 0) {
-      const currentAddresses: TIdentifier[] = filtered[0].identifiers!;
-      return currentAddresses;
-    }
-    return [];
-  };
-
-  const currentIdentifiers = useMemo(() => {
-    let currentList;
-    currentList = getCurrentIdentifiers(contact);
-    if (currentList !== undefined) {
-      return sortAddresses(currentList);
-    }
-    return currentList;
+  useEffect(() => {
+    const allAddresses: TIdentifier[] = contact.identifiers!;
+    setCurrentAddresses(allAddresses);
   }, [contact]);
+
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     async function validateAddress() {
+  //       const parsedInput = await parseInputAddress(newAddress);
+  //       if (parsedInput?.data === 'Lightning address') {
+  //         setValidationMsg('Lightning address');
+  //       }
+  //     }
+  //     setIsValidating(true);
+  //     validateAddress();
+  //     setIsValidating(false);
+  //   }, 1500); // Set the desired delay in milliseconds (e.g., 500ms)
+
+  //   return () => clearTimeout(timer);
+  // }, [newAddress]);
 
   /**
    * This method takes the address string from the identifier and masks
@@ -117,9 +121,9 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
     return address;
   };
 
-  const IdentifiersList = ({ identifiers }) => (
+  const IdentifiersList = ({ addresses }) => (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      {identifiers.map((identifier: TIdentifier, index) => (
+      {addresses.map((identifier: TIdentifier, index) => (
         <View key={index} style={styles.addressRow}>
           <View style={styles.identifierContainer}>
             <FormLabel style={styles.identifierLabel}>{identifier.label}</FormLabel>
@@ -162,6 +166,7 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
             appearance="outline"
             icon="icon-arrow-down"
             iconPosition="left"
+            disabled={true}
           />
         </View>
       </View>
@@ -171,10 +176,10 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
         <Text style={styles.emptyText}>No activity at this time</Text>
       </View>
       <View style={styles.addressContainer}>
-        {currentIdentifiers !== undefined ? (
+        {currentAddresses.length > 0 ? (
           <>
             <SectionTitle title="Addresses" style={styles.sectionHeader} />
-            <IdentifiersList identifiers={currentIdentifiers} />
+            <IdentifiersList addresses={currentAddresses} />
           </>
         ) : (
           <>

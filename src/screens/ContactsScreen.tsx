@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaInsetsContext, SafeAreaView } from 'react-native-safe-area-context';
 import { HeaderTitleWithSubtitle, headerWithBackButton } from '../navigation/Headers';
@@ -7,20 +6,18 @@ import { FlatList, RefreshControl, TouchableOpacity } from 'react-native-gesture
 import { pressableHitSlop, sortContacts } from '../utils/helpers';
 import { Button, Colors, Icon, TypographyPresets } from 'etta-ui';
 import useContactsBottomSheet from '../components/useContactsBottomSheet';
-import { useTranslation } from 'react-i18next';
 import { TContact } from '../utils/types';
 import { useStoreState } from '../state/hooks';
 import { SearchInput } from '../components/SearchInput';
 import ContactItem from '../components/ContactItem';
 import KeyboardSpacer from '../components/keyboard/KeyboardSpacer';
-import { getLightningStore } from '../utils/lightning/helpers';
 
 const ContactsScreen = ({ navigation }) => {
-  const { t } = useTranslation();
   const { openNewContactSheet, NewContactBottomSheet } = useContactsBottomSheet({});
   const [searchQuery, setSearchQuery] = useState('');
   const [allContacts, setAllContacts] = useState<TContact[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const contacts = useStoreState((state) => state.lightning.contacts);
 
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const onToggleKeyboard = (visible: boolean) => {
@@ -37,18 +34,16 @@ const ContactsScreen = ({ navigation }) => {
 
   const refreshContacts = () => {
     setRefreshing(true);
-    const contacts = getLightningStore().contacts;
     const sortedContacts = sortContacts(contacts);
     setAllContacts(sortedContacts);
     setRefreshing(false);
-    return;
   };
 
   useEffect(() => {
-    // get current contacts
     refreshContacts();
     console.log('refreshed contact list');
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contacts]);
 
   const AddContactButton = () => {
     return (
@@ -111,6 +106,7 @@ const ContactsScreen = ({ navigation }) => {
 
   const handleContactsRefresh = useCallback(() => {
     refreshContacts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

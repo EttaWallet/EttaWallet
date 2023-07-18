@@ -803,7 +803,7 @@ export const getTotalBalance = ({
  * @returns {Promise<number>}
  */
 export const getClaimableBalance = async ({
-  ignoreOpenChannels = false,
+  ignoreOpenChannels = true, // setting this to true to get actual balance. @Todo: look into this in spec
   selectedNetwork,
 }: {
   ignoreOpenChannels?: boolean;
@@ -826,6 +826,7 @@ export const getClaimableBalance = async ({
   }
 
   return Math.abs(spendableBalance + reserveBalance - claimableBalance.value);
+  // return Math.abs(spendableBalance + reserveBalance);
 };
 
 export const updateClaimableBalance = async ({
@@ -901,9 +902,10 @@ export const addPayment = ({
 
   const nodeId = getLightningStore().nodeId;
 
-  const payload = {
+  const payload: TLightningPayment = {
     invoice: invoice,
     type: invoice.payee_pub_key === nodeId ? EPaymentType.sent : EPaymentType.received,
+    timestamp: Date.now(),
   };
   // add payment to store once confirmed
   store.dispatch.lightning.addPayment(payload);

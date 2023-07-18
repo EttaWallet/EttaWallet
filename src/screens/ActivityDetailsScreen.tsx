@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { SafeAreaView, StyleSheet, View, Platform, Text, ScrollView, LogBox } from 'react-native';
+import { StyleSheet, View, Platform, Text, ScrollView, LogBox } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { headerWithBackButton } from '../navigation/Headers';
 import { Button, Colors, Icon, TypographyPresets } from 'etta-ui';
 import { moderateScale } from '../utils/sizing';

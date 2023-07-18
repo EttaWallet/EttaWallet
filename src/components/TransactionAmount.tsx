@@ -4,6 +4,7 @@ import { StyleSheet, View, Text } from 'react-native';
 import { useStoreState } from '../state/hooks';
 import { ELocalCurrencySymbol, EPaymentType } from '../utils/types';
 import { localCurrencyToSats, satsToLocalCurrency } from '../utils/helpers';
+import BigNumber from 'bignumber.js';
 
 interface Props {
   totalAmount: number;
@@ -50,7 +51,9 @@ const TransactionAmount = ({ totalAmount, usingLocalCurrency, transactionType }:
     formatInputAmount();
   }, [totalAmount, preferredCurrencyCode]);
 
-  const secondaryAmount = usingLocalCurrency ? valueInSats : valueInLocalCurrency ?? 0;
+  const secondaryAmount = usingLocalCurrency
+    ? valueInSats
+    : valueInLocalCurrency.toLocaleString() ?? new BigNumber(0);
 
   return (
     <>
@@ -83,7 +86,7 @@ const TransactionAmount = ({ totalAmount, usingLocalCurrency, transactionType }:
                 style={[styles.mainAmount, sign === '+' ? { color: Colors.green.base } : null]}
               >
                 {sign}
-                {totalAmount ? totalAmount : 0}
+                {totalAmount ? totalAmount.toLocaleString() : 0}
               </Text>
             </View>
             {!usingLocalCurrency && (
@@ -103,7 +106,7 @@ const TransactionAmount = ({ totalAmount, usingLocalCurrency, transactionType }:
               <View style={styles.amountContainer}>
                 <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.secondaryAmount}>
                   {sign}
-                  {secondaryAmount}
+                  {secondaryAmount.toLocaleString()}
                 </Text>
               </View>
               {!usingLocalCurrency && (
@@ -167,7 +170,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   secondaryAmount: {
-    ...TypographyPresets.Body4,
+    ...TypographyPresets.Body5,
     color: Colors.neutrals.light.neutral7,
   },
   btcIcon: {

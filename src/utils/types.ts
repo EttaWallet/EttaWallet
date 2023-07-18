@@ -287,6 +287,7 @@ export type TCreateLightningInvoice = TCreatePaymentReq & {
 export type TLightningPayment = {
   invoice: TInvoice;
   type: EPaymentType;
+  timestamp?: number;
   fee?: number; // if necessitated channel open
   tags?: {};
   note?: string;

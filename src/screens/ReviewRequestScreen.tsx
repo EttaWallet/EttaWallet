@@ -14,7 +14,6 @@ import { estimateInvoiceFees } from '../utils/calculate';
 import AmountDisplay from '../components/amount/AmountDisplay';
 import { navigate } from '../navigation/NavigationService';
 import TotalAmountDisplay from '../components/amount/TotalAmountDisplay';
-import { useStoreState } from '../state/hooks';
 import CancelButton from '../navigation/components/CancelButton';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ReviewRequestScreen>;
@@ -36,10 +35,8 @@ const ReviewRequestScreen = ({ navigation, route }: Props) => {
   const amountProp = route.params?.amount || '0';
   const amountRequested = parseInt(amountProp, 10);
 
+  const [loading, setLoading] = useState(false);
   const [invoiceFees, setInvoiceFees] = useState(0);
-  const preferredCurrencyCode = useStoreState((state) => state.nuxt.localCurrency);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isUsingLocalCurrency, setIsUsingLocalCurrency] = useState(!!preferredCurrencyCode);
   const totalReceivable = getLightningStore().maxReceivable;
   const totalInvoiceAmount = amountRequested + invoiceFees;
 
@@ -55,6 +52,7 @@ const ReviewRequestScreen = ({ navigation, route }: Props) => {
 
   useEffect(() => {
     const getFeesPayable = async () => {
+      setLoading(true);
       let feeRequired: number = 0;
       if (totalReceivable < amountRequested) {
         feeRequired = await estimateInvoiceFees(amountRequested);
@@ -62,8 +60,8 @@ const ReviewRequestScreen = ({ navigation, route }: Props) => {
       } else {
         setInvoiceFees(feeRequired);
       }
+      setLoading(false);
     };
-
     getFeesPayable();
   }, [amountRequested, totalReceivable]);
 
@@ -104,6 +102,7 @@ const ReviewRequestScreen = ({ navigation, route }: Props) => {
         style={styles.button}
         appearance="filled"
         onPress={onPressCreate}
+        disabled={loading}
       />
     </SafeAreaView>
   );

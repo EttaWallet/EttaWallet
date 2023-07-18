@@ -83,6 +83,7 @@ export const refreshLdk = async ({
     }
 
     await updateLightningChannels();
+    console.log('done');
     await updateClaimableBalance({ selectedNetwork });
     return ok('');
   } catch (e) {
@@ -185,8 +186,12 @@ export const getNodeVersion = (): Promise<Result<TLightningNodeVersion>> => {
 const defaultUserConfig: TUserConfig = {
   channel_handshake_config: {
     announced_channel: false,
-    minimum_depth: 1,
+    minimum_depth: 0, // changed from one for zero-conf?
     max_htlc_value_in_flight_percent_of_channel: 100,
+  },
+  channel_handshake_limits: {
+    their_to_self_delay: 2016,
+    trust_own_funding_0conf: true,
   },
   manually_accept_inbound_channels: false,
   accept_inbound_channels: true, // to allow zero conf

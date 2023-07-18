@@ -17,12 +17,8 @@ import HomeActionsBar from '../components/HomeActionsBar';
 import { Colors, Icon, TypographyPresets } from 'etta-ui';
 import ContactsButton from '../navigation/components/ContactsButton';
 import { moderateScale, scale, verticalScale } from '../utils/sizing';
-import { isLdkRunning, waitForLdk } from '../ldk';
-import {
-  countRecentTransactions,
-  getLightningStore,
-  startLightning,
-} from '../utils/lightning/helpers';
+import { isLdkRunning, refreshLdk, waitForLdk } from '../ldk';
+import { countRecentTransactions, startLightning } from '../utils/lightning/helpers';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import useSendBottomSheet from '../components/useSendBottomSheet';
@@ -35,9 +31,9 @@ import { getBlockHeader } from '../utils/electrum';
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
 const WalletHomeScreen = () => {
-  const nodeStarted = useStoreState((state) => state.lightning.nodeStarted);
   const { height } = getBlockHeader();
-  const balance = getLightningStore().claimableBalance;
+  const balance = useStoreState((state) => state.lightning.claimableBalance);
+  const paymentsStore = useStoreState((state) => state.lightning.payments);
 
   const { openOptionsSheet, sendOptionsBottomSheet } = useSendBottomSheet({});
   const { PickContactBottomSheet } = useContactsBottomSheet({});
@@ -59,6 +55,8 @@ const WalletHomeScreen = () => {
     }
     await waitForLdk();
 
+    await refreshLdk({});
+
     setRefreshing(false);
   }, []);
 
@@ -70,7 +68,6 @@ const WalletHomeScreen = () => {
     />
   ) as React.ReactElement<RefreshControlProps>;
 
-  const paymentsStore = getLightningStore().payments;
   const transactions = Object.values(paymentsStore);
   const recentTxCount = countRecentTransactions(transactions);
   const allTxCount = transactions.length;
@@ -139,7 +136,7 @@ const WalletHomeScreen = () => {
         onScroll={() => 0}
         refreshControl={refresh}
         onRefresh={onRefreshLdk}
-        refreshing={!nodeStarted}
+        refreshing={refreshing}
         style={styles.container}
         sections={sections}
         keyExtractor={keyExtractor}
