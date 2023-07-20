@@ -9,12 +9,12 @@ import { Screens } from '../navigation/Screens';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { StackParamList } from '../navigation/types';
 import FormLabel from '../components/form/Label';
-import { getLightningStore } from '../utils/lightning/helpers';
 import { estimateInvoiceFees } from '../utils/calculate';
 import AmountDisplay from '../components/amount/AmountDisplay';
 import { navigate } from '../navigation/NavigationService';
 import TotalAmountDisplay from '../components/amount/TotalAmountDisplay';
 import CancelButton from '../navigation/components/CancelButton';
+import { useStoreState } from '../state/hooks';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ReviewRequestScreen>;
 type Props = RouteProps;
@@ -37,7 +37,7 @@ const ReviewRequestScreen = ({ navigation, route }: Props) => {
 
   const [loading, setLoading] = useState(false);
   const [invoiceFees, setInvoiceFees] = useState(0);
-  const totalReceivable = getLightningStore().maxReceivable;
+  const totalReceivable = useStoreState((state) => state.lightning.maxReceivable);
   const totalInvoiceAmount = amountRequested + invoiceFees;
 
   const onPressCreate = () => {
@@ -79,9 +79,6 @@ const ReviewRequestScreen = ({ navigation, route }: Props) => {
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.contentContainer}>
-        <View style={styles.titleContainer}>
-          <FormLabel style={styles.title}>You are requesting</FormLabel>
-        </View>
         <AmountDisplay inputAmount={amountProp} usingLocalCurrency={false} />
         {invoiceFees !== 0 ? (
           <>

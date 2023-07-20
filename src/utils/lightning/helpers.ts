@@ -36,7 +36,7 @@ import { connectToElectrum, subscribeToHeader } from '../electrum';
 import ldk from '@synonymdev/react-native-ldk/dist/ldk';
 
 import * as bitcoin from 'bitcoinjs-lib';
-import { reduceValue } from '../helpers';
+import { reduceValue, sleep } from '../helpers';
 import { timeDeltaInDays } from '../time';
 import { transactionFeedHeader } from '../time';
 import i18n from '../../i18n';
@@ -219,7 +219,6 @@ export const createLightningInvoice = async ({
     return err(invoice.error.message);
   }
 
-  console.log('the invoice meh: ', invoice);
   // add invoice to store
   store.dispatch.lightning.addInvoice(invoice.value);
 
@@ -230,6 +229,7 @@ export const createLightningInvoice = async ({
     // return wrapped invoice + fees
     // dispath action to add invoice to state object
     Logger.info('No open lightning channels found');
+    await sleep(1000);
     await fetch(VOLTAGE_LSP_API_TESTNET, {
       method: 'POST',
       headers: {
@@ -274,6 +274,7 @@ export const createLightningInvoice = async ({
     // if yes, generate normal invoice and return
     // if no, generate normal invoice, send to LSP, calculate fees and return wrapped invoice + fees
     // dispath action to add invoice to state object
+    await sleep(1000);
     await fetch(VOLTAGE_LSP_API_TESTNET, {
       method: 'POST',
       headers: {
