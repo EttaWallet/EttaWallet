@@ -176,7 +176,7 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
         <Text style={styles.emptyText}>No activity at this time</Text>
       </View>
       <View style={styles.addressContainer}>
-        {currentAddresses.length > 0 ? (
+        {!!currentAddresses && currentAddresses.length > 0 ? (
           <>
             <SectionTitle title="Addresses" style={styles.sectionHeader} />
             <IdentifiersList addresses={currentAddresses} />
