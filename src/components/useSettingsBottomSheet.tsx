@@ -4,9 +4,9 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import { Colors, TypographyPresets } from 'etta-ui';
 import React, { useCallback, useMemo, useRef } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { cueInformativeHaptic } from '../utils/accessibility/haptics';
+import { cueErrorHaptic, cueInformativeHaptic } from '../utils/accessibility/haptics';
 import { SettingsItemWithIcon } from './InfoListItem';
 import CancelButton from '../navigation/components/CancelButton';
 import { navigate } from '../navigation/NavigationService';
@@ -68,6 +68,23 @@ const useSettingsBottomSheet = () => {
       // clear values in state first?
     };
 
+    const onPressReset = () => {
+      Alert.alert('Are you sure? 😰', 'This will wipe EttaWallet and reset everything!', [
+        {
+          text: 'Proceed',
+          onPress: () => {
+            cueErrorHaptic();
+            wipeEttaWallet();
+          },
+        },
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Wipe cancelled'),
+          style: 'cancel',
+        },
+      ]);
+    };
+
     return (
       <BottomSheet
         ref={settingsBottomSheetRef}
@@ -119,7 +136,7 @@ const useSettingsBottomSheet = () => {
             title="Reset EttaWallet"
             withIcon={true}
             icon="icon-cross"
-            onPress={wipeEttaWallet}
+            onPress={onPressReset}
           />
         </View>
       </BottomSheet>

@@ -122,10 +122,15 @@ const ActivityScreen = ({}: Props) => {
 
   const transactions = sortTxs(Object.values(paymentsStore));
 
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    // maybe do something?
+    setIsRefreshing(false);
+    return 0;
+  };
+
   useEffect(() => {
     handleRefresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    // update transactions list if payments object changes
   }, [paymentsStore]);
 
   const sections = useMemo(() => {
@@ -155,13 +160,6 @@ const ActivityScreen = ({}: Props) => {
       </>
     );
   }
-
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    // maybe do something?
-    setIsRefreshing(false);
-    return 0;
-  };
 
   const refresh: React.ReactElement<RefreshControlProps> = (
     <RefreshControl
@@ -310,10 +308,10 @@ const styles = StyleSheet.create({
     color: Colors.green.base,
   },
   iconContainer: {
-    alignSelf: 'flex-end',
+    alignSelf: 'center',
     justifyContent: 'center',
-    width: 30,
-    height: 30,
+    width: 40,
+    height: 40,
     borderRadius: 50,
   },
   separator: {

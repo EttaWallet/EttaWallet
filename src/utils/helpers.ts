@@ -313,7 +313,7 @@ export const wipeEttaWallet = async ({
 
     if (restartApp) {
       // avoid freeze on iOS
-      await sleep(1000);
+      await sleep(2000);
       // restart EttaWallet
       RNRestart.Restart();
     }

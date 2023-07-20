@@ -360,7 +360,6 @@ export const handleProcessedData = async ({
       }
       if (peer.includes('onion')) {
         showToast({
-          title: 'Error',
           message: 'Unable to add tor nodes at this time.',
         });
         return err('Unable to add tor nodes at this time.');
@@ -371,7 +370,6 @@ export const handleProcessedData = async ({
       });
       if (addPeerRes.isErr()) {
         showToast({
-          title: 'Error',
           message: 'Unable to add lightning peer.',
         });
         console.log('processedNodeURI: ', 'Unable to add lightning peer.');
@@ -380,7 +378,6 @@ export const handleProcessedData = async ({
       const savePeerRes = savePeer({ selectedNetwork, peer });
       if (savePeerRes.isErr()) {
         showToast({
-          title: 'Unable to save peer',
           message: savePeerRes.error.message,
         });
         console.log('savePeerRes: ', savePeerRes.error.message);

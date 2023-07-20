@@ -2,22 +2,22 @@ import { ALERTS_DURATION } from '../../config';
 import { Notifier, NotifierComponents } from 'react-native-notifier';
 import ToastWithCTA from '../components/alerts/ToastWithCTA';
 import { TypographyPresets } from 'etta-ui';
+import Toast from 'react-native-simple-toast';
 
 export const showToast = ({
   message,
   dismissAfter,
-  title,
 }: {
   message: string;
   dismissAfter?: number | null;
-  title?: string | null;
 }) => {
-  const alertDuration = dismissAfter ? dismissAfter : ALERTS_DURATION;
-  Notifier.showNotification({
-    title: title!,
-    duration: alertDuration,
-    description: message,
-  });
+  const alertDuration = dismissAfter ? dismissAfter : Toast.SHORT;
+  // Notifier.showNotification({
+  //   title: title!,
+  //   duration: alertDuration,
+  //   description: message,
+  // });
+  Toast.showWithGravity(message, alertDuration, Toast.BOTTOM);
 };
 
 export const showToastWithCTA = ({

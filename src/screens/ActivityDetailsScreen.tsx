@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { StyleSheet, View, Platform, Text, ScrollView, LogBox } from 'react-native';
+import { StyleSheet, View, Platform, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { headerWithBackButton } from '../navigation/Headers';
 import { Button, Colors, Icon, TypographyPresets } from 'etta-ui';
@@ -18,7 +18,7 @@ import useContactsBottomSheet from '../components/useContactsBottomSheet';
 import { EPaymentType, TContact } from '../utils/types';
 import ContactItem from '../components/ContactItem';
 import DetailedActivityDrawer from '../components/DetailedActivityDrawer';
-import { TextInput } from 'react-native-gesture-handler';
+import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetFlatList,
@@ -34,10 +34,6 @@ type RouteProps = NativeStackScreenProps<StackParamList, Screens.ActivityDetails
 type Props = RouteProps;
 
 const ActivityDetailsScreen = ({ route }: Props) => {
-  // @TODO: Fix the issue on the bottomsheetFlatList when picking a contact.
-  useEffect(() => {
-    LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
-  }, []);
   const { transaction } = route.params;
   // get transaction in question from payments object in lightning store
   const payment = Object.values(getLightningStore().payments).filter(
@@ -220,50 +216,51 @@ const ActivityDetailsScreen = ({ route }: Props) => {
   ]);
 
   return (
-    <ScrollView contentContainerStyle={styles.contentContainer}>
-      <SafeAreaView style={styles.content}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.text}>You {transaction.type}</Text>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <View style={styles.header}>
+        <Text style={styles.text}>You {transaction.type}</Text>
+        <ScrollView>
           <AmountDisplay
             inputAmount={transaction.invoice.amount_satoshis?.toString()!}
             usingLocalCurrency={false}
             receivedPayment={true}
           />
-        </View>
-        <View>
-          {selectedContact ? (
-            <>
-              <ContactItem
-                contact={selectedContact}
-                prefix={transaction.type === EPaymentType.received ? 'Received from' : 'Sent to'}
-                onSelect={openPickContactSheet}
-              />
-              <ActivitySeparator />
-            </>
-          ) : (
-            <InfoListItem
-              title="👤 Link to contact"
-              value="Choose"
-              onPress={openPickContactSheet}
-              highlightValue={true}
+        </ScrollView>
+      </View>
+      <View>
+        {selectedContact ? (
+          <>
+            <ContactItem
+              contact={selectedContact}
+              prefix={transaction.type === EPaymentType.received ? 'Received from' : 'Sent to'}
+              onSelect={openPickContactSheet}
             />
-          )}
-          <FormLabel style={styles.memoLabel}>Memo</FormLabel>
-          <TextInput
-            style={styles.inputContainer}
-            autoFocus={false}
-            multiline={true}
-            numberOfLines={3}
-            maxLength={140}
-            onChangeText={setUserNote}
-            value={userNote}
-            placeholder="Write a short memo"
-            placeholderTextColor={Colors.neutrals.light.neutral6}
-            returnKeyType={'done'}
-            onBlur={onBlur}
-            blurOnSubmit={true}
+            <ActivitySeparator />
+          </>
+        ) : (
+          <InfoListItem
+            title="👤 Link to contact"
+            value="Choose"
+            onPress={openPickContactSheet}
+            highlightValue={true}
           />
-          {/* {hasTags ? (
+        )}
+        <FormLabel style={styles.memoLabel}>Memo</FormLabel>
+        <TextInput
+          style={styles.inputContainer}
+          autoFocus={false}
+          multiline={true}
+          numberOfLines={3}
+          maxLength={140}
+          onChangeText={setUserNote}
+          value={userNote}
+          placeholder="Write a short memo"
+          placeholderTextColor={Colors.neutrals.light.neutral6}
+          returnKeyType={'done'}
+          onBlur={onBlur}
+          blurOnSubmit={true}
+        />
+        {/* {hasTags ? (
             <>
               <ContactItem contact={fakeContact} prefix="From" />
               <ActivitySeparator />
@@ -276,20 +273,19 @@ const ActivityDetailsScreen = ({ route }: Props) => {
               highlightValue={true}
             />
           )} */}
-          <InfoListItem
-            title="When"
-            value={humanizeTimestamp(transaction.invoice.timestamp, i18n)}
-          />
-          <DetailedActivityDrawer
-            invoice={transaction.invoice.to_str}
-            pre_image={transaction.invoice.payment_hash}
-            node={transaction.invoice.payee_pub_key}
-          />
-        </View>
-        {PickContactBottomSheet}
-        {NewContactBottomSheet}
-      </SafeAreaView>
-    </ScrollView>
+        <InfoListItem
+          title="When"
+          value={humanizeTimestamp(transaction.timestamp || transaction.invoice.timestamp, i18n)}
+        />
+        <DetailedActivityDrawer
+          invoice={transaction.invoice.to_str}
+          pre_image={transaction.invoice.payment_hash}
+          node={transaction.invoice.payee_pub_key}
+        />
+      </View>
+      {PickContactBottomSheet}
+      {NewContactBottomSheet}
+    </SafeAreaView>
   );
 };
 
@@ -301,16 +297,13 @@ ActivityDetailsScreen.navigationOptions = {
 };
 
 const styles = StyleSheet.create({
-  contentContainer: {
-    flexGrow: 1,
-  },
-  headerContainer: {
-    paddingVertical: 32,
-    alignItems: 'center',
-  },
-  content: {
-    flexGrow: 1,
+  container: {
+    flex: 1,
     paddingHorizontal: 5,
+  },
+  header: {
+    paddingVertical: 32,
+    justifyContent: 'center',
   },
   text: {
     color: Colors.neutrals.light.neutral6,
@@ -358,6 +351,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     ...TypographyPresets.Header5,
     textAlign: 'center',
+    paddingTop: 10,
     paddingBottom: 10,
   },
   emptyText: {
@@ -366,11 +360,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   emptyBtnContainer: {
-    marginTop: 24,
+    marginVertical: 10,
   },
   emptyBtn: {
     justifyContent: 'center',
-    marginVertical: 16,
   },
   addIcon: {
     alignItems: 'center',

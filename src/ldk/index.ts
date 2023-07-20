@@ -11,6 +11,7 @@ import lm, {
   DefaultTransactionDataShape,
   EEventTypes,
   TChannelManagerClaim,
+  TChannelManagerOpenChannelRequest,
   TChannelUpdate,
   TInvoice,
   TTransactionData,
@@ -43,6 +44,7 @@ let LDKIsStayingSynced = false;
 
 // Subscribe to LDK module events
 let paymentSubscription: EmitterSubscription | undefined;
+let onOpenChannelSubscription: EmitterSubscription | undefined;
 let onChannelSubscription: EmitterSubscription | undefined;
 let onPaymentFailedSubscription: EmitterSubscription | undefined;
 let onPaymentPathSuccessSubscription: EmitterSubscription | undefined;
@@ -186,12 +188,8 @@ export const getNodeVersion = (): Promise<Result<TLightningNodeVersion>> => {
 const defaultUserConfig: TUserConfig = {
   channel_handshake_config: {
     announced_channel: false,
-    minimum_depth: 0, // changed from one for zero-conf?
     max_htlc_value_in_flight_percent_of_channel: 100,
-  },
-  channel_handshake_limits: {
-    their_to_self_delay: 2016,
-    trust_own_funding_0conf: true,
+    minimum_depth: 0, // changed from one for zero-conf
   },
   manually_accept_inbound_channels: false,
   accept_inbound_channels: true, // to allow zero conf
@@ -396,37 +394,6 @@ export const getTransactionPosition = async ({
   }
   return response.data.pos;
 };
-
-/**
- * Iterates over watch transactions for spends. Sets them as confirmed as needed.
- * @returns {Promise<boolean>}
- */
-
-export const checkWatchTxs = async (): Promise<boolean> => {
-  const checkedScriptPubKeys: string[] = [];
-  const watchTransactionIds = lm.watchTxs.map((tx) => tx.txid);
-  for (const watchTx of lm.watchTxs) {
-    if (!checkedScriptPubKeys.includes(watchTx.script_pubkey)) {
-      const scriptPubKeyHistory: { txid: string; height: number }[] = await getScriptPubKeyHistory(
-        watchTx.script_pubkey
-      );
-      for (const data of scriptPubKeyHistory) {
-        if (!watchTransactionIds.includes(data?.txid)) {
-          const txData = await _getTransactionData(data?.txid);
-          await ldk.setTxConfirmed({
-            header: txData.header,
-            height: txData.height,
-            txData: [{ transaction: txData.transaction, pos: 0 }],
-          });
-          return true;
-        }
-      }
-      checkedScriptPubKeys.push(watchTx.script_pubkey);
-    }
-  }
-  return false;
-};
-
 /**
  * Retrieves any pending/unpaid invoices from the invoices array via payment hash.
  * @param {string} paymentHash
@@ -491,10 +458,8 @@ export const handlePaymentSubscription = async ({
   if (!selectedNetwork) {
     selectedNetwork = getSelectedNetwork();
   }
-  console.log('Receiving Lightning Payment...', payment);
   showToast({
-    title: 'Incoming',
-    message: "You've got a lightning payment on the way",
+    message: `Incoming payment: ${payment.amount_sat} sats`,
   });
   const invoice = getPendingInvoice({
     paymentHash: payment.payment_hash,
@@ -545,6 +510,30 @@ export const handleNewChannelSubscription = async ({
 };
 
 /**
+ * Handle inbound zero-conf channels manually via the OpenChannelRequest event.
+ * @param {TChannelManagerOpenChannelRequest} [newChannel]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const handleOpenZeroConfChannel = async ({
+  newChannel,
+  selectedNetwork,
+}: {
+  newChannel: TChannelManagerOpenChannelRequest;
+  selectedNetwork?: TAvailableNetworks;
+}): Promise<void> => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+
+  const { counterparty_node_id, temp_channel_id, channel_type, push_sat, funding_satoshis } =
+    newChannel;
+
+  console.log(
+    `new zero conf inbound channel ${temp_channel_id} from ${counterparty_node_id} of type ${channel_type} and capacity ${funding_satoshis} pushing ${push_sat} sats to Etta`
+  );
+};
+
+/**
  * Subscribes to incoming lightning payments.
  * @param {TAvailableNetworks} [selectedNetwork]
  */
@@ -564,6 +553,24 @@ export const subscribeToPayments = ({
           payment: res,
           selectedNetwork,
         }).then();
+      }
+    );
+  }
+  /**
+   * Manually handle zero-conf inbound channels. Must set manually_accept_inbound_channels to true
+   * in userConfig and use the method accept_inbound_channel_from_trusted_peer_0conf which is
+   * currently unavailable
+   */
+  if (!onOpenChannelSubscription) {
+    onOpenChannelSubscription = ldk.onEvent(
+      EEventTypes.channel_manager_open_channel_request,
+      (_res: TChannelManagerOpenChannelRequest) => {
+        handleOpenZeroConfChannel({
+          newChannel: _res,
+          selectedNetwork,
+        });
+
+        refreshLdk({ selectedNetwork }).then();
       }
     );
   }
