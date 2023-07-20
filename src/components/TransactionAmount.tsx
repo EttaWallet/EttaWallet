@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   secondaryAmount: {
-    ...TypographyPresets.Body5,
+    ...TypographyPresets.Body4,
     color: Colors.neutrals.light.neutral7,
   },
   btcIcon: {
