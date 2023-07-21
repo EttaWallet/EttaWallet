@@ -162,6 +162,7 @@ export const lightningModel: LightningNodeModelType = {
           payload?.invoice.payee_pub_key === state.nodeId
             ? EPaymentType.received
             : EPaymentType.sent,
+        timestamp: payload?.timestamp,
       },
     };
   }),

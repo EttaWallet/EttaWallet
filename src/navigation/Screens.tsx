@@ -41,4 +41,5 @@ export enum Screens {
   ReviewRequestScreen = 'ReviewRequestScreen',
   ContactsScreen = 'ContactsScreen',
   ContactDetailScreen = 'ContactDetailScreen',
+  EnterAnythingScreen = 'EnterAnythingScreen',
 }

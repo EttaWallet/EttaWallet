@@ -118,7 +118,7 @@ const ReceiveScreen = ({ navigation, route }: Props) => {
       </View>
       <View style={styles.qrContainer}>
         {isLoading ? (
-          <ActivityIndicator color={Colors.orange.base} />
+          <ActivityIndicator color={Colors.orange.base} size={'large'} />
         ) : (
           <>
             <QRCode
@@ -127,7 +127,10 @@ const ReceiveScreen = ({ navigation, route }: Props) => {
               backgroundColor={Colors.common.white}
               color={Colors.common.black}
             />
-            <Text style={styles.advice}>{`This request will expire on ${invoiceExpires}`}</Text>
+            <Text
+              numberOfLines={2}
+              style={styles.advice}
+            >{`This payment request will expire on \n ${invoiceExpires}`}</Text>
           </>
         )}
       </View>
@@ -187,6 +190,7 @@ const styles = StyleSheet.create({
   advice: {
     ...TypographyPresets.Body5,
     marginVertical: 20,
+    textAlign: 'center',
   },
 });
 

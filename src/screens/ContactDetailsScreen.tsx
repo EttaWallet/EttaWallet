@@ -16,6 +16,8 @@ import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import useContactsBottomSheet from '../components/useContactsBottomSheet';
 import store from '../state/store';
 import { useStoreState } from '../state/hooks';
+import { SettingsItemWithTextValue } from '../components/InfoListItem';
+import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ContactDetailScreen>;
 type Props = RouteProps;
@@ -39,7 +41,11 @@ export const sortAddresses = (identifiers: TIdentifier[]) => {
 const ContactDetailScreen = ({ route, navigation }: Props) => {
   const routedContact = route.params.contact!;
   const allContacts = useStoreState((state) => state.lightning.contacts);
+  const payments = useStoreState((state) => state.lightning.payments);
   const contact = allContacts.filter((c) => c.id === routedContact.id)[0];
+  const transactions = Object.values(payments).filter(
+    (transaction) => transaction.contact === contact
+  );
   const [newAvatarUri, setNewAvatarUri] = useState(contact?.avatarUri);
   const [currentAddresses, setCurrentAddresses] = useState<TIdentifier[]>([]);
 
@@ -125,7 +131,7 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       {addresses.map((identifier: TIdentifier, index) => (
         <View key={index} style={styles.addressRow}>
-          <View style={styles.identifierContainer}>
+          <View>
             <FormLabel style={styles.identifierLabel}>{identifier.label}</FormLabel>
             <Text style={styles.identifier}>{formatAddress(identifier.address)}</Text>
           </View>
@@ -138,6 +144,12 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
       ))}
     </ScrollView>
   );
+
+  const onPressActivity = () => {
+    cueInformativeHaptic();
+    // cue user's activity screen;
+    console.log('has pressed activity item');
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -172,8 +184,16 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
       </View>
       <View style={styles.activityContainer}>
         <SectionTitle title="Activity" style={styles.sectionHeader} />
-        {/* @todo: Logic for activity section */}
-        <Text style={styles.emptyText}>No activity at this time</Text>
+        {!!transactions && transactions.length > 0 ? (
+          <SettingsItemWithTextValue
+            title={`${transactions.length} transactions`}
+            value={'3 days ago'}
+            withChevron={true}
+            onPress={onPressActivity}
+          />
+        ) : (
+          <Text style={styles.emptyText}>No activity at this time</Text>
+        )}
       </View>
       <View style={styles.addressContainer}>
         {!!currentAddresses && currentAddresses.length > 0 ? (
@@ -261,7 +281,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  identifierContainer: {},
   identifier: {
     ...TypographyPresets.Body4,
   },

@@ -53,7 +53,7 @@ const TransactionAmount = ({ totalAmount, usingLocalCurrency, transactionType }:
 
   const secondaryAmount = usingLocalCurrency
     ? valueInSats
-    : valueInLocalCurrency.toLocaleString() ?? new BigNumber(0);
+    : valueInLocalCurrency ?? new BigNumber(0);
 
   return (
     <>
@@ -83,7 +83,10 @@ const TransactionAmount = ({ totalAmount, usingLocalCurrency, transactionType }:
                 minimumFontScale={0.4}
                 selectable={true}
                 ellipsizeMode="tail"
-                style={[styles.mainAmount, sign === '+' ? { color: Colors.green.base } : null]}
+                style={[
+                  styles.mainAmount,
+                  sign === '+' ? { color: Colors.green.base } : { color: Colors.red.base },
+                ]}
               >
                 {sign}
                 {totalAmount ? totalAmount.toLocaleString() : 0}

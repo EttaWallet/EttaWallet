@@ -99,4 +99,5 @@ export type StackParamList = {
   [Screens.ContactDetailScreen]: {
     contact?: TContact;
   };
+  [Screens.EnterAnythingScreen]: undefined;
 };

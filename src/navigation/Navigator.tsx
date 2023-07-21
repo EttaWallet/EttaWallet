@@ -48,6 +48,7 @@ import TransactionSuccessScreen from '../shared/TransactionSuccessScreen';
 import ChannelStatusScreen from '../screens/ChannelStatusScreen';
 import ContactsScreen from '../screens/ContactsScreen';
 import ContactDetailScreen from '../screens/ContactDetailsScreen';
+import EnterAnythingScreen from '../screens/EnterAnythingScreen';
 
 const TAG = 'Navigator';
 
@@ -141,6 +142,11 @@ const walletScreens = (Navigator: typeof Stack) => {
         name={Screens.ActivityDetailsScreen}
         component={ActivityDetailsScreen}
         options={ActivityDetailsScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.EnterAnythingScreen}
+        component={EnterAnythingScreen}
+        options={EnterAnythingScreen.navigationOptions as NativeStackNavigationOptions}
       />
     </>
   );

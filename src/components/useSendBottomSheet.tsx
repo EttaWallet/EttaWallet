@@ -91,7 +91,8 @@ const useSendBottomSheet = (sendProps: Props) => {
       cueInformativeHaptic();
       // get pasted string from clipboard
       console.info('@Sendoptions: chose manual');
-      //   sendOptionsBottomSheetRef.current?.close();
+      sendOptionsBottomSheetRef.current?.close();
+      navigate(Screens.EnterAnythingScreen);
     };
 
     const onPressImage = () => {

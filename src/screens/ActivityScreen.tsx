@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useMemo, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
@@ -13,24 +12,17 @@ import {
   RefreshControlProps,
 } from 'react-native';
 import { headerWithBackButton } from '../navigation/Headers';
-import { Colors, Icon, TypographyPresets } from 'etta-ui';
+import { Colors, TypographyPresets } from 'etta-ui';
 import { StackParamList } from '../navigation/types';
 import { Screens } from '../navigation/Screens';
 import { groupActivityInSections } from '../utils/lightning/helpers';
-import { humanizeTimestamp } from '../utils/time';
-import { TInvoice } from '@synonymdev/react-native-ldk';
-import { EPaymentType, TContact, TLightningPayment } from '../utils/types';
-import i18n from '../i18n';
+import { TLightningPayment } from '../utils/types';
 import { useTranslation } from 'react-i18next';
-import { TouchableOpacity } from '@gorhom/bottom-sheet';
-import { navigate } from '../navigation/NavigationService';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import TransactionAmount from '../components/TransactionAmount';
 import { sortTxs } from '../utils/helpers';
-import { cueInformativeHaptic } from '../utils/accessibility/haptics';
-import ContactAvatar from '../components/ContactAvatar';
 import { RefreshControl } from 'react-native-gesture-handler';
 import { useStoreState } from '../state/hooks';
+import TransactionItem from '../components/TransactionItem';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ActivityScreen>;
 type Props = RouteProps;
@@ -58,60 +50,6 @@ const NoActivity = () => {
       </View>
       <Text style={styles.noActivityText}>{t('There are no transactions at this time.')}</Text>
     </SafeAreaView>
-  );
-};
-
-type TransactionItemProps = {
-  invoice: TInvoice;
-  txType: EPaymentType;
-  memo?: string;
-  contact?: TContact;
-  txTimestamp?: number;
-};
-
-const TransactionItem = ({ invoice, txType, memo, contact, txTimestamp }: TransactionItemProps) => {
-  const transactionSubText = memo
-    ? memo
-    : humanizeTimestamp(txTimestamp || invoice.timestamp, i18n);
-  return (
-    <TouchableOpacity
-      disabled={false}
-      onPress={() => {
-        cueInformativeHaptic();
-        navigate(Screens.ActivityDetailsScreen, {
-          transaction: { invoice: invoice, type: txType },
-        });
-      }}
-    >
-      <View style={styles.transactionContainer}>
-        {contact ? (
-          <ContactAvatar contact={contact} />
-        ) : txType === EPaymentType.sent ? (
-          <View style={[styles.iconContainer, { backgroundColor: 'rgba(45, 156, 219, 0.1)' }]}>
-            <Icon name="icon-arrow-up" style={styles.sentIcon} />
-          </View>
-        ) : (
-          <View style={[styles.iconContainer, { backgroundColor: 'rgba(39, 174, 96, 0.1)' }]}>
-            <Icon name="icon-arrow-down" style={styles.receivedIcon} />
-          </View>
-        )}
-        <View style={styles.transactionContent}>
-          <Text style={styles.transactionTitle}>
-            {contact ? contact.alias : invoice.description}
-          </Text>
-          <Text style={styles.transactionSubtitle} numberOfLines={1}>
-            {transactionSubText}
-          </Text>
-        </View>
-        <View style={styles.transactionAmountContainer}>
-          <TransactionAmount
-            totalAmount={invoice.amount_satoshis!}
-            usingLocalCurrency={false}
-            transactionType={txType}
-          />
-        </View>
-      </View>
-    </TouchableOpacity>
   );
 };
 

@@ -454,3 +454,23 @@ export const parseInputAddress = async (identifier: string) => {
     };
   }
 };
+
+export const formatLightningId = (identifier: string) => {
+  return identifier.replace(/\s+/gm, ' ');
+};
+
+export const isValidLightningId = (identifier: string) => {
+  let isValid = false;
+  const formattedId = formatLightningId(identifier);
+  if (
+    formattedId.toLowerCase().indexOf('lightning:') > -1 ||
+    formattedId.toLowerCase().startsWith(BOLT11_SCHEME_TESTNET) ||
+    formattedId.toLowerCase().startsWith(BOLT11_SCHEME_MAINNET) ||
+    formattedId.toLowerCase().startsWith(LNURL_SCHEME) ||
+    validateInternetIdentifier(formattedId)
+  ) {
+    isValid = true;
+  }
+
+  return isValid;
+};
