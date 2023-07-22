@@ -19,10 +19,10 @@ const ContactAvatar = ({ size, contact, style }: Props) => {
   const iconBackgroundColor = Colors.purple.base;
 
   const renderThumbnail = () => {
-    if (contact?.avatarUri) {
+    if (contact.avatarUri) {
       return (
         <Image
-          source={{ uri: contact?.avatarUri }}
+          source={{ uri: contact.avatarUri }}
           style={[
             styles.image,
             { height: iconSize, width: iconSize, borderRadius: iconSize / 2.0 },
