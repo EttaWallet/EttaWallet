@@ -15,6 +15,9 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { processInputData } from '../utils/lightning/decode';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
+import { showErrorBanner } from '../utils/alerts';
+import RNQRGenerator from 'rn-qr-generator';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 interface Props {
   amountInSats?: string;
@@ -28,6 +31,8 @@ const useSendBottomSheet = (sendProps: Props) => {
 
   const [sendInvoice, setSendInvoice] = useState(sendProps.paymentRequest);
   const [sendAmount, setSendAmount] = useState(sendProps.amountInSats);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [isChoosingMedia, setIsChoosingMedia] = useState(false);
 
   const sendBottomSheetRef = useRef<BottomSheet>(null);
   const sendOptionsBottomSheetRef = useRef<BottomSheet>(null);
@@ -76,6 +81,46 @@ const useSendBottomSheet = (sendProps: Props) => {
     }
   }, []);
 
+  const onChooseMedia = async (): Promise<void> => {
+    setIsChoosingMedia(true);
+    try {
+      const result = await launchImageLibrary({
+        // Use 'mixed' so the user can search folders other than "Photos"
+        mediaType: 'mixed',
+        includeBase64: true,
+        quality: 0.1,
+      });
+
+      if (result.assets?.[0]) {
+        const { uri } = result.assets?.[0];
+
+        try {
+          // Read QR from image
+          const { values } = await RNQRGenerator.detect({ uri });
+
+          if (values.length === 0) {
+            showErrorBanner({
+              message: 'Sorry. Unable to detect a QR code in this image.',
+            });
+            return;
+          }
+          processInputData({
+            data: values[0],
+          }).then();
+        } catch {
+          showErrorBanner({
+            message: 'Sorry. Unable to detect a QR code in this image.',
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to open image file: ', err);
+      showErrorBanner({ message: 'Sorry. An error occured when trying to open this image file.' });
+    } finally {
+      setIsChoosingMedia(false);
+    }
+  };
+
   const sendOptionsBottomSheet = useMemo(() => {
     const onPressPaste = () => {
       cueInformativeHaptic();
@@ -99,7 +144,8 @@ const useSendBottomSheet = (sendProps: Props) => {
       cueInformativeHaptic();
       // get image from device media
       console.info('@SendOptions: chose image');
-      //   sendOptionsBottomSheetRef.current?.close();
+      sendOptionsBottomSheetRef.current?.close();
+      onChooseMedia();
     };
 
     const onPressScan = () => {
@@ -110,9 +156,8 @@ const useSendBottomSheet = (sendProps: Props) => {
 
     const onPressContact = () => {
       cueInformativeHaptic();
-      // open contacts bottomsheet
-      console.info('@SendOptions: chose contacts');
-      //   sendOptionsBottomSheetRef.current?.close();
+      sendOptionsBottomSheetRef.current?.close();
+      navigate(Screens.ContactsScreen);
     };
 
     return (

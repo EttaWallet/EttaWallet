@@ -75,13 +75,13 @@ PODS:
   - glog (0.3.5)
   - hermes-engine (0.70.6)
   - libevent (2.1.12)
-  - lottie-ios (3.5.0)
-  - lottie-react-native (6.0.0-rc.3):
-    - lottie-ios (~> 3.5.0)
+  - lottie-ios (4.2.0)
+  - lottie-react-native (6.0.0-rc.7):
+    - lottie-ios (~> 4.2.0)
     - React-Core
-  - MMKV (1.2.15):
-    - MMKVCore (~> 1.2.15)
-  - MMKVCore (1.2.15)
+  - MMKV (1.2.16):
+    - MMKVCore (~> 1.2.16)
+  - MMKVCore (1.2.16)
   - OpenSSL-Universal (1.1.1100)
   - RCT-Folly (2021.07.22.00):
     - boost
@@ -309,29 +309,27 @@ PODS:
   - React-jsinspector (0.70.6)
   - React-logger (0.70.6):
     - glog
-  - react-native-config (1.5.0):
-    - react-native-config/App (= 1.5.0)
-  - react-native-config/App (1.5.0):
+  - react-native-config (1.5.1):
+    - react-native-config/App (= 1.5.1)
+  - react-native-config/App (1.5.1):
     - React-Core
   - react-native-flipper (0.189.0):
+    - React-Core
+  - react-native-image-picker (4.10.3):
     - React-Core
   - react-native-ldk (0.0.97):
     - React
   - react-native-mmkv (2.5.1):
     - MMKV (>= 1.2.13)
     - React-Core
-  - react-native-netinfo (9.3.9):
+  - react-native-netinfo (9.4.1):
     - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
   - react-native-restart (0.0.27):
     - React-Core
-  - react-native-safe-area-context (4.5.1):
-    - RCT-Folly
-    - RCTRequired
-    - RCTTypeSafety
+  - react-native-safe-area-context (4.7.1):
     - React-Core
-    - ReactCommon/turbomodule/core
   - react-native-secure-key-store (2.0.10):
     - React-Core
   - react-native-simple-toast (1.1.4):
@@ -410,15 +408,15 @@ PODS:
     - React-perflogger (= 0.70.6)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RNCAsyncStorage (1.18.1):
+  - RNCAsyncStorage (1.19.1):
     - React-Core
   - RNCClipboard (1.11.2):
     - React-Core
-  - RNDeviceInfo (10.6.0):
+  - RNDeviceInfo (10.8.0):
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.9.0):
+  - RNGestureHandler (2.12.0):
     - React-Core
   - RNImageCropPicker (0.35.3):
     - React-Core
@@ -433,11 +431,14 @@ PODS:
     - React-Core
   - RNLocalize (2.2.6):
     - React-Core
-  - RNPermissions (3.8.0):
+  - RNPermissions (3.8.4):
     - React-Core
+  - RNQrGenerator (1.3.1):
+    - React
+    - ZXingObjC
   - RNReactNativeHapticFeedback (2.0.3):
     - React-Core
-  - RNReanimated (2.15.0):
+  - RNReanimated (2.17.0):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -464,17 +465,17 @@ PODS:
     - React-RCTText
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.20.0):
+  - RNScreens (3.22.1):
     - React-Core
     - React-RCTImage
   - RNSecureRandom (1.0.1):
     - React
-  - RNSentry (4.15.0):
+  - RNSentry (4.15.2):
     - React-Core
     - Sentry/HybridSDK (= 7.31.5)
   - RNSha256 (1.4.9):
     - React-Core
-  - RNSVG (13.9.0):
+  - RNSVG (13.10.0):
     - React-Core
   - Sentry/HybridSDK (7.31.5)
   - SocketRocket (0.6.0)
@@ -483,6 +484,9 @@ PODS:
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
+  - ZXingObjC (3.6.5):
+    - ZXingObjC/All (= 3.6.5)
+  - ZXingObjC/All (3.6.5)
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
@@ -534,6 +538,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-config (from `../node_modules/react-native-config`)
   - react-native-flipper (from `../node_modules/react-native-flipper`)
+  - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - "react-native-ldk (from `../node_modules/@synonymdev/react-native-ldk`)"
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
@@ -566,6 +571,7 @@ DEPENDENCIES:
   - RNKeychain (from `../node_modules/react-native-keychain`)
   - RNLocalize (from `../node_modules/react-native-localize`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
+  - RNQrGenerator (from `../node_modules/rn-qr-generator`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -598,6 +604,7 @@ SPEC REPOS:
     - Toast
     - TOCropViewController
     - YogaKit
+    - ZXingObjC
 
 EXTERNAL SOURCES:
   boost:
@@ -648,6 +655,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-config"
   react-native-flipper:
     :path: "../node_modules/react-native-flipper"
+  react-native-image-picker:
+    :path: "../node_modules/react-native-image-picker"
   react-native-ldk:
     :path: "../node_modules/@synonymdev/react-native-ldk"
   react-native-mmkv:
@@ -712,6 +721,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-localize"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
+  RNQrGenerator:
+    :path: "../node_modules/rn-qr-generator"
   RNReactNativeHapticFeedback:
     :path: "../node_modules/react-native-haptic-feedback"
   RNReanimated:
@@ -748,10 +759,10 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 2af7b7a59128f250adfd86f15aa1d5a2ecd39995
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  lottie-ios: c55158d67d0629a260625cc2ded2052b829e3c3e
-  lottie-react-native: 4b07ce6d17647dd24641ae5cd7ae614034318456
-  MMKV: 7f34558bbb5a33b0eaefae2de4b6a20a2ffdad6f
-  MMKVCore: ddf41b9d9262f058419f9ba7598719af56c02cd3
+  lottie-ios: 809ecf2d460ed650a6aed7aa88b2ec45fab4779c
+  lottie-react-native: a7341509cbc0bf01dff9889d1f7e17e8e745cf9e
+  MMKV: 784471ce430a2e2d16afef9053d63fab1b357d9e
+  MMKVCore: 9cfef4c48c6c46f66226fc2e4634d78490206a48
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
   RCT-Folly: 0080d0a6ebf2577475bda044aa59e2ca1f909cda
   RCTRequired: e1866f61af7049eb3d8e08e8b133abd38bc1ca7a
@@ -768,14 +779,15 @@ SPEC CHECKSUMS:
   React-jsiexecutor: b4a65947391c658450151275aa406f2b8263178f
   React-jsinspector: 60769e5a0a6d4b32294a2456077f59d0266f9a8b
   React-logger: 1623c216abaa88974afce404dc8f479406bbc3a0
-  react-native-config: 5330c8258265c1e5fdb8c009d2cabd6badd96727
+  react-native-config: 86038147314e2e6d10ea9972022aa171e6b1d4d8
   react-native-flipper: e0e154c742a3c5020ec97362de664880b608dab1
+  react-native-image-picker: 60f4246eb5bb7187fc15638a8c1f13abd3820695
   react-native-ldk: 38eb5291779f3ef181fd6472e7cd5ebf15797f8d
   react-native-mmkv: 69b9c003f10afdd01addf7c6ee784ce42ee2eff3
-  react-native-netinfo: 22c082970cbd99071a4e5aa7a612ac20d66b08f0
+  react-native-netinfo: fefd4e98d75cbdd6e85fc530f7111a8afdf2b0c5
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-restart: 7595693413fe3ca15893702f2c8306c62a708162
-  react-native-safe-area-context: f5549f36508b1b7497434baa0cd97d7e470920d4
+  react-native-safe-area-context: 9697629f7b2cda43cf52169bb7e0767d330648c2
   react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
   react-native-simple-toast: 8ee5d23f0b92b935ab7434cdb65159ce12dfb4b7
   react-native-splash-screen: 4312f786b13a81b5169ef346d76d33bc0c6dc457
@@ -793,28 +805,30 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 15437b576139df27635400de0599d9844f1ab817
   ReactCommon: 349be31adeecffc7986a0de875d7fb0dcf4e251c
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RNCAsyncStorage: b90b71f45b8b97be43bc4284e71a6af48ac9f547
+  RNCAsyncStorage: f47fe18526970a69c34b548883e1aeceb115e3e1
   RNCClipboard: 3f0451a8100393908bea5c5c5b16f96d45f30bfc
-  RNDeviceInfo: 475a4c447168d0ad4c807e48ef5e0963a0f4eb1b
+  RNDeviceInfo: 5795b418ed3451ebcaf39384e6cf51f60cb931c9
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
-  RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
+  RNGestureHandler: dec4645026e7401a0899f2846d864403478ff6a5
   RNImageCropPicker: 08ba3a2e2f4f8833d606f01906c371e382c4dea9
   RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333
   RNLocalize: d4b8af4e442d4bcca54e68fc687a2129b4d71a81
-  RNPermissions: 5b636bdba7ac58bfd26d19dcc131d95ad6d168c7
+  RNPermissions: d6a1c6f154f85f320b887a2088c87782d80b32bd
+  RNQrGenerator: 90461ba3ca88c1d38ef73da50fade35d9648215d
   RNReactNativeHapticFeedback: afa5bf2794aecbb2dba2525329253da0d66656df
-  RNReanimated: 716842722e1c5b0b7c56cf718e586b7f6a712879
-  RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
+  RNReanimated: bec7736122a268883bdede07f1bf9cf4b40158db
+  RNScreens: 50ffe2fa2342eabb2d0afbe19f7c1af286bc7fb3
   RNSecureRandom: 07efbdf2cd99efe13497433668e54acd7df49fef
-  RNSentry: 50f8b7147d1d0973a56635e524b192ec80e53195
+  RNSentry: 4ea90ea061624364637e8077d965bf2e50478066
   RNSha256: a6bc3640a34eb41907e363828b9ec742c274298d
-  RNSVG: 53c661b76829783cdaf9b7a57258f3d3b4c28315
+  RNSVG: 80584470ff1ffc7994923ea135a3e5ad825546b9
   Sentry: 4c9babff9034785067c896fd580b1f7de44da020
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   TOCropViewController: edfd4f25713d56905ad1e0b9f5be3fbe0f59c863
   Yoga: 99caf8d5ab45e9d637ee6e0174ec16fbbb01bcfc
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
+  ZXingObjC: fdbb269f25dd2032da343e06f10224d62f537bdb
 
 PODFILE CHECKSUM: bdc546c188f281c61e861c424150cb1512730474
 

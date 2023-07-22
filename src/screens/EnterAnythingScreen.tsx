@@ -59,13 +59,11 @@ const EnterAnythingScreen = ({ navigation }) => {
 
     // decode input
     const parsedInput = await parseInputAddress(inputString);
-    console.log(parsedInput);
 
     if (parsedInput?.data === EIdentifierType.LNURL && parsedInput.isLNURL) {
       // if LNURL, go to amount screen and then proceed to SendScreen
     } else if (parsedInput?.data === EIdentifierType.BOLT11_INVOICE && !parsedInput.isLNURL) {
       // if BOLT 11, get the decoded invoiceString and amount and proceed to SendScreen
-
       const decodedInvoice = await decodeLightningInvoice({
         paymentRequest: inputString,
       });

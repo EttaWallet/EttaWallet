@@ -213,7 +213,6 @@ export const processInputData = async ({
 }: {
   data: string;
   selectedNetwork?: TAvailableNetworks;
-  skip?: Array<string>;
   showErrors?: boolean;
 }): Promise<Result<TDecodedInput>> => {
   data = data.trim();
