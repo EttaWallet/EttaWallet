@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import { InfoListItem } from '../components/InfoListItem';
 import { decodeLightningInvoice } from '../utils/lightning/decode';
-import { TInvoice } from '@synonymdev/react-native-ldk';
+import { TInvoice } from 'rn-ldk';
 import { payInvoice } from '../utils/lightning/helpers';
 import { refreshWallet } from '../utils/wallet';
 import { navigate, navigateHome } from '../navigation/NavigationService';

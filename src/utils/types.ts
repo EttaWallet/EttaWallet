@@ -1,4 +1,4 @@
-import { TCreatePaymentReq, TInvoice } from '@synonymdev/react-native-ldk';
+import { TCreatePaymentReq, TInvoice } from 'rn-ldk';
 import { TAvailableNetworks } from './networks';
 
 export enum AppState {
@@ -458,4 +458,12 @@ export type TContact = {
 export interface IContactSection {
   key: string;
   data: TContact[];
+}
+
+export interface IPendingChannel {
+  channel_id: string;
+  funding_txo: {
+    txId: string;
+    vOut: number;
+  };
 }

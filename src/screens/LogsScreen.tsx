@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Text, StyleSheet, Platform, View } from 'react-native';
 import { headerWithBackButton } from '../navigation/Headers';
 import RNFS from 'react-native-fs';
-import lm from '@synonymdev/react-native-ldk';
+import lm from 'rn-ldk';
 import { Colors, TypographyPresets } from 'etta-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

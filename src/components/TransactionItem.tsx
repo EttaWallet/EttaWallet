@@ -1,5 +1,5 @@
 import React from 'react';
-import { TInvoice } from '@synonymdev/react-native-ldk';
+import { TInvoice } from 'rn-ldk';
 import { EPaymentType, TContact } from '../utils/types';
 import { humanizeTimestamp } from '../utils/time';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';

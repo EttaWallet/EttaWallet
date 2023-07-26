@@ -1,4 +1,4 @@
-import { TChannel } from '@synonymdev/react-native-ldk';
+import { TChannel } from 'rn-ldk';
 import { TContact, TLightningPayment } from '../utils/types';
 import { Screens } from './Screens';
 

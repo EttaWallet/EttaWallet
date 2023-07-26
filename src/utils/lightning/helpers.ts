@@ -5,9 +5,10 @@ import lm, {
   TChannelManagerPaymentSent,
   TCreatePaymentReq,
   TInvoice,
-} from '@synonymdev/react-native-ldk';
+} from 'rn-ldk';
 import {
   EPaymentType,
+  IPendingChannel,
   IWalletItem,
   NodeState,
   TContact,
@@ -33,7 +34,7 @@ import {
 import { getKeychainValue } from '../keychain';
 import { InteractionManager } from 'react-native';
 import { connectToElectrum, subscribeToHeader } from '../electrum';
-import ldk from '@synonymdev/react-native-ldk/dist/ldk';
+import ldk from 'rn-ldk/dist/ldk';
 
 import * as bitcoin from 'bitcoinjs-lib';
 import { reduceValue, sleep } from '../helpers';
@@ -532,7 +533,7 @@ export const startLightning = async ({
   selectedNetwork,
 }: {
   restore?: boolean;
-  selectedNetwork?: TAvailableNetworks;
+  selectedNetwork: TAvailableNetworks;
 }): Promise<Result<string>> => {
   try {
     // wait for interactions/animations to be completed
@@ -1021,4 +1022,33 @@ export const getContact = ({ contactId }: { contactId: string }): Result<TContac
   } catch (e) {
     return err(e.message);
   }
+};
+
+/**
+ * Adds a pending zero conf channel to the store object for tracking.
+ * @param {TInvoice} invoice
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Result<string>}
+ */
+export const addPendingZeroConfChannel = ({
+  pendingChannel,
+  selectedNetwork,
+}: {
+  pendingChannel: IPendingChannel;
+  selectedNetwork?: TAvailableNetworks;
+}): Result<string> => {
+  if (!pendingChannel) {
+    return err('No channel info provided.');
+  }
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+
+  const payload: IPendingChannel = {
+    channel_id: pendingChannel.channel_id,
+    funding_txo: pendingChannel.funding_txo,
+  };
+  // add pending channel to store once confirmed
+  store.dispatch.lightning.setPendingChannel(payload);
+  return ok('Successfully added pending zero-conf channel');
 };

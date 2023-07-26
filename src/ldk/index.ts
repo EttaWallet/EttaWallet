@@ -11,14 +11,14 @@ import lm, {
   DefaultTransactionDataShape,
   EEventTypes,
   TChannelManagerClaim,
-  TChannelManagerOpenChannelRequest,
   TChannelUpdate,
   TInvoice,
   TTransactionData,
   TTransactionPosition,
   TUserConfig,
-} from '@synonymdev/react-native-ldk';
-import ldk from '@synonymdev/react-native-ldk/dist/ldk';
+  TAvailableNetworks,
+} from 'rn-ldk';
+import ldk from 'rn-ldk/dist/ldk';
 import {
   updateLdkVersion,
   updateLdkNodeId,
@@ -28,12 +28,13 @@ import {
   updateClaimableBalance,
   getLightningStore,
   addPayment,
+  addPendingZeroConfChannel,
 } from '../utils/lightning/helpers';
-import { TLightningNodeVersion } from '../utils/types';
+import { IPendingChannel, TLightningNodeVersion } from '../utils/types';
 import { EmitterSubscription, InteractionManager } from 'react-native';
 import { promiseTimeout, sleep, tryNTimes } from '../utils/helpers';
 import { getBestBlock, getTransactionMerkle } from '../utils/electrum/helpers';
-import { getLdkNetwork, TAvailableNetworks } from '../utils/networks';
+import { getLdkNetwork } from '../utils/networks';
 import { getReceiveAddress, getSelectedNetwork, getWalletStore } from '../utils/wallet';
 import { showSuccessBanner, showToast } from '../utils/alerts';
 import { navigate } from '../navigation/NavigationService';
@@ -45,6 +46,7 @@ let LDKIsStayingSynced = false;
 // Subscribe to LDK module events
 let paymentSubscription: EmitterSubscription | undefined;
 let onOpenChannelSubscription: EmitterSubscription | undefined;
+let onChannelReadySubscription: EmitterSubscription | undefined;
 let onChannelSubscription: EmitterSubscription | undefined;
 let onPaymentFailedSubscription: EmitterSubscription | undefined;
 let onPaymentPathSuccessSubscription: EmitterSubscription | undefined;
@@ -515,22 +517,17 @@ export const handleNewChannelSubscription = async ({
  * @param {TAvailableNetworks} [selectedNetwork]
  */
 export const handleOpenZeroConfChannel = async ({
-  newChannel,
+  pendingChannel,
   selectedNetwork,
 }: {
-  newChannel: TChannelManagerOpenChannelRequest;
+  pendingChannel: IPendingChannel;
   selectedNetwork?: TAvailableNetworks;
 }): Promise<void> => {
   if (!selectedNetwork) {
     selectedNetwork = getSelectedNetwork();
   }
 
-  const { counterparty_node_id, temp_channel_id, channel_type, push_sat, funding_satoshis } =
-    newChannel;
-
-  console.log(
-    `new zero conf inbound channel ${temp_channel_id} from ${counterparty_node_id} of type ${channel_type} and capacity ${funding_satoshis} pushing ${push_sat} sats to Etta`
-  );
+  addPendingZeroConfChannel({ pendingChannel: pendingChannel });
 };
 
 /**
@@ -563,10 +560,10 @@ export const subscribeToPayments = ({
    */
   if (!onOpenChannelSubscription) {
     onOpenChannelSubscription = ldk.onEvent(
-      EEventTypes.channel_manager_open_channel_request,
-      (_res: TChannelManagerOpenChannelRequest) => {
+      EEventTypes.channel_manager_channel_pending, // event doesn't exist yet on EEventTypes for Ldk Module
+      (_res: IPendingChannel) => {
         handleOpenZeroConfChannel({
-          newChannel: _res,
+          pendingChannel: _res,
           selectedNetwork,
         });
 
@@ -630,6 +627,8 @@ export const subscribeToPayments = ({
 export const unsubscribeFromLDKSubscriptions = (): void => {
   paymentSubscription?.remove();
   onChannelSubscription?.remove();
+  onOpenChannelSubscription?.remove();
+  onChannelReadySubscription?.remove();
   onPaymentPathSuccessSubscription?.remove();
   onPaymentFailedSubscription?.remove();
   onPaymentSuccessfulSubscription?.remove();

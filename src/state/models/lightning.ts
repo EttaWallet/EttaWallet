@@ -1,13 +1,14 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import {
   EPaymentType,
+  IPendingChannel,
   NodeState,
   TContact,
   TLightningNodeVersion,
   TLightningPayment,
   TModifyInvoice,
 } from '../../utils/types';
-import { TChannel, TInvoice } from '@synonymdev/react-native-ldk';
+import { TChannel, TInvoice } from 'rn-ldk';
 import { startLightning } from '../../utils/lightning/helpers';
 import logger from '../../utils/logger';
 import { isLdkRunning, waitForLdk } from '../../ldk';
@@ -23,6 +24,7 @@ export interface LightningNodeModelType {
   ldkVersion: TLightningNodeVersion;
   channels: { [key: string]: TChannel };
   openChannelIds: string[];
+  pendingChannels: IPendingChannel[];
   invoices: TInvoice[];
   payments: { [key: string]: TLightningPayment };
   peers: string[];
@@ -53,6 +55,8 @@ export interface LightningNodeModelType {
   updateContact: Action<LightningNodeModelType, { contactId: string; updatedContact: TContact }>;
   deleteContact: Action<LightningNodeModelType, string>;
   deleteContactAddress: Action<LightningNodeModelType, { contactId: string; addressId: string }>;
+  setPendingChannel: Action<LightningNodeModelType, IPendingChannel>;
+  unSetPendingChannel: Action<LightningNodeModelType, string>;
 }
 
 export const lightningModel: LightningNodeModelType = {
@@ -69,6 +73,7 @@ export const lightningModel: LightningNodeModelType = {
   peers: [],
   contacts: [],
   openChannelIds: [],
+  pendingChannels: [],
   claimableBalance: 0,
   maxReceivable: 0,
   defaultPRDescription: 'Invoice from EttaWallet',
@@ -228,5 +233,14 @@ export const lightningModel: LightningNodeModelType = {
       );
       return { ...contact, items: updatedIdentifiers };
     });
+  }),
+  setPendingChannel: action((state, payload) => {
+    state.pendingChannels.push(payload);
+  }),
+  unSetPendingChannel: action((state, payload) => {
+    const index = state.pendingChannels.findIndex((c) => c.channel_id === payload);
+    if (index !== -1) {
+      state.pendingChannels.splice(index, 1);
+    }
   }),
 };

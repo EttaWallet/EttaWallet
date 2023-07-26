@@ -1,4 +1,4 @@
-import { EAvailableNetworks, TAvailableNetworks } from '../utils/networks';
+import { EAvailableNetworks } from '../utils/networks';
 import {
   EAddressType,
   ICreateWallet,
@@ -24,6 +24,7 @@ import { InteractionManager } from 'react-native';
 import { refreshLdk } from '../ldk';
 import { generateMnemonic, getBitcoinAddress } from './bitcoin';
 import { IWallet } from './types';
+import { TAvailableNetworks } from 'rn-ldk';
 
 export const WALLET_SEED_HASH_PREFIX = Buffer.from('@ettaln/wallet-uuid');
 

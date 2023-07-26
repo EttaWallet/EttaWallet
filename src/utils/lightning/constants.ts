@@ -1,4 +1,4 @@
-import { TAvailableNetworks } from '@synonymdev/react-native-ldk';
+import { TAvailableNetworks } from 'rn-ldk';
 
 export const selectedNetwork: TAvailableNetworks = 'bitcoinTestnet';
 

@@ -1,9 +1,9 @@
-import { TInvoice, TPaymentReq } from '@synonymdev/react-native-ldk';
+import { TInvoice, TPaymentReq } from 'rn-ldk';
 import { TAvailableNetworks } from '../networks';
 import { Result, err, ok } from '../result';
 import { EIdentifierType, ELightningDataType, IDecodedData, TDecodedInput } from '../types';
 import { getSelectedNetwork } from '../wallet';
-import ldk from '@synonymdev/react-native-ldk/dist/ldk';
+import ldk from 'rn-ldk/dist/ldk';
 import { addPeer, getLightningStore, getTotalBalance, savePeer } from './helpers';
 import { navigate } from '../../navigation/NavigationService';
 import { Screens } from '../../navigation/Screens';

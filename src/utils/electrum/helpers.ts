@@ -13,7 +13,7 @@ import { ok } from 'assert';
 import { getSelectedNetwork, getWalletStore, refreshWallet } from '../wallet';
 import store from '../../state/store';
 import * as bitcoin from 'bitcoinjs-lib';
-import { THeader } from '@synonymdev/react-native-ldk';
+import { THeader } from 'rn-ldk';
 import { header as defaultHeader } from '../types';
 
 export const CHUNK_LIMIT = 15; // control # requests to electrum
