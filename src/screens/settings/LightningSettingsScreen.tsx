@@ -12,9 +12,11 @@ import { navigate } from '../../navigation/NavigationService';
 import { Screens } from '../../navigation/Screens';
 import SectionTitle from '../../components/SectionTitle';
 import useLightningSettingsBottomSheet from './useLightningSettingsBottomSheet';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const LightningSettingsScreen = ({ navigation }) => {
   const nodeID = useStoreState((state) => state.lightning.nodeId);
+  const receiveLimit = useStoreState((state) => state.lightning.maxReceivable);
   const maskedNodeId = maskString(nodeID!, 10);
 
   useLayoutEffect(() => {
@@ -53,25 +55,31 @@ const LightningSettingsScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <SectionTitle title="Defaults" style={styles.sectionHeading} />
-      <SettingsItemWithTextValue
-        title="Default payment description"
-        withChevron={true}
-        onPress={openUpdateDescriptionSheet}
-      />
-      <SettingsItemWithTextValue
-        title="Default invoice expiry period"
-        withChevron={true}
-        onPress={openUpdateExpirySheet}
-      />
-      <SectionTitle title="Advanced" style={styles.sectionHeading} />
-      <SettingsItemWithTextValue
-        title="Node ID"
-        value={maskedNodeId}
-        withChevron={false}
-        onPress={onPressNodeId}
-      />
-      <SettingsItemWithTextValue
+      <ScrollView bounces={true}>
+        <SectionTitle title="Defaults" style={styles.sectionHeading} />
+        <SettingsItemWithTextValue
+          title="Default payment description"
+          withChevron={true}
+          onPress={openUpdateDescriptionSheet}
+        />
+        <SettingsItemWithTextValue
+          title="Default invoice expiry period"
+          withChevron={true}
+          onPress={openUpdateExpirySheet}
+        />
+        <SectionTitle title="Advanced" style={styles.sectionHeading} />
+        <SettingsItemWithTextValue
+          title="Node ID"
+          value={maskedNodeId}
+          withChevron={false}
+          onPress={onPressNodeId}
+        />
+        <SettingsItemWithTextValue
+          title="Receive limit"
+          value={`${receiveLimit.toLocaleString()} sats`}
+          withChevron={false}
+        />
+        {/* <SettingsItemWithTextValue
         title="Payment Channels"
         withChevron={true}
         onPress={onPressChannels}
@@ -81,12 +89,9 @@ const LightningSettingsScreen = ({ navigation }) => {
         title="Electrum servers"
         withChevron={true}
         onPress={openElectrumSheet}
-      />
-      <SettingsItemWithTextValue
-        title="View LDK logs"
-        withChevron={true}
-        onPress={onPressViewLogs}
-      />
+      /> */}
+        <SettingsItemWithTextValue title="View logs" withChevron={true} onPress={onPressViewLogs} />
+      </ScrollView>
       {updateDescriptionBottomSheet}
       {updateExpiryBottomSheet}
       {showElectrumBottomSheet}

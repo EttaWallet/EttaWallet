@@ -127,6 +127,10 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
     return address;
   };
 
+  const onPressSend = (identifier: string) => {
+    console.log(`pressed send for ${identifier}`);
+  };
+
   const IdentifiersList = ({ addresses }) => (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       {addresses.map((identifier: TIdentifier, index) => (
@@ -136,7 +140,11 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
             <Text style={styles.identifier}>{formatAddress(identifier.address)}</Text>
           </View>
           <View style={styles.row}>
-            <TouchableOpacity style={styles.sendIconContainer} hitSlop={pressableHitSlop}>
+            <TouchableOpacity
+              style={styles.sendIconContainer}
+              hitSlop={pressableHitSlop}
+              onPress={() => onPressSend(identifier.address)}
+            >
               <Icon name="icon-arrow-up" style={styles.icon} />
             </TouchableOpacity>
           </View>
@@ -273,7 +281,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: Colors.neutrals.light.neutral4,
-    padding: 12,
+    paddingVertical: 12,
     justifyContent: 'space-between',
   },
   row: {

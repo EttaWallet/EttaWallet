@@ -1,13 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { Text, StyleSheet, Platform, View } from 'react-native';
-import { headerWithBackButton } from '../navigation/Headers';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { Text, StyleSheet, Platform } from 'react-native';
+import { HeaderTitleWithSubtitle, headerWithBackButton } from '../navigation/Headers';
 import RNFS from 'react-native-fs';
 import lm from '@synonymdev/react-native-ldk';
-import { Colors, TypographyPresets } from 'etta-ui';
+import { Button, Colors, TypographyPresets } from 'etta-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { FlatList } from 'react-native-gesture-handler';
 
-const LogsScreen = () => {
+const LogsScreen = ({ navigation }) => {
   const [logContent, setLogContent] = useState('');
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => <HeaderTitleWithSubtitle title="Node logs" />,
+      headerRight: () => <Button onPress={() => 0} title="Export" appearance="transparent" />,
+    });
+  }, [navigation]);
 
   useEffect(() => {
     const readLogStream = async () => {
@@ -33,10 +41,14 @@ const LogsScreen = () => {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.contentContainer}>
-        <Text style={styles.text}>{logContent}</Text>
-      </View>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <FlatList
+        data={logContent}
+        renderItem={({ item }) => <Text style={styles.text}>{logContent}</Text>}
+        keyExtractor={(item, index) => index.toString()}
+        contentContainerStyle={styles.contentContainer}
+        ListEmptyComponent={<Text>No logs available</Text>}
+      />
     </SafeAreaView>
   );
 };
@@ -51,14 +63,25 @@ LogsScreen.navigationOptions = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 16,
   },
   contentContainer: {
-    flex: 1,
-    backgroundColor: Colors.common.black,
+    flexGrow: 1,
   },
   text: {
-    color: Colors.common.white,
+    color: Colors.common.black,
     ...TypographyPresets.Body5,
+  },
+  bottomBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#ccc',
+    paddingVertical: 20,
+  },
+  button: {
+    justifyContent: 'center',
   },
 });
 
