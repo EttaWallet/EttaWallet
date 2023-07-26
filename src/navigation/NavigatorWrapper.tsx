@@ -6,9 +6,6 @@ import { navigationRef, navigatorIsReadyRef } from './NavigationService';
 import Navigator from './Navigator';
 import navTheme from './theme';
 import Logger from '../utils/logger';
-import * as Sentry from '@sentry/react-native';
-import type { SeverityLevel } from '@sentry/types';
-import { sentryRoutingInstrumentation } from '../utils/sentry';
 import DeviceInfo from 'react-native-device-info';
 import { useStoreState, useStoreActions } from '../state/hooks';
 import { isVersionBelowMinimum } from '../utils/helpers';
@@ -118,11 +115,6 @@ export const NavigatorWrapper = () => {
 
     if (previousRouteName !== currentRouteName) {
       setActiveRouteDispatch(currentRouteName);
-      Sentry.addBreadcrumb({
-        category: 'navigation',
-        message: `Navigated to ${currentRouteName}`,
-        level: 'info' as SeverityLevel,
-      });
     }
 
     // Save the current route name for later comparision
@@ -131,7 +123,6 @@ export const NavigatorWrapper = () => {
 
   const onReady = () => {
     navigatorIsReadyRef.current = true;
-    sentryRoutingInstrumentation.registerNavigationContainer(navigationRef);
   };
 
   return (

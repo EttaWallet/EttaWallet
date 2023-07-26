@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>EttaLN</string>
+	<string>EttaWallet</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -23,7 +23,7 @@
 	<key>CFBundleVersion</key>
 	<string>2</string>
 	<key>LSRequiresIPhoneOS</key>
-	<true />
+	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>
@@ -31,20 +31,16 @@
 			<key>localhost</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true />
+				<true/>
 			</dict>
 		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>To scan QR codes for lightning payments</string>
+	<string>This is necessary to scan QR codes</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>This is required for you to use Face ID to secure your wallet.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Connecting your photo library allows you to personalize your contacts' images and save QR codes</string>
+	<string>You may use Face ID to secure your wallet and for convenient access.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This is required for you to choose a profile picture.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string />
+	<string>This is required for you to choose an avatar for your contacts</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Bitcoin.ttf</string>
@@ -61,13 +57,7 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-		<string>UIInterfaceOrientationPortrait</string>
-	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false />
+	<false/>
 </dict>
 </plist>

@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/react-native';
 import * as React from 'react';
 import type { WithTranslation } from 'react-i18next';
 import { withTranslation } from '../i18n';
@@ -22,7 +21,6 @@ class ErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error: Error) {
     this.setState({ childError: error });
-    Sentry.captureException(error);
   }
 
   render() {

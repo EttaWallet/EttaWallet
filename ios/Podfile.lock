@@ -470,14 +470,10 @@ PODS:
     - React-RCTImage
   - RNSecureRandom (1.0.1):
     - React
-  - RNSentry (4.15.2):
-    - React-Core
-    - Sentry/HybridSDK (= 7.31.5)
   - RNSha256 (1.4.9):
     - React-Core
   - RNSVG (13.10.0):
     - React-Core
-  - Sentry/HybridSDK (7.31.5)
   - SocketRocket (0.6.0)
   - Toast (4.0.0)
   - TOCropViewController (2.6.1)
@@ -576,7 +572,6 @@ DEPENDENCIES:
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSecureRandom (from `../node_modules/react-native-securerandom`)
-  - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNSha256 (from `../node_modules/react-native-sha256`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
@@ -599,7 +594,6 @@ SPEC REPOS:
     - MMKV
     - MMKVCore
     - OpenSSL-Universal
-    - Sentry
     - SocketRocket
     - Toast
     - TOCropViewController
@@ -731,8 +725,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-screens"
   RNSecureRandom:
     :path: "../node_modules/react-native-securerandom"
-  RNSentry:
-    :path: "../node_modules/@sentry/react-native"
   RNSha256:
     :path: "../node_modules/react-native-sha256"
   RNSVG:
@@ -813,16 +805,14 @@ SPEC CHECKSUMS:
   RNImageCropPicker: 08ba3a2e2f4f8833d606f01906c371e382c4dea9
   RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333
   RNLocalize: d4b8af4e442d4bcca54e68fc687a2129b4d71a81
-  RNPermissions: d6a1c6f154f85f320b887a2088c87782d80b32bd
+  RNPermissions: 2307b0160c6b307ea037cba9ca712ab711c1dcc9
   RNQrGenerator: 90461ba3ca88c1d38ef73da50fade35d9648215d
   RNReactNativeHapticFeedback: afa5bf2794aecbb2dba2525329253da0d66656df
   RNReanimated: bec7736122a268883bdede07f1bf9cf4b40158db
   RNScreens: 50ffe2fa2342eabb2d0afbe19f7c1af286bc7fb3
   RNSecureRandom: 07efbdf2cd99efe13497433668e54acd7df49fef
-  RNSentry: 4ea90ea061624364637e8077d965bf2e50478066
   RNSha256: a6bc3640a34eb41907e363828b9ec742c274298d
   RNSVG: 80584470ff1ffc7994923ea135a3e5ad825546b9
-  Sentry: 4c9babff9034785067c896fd580b1f7de44da020
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   TOCropViewController: edfd4f25713d56905ad1e0b9f5be3fbe0f59c863

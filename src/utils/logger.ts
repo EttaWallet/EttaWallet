@@ -1,5 +1,3 @@
-import * as Sentry from '@sentry/react-native';
-import type { SeverityLevel } from '@sentry/types';
 import Toast from 'react-native-simple-toast';
 
 export enum LoggerLevel {
@@ -9,7 +7,7 @@ export enum LoggerLevel {
   Error = 0,
 }
 
-const DEFAULT_SENTRY_NETWORK_ERRORS = ['network request failed', 'The network connection was lost'];
+const DEFAULT_NETWORK_ERRORS = ['network request failed', 'The network connection was lost'];
 
 const LOGGER_LEVEL = LoggerLevel.Debug;
 
@@ -21,7 +19,7 @@ class Logger {
   constructor({ level }: { level: LoggerLevel } = { level: LoggerLevel.Debug }) {
     this.level = level;
     this.isNetworkConnected = true;
-    this.networkErrors = DEFAULT_SENTRY_NETWORK_ERRORS || [];
+    this.networkErrors = DEFAULT_NETWORK_ERRORS || [];
   }
 
   debug = (tag: string, ...messages: any[]) => {
@@ -57,30 +55,12 @@ class Logger {
     const sanitizedError =
       error && shouldSanitizeError ? this.sanitizeError(error, valueToPurge) : error;
     const errorMsg = this.getErrorMessage(sanitizedError);
-    const isNetworkError = this.networkErrors.some(
-      (networkError) =>
-        message.toString().toLowerCase().includes(networkError) ||
-        errorMsg.toLowerCase().includes(networkError)
-    );
+    // const isNetworkError = this.networkErrors.some(
+    //   (networkError) =>
+    //     message.toString().toLowerCase().includes(networkError) ||
+    //     errorMsg.toLowerCase().includes(networkError)
+    // );
 
-    // prevent genuine network errors from being sent to Sentry
-    if (!isNetworkError || (this.isNetworkConnected && isNetworkError)) {
-      const captureContext = {
-        level: 'error' as SeverityLevel,
-        extra: {
-          tag,
-          message: message?.toString(),
-          errorMsg,
-          source: 'Logger.error',
-          networkConnected: this.isNetworkConnected,
-        },
-      };
-      if (error) {
-        Sentry.captureException(error, captureContext);
-      } else {
-        Sentry.captureMessage(message, captureContext);
-      }
-    }
     console.info(
       `${tag} :: ${message} :: ${errorMsg} :: internet connected: ${this.isNetworkConnected}`
     );
