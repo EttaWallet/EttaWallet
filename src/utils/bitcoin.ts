@@ -1,7 +1,7 @@
 import * as bitcoin from 'bitcoinjs-lib';
 import * as bip39 from 'bip39';
 import { BIP32Factory } from 'bip32';
-import ecc from '@bitcoinerlab/secp256k1';
+import ecc from './nobble_ecc';
 import { TAvailableNetworks } from '@synonymdev/react-native-ldk';
 import { err } from './result';
 import { getBip39Passphrase, getSelectedNetwork } from './wallet';

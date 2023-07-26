@@ -13,5 +13,6 @@ module.exports = {
         inlineRequires: true,
       },
     }),
+    minifierPath: require.resolve('metro-minify-terser'),
   },
 };
