@@ -2,6 +2,7 @@ import './shim';
 
 import React, { ReactElement } from 'react';
 import { StatusBar, useColorScheme, LogBox } from 'react-native';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ThemeProvider, LIGHT_THEME, DARK_THEME, Colors } from 'etta-ui';
 import { enableScreens } from 'react-native-screens';
 import I18nGate from './src/i18n/i18nGate';
@@ -41,7 +42,7 @@ function WaitForStateRehydration({ children }: Props) {
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
-  const theme = isDarkMode ? DARK_THEME : LIGHT_THEME;
+  const theme = isDarkMode ? LIGHT_THEME : LIGHT_THEME; // @todo: fix UI components in dark mode then resolve this
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.common.black : Colors.common.white,
   };
