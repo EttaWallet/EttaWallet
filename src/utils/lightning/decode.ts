@@ -8,7 +8,7 @@ import { addPeer, getLightningStore, getTotalBalance, savePeer } from './helpers
 import { navigate } from '../../navigation/NavigationService';
 import { Screens } from '../../navigation/Screens';
 import { showErrorBanner, showSuccessBanner, showToast, showWarningBanner } from '../alerts';
-import { cueErrorHaptic, cueSuccessHaptic } from '../accessibility/haptics';
+import { cueErrorHaptic } from '../accessibility/haptics';
 
 export const validateInternetIdentifier = (internetIdentifier) => {
   var re = /\S+@\S+\.\S+/;
@@ -333,7 +333,6 @@ export const handleProcessedData = async ({
       const invoiceString = decodedInvoice.value.to_str || '';
 
       if (invoiceAmount) {
-        cueSuccessHaptic();
         navigate(Screens.SendScreen, {
           amount: invoiceAmount,
           paymentRequest: invoiceString,
