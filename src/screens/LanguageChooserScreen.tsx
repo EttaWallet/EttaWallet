@@ -11,6 +11,8 @@ import type { StackParamList } from '../navigation/types';
 import { Colors, TypographyPresets } from 'etta-ui';
 import SelectionOption from '../components/SelectionOption';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { cueInformativeHaptic } from '../utils/accessibility/haptics';
+import { showWarningBanner } from '../utils/alerts';
 
 type ScreenProps = StackScreenProps<
   StackParamList,
@@ -33,6 +35,8 @@ const LanguageChooser = ({ route }: Props) => {
   const nextScreen = route.params?.nextScreen;
 
   const onSelect = (language: string, code: string) => {
+    cueInformativeHaptic();
+    showWarningBanner({ title: 'Heads up!', message: 'Translations are pending or outdated' });
     // eslint-disable-next-line no-void
     void changeLanguage(code);
     requestAnimationFrame(() => {
