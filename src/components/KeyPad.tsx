@@ -1,7 +1,9 @@
 import { Colors, TypographyPresets } from 'etta-ui';
 import * as React from 'react';
-import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Backspace } from '../icons/Backspace';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 
 interface Props {
   onDigitPress: (digit: number) => void;
@@ -18,7 +20,10 @@ const Digit = ({
   number: number;
   onDigitPress: (digit: number) => void;
 }) => {
-  const onPress = () => onDigitPress(number);
+  const onPress = () => {
+    cueInformativeHaptic();
+    onDigitPress(number);
+  };
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <Text allowFontScaling={false} style={styles.digit}>

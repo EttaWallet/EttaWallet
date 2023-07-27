@@ -190,6 +190,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.common.white,
     justifyContent: 'space-between',
+    marginBottom: 40,
   },
   changePinContainer: {
     flex: 1,

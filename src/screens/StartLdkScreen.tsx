@@ -30,6 +30,7 @@ export function StartLdkScreen() {
   const startNode = useStoreActions((actions) => actions.lightning.startLdk);
 
   const onPressStart = useCallback(() => {
+    cueInformativeHaptic();
     if (!nodeStarted) {
       startNode().then();
     }

@@ -3,6 +3,7 @@ import { Keyboard, Text, View, LayoutAnimation } from 'react-native';
 import { useTheme } from 'etta-ui';
 import { getPincodeStyles } from './pincode.style';
 import Keypad from '../KeyPad';
+import { cueInformativeHaptic } from '../../utils/accessibility/haptics';
 
 // How long the last entered digit is visible
 const LAST_DIGIT_VISIBLE_INTERVAL = 1000; // 1secs
@@ -41,6 +42,7 @@ const PincodeComponent = ({
   };
 
   const onBackspacePress = () => {
+    cueInformativeHaptic();
     onChangePin(pin.substring(0, pin.length - 1));
   };
 

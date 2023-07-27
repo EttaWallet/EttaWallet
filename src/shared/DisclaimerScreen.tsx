@@ -13,8 +13,9 @@ import { FAQ_LINK } from '../../config';
 import { navigateToURI } from '../utils/helpers';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
+import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 
-const MARGIN = 24;
+const MARGIN = 40;
 
 const DisclaimerScreen = () => {
   const { t } = useTranslation();
@@ -22,10 +23,12 @@ const DisclaimerScreen = () => {
   const acknowledgedDisclaimer = useStoreActions((action) => action.nuxt.setAcknowledgedDisclaimer);
 
   const onPressGoToFAQ = () => {
+    cueInformativeHaptic();
     navigateToURI(FAQ_LINK);
   };
 
   const onPressAccept = () => {
+    cueInformativeHaptic();
     acknowledgedDisclaimer(true);
     goToNextScreen();
   };
@@ -35,8 +38,8 @@ const DisclaimerScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>{t('disclaimer.title')}</Text>
         <Text style={styles.disclaimer}>
           <Trans i18nKey={'disclaimer.info'}>
@@ -63,12 +66,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollView: {
-    marginTop: 40,
-  },
   scrollContent: {
     paddingTop: 40,
-    paddingHorizontal: MARGIN,
+    paddingHorizontal: 16,
   },
   title: {
     ...TypographyPresets.Header1,
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: MARGIN,
-    marginHorizontal: MARGIN,
+    marginHorizontal: 16,
     justifyContent: 'center',
   },
 });

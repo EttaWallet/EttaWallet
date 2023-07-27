@@ -1,9 +1,11 @@
 import React from 'react';
-import { StyleSheet, SafeAreaView } from 'react-native';
-import { Chip } from 'etta-ui';
+import { StyleSheet, View, Text } from 'react-native';
+import { Colors, Icon } from 'etta-ui';
 import { navigate } from '../NavigationService';
 import { useTranslation } from 'react-i18next';
 import type { StackParamList } from '../types';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { pressableHitSlop } from '../../utils/helpers';
 
 type NavProps =
   | {
@@ -28,18 +30,41 @@ const SkipButton = ({ onSkip, nextScreen }: NavProps) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Chip icon="icon-caret-right" iconPosition="right" onPress={onPressSkip}>
-        {t('navigationLabels.skip')}
-      </Chip>
-    </SafeAreaView>
+    <TouchableWithoutFeedback
+      onPress={onPressSkip}
+      style={styles.container}
+      hitSlop={pressableHitSlop}
+    >
+      <Text style={styles.text}>{t('navigationLabels.skip')}</Text>
+      <View style={styles.iconContainer}>
+        <Icon name="icon-caret-right" style={styles.icon} />
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    right: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 20,
+    color: Colors.common.black,
+  },
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 20,
+    height: 20,
+  },
+  text: {
+    fontSize: 18,
+    lineHeight: 18,
+    fontWeight: '500',
   },
 });
 
