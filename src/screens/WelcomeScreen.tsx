@@ -13,6 +13,8 @@ import { sleep } from '../utils/helpers';
 import { createDefaultWallet } from '../utils/wallet';
 import Logger from '../utils/logger';
 import Logo from '../icons/Logo';
+import { cueInformativeHaptic } from '../utils/accessibility/haptics';
+import { showWarningBanner } from '../utils/alerts';
 
 const TAG = 'WelcomeScreen';
 
@@ -23,6 +25,7 @@ const WelcomeScreen = () => {
   const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType);
   const enabledBiometrics = useStoreState((state) => state.app.biometricsEnabled);
   const skippedBiometrics = useStoreState((state) => state.app.skippedBiometrics);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const setChoseRestore = useStoreActions((action) => action.nuxt.setChoseRestoreWallet);
 
   const nodeIsUp = useStoreState((state) => state.lightning.nodeStarted);
@@ -48,6 +51,7 @@ const WelcomeScreen = () => {
   };
 
   const createWalletHandler = useCallback(async (): Promise<void> => {
+    cueInformativeHaptic();
     setCreatingWallet(true);
     await sleep(500); // wait
     const res = await createDefaultWallet({});
@@ -66,8 +70,10 @@ const WelcomeScreen = () => {
   }, []);
 
   const restoreWalletHandler = () => {
-    setChoseRestore(true);
-    navigateNext();
+    // setChoseRestore(true);
+    // navigateNext();
+    cueInformativeHaptic();
+    showWarningBanner({ message: 'Unavailable at the moment' });
   };
 
   const { t } = useTranslation();
@@ -135,6 +141,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: 'center',
     marginTop: 'auto',
+  },
+  restoreText: {
+    ...TypographyPresets.Body3,
   },
 });
 
