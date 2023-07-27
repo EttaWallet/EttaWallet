@@ -66,7 +66,7 @@ export const processTransactionData = async ({
         if (decodedLightningInvoice?.is_expired) {
           error = {
             title: 'Lightning Invoice Expired',
-            message: 'Unfortunately, this lightning invoice has expired.',
+            message: 'Unfortunately, this lightning invoice has expired',
           };
         }
       }

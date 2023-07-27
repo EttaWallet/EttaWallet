@@ -14,9 +14,9 @@ import {
   parseInputAddress,
 } from '../utils/lightning/decode';
 import { EIdentifierType } from '../utils/types';
-import { showErrorBanner } from '../utils/alerts';
+import { showErrorBanner, showWarningBanner } from '../utils/alerts';
 import { err } from '../utils/result';
-import { navigate } from '../navigation/NavigationService';
+import { navigate, navigateHome } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { sleep } from '../utils/helpers';
 
@@ -26,7 +26,7 @@ const EnterAnythingScreen = ({ navigation }) => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: () => <HeaderTitleWithSubtitle title="Enter anything" />,
-      headerRight: () => <CancelButton onCancel={() => 0} />,
+      headerRight: () => <CancelButton onCancel={() => navigateHome()} />,
     });
   }, [navigation]);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -62,6 +62,11 @@ const EnterAnythingScreen = ({ navigation }) => {
 
     if (parsedInput?.data === EIdentifierType.LNURL && parsedInput.isLNURL) {
       // if LNURL, go to amount screen and then proceed to SendScreen
+      // for now show banner saying LNURL unavaiable
+      await sleep(2000);
+      showWarningBanner({
+        message: 'Lightning address support is still in development',
+      });
     } else if (parsedInput?.data === EIdentifierType.BOLT11_INVOICE && !parsedInput.isLNURL) {
       // if BOLT 11, get the decoded invoiceString and amount and proceed to SendScreen
       const decodedInvoice = await decodeLightningInvoice({
@@ -107,7 +112,7 @@ const EnterAnythingScreen = ({ navigation }) => {
               label={'Enter BOLT11 invoice or Lightning address'}
               status={inputStatus}
               inputValue={inputString}
-              inputPlaceholder={'e.g etta@8333.mobi'}
+              inputPlaceholder={''}
               multiline={true}
               onInputChange={setLightningIdentifier}
               shouldShowClipboard={shouldShowClipboard}
