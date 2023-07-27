@@ -8,14 +8,13 @@ import BottomSheet, {
 import { Button, Colors, Icon, TypographyPresets } from 'etta-ui';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   cueErrorHaptic,
   cueInformativeHaptic,
   cueSuccessHaptic,
 } from '../utils/accessibility/haptics';
-import FormTextInput from './form/TextInput';
 import store from '../state/store';
 import { TContact } from '../utils/types';
 import { v4 as uuidv4 } from 'uuid';
@@ -27,6 +26,8 @@ import { BottomSheetSearchInput } from './SearchInput';
 import { sortContacts } from '../utils/helpers';
 import ContactItem from './ContactItem';
 import { useStoreState } from '../state/hooks';
+import KeyboardAwareScrollView from './keyboard/KeyboardInScrollView';
+import KeyboardSpacer from './keyboard/KeyboardSpacer';
 
 interface Props {
   contact?: TContact;
@@ -140,12 +141,13 @@ const useContactsBottomSheet = (addressProps: Props) => {
       >
         <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
           <Text style={styles.title}>{t('Add new contact')}</Text>
-          <FormTextInput
+          <BottomSheetTextInput
             onChangeText={handleNewContact}
             value={contactName}
             onBlur={onBlur}
             multiline={false}
             placeholder="Enter name or alias"
+            style={styles.textInput}
           />
 
           <Button
@@ -220,12 +222,13 @@ const useContactsBottomSheet = (addressProps: Props) => {
       >
         <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
           <Text style={styles.title}>{t('Change alias')}</Text>
-          <FormTextInput
+          <BottomSheetTextInput
             onChangeText={handleEditAlias}
             value={newContactName}
             onBlur={onBlur}
             multiline={false}
-            placeholder="Enter name or alias"
+            placeholder="Enter new alias"
+            style={styles.textInput}
           />
 
           <Button
@@ -319,22 +322,26 @@ const useContactsBottomSheet = (addressProps: Props) => {
       >
         <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
           <Text style={styles.title}>{t('Add address')}</Text>
-          <FormTextInput
+          <BottomSheetTextInput
             onChangeText={handleNewAddressLabel}
             value={newAddressLabel}
             onBlur={onBlur}
             multiline={false}
             placeholder="Enter label"
             autoCapitalize="none"
+            style={styles.textInput}
           />
-          <FormTextInput
+
+          <BottomSheetTextInput
             onChangeText={handleNewAddress}
             value={newAddress}
+            onBlur={onBlur}
             multiline={true}
             placeholder="Paste address"
             autoCapitalize="none"
             style={styles.addressInput}
           />
+
           {/* {newAddress !== '' && !isValidating ? (
             <Text>{validationMsg}</Text>
           ) : (
@@ -603,8 +610,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginVertical: 5,
   },
+  textInput: {
+    padding: 12,
+    marginTop: 12,
+    justifyContent: 'flex-end',
+    borderColor: Colors.neutrals.light.neutral3,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    color: Colors.common.black,
+    width: '100%',
+  },
   addressInput: {
-    paddingHorizontal: 12,
+    padding: 12,
+    marginTop: 12,
     alignItems: 'flex-start',
     borderColor: Colors.neutrals.light.neutral3,
     borderRadius: 4,
