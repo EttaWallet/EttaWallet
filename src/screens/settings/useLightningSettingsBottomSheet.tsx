@@ -1,19 +1,18 @@
 import BottomSheet, {
   BottomSheetBackdrop,
+  BottomSheetTextInput,
   useBottomSheetDynamicSnapPoints,
 } from '@gorhom/bottom-sheet';
 import { Button, Colors, TypographyPresets } from 'etta-ui';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CancelButton from '../../navigation/components/CancelButton';
 import { cueInformativeHaptic } from '../../utils/accessibility/haptics';
-import FormInput from '../../components/form/Input';
 import { useStoreDispatch, useStoreState } from '../../state/hooks';
 import RadioCardOption from '../../components/RadioCardOption';
-import { getConnectedElectrumPeer } from '../../utils/electrum/helpers';
-import { IElectrumPeerData } from '../../utils/types';
+import KeyboardAwareScrollView from '../../components/keyboard/KeyboardInScrollView';
+import KeyboardSpacer from '../../components/keyboard/KeyboardSpacer';
 
 const useLightningSettingsBottomSheet = () => {
   const { t } = useTranslation();
@@ -22,7 +21,6 @@ const useLightningSettingsBottomSheet = () => {
 
   const updateDescriptionBottomSheetRef = useRef<BottomSheet>(null);
   const updateExpiryBottomSheetRef = useRef<BottomSheet>(null);
-  const electrumServersBottomSheetRef = useRef<BottomSheet>(null);
 
   const defaultDescription = useStoreState((state) => state.lightning.defaultPRDescription);
   const defaultExpiry = useStoreState((state) => state.lightning.defaultPRExpiry);
@@ -30,11 +28,9 @@ const useLightningSettingsBottomSheet = () => {
   const [newDescription, setNewDescription] = useState(defaultDescription);
   const [newExpiry, setNewExpiry] = useState(defaultExpiry);
 
-  const [connectedPeer, setConnectedPeer] = useState<IElectrumPeerData>();
-
   const dispatch = useStoreDispatch();
 
-  const initialSnapPoints = useMemo(() => ['60%'], []);
+  const initialSnapPoints = useMemo(() => ['50%', 'CONTENT_HEIGHT'], []);
   const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
     useBottomSheetDynamicSnapPoints(initialSnapPoints);
 
@@ -45,30 +41,6 @@ const useLightningSettingsBottomSheet = () => {
   const openUpdateExpirySheet = () => {
     updateExpiryBottomSheetRef.current?.snapToIndex(0);
   };
-
-  const openElectrumSheet = () => {
-    electrumServersBottomSheetRef.current?.snapToIndex(0);
-  };
-
-  useEffect(() => {
-    async function getElectrumPeer() {
-      try {
-        const peerInfo = await getConnectedElectrumPeer();
-        console.log(peerInfo.value.host);
-        if (peerInfo.isOk()) {
-          console.log(peerInfo);
-          setConnectedPeer(peerInfo.value);
-        } else {
-          console.log(peerInfo);
-          setConnectedPeer(undefined);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    getElectrumPeer();
-  }, []);
 
   const renderBackdrop = useCallback(
     (props) => (
@@ -95,15 +67,19 @@ const useLightningSettingsBottomSheet = () => {
         backdropComponent={renderBackdrop}
         handleIndicatorStyle={styles.handle}
       >
-        <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
-          <FormInput
-            label={t('Default description (max 25char)')}
-            style={styles.field}
+        <KeyboardAwareScrollView
+          style={[styles.container, { paddingBottom }]}
+          onLayout={handleContentLayout}
+        >
+          <Text style={styles.title}>{t('Default description (max 25char)')}</Text>
+          <BottomSheetTextInput
             onChangeText={setNewDescription}
             value={newDescription}
             enablesReturnKeyAutomatically={true}
+            returnKeyLabel="done"
             maxLength={25}
             multiline={false}
+            style={styles.textInput}
           />
           <Button
             title="Update"
@@ -112,7 +88,8 @@ const useLightningSettingsBottomSheet = () => {
             appearance="filled"
             style={styles.button}
           />
-        </View>
+          <KeyboardSpacer topSpacing={16} />
+        </KeyboardAwareScrollView>
       </BottomSheet>
     );
   }, [
@@ -203,60 +180,11 @@ const useLightningSettingsBottomSheet = () => {
     dispatch.lightning,
   ]);
 
-  const showElectrumBottomSheet = useMemo(() => {
-    const onPressCancel = () => {
-      cueInformativeHaptic();
-      electrumServersBottomSheetRef.current?.close();
-    };
-
-    return (
-      <BottomSheet
-        ref={electrumServersBottomSheetRef}
-        index={-1}
-        snapPoints={animatedSnapPoints}
-        handleHeight={animatedHandleHeight}
-        contentHeight={animatedContentHeight}
-        enablePanDownToClose
-        backdropComponent={renderBackdrop}
-        handleIndicatorStyle={styles.handle}
-      >
-        <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
-          <View style={styles.cancelBtn}>
-            <CancelButton onCancel={onPressCancel} />
-          </View>
-          {connectedPeer ? (
-            <RadioCardOption
-              hideRadio={!true}
-              title="Connected"
-              description={`${connectedPeer.host}:${connectedPeer.port}`}
-              key={connectedPeer.host}
-              onSelect={() => 0}
-              isSelected={true}
-              data={connectedPeer}
-            />
-          ) : (
-            <Text style={styles.subtitle}>No connected electrum peer at this time </Text>
-          )}
-        </View>
-      </BottomSheet>
-    );
-  }, [
-    animatedSnapPoints,
-    animatedHandleHeight,
-    animatedContentHeight,
-    renderBackdrop,
-    paddingBottom,
-    handleContentLayout,
-    connectedPeer,
-  ]);
-
   return {
     openUpdateDescriptionSheet,
     updateDescriptionBottomSheet,
     openUpdateExpirySheet,
     updateExpiryBottomSheet,
-    openElectrumSheet,
-    showElectrumBottomSheet,
   };
 };
 
@@ -289,6 +217,16 @@ const styles = StyleSheet.create({
   cancelBtn: {
     marginBottom: 5,
     alignItems: 'flex-end',
+  },
+  textInput: {
+    padding: 12,
+    marginTop: 12,
+    justifyContent: 'flex-end',
+    borderColor: Colors.neutrals.light.neutral3,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    color: Colors.common.black,
+    width: '100%',
   },
 });
 

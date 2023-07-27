@@ -5,11 +5,9 @@ import { HeaderTitleWithSubtitle, headerWithBackButton } from '../../navigation/
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useStoreState } from '../../state/hooks';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { showToast } from '../../utils/alerts';
+import { showToast, showWarningBanner } from '../../utils/alerts';
 import { cueInformativeHaptic } from '../../utils/accessibility/haptics';
 import { maskString } from '../../utils/helpers';
-import { navigate } from '../../navigation/NavigationService';
-import { Screens } from '../../navigation/Screens';
 import SectionTitle from '../../components/SectionTitle';
 import useLightningSettingsBottomSheet from './useLightningSettingsBottomSheet';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -31,8 +29,6 @@ const LightningSettingsScreen = ({ navigation }) => {
     openUpdateExpirySheet,
     updateDescriptionBottomSheet,
     updateExpiryBottomSheet,
-    openElectrumSheet,
-    showElectrumBottomSheet,
   } = useLightningSettingsBottomSheet();
 
   const onPressNodeId = () => {
@@ -43,14 +39,10 @@ const LightningSettingsScreen = ({ navigation }) => {
     cueInformativeHaptic();
   };
 
-  const onPressChannels = () => {
-    cueInformativeHaptic();
-    navigate(Screens.ChannelsScreen);
-  };
-
   const onPressViewLogs = () => {
     cueInformativeHaptic();
-    navigate(Screens.LogsScreen);
+    // navigate(Screens.LogsScreen);
+    showWarningBanner({ message: 'Unavailable at the moment' });
   };
 
   return (
@@ -79,22 +71,10 @@ const LightningSettingsScreen = ({ navigation }) => {
           value={`${receiveLimit.toLocaleString()} sats`}
           withChevron={false}
         />
-        {/* <SettingsItemWithTextValue
-        title="Payment Channels"
-        withChevron={true}
-        onPress={onPressChannels}
-      />
-      <SettingsItemWithTextValue title="Peers" withChevron={true} onPress={onPressChannels} />
-      <SettingsItemWithTextValue
-        title="Electrum servers"
-        withChevron={true}
-        onPress={openElectrumSheet}
-      /> */}
         <SettingsItemWithTextValue title="View logs" withChevron={true} onPress={onPressViewLogs} />
       </ScrollView>
       {updateDescriptionBottomSheet}
       {updateExpiryBottomSheet}
-      {showElectrumBottomSheet}
     </SafeAreaView>
   );
 };

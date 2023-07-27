@@ -12,6 +12,7 @@ import CancelButton from '../navigation/components/CancelButton';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { wipeEttaWallet } from '../utils/helpers';
+import { showWarningBanner } from '../utils/alerts';
 
 const useSettingsBottomSheet = () => {
   const insets = useSafeAreaInsets();
@@ -55,11 +56,9 @@ const useSettingsBottomSheet = () => {
       navigate(Screens.LightningSettingsScreen);
     };
 
-    const onPressContact = () => {
+    const onPressHelp = () => {
       cueInformativeHaptic();
-      // open scanner
-      console.info('@SendOptions: chose contacts');
-      //   sendOptionsBottomSheetRef.current?.close();
+      showWarningBanner({ message: 'Unavailable at the moment' });
     };
 
     const onPressCancel = () => {
@@ -130,7 +129,7 @@ const useSettingsBottomSheet = () => {
             title="Help & support"
             withIcon={true}
             icon="icon-question"
-            onPress={onPressContact}
+            onPress={onPressHelp}
           />
           <SettingsItemWithIcon
             title="Reset EttaWallet"
