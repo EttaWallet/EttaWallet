@@ -8,13 +8,15 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { cueErrorHaptic, cueInformativeHaptic } from '../utils/accessibility/haptics';
 import { SettingsItemWithIcon } from './InfoListItem';
-import CancelButton from '../navigation/components/CancelButton';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { wipeEttaWallet } from '../utils/helpers';
 import { showWarningBanner } from '../utils/alerts';
+import { useStoreState } from '../state/hooks';
 
 const useSettingsBottomSheet = () => {
+  const versionNumber = useStoreState((state) => state.app.appVersion);
+  const buildNumber = useStoreState((state) => state.app.appBuild);
   const insets = useSafeAreaInsets();
   const paddingBottom = Math.max(insets.bottom, 24);
 
@@ -61,12 +63,6 @@ const useSettingsBottomSheet = () => {
       showWarningBanner({ message: 'Unavailable at the moment' });
     };
 
-    const onPressCancel = () => {
-      cueInformativeHaptic();
-      settingsBottomSheetRef.current?.close();
-      // clear values in state first?
-    };
-
     const onPressReset = () => {
       Alert.alert('Are you sure? 😰', 'This will wipe EttaWallet and reset everything!', [
         {
@@ -96,9 +92,6 @@ const useSettingsBottomSheet = () => {
         handleIndicatorStyle={styles.handle}
       >
         <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
-          <View style={styles.cancelBtn}>
-            <CancelButton onCancel={onPressCancel} />
-          </View>
           <Text style={styles.title}>Manage</Text>
           {/* options list */}
           <SettingsItemWithIcon
@@ -137,6 +130,9 @@ const useSettingsBottomSheet = () => {
             icon="icon-cross"
             onPress={onPressReset}
           />
+          <Text
+            style={styles.version}
+          >{`EttaWallet version: ${versionNumber} (${buildNumber}) `}</Text>
         </View>
       </BottomSheet>
     );
@@ -147,6 +143,8 @@ const useSettingsBottomSheet = () => {
     renderBackdrop,
     paddingBottom,
     handleContentLayout,
+    versionNumber,
+    buildNumber,
   ]);
 
   return {
@@ -161,7 +159,7 @@ const styles = StyleSheet.create({
   },
   container: {
     paddingHorizontal: 24,
-    paddingVertical: 8,
+    paddingTop: 8,
   },
   title: {
     ...TypographyPresets.Header5,
@@ -170,6 +168,12 @@ const styles = StyleSheet.create({
   cancelBtn: {
     marginBottom: 5,
     alignItems: 'flex-end',
+  },
+  version: {
+    ...TypographyPresets.Body5,
+    textAlign: 'center',
+    paddingVertical: 8,
+    marginVertical: 8,
   },
 });
 
