@@ -79,6 +79,7 @@ const useLightningSettingsBottomSheet = () => {
             returnKeyLabel="done"
             maxLength={25}
             multiline={false}
+            placeholderTextColor={Colors.neutrals.light.neutral7}
             style={styles.textInput}
           />
           <Button

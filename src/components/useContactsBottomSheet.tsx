@@ -28,6 +28,8 @@ import ContactItem from './ContactItem';
 import { useStoreState } from '../state/hooks';
 import KeyboardAwareScrollView from './keyboard/KeyboardInScrollView';
 import KeyboardSpacer from './keyboard/KeyboardSpacer';
+import InputAnything, { InputStatus } from './InputAnything';
+import { isValidLightningId } from '../utils/lightning/decode';
 
 interface Props {
   contact?: TContact;
@@ -43,6 +45,8 @@ const useContactsBottomSheet = (addressProps: Props) => {
   const contactMenuBottomSheetRef = useRef<BottomSheet>(null);
   const addAddressBottomSheetRef = useRef<BottomSheet>(null);
   const pickContactBottomSheetRef = useRef<BottomSheet>(null);
+
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const initialSnapPoints = useMemo(() => ['45%', 'CONTENT_HEIGHT'], []);
   const pickContactSnapPoints = useMemo(() => ['40%', '75%'], []);
@@ -147,6 +151,7 @@ const useContactsBottomSheet = (addressProps: Props) => {
             onBlur={onBlur}
             multiline={false}
             placeholder="Enter name or alias"
+            placeholderTextColor={Colors.neutrals.light.neutral7}
             style={styles.textInput}
           />
 
@@ -228,6 +233,7 @@ const useContactsBottomSheet = (addressProps: Props) => {
             onBlur={onBlur}
             multiline={false}
             placeholder="Enter new alias"
+            placeholderTextColor={Colors.neutrals.light.neutral7}
             style={styles.textInput}
           />
 
@@ -309,6 +315,15 @@ const useContactsBottomSheet = (addressProps: Props) => {
       setNewAddressLabel(trimmed);
     };
 
+    const shouldShowClipboard = (clipboardContent: string): boolean => {
+      return isValidLightningId(clipboardContent);
+    };
+
+    let inputStatus = InputStatus.Inputting;
+    if (isProcessing) {
+      inputStatus = InputStatus.Processing;
+    }
+
     return (
       <BottomSheet
         ref={addAddressBottomSheetRef}
@@ -320,7 +335,10 @@ const useContactsBottomSheet = (addressProps: Props) => {
         backdropComponent={renderBackdrop}
         handleIndicatorStyle={styles.handle}
       >
-        <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
+        <KeyboardAwareScrollView
+          style={[styles.container, { paddingBottom }]}
+          onLayout={handleContentLayout}
+        >
           <Text style={styles.title}>{t('Add address')}</Text>
           <BottomSheetTextInput
             onChangeText={handleNewAddressLabel}
@@ -329,24 +347,20 @@ const useContactsBottomSheet = (addressProps: Props) => {
             multiline={false}
             placeholder="Enter label"
             autoCapitalize="none"
+            placeholderTextColor={Colors.neutrals.light.neutral7}
             style={styles.textInput}
           />
 
-          <BottomSheetTextInput
-            onChangeText={handleNewAddress}
-            value={newAddress}
-            onBlur={onBlur}
+          <InputAnything
+            label={'Enter valid invoice or lightning address'}
+            status={inputStatus}
+            inputValue={newAddress}
+            inputPlaceholder={''}
             multiline={true}
-            placeholder="Paste address"
-            autoCapitalize="none"
+            onInputChange={handleNewAddress}
+            shouldShowClipboard={shouldShowClipboard}
             style={styles.addressInput}
           />
-
-          {/* {newAddress !== '' && !isValidating ? (
-            <Text>{validationMsg}</Text>
-          ) : (
-            <ActivityIndicator color={Colors.orange.base} size="small" />
-          )} */}
           <Button
             title={isLoading ? 'Saving...' : 'Save address'}
             size="default"
@@ -354,12 +368,16 @@ const useContactsBottomSheet = (addressProps: Props) => {
             icon="icon-sd-card"
             onPress={onPressSave}
             style={styles.button}
-            disabled={!newAddress || !newAddressLabel || isLoading}
+            disabled={
+              !newAddress || !newAddressLabel || isLoading || !isValidLightningId(newAddress)
+            }
           />
-        </View>
+          <KeyboardSpacer topSpacing={16} />
+        </KeyboardAwareScrollView>
       </BottomSheet>
     );
   }, [
+    isProcessing,
     animatedSnapPoints,
     animatedHandleHeight,
     animatedContentHeight,
@@ -621,15 +639,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   addressInput: {
-    padding: 12,
     marginTop: 12,
-    alignItems: 'flex-start',
-    borderColor: Colors.neutrals.light.neutral3,
-    borderRadius: 4,
-    borderWidth: 1.5,
-    color: Colors.common.black,
-    height: 80,
-    maxHeight: 150,
   },
   searchBox: {
     marginVertical: 10,
