@@ -27,6 +27,8 @@ import AmountDisplay from '../components/amount/AmountDisplay';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import useContactsBottomSheet from '../components/useContactsBottomSheet';
 import { getBlockHeader } from '../utils/electrum';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import Dialog from '../components/Dialog';
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
@@ -40,6 +42,7 @@ const WalletHomeScreen = () => {
 
   const { openSettingsSheet, settingsBottomSheet } = useSettingsBottomSheet();
   const [refreshing, setRefreshing] = useState(false);
+  const [dialogVisible, setDialogVisible] = useState(false);
 
   const scrollPosition = useRef(new Animated.Value(0)).current;
 
@@ -58,6 +61,11 @@ const WalletHomeScreen = () => {
     await refreshLdk({});
 
     setRefreshing(false);
+
+    if (dialogVisible) {
+      setDialogVisible(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const refresh: React.ReactElement<RefreshControlProps> = (
@@ -99,14 +107,29 @@ const WalletHomeScreen = () => {
   // @ts-ignore
   sections.push(transactionsSection);
 
+  const syncStatus = refreshing ? 'Syncing...' : 'Synced';
+
+  const syncStatusColor = refreshing ? Colors.orange.base : Colors.green.base;
+
+  const onPressStatus = () => {
+    setDialogVisible(true);
+  };
+
+  const onDismissDialog = () => {
+    setDialogVisible(false);
+  };
+
   const NodeStatus = () => {
     // @todo: setup an enum to track Node state and switch color i.e:
     // synced, syncing, offline, with different color codes.
     return (
-      <>
-        <View style={styles.dotContainer} />
-        <Text>{height}</Text>
-      </>
+      <TouchableWithoutFeedback style={styles.statusContainer} onPress={onPressStatus}>
+        <View style={[styles.dotContainer, { backgroundColor: syncStatusColor }]} />
+        <Text>{syncStatus}</Text>
+        <View style={styles.iconContainer}>
+          <Icon name="icon-info" style={styles.icon} />
+        </View>
+      </TouchableWithoutFeedback>
     );
   };
 
@@ -147,6 +170,16 @@ const WalletHomeScreen = () => {
       {sendOptionsBottomSheet}
       {settingsBottomSheet}
       {PickContactBottomSheet}
+      <Dialog
+        title="Status"
+        isVisible={dialogVisible}
+        actionText="Sync node"
+        actionPress={onRefreshLdk}
+        isActionHighlighted={true}
+        onBackgroundPress={onDismissDialog}
+      >
+        {`Pull down to sync your node to the latest block tip and refresh your activity. \n  \n Current block height: ${height}`}
+      </Dialog>
     </SafeAreaView>
   );
 };
@@ -184,13 +217,29 @@ const styles = StyleSheet.create({
   transactionsIcon: {
     paddingTop: 2,
   },
+  statusContainer: {
+    flexDirection: 'row',
+  },
   dotContainer: {
     width: scale(8),
     borderRadius: scale(4),
     marginRight: moderateScale(8),
     height: verticalScale(8),
-    backgroundColor: '#08CB7A',
     alignSelf: 'center',
+  },
+  iconContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.neutrals.light.neutral1,
+    borderRadius: 50,
+    marginLeft: 5,
+    width: 20,
+    height: 20,
+  },
+  icon: {
+    justifyContent: 'center',
+    fontSize: 18,
   },
 });
 

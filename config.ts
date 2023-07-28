@@ -25,3 +25,5 @@ export const EXCHANGE_RATE_UPDATE_INTERVAL = 12 * 3600 * 1000; // 12 hours
 export const DEFAULT_NUMBER_OF_DECIMALS = 2;
 
 export const CLIPBOARD_CHECK_INTERVAL = 1000; // 1sec
+
+export const MEMPOOL_GET_BLOCK_TIP_HEIGHT = 'https://mempool.space/testnet/api/blocks/tip/height';
