@@ -10,6 +10,7 @@ import {
 import lm, {
   DefaultTransactionDataShape,
   EEventTypes,
+  TChannel,
   TChannelManagerClaim,
   TChannelManagerOpenChannelRequest,
   TChannelUpdate,
@@ -28,6 +29,8 @@ import {
   updateClaimableBalance,
   getLightningStore,
   addPayment,
+  updateMaxReceivableAmount,
+  removeExpiredInvoices,
 } from '../utils/lightning/helpers';
 import { TLightningNodeVersion } from '../utils/types';
 import { EmitterSubscription, InteractionManager } from 'react-native';
@@ -84,9 +87,15 @@ export const refreshLdk = async ({
       return err(syncResponse.error.message);
     }
 
+    // update channels
     await updateLightningChannels();
-    console.log('done');
+    // update balance
     await updateClaimableBalance({ selectedNetwork });
+    // update maximum receivable amount
+    await updateMaxReceivableAmount();
+    // remove invoices that have surpassed expiry time from state
+    await removeExpiredInvoices();
+
     return ok('');
   } catch (e) {
     return err(`@refreshLdk ${e}`);
@@ -446,6 +455,45 @@ export const getPendingChannel = ({
   } catch (e) {
     return err(e);
   }
+};
+
+/**
+ * Returns an array of pending and open channels
+ * @returns Promise<Result<TChannel[]>>
+ */
+export const getChannelsFromLdk = (): Promise<Result<TChannel[]>> => {
+  return ldk.listChannels();
+};
+
+/**
+ * Returns an array of unconfirmed/pending lightning channels from either storage or directly from the LDK node.
+ * @param {boolean} [fromStorage]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<Result<TChannel[]>>}
+ */
+export const getAllPendingChannels = async ({
+  fromStorage = false,
+  selectedNetwork,
+}: {
+  fromStorage?: boolean;
+  selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<TChannel[]>> => {
+  let channels: TChannel[];
+  if (fromStorage) {
+    if (!selectedNetwork) {
+      selectedNetwork = getSelectedNetwork();
+    }
+    const channelsStore = getLightningStore().channels;
+    channels = Object.values(channelsStore);
+  } else {
+    const channelsResponse = await getChannelsFromLdk();
+    if (channelsResponse.isErr()) {
+      return err(channelsResponse.error.message);
+    }
+    channels = channelsResponse.value;
+  }
+  const pendingChannels = channels.filter((channel) => !channel.is_channel_ready);
+  return ok(pendingChannels);
 };
 
 export const handlePaymentSubscription = async ({
