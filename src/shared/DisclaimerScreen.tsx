@@ -62,6 +62,8 @@ const DisclaimerScreen = () => {
   );
 };
 
+const topMargin = Platform.OS === 'ios' ? 60 : 30;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -72,16 +74,11 @@ const styles = StyleSheet.create({
   },
   title: {
     ...TypographyPresets.Header1,
-    marginTop: 30,
-    marginBottom: MARGIN,
-  },
-  header: {
-    ...TypographyPresets.Header2,
-    marginBottom: 10,
+    marginTop: topMargin,
   },
   disclaimer: {
     ...TypographyPresets.Body4,
-    marginBottom: 15,
+    marginVertical: 10,
   },
   disclaimerLink: {
     textDecorationLine: 'underline',
