@@ -7,7 +7,7 @@ import {
   SectionList,
   Text,
   View,
-  TouchableOpacity,
+  Alert,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { noHeader } from '../navigation/Headers';
@@ -26,14 +26,11 @@ import useSettingsBottomSheet from '../components/useSettingsBottomSheet';
 import AmountDisplay from '../components/amount/AmountDisplay';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import useContactsBottomSheet from '../components/useContactsBottomSheet';
-import { getBlockHeader } from '../utils/electrum';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import Dialog from '../components/Dialog';
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
 const WalletHomeScreen = () => {
-  const { height } = getBlockHeader();
   const balance = useStoreState((state) => state.lightning.claimableBalance);
   const paymentsStore = useStoreState((state) => state.lightning.payments);
 
@@ -42,7 +39,6 @@ const WalletHomeScreen = () => {
 
   const { openSettingsSheet, settingsBottomSheet } = useSettingsBottomSheet();
   const [refreshing, setRefreshing] = useState(false);
-  const [dialogVisible, setDialogVisible] = useState(false);
 
   const scrollPosition = useRef(new Animated.Value(0)).current;
 
@@ -61,11 +57,6 @@ const WalletHomeScreen = () => {
     await refreshLdk({});
 
     setRefreshing(false);
-
-    if (dialogVisible) {
-      setDialogVisible(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const refresh: React.ReactElement<RefreshControlProps> = (
@@ -95,12 +86,12 @@ const WalletHomeScreen = () => {
     data: [{}],
     renderItem: () => (
       <View style={styles.transactionsSection}>
-        <TouchableOpacity onPress={onPressTransactions} style={styles.transactionsPill}>
+        <TouchableWithoutFeedback onPress={onPressTransactions} style={styles.transactionsPill}>
           <Icon style={styles.transactionsIcon} name="icon-caret-up" />
           <Text style={styles.transactionsUpdate}>
             {absoluteTxCount > 0 ? `${absoluteTxCount} recent transactions` : 'Transaction history'}
           </Text>
-        </TouchableOpacity>
+        </TouchableWithoutFeedback>
       </View>
     ),
   };
@@ -112,24 +103,34 @@ const WalletHomeScreen = () => {
   const syncStatusColor = refreshing ? Colors.orange.base : Colors.green.base;
 
   const onPressStatus = () => {
-    setDialogVisible(true);
-  };
-
-  const onDismissDialog = () => {
-    setDialogVisible(false);
+    Alert.alert(
+      'Status',
+      'Pull down to sync your node to the latest block tip and refresh your activity',
+      [
+        {
+          text: 'Sync node',
+          onPress: () => {
+            onRefreshLdk();
+          },
+        },
+        {
+          text: 'OK',
+          style: 'cancel',
+        },
+      ]
+    );
   };
 
   const NodeStatus = () => {
     // @todo: setup an enum to track Node state and switch color i.e:
     // synced, syncing, offline, with different color codes.
     return (
-      <TouchableWithoutFeedback style={styles.statusContainer} onPress={onPressStatus}>
-        <View style={[styles.dotContainer, { backgroundColor: syncStatusColor }]} />
-        <Text>{syncStatus}</Text>
-        <View style={styles.iconContainer}>
-          <Icon name="icon-info" style={styles.icon} />
-        </View>
-      </TouchableWithoutFeedback>
+      <>
+        <TouchableWithoutFeedback style={styles.statusContainer} onPress={onPressStatus}>
+          <View style={[styles.dotContainer, { backgroundColor: syncStatusColor }]} />
+          <Text style={styles.statusLabel}>{syncStatus}</Text>
+        </TouchableWithoutFeedback>
+      </>
     );
   };
 
@@ -170,16 +171,6 @@ const WalletHomeScreen = () => {
       {sendOptionsBottomSheet}
       {settingsBottomSheet}
       {PickContactBottomSheet}
-      <Dialog
-        title="Status"
-        isVisible={dialogVisible}
-        actionText="Sync node"
-        actionPress={onRefreshLdk}
-        isActionHighlighted={true}
-        onBackgroundPress={onDismissDialog}
-      >
-        {`Pull down to sync your node to the latest block tip and refresh your activity. \n  \n Current block height: ${height}`}
-      </Dialog>
     </SafeAreaView>
   );
 };
@@ -227,19 +218,8 @@ const styles = StyleSheet.create({
     height: verticalScale(8),
     alignSelf: 'center',
   },
-  iconContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.neutrals.light.neutral1,
-    borderRadius: 50,
-    marginLeft: 5,
-    width: 20,
-    height: 20,
-  },
-  icon: {
-    justifyContent: 'center',
-    fontSize: 18,
+  statusLabel: {
+    color: Colors.neutrals.light.neutral8,
   },
 });
 

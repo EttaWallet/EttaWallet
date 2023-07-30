@@ -1,13 +1,14 @@
 /* eslint-disable react-native/no-inline-styles */
 import * as React from 'react';
 import { StyleSheet, Text, View, TouchableWithoutFeedback } from 'react-native';
-import { Colors, Icon, ListItem, Switch, TypographyPresets, ValueOf } from 'etta-ui';
+import { Colors, Icon, Switch, TypographyPresets, ValueOf } from 'etta-ui';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Logger from '../utils/logger';
 import { useTranslation } from 'react-i18next';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import { iconVars } from 'etta-ui/lib/typescript/components/icon/icon.vars';
 import { maskString } from '../utils/helpers';
+import ListItem from './ListItem';
 
 interface WrapperProps {
   onPress?: () => void;
@@ -175,7 +176,7 @@ export const SettingsItemWithTextValue = ({
 }: SettingsItemWithTextValueProps) => {
   return (
     <Wrapper onPress={onPress}>
-      <View style={[styles.container, { paddingVertical: 16 }]}>
+      <View style={styles.container}>
         <Title value={title} />
         <View style={styles.right}>
           {value && <Text style={styles.value}>{value}</Text>}
@@ -204,7 +205,7 @@ export function SettingsItemSwitch({
 }: SettingsItemSwitchProps) {
   return (
     <Wrapper>
-      <View style={[styles.container, !details ? { paddingVertical: 16 } : { paddingTop: 16 }]}>
+      <View style={styles.container}>
         <Title value={title} />
         <View style={styles.iconTextContainer}>
           <Switch value={value} onValueChange={onValueChange} />
@@ -224,7 +225,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingRight: 16,
   },
   left: {
     flexDirection: 'column',
@@ -258,12 +258,11 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
   },
   withIconContainer: {
     flexDirection: 'row',
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   withIconContent: {
     flex: 1,

@@ -109,11 +109,6 @@ const walletScreens = (Navigator: typeof Stack) => {
         options={JITLiquidityScreen.navigationOptions as NativeStackNavigationOptions}
       />
       <Navigator.Screen
-        name={Screens.EnterAmountScreen}
-        component={EnterAmountScreen}
-        options={EnterAmountScreen.navigationOptions as NativeStackNavigationOptions}
-      />
-      <Navigator.Screen
         name={Screens.ReviewRequestScreen}
         component={ReviewRequestScreen}
         options={ReviewRequestScreen.navigationOptions as NativeStackNavigationOptions}
@@ -186,11 +181,6 @@ const settingsScreens = (Navigator: typeof Stack) => {
         name={Screens.GeneralSettingsScreen}
         component={GeneralSettingsScreen}
         options={GeneralSettingsScreen.navigationOptions as NativeStackNavigationOptions}
-      />
-      <Navigator.Screen
-        name={Screens.CurrencyChooserScreen}
-        component={CurrencyChooserScreen}
-        options={CurrencyChooserScreen.navigationOptions as NativeStackNavigationOptions}
       />
       <Navigator.Screen
         name={Screens.SecuritySettingsScreen}
@@ -294,12 +284,22 @@ const modalAnimatedScreens = (Navigator: typeof Stack) => (
     <Navigator.Screen
       name={Screens.LanguageModal}
       component={LanguageChooser}
-      options={LanguageChooser.navigationOptions() as NativeStackNavigationOptions}
+      options={LanguageChooser.navigationOptions as NativeStackNavigationOptions}
     />
     <Navigator.Screen
       name={Screens.EnterPinScreen}
       component={EnterPin}
       options={EnterPin.navigationOptions as NativeStackNavigationOptions}
+    />
+    <Navigator.Screen
+      name={Screens.EnterAmountScreen}
+      component={EnterAmountScreen}
+      options={EnterAmountScreen.navigationOptions as NativeStackNavigationOptions}
+    />
+    <Navigator.Screen
+      name={Screens.CurrencyChooserScreen}
+      component={CurrencyChooserScreen}
+      options={CurrencyChooserScreen.navigationOptions as NativeStackNavigationOptions}
     />
   </>
 );

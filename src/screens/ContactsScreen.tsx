@@ -144,6 +144,7 @@ const ContactsScreen = ({ navigation }) => {
                   tintColor={Colors.orange.base}
                 />
               }
+              showsVerticalScrollIndicator={false}
             />
           </>
         )}
@@ -164,6 +165,7 @@ ContactsScreen.navigationOptions = {
 const styles = StyleSheet.create({
   body: {
     flex: 1,
+    paddingHorizontal: 16,
   },
   content: {
     flexGrow: 1,
@@ -265,8 +267,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   searchBox: {
-    marginHorizontal: 10,
-    marginBottom: 10,
+    marginVertical: 10,
   },
 });
 

@@ -576,6 +576,7 @@ const useContactsBottomSheet = (addressProps: Props) => {
             ListEmptyComponent={NoContactsView}
             refreshing={refreshing}
             onRefresh={handleContactsRefresh}
+            showsVerticalScrollIndicator={false}
           />
         </View>
       </BottomSheet>

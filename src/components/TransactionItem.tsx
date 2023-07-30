@@ -11,6 +11,7 @@ import ContactAvatar from './ContactAvatar';
 import TransactionAmount from './TransactionAmount';
 import { Colors, Icon, TypographyPresets } from 'etta-ui';
 import i18n from '../i18n';
+import { capitalize } from 'lodash';
 
 interface TransactionItemProps {
   invoice: TInvoice;
@@ -59,7 +60,11 @@ const TransactionItem = ({ invoice, txType, memo, contact, txTimestamp }: Transa
         )}
         <View style={styles.transactionContent}>
           <Text style={styles.transactionTitle}>
-            {contact ? `${transactionPrefix(txType)} ${contact.alias}` : invoice.description}
+            {contact
+              ? `${transactionPrefix(txType)} ${contact.alias}`
+              : invoice.description
+              ? invoice.description
+              : `${capitalize(txType)} (no description)`}
           </Text>
           <Text style={styles.transactionSubtitle} numberOfLines={1}>
             {transactionSubText}

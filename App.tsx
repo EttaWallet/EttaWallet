@@ -13,6 +13,7 @@ import Logger from './src/utils/logger';
 import i18n from './src/i18n';
 import { StoreProvider, useStoreRehydrated } from 'easy-peasy';
 import store from './src/state/store';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 Logger.info('App/init', 'Current Language: ' + i18n.language);
 
@@ -43,37 +44,17 @@ function WaitForStateRehydration({ children }: Props) {
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
   const theme = isDarkMode ? LIGHT_THEME : LIGHT_THEME; // @todo: fix UI components in dark mode then resolve this
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.common.black : Colors.common.white,
-  };
-  // const appReady = useStoreState((state) => state.app.appReady);
-  // const initializeApp = useStoreActions((action) => action.initializeApp);
-
-  // useEffect(() => {
-  //   // tslint:disable-next-line
-  //   (async () => {
-  //     console.log('ready or not?', appReady);
-  //     if (!appReady) {
-  //       try {
-  //         await initializeApp();
-  //       } catch (e) {
-  //         console.log('Something happened', e);
-  //       }
-  //     }
-  //   })();
-  // }, [appReady]);
 
   return (
     <ThemeProvider value={theme}>
       <StoreProvider store={store}>
         <I18nGate loading={<AppLoading />}>
-          <StatusBar
-            barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-            backgroundColor={backgroundStyle.backgroundColor}
-          />
+          <StatusBar barStyle="dark-content" backgroundColor={Colors.common.white} />
           <ErrorBoundary>
             <WaitForStateRehydration>
-              <NavigatorWrapper />
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <NavigatorWrapper />
+              </GestureHandlerRootView>
             </WaitForStateRehydration>
           </ErrorBoundary>
         </I18nGate>

@@ -52,8 +52,20 @@ export const DEFAULT_LIGHTNING_PEERS: IWalletItem<string[]> = {
   bitcoin: [],
   bitcoinRegtest: [],
   bitcoinTestnet: [
+    // Etta-tn
+    '02c1b1cba5a07d77aad88f8e798b87e4fc32b74fbab018685b37a7a14a349822d7@uhfatc2mrlrvl5p6fw2yebb5j3ayc5vfjn2wrj4vlqoqaclu444yfrad.onion:9735',
     // voltage lsp for zero-conf channel
     '025804d4431ad05b06a1a1ee41f22fefeb8ce800b0be3a92ff3b9f594a263da34e@44.228.24.253:9735',
+    // Voltage-test
+    '02cf71da3f277c2a30a348dfced77a9b7d81fb578c2b9117967100352051626b84@ymhwxsj37m6sflcjmxmv3aqkrhcpjt6xyhkaqcluad2dvdqrubrtqnid.onion:9735',
+    // aranguren.org
+    '038863cf8ab91046230f561cd5b386cbff8309fa02e3f0c3ed161a3aeb64a643b9@203.132.94.196:9735',
+    // Cyclopes
+    '028ec70462207b57e3d4d9332d9e0aee676c92d89b7c9fb0850fc2a24814d4d83c@71.171.123.161:9735',
+    // Mordhaus
+    '0286383ed513fef6ffd277abf2091971d0f4ac61cc078381aee4eb71b4acd2bc86@64.44.166.123:9736',
+    // Open Node
+    '02eadbd9e7557375161df8b646776a547c5cbc2e95b3071ec81553f8ec2cea3b8c@18.191.253.246:9735',
   ],
 };
 

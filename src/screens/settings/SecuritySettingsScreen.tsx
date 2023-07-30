@@ -38,12 +38,13 @@ const SecuritySettingsScreen = ({ navigation }) => {
     } catch (e) {}
   };
 
-  const onPressChangePin = async () => {
+  const onPressChangePin = () => {
     cueInformativeHaptic();
-    const pinIsCorrect = await ensurePincode();
-    if (pinIsCorrect) {
-      navigate(Screens.SetPinScreen, { changePin: true });
-    }
+    ensurePincode().then((pinIsCorrect) => {
+      if (pinIsCorrect) {
+        navigate(Screens.SetPinScreen, { changePin: true });
+      }
+    });
   };
 
   return (
@@ -56,7 +57,6 @@ const SecuritySettingsScreen = ({ navigation }) => {
           })}
           value={pincodeType === PinType.Device}
           onValueChange={onBiometryToggle}
-          details="Use biometrics to perform spending actions securely"
         />
       )}
     </SafeAreaView>
@@ -73,6 +73,7 @@ SecuritySettingsScreen.navigationOptions = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 16,
   },
   text: {
     textAlign: 'center',

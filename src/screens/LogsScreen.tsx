@@ -48,6 +48,7 @@ const LogsScreen = ({ navigation }) => {
         keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={styles.contentContainer}
         ListEmptyComponent={<Text>No logs available</Text>}
+        showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
   );

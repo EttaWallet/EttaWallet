@@ -6,11 +6,11 @@
     "storageIsEncrypted": "Your storage is encrypted. Password is required to decrypt it.",
     "selectLanguage": "Select Language",
     "welcome": {
-        "subtitle": "Bitcoin ni yetu",
+        "subtitle": "A simple lightning wallet for your day to day spending",
         "createNewWallet": "Tengeneza pochi mpya",
         "restoreWallet": "Kurejesha pochi",
         "iAlreadyHaveAWallet": "Tayari Nina Pochi",
-        "footer": " Wallet yangu, pesa yangu. \n 100% open-source & open-design. \n Built in 🇺🇬 & 🇰🇪"
+        "footer": "Wallet yangu, pesa yangu \n 100% open-source & open-design"
     },
     "onboardingSlides": {
         "slide1": {

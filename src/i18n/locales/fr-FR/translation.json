@@ -6,11 +6,11 @@
   "storageIsEncrypted": "Your storage is encrypted. Password is required to decrypt it.",
   "selectLanguage": "Select Language",
   "welcome": {
-    "subtitle": "Bitcoin is for all of us",
+    "subtitle": "A simple lightning wallet for your day to day spending",
     "createNewWallet": "Create new wallet",
     "restoreWallet": "Restore wallet",
     "iAlreadyHaveAWallet": "I already have a wallet",
-    "footer": " Your wallet, your coins. \n 100% open-source & open-design. \n Built with ❤️ in Uganda"
+    "footer": "Your wallet, your coins \n 100% open-source & open-design"
   },
   "onboardingSlides": {
     "slide1": {

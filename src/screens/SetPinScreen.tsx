@@ -189,12 +189,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.common.white,
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     marginBottom: 40,
   },
   changePinContainer: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: Colors.common.white,
     justifyContent: 'space-between',
   },
 });

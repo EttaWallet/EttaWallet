@@ -89,13 +89,13 @@ LightningSettingsScreen.navigationOptions = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 16,
   },
   text: {
     textAlign: 'center',
   },
   sectionHeading: {
-    marginVertical: 10,
-    marginHorizontal: 16,
+    marginTop: 20,
   },
 });
 

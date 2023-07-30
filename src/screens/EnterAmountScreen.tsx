@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { StyleSheet, View, Platform, Text } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { headerWithBackButton } from '../navigation/Headers';
 import { Button, Chip, Colors } from 'etta-ui';
@@ -12,6 +12,7 @@ import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import BigNumber from 'bignumber.js';
 import { convertLocalAmountToSats } from '../utils/hooks';
+import { modalScreenOptions } from '../navigation/Navigator';
 
 const EnterAmountScreen = ({ navigation }) => {
   const [amountEntered, setAmountEntered] = useState('');
@@ -118,12 +119,11 @@ const EnterAmountScreen = ({ navigation }) => {
   );
 };
 
-EnterAmountScreen.navigationOptions = {
+EnterAmountScreen.navigationOptions = () => ({
+  ...modalScreenOptions(),
   ...headerWithBackButton,
-  ...Platform.select({
-    ios: { animation: 'slide_from_bottom' },
-  }),
-};
+  gestureEnabled: false,
+});
 
 const styles = StyleSheet.create({
   container: {

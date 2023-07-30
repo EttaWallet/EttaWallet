@@ -7,7 +7,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CancelButton from '../../navigation/components/CancelButton';
 import { cueInformativeHaptic } from '../../utils/accessibility/haptics';
 import { ListItemWithIcon } from '../../components/InfoListItem';
 //@ts-ignore
@@ -31,7 +30,7 @@ const useWalletBackupBottomSheet = () => {
   const [mnemonic, setMnemonic] = useState<string[]>([]);
 
   const initialSnapPoints = useMemo(() => ['CONTENT_HEIGHT'], []);
-  const phraseContainerSnapPoints = useMemo(() => ['85%'], []);
+  const phraseContainerSnapPoints = useMemo(() => ['80%'], []);
   const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
     useBottomSheetDynamicSnapPoints(initialSnapPoints);
 
@@ -113,11 +112,6 @@ const useWalletBackupBottomSheet = () => {
       recoveryPhraseBottomSheetRef.current?.close();
     };
 
-    const onPressCancel = () => {
-      cueInformativeHaptic();
-      recoveryPhraseBottomSheetRef.current?.close();
-    };
-
     const onPressToggle = (value) => {
       setChecked(value);
     };
@@ -136,13 +130,12 @@ const useWalletBackupBottomSheet = () => {
         handleIndicatorStyle={styles.handle}
       >
         <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
-          <View style={styles.cancelBtn}>
-            <CancelButton onCancel={onPressCancel} />
+          <View>
+            <Text style={styles.title}>This is your recovery phrase</Text>
+            <Text style={styles.subtitle}>
+              Make sure to write it down as shown here, including both numbers and words.
+            </Text>
           </View>
-          <Text style={styles.title}>This is your recovery phrase</Text>
-          <Text style={styles.subtitle}>
-            Make sure to write it down as shown here, including both numbers and words.
-          </Text>
           {checked ? (
             <View style={styles.qrContainer}>
               <QRCode
@@ -194,7 +187,6 @@ const styles = StyleSheet.create({
   },
   container: {
     paddingHorizontal: 24,
-    paddingVertical: 16,
   },
   qrContainer: {
     alignItems: 'center',
@@ -214,11 +206,7 @@ const styles = StyleSheet.create({
   button: {
     justifyContent: 'center',
     marginTop: 16,
-    marginBottom: 24,
-  },
-  cancelBtn: {
-    marginBottom: 5,
-    alignItems: 'flex-end',
+    marginBottom: 10,
   },
   toggleContainer: {
     marginTop: 16,

@@ -17,6 +17,7 @@
     "clean:android": "cd android && rimraf build app/build && ./gradlew clean",
     "clean:ios": "cd ios && rimraf Pods Podfile.lock build && pod deintegrate && arch -x86_64 pod install",
     "bundle:ios": "node ./node_modules/react-native/local-cli/cli.js bundle --platform ios --entry-file index.js --bundle-output ios/ettaln/main.jsbundle --dev=false --verbose",
+    "release:android": "cd android && ./gradlew assembleRelease",
     "ios-permissions": "react-native setup-ios-permissions",
     "postinstall": "yarn ios-permissions && node postinstall.js"
   },
@@ -113,6 +114,7 @@
     "@typescript-eslint/parser": "^5.37.0",
     "babel-jest": "^26.6.3",
     "babel-plugin-module-resolver": "^5.0.0",
+    "babel-plugin-transform-remove-console": "^6.9.4",
     "eslint": "^7.32.0",
     "jest": "^26.6.3",
     "metro-react-native-babel-preset": "0.76.5",

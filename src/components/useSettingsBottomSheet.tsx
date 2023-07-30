@@ -130,9 +130,7 @@ const useSettingsBottomSheet = () => {
             icon="icon-cross"
             onPress={onPressReset}
           />
-          <Text
-            style={styles.version}
-          >{`EttaWallet version: ${versionNumber} (${buildNumber}) `}</Text>
+          <Text style={styles.version}>{`EttaWallet v${versionNumber} (${buildNumber}) `}</Text>
         </View>
       </BottomSheet>
     );
@@ -174,6 +172,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingVertical: 8,
     marginVertical: 8,
+    fontFamily: 'Inter-SemiBold',
   },
 });
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-native/no-inline-styles */
 import React, { useLayoutEffect } from 'react';
 import { Platform, StyleSheet } from 'react-native';
@@ -7,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import SectionTitle from '../../components/SectionTitle';
 import { cueInformativeHaptic } from '../../utils/accessibility/haptics';
 import useWalletBackupBottomSheet from './useWalletBackupBottomSheet';
+import { ensurePincode, navigateBack } from '../../navigation/NavigationService';
 
 const WalletBackupScreen = ({ navigation }) => {
   useLayoutEffect(() => {
@@ -40,13 +42,18 @@ const WalletBackupScreen = ({ navigation }) => {
     return;
   };
 
+  const onPressViewSeed = () => {
+    ensurePincode().then((pinIsCorrect) => {
+      if (pinIsCorrect) {
+        openRecoveryPhraseSheet();
+        // navigateBack();
+      }
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <SectionTitle
-        title="Automatic cloud backups"
-        details="Last backup: "
-        style={styles.sectionHeading}
-      />
+      {/* <SectionTitle title="Automatic cloud backups" style={styles.sectionHeading} />
       <SettingsItemWithTextValue
         title="Store cloud backup in"
         value="Apple iCloud"
@@ -67,16 +74,12 @@ const WalletBackupScreen = ({ navigation }) => {
         title="Backup transactions"
         value={true}
         onValueChange={onToggleEncryptBackup}
-      />
-      <SectionTitle
-        title="Manual backup"
-        details="Highly recommended"
-        style={styles.sectionHeading}
-      />
+      /> */}
+      <SectionTitle title="Recovery Phrase" style={styles.sectionHeading} />
       <SettingsItemWithTextValue
         title="View recovery phrase"
         withChevron={true}
-        onPress={openRecoveryPhraseSheet}
+        onPress={onPressViewSeed}
       />
       {cloudOptionsBottomSheet}
       {recoveryPhraseBottomSheet}
@@ -94,13 +97,13 @@ WalletBackupScreen.navigationOptions = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 16,
   },
   text: {
     textAlign: 'center',
   },
   sectionHeading: {
-    marginVertical: 10,
-    marginHorizontal: 16,
+    marginTop: 20,
   },
 });
 

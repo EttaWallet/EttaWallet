@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, ListRenderItemInfo, Platform, StyleSheet, Text, View } from 'react-native';
+import { FlatList, ListRenderItemInfo, StyleSheet, Text, View } from 'react-native';
 import { headerWithBackButton } from '../navigation/Headers';
 import { navigateBack } from '../navigation/NavigationService';
 import { Button, Colors, TypographyPresets } from 'etta-ui';
@@ -9,6 +9,7 @@ import { useStoreDispatch, useStoreState } from '../state/hooks';
 import { ELocalCurrencyCode } from '../utils/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { fetchExchangeRate } from '../utils/helpers';
+import { modalScreenOptions } from '../navigation/Navigator';
 
 export const LOCAL_CURRENCY_CODES = Object.values(ELocalCurrencyCode);
 
@@ -60,6 +61,7 @@ const CurrencyChooserScreen = () => {
         extraData={chosenCurrency}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
+        showsVerticalScrollIndicator={false}
       />
       {chosenCurrency !== null ? (
         <View style={styles.unsetButton}>
@@ -77,12 +79,11 @@ const CurrencyChooserScreen = () => {
   );
 };
 
-CurrencyChooserScreen.navigationOptions = {
+CurrencyChooserScreen.navigationOptions = () => ({
+  ...modalScreenOptions(),
   ...headerWithBackButton,
-  ...Platform.select({
-    ios: { animation: 'slide_from_bottom' },
-  }),
-};
+  gestureEnabled: false,
+});
 
 const styles = StyleSheet.create({
   container: {

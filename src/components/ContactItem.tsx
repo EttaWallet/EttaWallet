@@ -50,7 +50,6 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     paddingVertical: 10,
-    paddingHorizontal: 16,
     alignItems: 'center',
   },
   avatar: {

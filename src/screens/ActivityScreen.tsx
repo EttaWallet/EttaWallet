@@ -122,6 +122,7 @@ const ActivityScreen = ({}: Props) => {
           keyboardShouldPersistTaps="always"
           onEndReached={handleRefresh}
           refreshControl={refresh}
+          showsVerticalScrollIndicator={false}
         />
         {isRefreshing && (
           <View style={styles.centerContainer}>

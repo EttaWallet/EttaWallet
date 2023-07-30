@@ -8,7 +8,7 @@ export const getPincodeStyles = createThemedStyleSheet((theme) => ({
     flex: 1,
   },
   titleContainer: {
-    marginTop: 76,
+    marginTop: 100,
     marginHorizontal: 24,
   },
   title: {

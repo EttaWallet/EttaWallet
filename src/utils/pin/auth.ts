@@ -1,6 +1,5 @@
 import * as Keychain from 'react-native-keychain';
 import { PinType } from '../types';
-import i18n from '../../i18n';
 import { navigate, navigateBack } from '../../navigation/NavigationService';
 import { Screens } from '../../navigation/Screens';
 import { SecretCache, clearPasswordCaches, getCachedPin, setCachedPin } from './PasswordCache';
@@ -97,7 +96,7 @@ export async function getPincodeWithBiometry() {
       // only displayed on Android - would be displayed on iOS too if we allow
       // device pincode fallback
       authenticationPrompt: {
-        title: i18n.t('unlockWithBiometryPrompt')!,
+        title: 'Authenticate',
       },
     });
     if (retrievedPin) {

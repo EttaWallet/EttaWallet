@@ -40,10 +40,13 @@ The project is strongly inspired by [Bitcoin Design Community's daily spending w
 ## Current Limitations
 
 - Ships in testnet for now
-- Translations are outdated. 
+- Translations are outdated.
 - Accessibility features are outdated for most components.
 
 ## Reproducible Build (**Don't trust, verify**)
+
+> **Note**
+Please make sure have set up your development environment properly. [Here is a good guide](https://reactnative.dev/docs/environment-setup?guide=native)
 
 Start by [forking the repo](https://github.com/EttaWallet/EttaWallet/fork) from GitHub, clone it locally and install dependencies.
 

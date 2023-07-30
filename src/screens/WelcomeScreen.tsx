@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, TypographyPresets, Colors } from 'etta-ui';
-import { SafeAreaView, View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { initNavigationOptions } from '../navigation/Headers';
@@ -15,6 +15,7 @@ import Logger from '../utils/logger';
 import Logo from '../icons/Logo';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import { showWarningBanner } from '../utils/alerts';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const TAG = 'WelcomeScreen';
 
@@ -78,25 +79,29 @@ const WelcomeScreen = () => {
 
   const { t } = useTranslation();
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.headers}>
-        <Logo height={80} />
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <View style={styles.logoContainer}>
+        <Logo height={100} />
         <Text style={styles.appName}>{APP_NAME}</Text>
         <Text style={styles.subtitle}>{t('welcome.subtitle')}</Text>
       </View>
-      <Button
-        style={styles.button}
-        title={!creatingWallet ? t('welcome.createNewWallet') : 'Creating wallet ...'}
-        appearance="filled"
-        onPress={createWalletHandler}
-        disabled={creatingWallet}
-      />
-      <Button
-        style={styles.button}
-        title={t('welcome.restoreWallet')}
-        appearance="transparent"
-        onPress={restoreWalletHandler}
-      />
+      <View style={styles.buttonsContainer}>
+        <Button
+          style={styles.button}
+          title={!creatingWallet ? t('welcome.createNewWallet') : 'Creating wallet ...'}
+          appearance="filled"
+          onPress={createWalletHandler}
+          disabled={creatingWallet}
+          size="large"
+        />
+        <Button
+          style={[styles.button, { marginTop: 5 }]}
+          title={t('welcome.restoreWallet')}
+          appearance="transparent"
+          onPress={restoreWalletHandler}
+          size="large"
+        />
+      </View>
       <View style={styles.footer}>
         <Text style={styles.footerText}>{t('welcome.footer')}</Text>
       </View>
@@ -108,39 +113,41 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'space-between',
-    marginHorizontal: 32,
+    marginBottom: 20,
+    paddingHorizontal: 24,
   },
-  headers: {
+  logoContainer: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 60,
+    justifyContent: 'center',
+  },
+  buttonsContainer: {
+    justifyContent: 'center',
+    marginBottom: 20,
   },
   appName: {
     ...TypographyPresets.Header1,
     textAlign: 'center',
     color: Colors.common.black,
-    paddingTop: 16,
+    marginTop: 30,
+    marginBottom: 15,
   },
   subtitle: {
-    ...TypographyPresets.Body3,
-    marginBottom: 50,
+    ...TypographyPresets.Body2,
     textAlign: 'center',
     color: Colors.neutrals.light.neutral7,
   },
   button: {
-    marginBottom: 10,
     justifyContent: 'center',
   },
   footer: {
-    flex: 1,
-    position: 'relative',
-    marginBottom: 32,
+    alignItems: 'center',
+    marginBottom: 10,
   },
   footerText: {
-    fontSize: 15,
+    ...TypographyPresets.Body5,
     textAlign: 'center',
-    marginTop: 'auto',
+    color: Colors.neutrals.light.neutral7,
   },
   restoreText: {
     ...TypographyPresets.Body3,

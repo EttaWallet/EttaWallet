@@ -197,6 +197,7 @@ const ActivityDetailsScreen = ({ route }: Props) => {
             ListEmptyComponent={NoContactsView}
             refreshing={refreshing}
             onRefresh={handleContactsRefresh}
+            showsVerticalScrollIndicator={false}
           />
         </View>
       </BottomSheet>
@@ -299,7 +300,7 @@ ActivityDetailsScreen.navigationOptions = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 5,
+    paddingHorizontal: 16,
   },
   header: {
     paddingVertical: 32,
@@ -322,7 +323,6 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     alignSelf: 'stretch',
     ...TypographyPresets.Body4,
-    marginLeft: 16,
     color: Colors.common.black,
     paddingTop: 8,
   },
@@ -336,10 +336,8 @@ const styles = StyleSheet.create({
   separator: {
     height: 1,
     backgroundColor: Colors.neutrals.light.neutral4,
-    marginHorizontal: 16,
   },
   memoLabel: {
-    paddingLeft: 20,
     paddingTop: 10,
     color: Colors.common.black,
     ...TypographyPresets.Body4,

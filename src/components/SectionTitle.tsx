@@ -31,8 +31,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    ...TypographyPresets.Header5,
-    color: Colors.common.black,
+    ...TypographyPresets.Body5,
+    color: Colors.neutrals.light.neutral7,
+    textTransform: 'uppercase',
   },
   detailsContainer: {
     flexDirection: 'row',

@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet, BackHandler, Text } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, Text } from 'react-native';
 import { Colors, Icon } from 'etta-ui';
 import { navigateBack } from '../NavigationService';
 import { useTranslation } from 'react-i18next';
@@ -16,13 +16,6 @@ const BackButton = ({ title }: Props) => {
   const onPressBack = () => {
     navigateBack();
   };
-
-  // Prevent back button on Android
-  useEffect(() => {
-    const backPressListener = () => true;
-    BackHandler.addEventListener('hardwareBackPress', backPressListener);
-    return () => BackHandler.removeEventListener('hardwareBackPress', backPressListener);
-  }, []);
 
   return (
     <TouchableWithoutFeedback
@@ -45,16 +38,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   icon: {
-    alignSelf: 'center',
     justifyContent: 'center',
-    fontSize: 20,
+    fontSize: 24,
     color: Colors.common.black,
   },
   iconContainer: {
     alignSelf: 'center',
     justifyContent: 'center',
-    width: 20,
-    height: 20,
+    width: 30,
+    height: 30,
   },
   text: {
     fontSize: 18,

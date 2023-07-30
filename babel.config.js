@@ -12,4 +12,10 @@ module.exports = {
     ],
     'react-native-reanimated/plugin',
   ],
+  env: {
+    production: {
+      // remove all console logs from release builds
+      plugins: ['transform-remove-console'],
+    },
+  },
 };

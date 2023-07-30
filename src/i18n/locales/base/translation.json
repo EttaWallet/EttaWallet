@@ -10,11 +10,11 @@
     "changeLanguage": "Change Language",
     "selectCurrency": "Select local currency",
     "welcome": {
-        "subtitle": "Bitcoin is for all of us",
+        "subtitle": "A simple lightning wallet for your day to day spending",
         "createNewWallet": "Create new wallet",
         "restoreWallet": "Restore existing wallet",
         "iAlreadyHaveAWallet": "I already have a wallet",
-        "footer": "100% open source \n Baked in 🇺🇬 and 🇰🇪"
+        "footer": "Your wallet, your coins \n 100% open-source & open-design"
     },
     "onboardingSlides": {
         "slide1": {
@@ -43,8 +43,8 @@
         "pinsDontMatch": "The PINs didn't match",
         "invalidPin": "Please use a stronger PIN",
         "guideTitle": "Choose a 6 digit PIN",
-        "guideConfirm": "Enter your PIN again to confirm.",
-        "guideSubtitle": "This is used to encrypt your wallet, which prevents others from accessing it.",
+        "guideConfirm": "Enter your PIN again to confirm",
+        "guideSubtitle": "A PIN will be required for wallet access and transactions to protect your funds",
         "selectPIN": "Select PIN",
         "confirmPin": "Enter PIN to confirm"
     },
@@ -181,7 +181,7 @@
     },
     "disclaimer": {
         "title": "Pay attention!",
-        "info": "This app will be in beta for a while 🤷🏿‍♂️\n \nPlease do not use any amount of bitcoin that you are not prepared to lose. You can learn more in the <0>FAQ here</0>. \n \nBy clicking the button below, you acknowledge that you understand the risks.",
+        "info": "This app will be in beta for a while. \n \nPlease do not use any amount of bitcoin that you are not prepared to lose. You can learn more in the <0>FAQ here</0>. \n \nBy clicking the button below, you acknowledge that you understand the risks.",
         "acknowledgeBtn": "I understand the risks"
     },
     "biometry": {

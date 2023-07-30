@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Dimensions, PixelRatio, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, PixelRatio, Platform, StyleSheet, Text, View } from 'react-native';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import BackButton from './components/BackButton';
 import CancelButton from './components/CancelButton';
@@ -70,6 +70,8 @@ export const emptyHeader: NativeStackNavigationOptions = {
   headerStyle: {
     backgroundColor: Colors.common.white,
   },
+  animation: Platform.OS === 'android' ? 'fade' : 'default',
+  animationTypeForReplace: Platform.OS === 'android' ? 'push' : 'pop',
 };
 
 export const headerWithBackButton: NativeStackNavigationOptions = {

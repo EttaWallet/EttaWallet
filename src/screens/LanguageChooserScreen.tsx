@@ -4,7 +4,7 @@ import { localesList } from '../i18n/locales';
 import { useTranslation } from 'react-i18next';
 import { FlatList, ListRenderItemInfo, StyleSheet, Text } from 'react-native';
 import useChangeLanguage from '../i18n/useChangeLanguage';
-import { emptyHeader, headerWithBackButton } from '../navigation/Headers';
+import { headerWithBackButton } from '../navigation/Headers';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import type { StackParamList } from '../navigation/types';
@@ -12,7 +12,8 @@ import { Colors, TypographyPresets } from 'etta-ui';
 import SelectionOption from '../components/SelectionOption';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
-import { showWarningBanner } from '../utils/alerts';
+import { showInfoBanner } from '../utils/alerts';
+import { modalScreenOptions } from '../navigation/Navigator';
 
 type ScreenProps = StackScreenProps<
   StackParamList,
@@ -36,7 +37,12 @@ const LanguageChooser = ({ route }: Props) => {
 
   const onSelect = (language: string, code: string) => {
     cueInformativeHaptic();
-    showWarningBanner({ title: 'Heads up!', message: 'Translations are pending or outdated' });
+    if (code !== 'en-US') {
+      showInfoBanner({
+        title: 'Heads up!',
+        message: `Translations for ${language} might be outdated`,
+      });
+    }
     // eslint-disable-next-line no-void
     void changeLanguage(code);
     requestAnimationFrame(() => {
@@ -66,20 +72,17 @@ const LanguageChooser = ({ route }: Props) => {
         extraData={i18n.language}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
+        showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
   );
 };
 
-LanguageChooser.navigationOptions =
-  () =>
-  ({ navigation }: ScreenProps) => {
-    return navigation.canGoBack()
-      ? {
-          ...headerWithBackButton,
-        }
-      : emptyHeader;
-  };
+LanguageChooser.navigationOptions = () => ({
+  ...modalScreenOptions(),
+  ...headerWithBackButton,
+  gestureEnabled: false,
+});
 
 const styles = StyleSheet.create({
   container: {

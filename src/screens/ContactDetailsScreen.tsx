@@ -44,7 +44,7 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
   const payments = useStoreState((state) => state.lightning.payments);
   const contact = allContacts.filter((c) => c.id === routedContact.id)[0];
   const transactions = Object.values(payments).filter(
-    (transaction) => transaction.contact === contact
+    (transaction) => transaction.contact?.id === contact.id
   );
   const [newAvatarUri, setNewAvatarUri] = useState(contact?.avatarUri);
   const [currentAddresses, setCurrentAddresses] = useState<TIdentifier[]>([]);
@@ -195,7 +195,6 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
         {!!transactions && transactions.length > 0 ? (
           <SettingsItemWithTextValue
             title={`${transactions.length} transactions`}
-            value={'3 days ago'}
             withChevron={true}
             onPress={onPressActivity}
           />
@@ -317,7 +316,7 @@ const styles = StyleSheet.create({
     color: Colors.common.black,
   },
   emptyText: {
-    color: Colors.neutrals.light.neutral7,
+    color: Colors.neutrals.light.neutral8,
     ...TypographyPresets.Body5,
   },
   emptyCta: {
