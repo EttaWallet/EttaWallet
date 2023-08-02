@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   },
   label: {
     ...TypographyPresets.Body4,
-    marginBottom: 10,
+    marginBottom: 5,
     color: Colors.common.black,
   },
   expiry: {
