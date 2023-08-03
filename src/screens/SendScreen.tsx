@@ -10,11 +10,17 @@ import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import { InfoListItem } from '../components/InfoListItem';
 import { decodeLightningInvoice } from '../utils/lightning/decode';
 import { TInvoice } from '@synonymdev/react-native-ldk';
-import { payInvoice } from '../utils/lightning/helpers';
+import { payInvoice, startLightning } from '../utils/lightning/helpers';
 import { refreshWallet } from '../utils/wallet';
 import { navigate, navigateHome } from '../navigation/NavigationService';
 import { showWarningBanner } from '../utils/alerts';
 import LottieView from 'lottie-react-native';
+import { humanizeTimestamp } from '../utils/time';
+import i18n from '../i18n';
+import { isLdkRunning, waitForLdk } from '../ldk';
+import { TextInput } from 'react-native-gesture-handler';
+import store from '../state/store';
+import { EPaymentType } from '../utils/types';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.SendScreen>;
 type Props = RouteProps;
@@ -44,6 +50,7 @@ const getReadableSendingError = (errorFound) => {
 };
 
 const SendScreen = ({ route }: Props) => {
+  const [userNote, setUserNote] = useState('');
   const amount = route.params?.amount || '0';
   const paymentRequest = route.params?.paymentRequest || '';
   const [decodedInvoice, setDecodedInvoice] = useState<TInvoice>();
@@ -86,35 +93,49 @@ const SendScreen = ({ route }: Props) => {
       return;
     }
 
-    // attempt to pay this bolt11 invoice
-    const payInvoiceResponse = await payInvoice(paymentRequest);
-
-    if (payInvoiceResponse.isErr()) {
-      console.log('Error@payInvoiceResponse: ', payInvoiceResponse.error.message);
-      setIsLoading(false);
-      if (payInvoiceResponse.error.message === 'invoice_payment_fail_sending') {
-        navigate(Screens.TransactionErrorScreen, {
-          errorMessage: getReadableSendingError(payInvoiceResponse.error.message),
-          canRetry: false,
-          showSuggestions: true,
-        });
-      } else {
-        navigate(Screens.TransactionErrorScreen, {
-          errorMessage: getReadableSendingError(payInvoiceResponse.error.message),
-          canRetry: true,
-        });
+    try {
+      // ensure Ldk is up
+      const isLdkUp = await isLdkRunning();
+      if (!isLdkUp) {
+        await startLightning({});
       }
-      return;
-    }
+      await waitForLdk();
 
-    refreshWallet({}).then();
-    setIsLoading(false);
-    setPaymentSuccessful(true);
-    console.log(payInvoiceResponse.value.fee_sat);
-    // navigate to success page
-    console.log('show success page here');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [decodedInvoice?.amount_satoshis, t]);
+      // // check that peers exist before we create invoice;
+      // addPeers().then();
+
+      // attempt to pay this bolt11 invoice
+      const payInvoiceResponse = await payInvoice(paymentRequest);
+
+      if (payInvoiceResponse.isErr()) {
+        console.log('Error@payInvoiceResponse: ', payInvoiceResponse.error.message);
+        setIsLoading(false);
+        if (payInvoiceResponse.error.message === 'invoice_payment_fail_sending') {
+          navigate(Screens.TransactionErrorScreen, {
+            errorMessage: getReadableSendingError(payInvoiceResponse.error.message),
+            canRetry: false,
+            showSuggestions: true,
+          });
+        } else {
+          navigate(Screens.TransactionErrorScreen, {
+            errorMessage: getReadableSendingError(payInvoiceResponse.error.message),
+            canRetry: true,
+          });
+        }
+        return;
+      }
+
+      refreshWallet({}).then();
+      setIsLoading(false);
+      setPaymentSuccessful(true);
+      console.log(payInvoiceResponse.value.fee_sat);
+      // navigate to success page
+      console.log('show success page here');
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    } catch (e) {
+      console.log('handleTransaction', '@Payinvoice: ', e.message);
+    }
+  }, [paymentRequest]);
 
   const onPressSend = useCallback(() => {
     cueInformativeHaptic();
@@ -126,6 +147,23 @@ const SendScreen = ({ route }: Props) => {
     cueInformativeHaptic();
     navigateHome();
   };
+
+  const onBlur = () => {
+    const trimmedComment = userNote?.trim();
+    setUserNote(trimmedComment);
+  };
+
+  useEffect(() => {
+    // update payment note if changed by user
+    if (decodedInvoice) {
+      store.dispatch.lightning.updatePayment({
+        invoice: decodedInvoice,
+        type: EPaymentType.sent,
+        note: userNote,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userNote]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -149,6 +187,15 @@ const SendScreen = ({ route }: Props) => {
       )}
       <View style={styles.infoContainer}>
         <InfoListItem title="Amount" value={amount} valueIsNumeric={true} canCopy />
+        {decodedInvoice && (
+          <>
+            <InfoListItem title="Description" value={decodedInvoice?.description} canCopy />
+            <InfoListItem
+              title="Expires"
+              value={humanizeTimestamp(decodedInvoice?.timestamp, i18n)}
+            />
+          </>
+        )}
         <InfoListItem
           title="Payment request"
           value={paymentRequest}
@@ -164,14 +211,23 @@ const SendScreen = ({ route }: Props) => {
       )}
 
       {/* @TODO: Meta data like notes and tagging goes here */}
-
       {paymentSuccessful ? (
-        <Button
-          title="Share receipt"
-          onPress={() => 0}
-          appearance="outline"
-          style={styles.receiptButton}
-        />
+        <>
+          <TextInput
+            style={styles.inputContainer}
+            autoFocus={false}
+            multiline={true}
+            numberOfLines={3}
+            maxLength={140}
+            onChangeText={setUserNote}
+            value={userNote}
+            placeholder="Leave a short memo"
+            placeholderTextColor={Colors.neutrals.light.neutral6}
+            returnKeyType={'done'}
+            onBlur={onBlur}
+            blurOnSubmit={true}
+          />
+        </>
       ) : null}
       <Button
         title={isLoading ? 'Sending payment...' : paymentSuccessful ? 'Done' : 'Send payment'}
@@ -243,6 +299,17 @@ const styles = StyleSheet.create({
   lottieIcon: {
     width: '30%',
     aspectRatio: 1,
+  },
+  inputContainer: {
+    height: 80,
+    textAlignVertical: 'top',
+    alignSelf: 'stretch',
+    ...TypographyPresets.Body4,
+    color: Colors.common.black,
+    padding: 12,
+    backgroundColor: Colors.neutrals.light.neutral3,
+    marginBottom: 20,
+    borderRadius: 5,
   },
 });
 

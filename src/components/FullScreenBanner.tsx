@@ -99,7 +99,9 @@ const FullScreenBanner = ({
         <>
           <View>{displayIcon}</View>
           <Text style={styles.title}>{title}</Text>
-          <Text style={styles.description}>{description}</Text>
+          <View style={styles.descContainer}>
+            <Text style={styles.description}>{description}</Text>
+          </View>
           {showSuggestions ? (
             <View style={styles.suggestionsContainer}>
               <Text style={styles.suggestionsHeader}>A few things to try or check:</Text>
@@ -162,7 +164,8 @@ const FullScreenBanner = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginHorizontal: 24,
+    paddingHorizontal: 24,
+    backgroundColor: Colors.common.white,
   },
   contentContainer: {
     flexGrow: 1,
@@ -174,6 +177,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
     color: Colors.common.black,
+  },
+  descContainer: {
+    borderRadius: 4,
+    backgroundColor: Colors.neutrals.light.neutral3,
+    padding: 16,
   },
   description: {
     ...TypographyPresets.Body4,
