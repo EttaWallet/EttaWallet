@@ -17,7 +17,7 @@ const TransactionSuccessScreen = (props: RouteProps) => {
   const amountInSats = props.route.params.amountInSats || 0;
 
   const payments = getLightningStore().payments;
-  const payment = Object.values(payments).filter((p) => p.invoice.payment_hash === txId)[0];
+  const payment = Object.values(payments).filter((p) => p.payment_hash === txId)[0];
 
   const onPressDone = () => {
     cueInformativeHaptic();
@@ -27,7 +27,7 @@ const TransactionSuccessScreen = (props: RouteProps) => {
   const onPressDetails = () => {
     cueInformativeHaptic();
     navigate(Screens.ActivityDetailsScreen, {
-      transaction: { invoice: payment.invoice, type: payment.type },
+      transaction: payment,
     });
   };
 

@@ -37,7 +37,6 @@ export type StackParamList = {
   [Screens.CurrencyChooserScreen]: undefined;
   [Screens.Main]: undefined;
   [Screens.AnimatedModal]: undefined;
-  [Screens.DrawerNavigator]: undefined;
   [Screens.ManualBackupScreen]: undefined;
   [Screens.ManualBackupQuizScreen]: undefined;
   [Screens.GeneralSettingsScreen]: undefined;

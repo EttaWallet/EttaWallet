@@ -17,7 +17,6 @@ import SplashScreen from 'react-native-splash-screen';
 import Logger from '../utils/logger';
 import LanguageChooser from '../screens/LanguageChooserScreen';
 import type { ExtractProps } from '../utils/helpers';
-import DrawerNavigator from './DrawerNavigator';
 import { useStoreState } from '../state/hooks';
 import { PinType } from '../utils/types';
 import DisclaimerScreen from '../shared/DisclaimerScreen';
@@ -49,6 +48,7 @@ import ChannelStatusScreen from '../screens/ChannelStatusScreen';
 import ContactsScreen from '../screens/ContactsScreen';
 import ContactDetailScreen from '../screens/ContactDetailsScreen';
 import EnterAnythingScreen from '../screens/EnterAnythingScreen';
+import WalletHomeScreen from '../screens/WalletHomeScreen';
 
 const TAG = 'Navigator';
 
@@ -98,6 +98,11 @@ const commonScreens = (Navigator: typeof Stack) => {
 const walletScreens = (Navigator: typeof Stack) => {
   return (
     <>
+      <Navigator.Screen
+        name={Screens.WalletHomeScreen}
+        component={WalletHomeScreen}
+        options={WalletHomeScreen.navigationOptions as NativeStackNavigationOptions}
+      />
       <Navigator.Screen
         name={Screens.LightningChannelsIntroScreen}
         component={LightningChannelsIntroScreen}
@@ -239,7 +244,7 @@ export const MainStackScreen = () => {
     } else if (!nodeIsUp) {
       initialRoute = Screens.StartLdkScreen;
     } else {
-      initialRoute = Screens.DrawerNavigator;
+      initialRoute = Screens.WalletHomeScreen;
     }
 
     setInitialRoute(initialRoute);
@@ -265,7 +270,6 @@ export const MainStackScreen = () => {
 
   return (
     <Stack.Navigator initialRouteName={initialRouteName} screenOptions={emptyHeader}>
-      <Stack.Screen name={Screens.DrawerNavigator} component={DrawerNavigator} options={noHeader} />
       {onboardingScreens(Stack)}
       {walletScreens(Stack)}
       {commonScreens(Stack)}

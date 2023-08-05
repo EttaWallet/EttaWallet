@@ -21,7 +21,7 @@ type Props = RouteProps;
 
 const ReviewRequestScreen = ({ navigation, route }: Props) => {
   const onPressCancel = () => {
-    navigate(Screens.DrawerNavigator);
+    navigate(Screens.WalletHomeScreen);
   };
 
   useLayoutEffect(() => {

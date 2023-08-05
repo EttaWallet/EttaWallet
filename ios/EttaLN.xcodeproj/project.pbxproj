@@ -13,9 +13,9 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2811627C6FE54A95A5A4703A /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5CEB0162E2334C949004DD7F /* Inter-Regular.ttf */; };
 		4021641DB7FC4F94B66EF903 /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 57018506BE2D4F80A958A340 /* Inter-SemiBold.ttf */; };
-		782F47941678FD2B9962BE8F /* libPods-EttaLN.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C8C372071518CA71BDBC0CB /* libPods-EttaLN.a */; };
-		7E697594A0D78F4EE48B7E37 /* libPods-EttaLN-EttaLNTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E0C3272C4183CFA2C24D432D /* libPods-EttaLN-EttaLNTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		D0E429D357D950EDE8F913F1 /* libPods-EttaLN.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A36AEE9120C92406112AB6E7 /* libPods-EttaLN.a */; };
+		D43BEB25ACCCCC7201BB0F5F /* libPods-EttaLN-EttaLNTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C0175AB0A63792BF9812C3 /* libPods-EttaLN-EttaLNTests.a */; };
 		E31344524C67467099779701 /* Bitcoin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6EEDDF2017F943B48BCCC27C /* Bitcoin.ttf */; };
 		E47E5EE02A7164BF00BBCA2F /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = E47E5EDF2A7164BE00BBCA2F /* main.jsbundle */; };
 /* End PBXBuildFile section */
@@ -34,22 +34,22 @@
 		00E356EE1AD99517003FC87E /* EttaLNTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EttaLNTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* EttaLNTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EttaLNTests.m; sourceTree = "<group>"; };
-		0C8C372071518CA71BDBC0CB /* libPods-EttaLN.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-EttaLN.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		101C391EEE41529DCA42D29C /* Pods-EttaLN-EttaLNTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EttaLN-EttaLNTests.release.xcconfig"; path = "Target Support Files/Pods-EttaLN-EttaLNTests/Pods-EttaLN-EttaLNTests.release.xcconfig"; sourceTree = "<group>"; };
+		064B9071D18A454604E423B6 /* Pods-EttaLN.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EttaLN.release.xcconfig"; path = "Target Support Files/Pods-EttaLN/Pods-EttaLN.release.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* EttaLN.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EttaLN.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = EttaLN/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = EttaLN/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = EttaLN/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = EttaLN/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = EttaLN/main.m; sourceTree = "<group>"; };
+		23C0175AB0A63792BF9812C3 /* libPods-EttaLN-EttaLNTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-EttaLN-EttaLNTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		57018506BE2D4F80A958A340 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-SemiBold.ttf"; path = "../assets/fonts/Inter-SemiBold.ttf"; sourceTree = "<group>"; };
+		5CD0FF544A899B68022A705A /* Pods-EttaLN-EttaLNTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EttaLN-EttaLNTests.release.xcconfig"; path = "Target Support Files/Pods-EttaLN-EttaLNTests/Pods-EttaLN-EttaLNTests.release.xcconfig"; sourceTree = "<group>"; };
 		5CEB0162E2334C949004DD7F /* Inter-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Regular.ttf"; path = "../assets/fonts/Inter-Regular.ttf"; sourceTree = "<group>"; };
 		6EEDDF2017F943B48BCCC27C /* Bitcoin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Bitcoin.ttf; path = ../assets/fonts/Bitcoin.ttf; sourceTree = "<group>"; };
-		7D1B5C5B319CC2207A14576F /* Pods-EttaLN.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EttaLN.debug.xcconfig"; path = "Target Support Files/Pods-EttaLN/Pods-EttaLN.debug.xcconfig"; sourceTree = "<group>"; };
+		6FB8A4B80ED2F6F06112E10E /* Pods-EttaLN.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EttaLN.debug.xcconfig"; path = "Target Support Files/Pods-EttaLN/Pods-EttaLN.debug.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = EttaLN/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		B73EA66155D1035430E4E6F4 /* Pods-EttaLN.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EttaLN.release.xcconfig"; path = "Target Support Files/Pods-EttaLN/Pods-EttaLN.release.xcconfig"; sourceTree = "<group>"; };
-		D8057973EFFA0419B0A5F808 /* Pods-EttaLN-EttaLNTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EttaLN-EttaLNTests.debug.xcconfig"; path = "Target Support Files/Pods-EttaLN-EttaLNTests/Pods-EttaLN-EttaLNTests.debug.xcconfig"; sourceTree = "<group>"; };
-		E0C3272C4183CFA2C24D432D /* libPods-EttaLN-EttaLNTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-EttaLN-EttaLNTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A36AEE9120C92406112AB6E7 /* libPods-EttaLN.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-EttaLN.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C595EA78997A16AE8F35F64F /* Pods-EttaLN-EttaLNTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EttaLN-EttaLNTests.debug.xcconfig"; path = "Target Support Files/Pods-EttaLN-EttaLNTests/Pods-EttaLN-EttaLNTests.debug.xcconfig"; sourceTree = "<group>"; };
 		E47E5EDF2A7164BE00BBCA2F /* main.jsbundle */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.jsbundle; path = EttaLN/main.jsbundle; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -59,7 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7E697594A0D78F4EE48B7E37 /* libPods-EttaLN-EttaLNTests.a in Frameworks */,
+				D43BEB25ACCCCC7201BB0F5F /* libPods-EttaLN-EttaLNTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -67,7 +67,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				782F47941678FD2B9962BE8F /* libPods-EttaLN.a in Frameworks */,
+				D0E429D357D950EDE8F913F1 /* libPods-EttaLN.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -108,8 +108,8 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				0C8C372071518CA71BDBC0CB /* libPods-EttaLN.a */,
-				E0C3272C4183CFA2C24D432D /* libPods-EttaLN-EttaLNTests.a */,
+				A36AEE9120C92406112AB6E7 /* libPods-EttaLN.a */,
+				23C0175AB0A63792BF9812C3 /* libPods-EttaLN-EttaLNTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -150,10 +150,10 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				7D1B5C5B319CC2207A14576F /* Pods-EttaLN.debug.xcconfig */,
-				B73EA66155D1035430E4E6F4 /* Pods-EttaLN.release.xcconfig */,
-				D8057973EFFA0419B0A5F808 /* Pods-EttaLN-EttaLNTests.debug.xcconfig */,
-				101C391EEE41529DCA42D29C /* Pods-EttaLN-EttaLNTests.release.xcconfig */,
+				6FB8A4B80ED2F6F06112E10E /* Pods-EttaLN.debug.xcconfig */,
+				064B9071D18A454604E423B6 /* Pods-EttaLN.release.xcconfig */,
+				C595EA78997A16AE8F35F64F /* Pods-EttaLN-EttaLNTests.debug.xcconfig */,
+				5CD0FF544A899B68022A705A /* Pods-EttaLN-EttaLNTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -175,12 +175,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "EttaLNTests" */;
 			buildPhases = (
-				9F7F2E644D731CF09FFA4B23 /* [CP] Check Pods Manifest.lock */,
+				403BAE0C78B89B6AB5E9495A /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				985F4A1BE73228EAEF73F808 /* [CP] Embed Pods Frameworks */,
-				2864F0A1BE40B680B441DCCB /* [CP] Copy Pods Resources */,
+				219452335F944A663EE195ED /* [CP] Embed Pods Frameworks */,
+				1C3CC914E46FCA5BD6F379E2 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -196,14 +196,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "EttaLN" */;
 			buildPhases = (
-				72D4BAB3B39B6A34D805C7F8 /* [CP] Check Pods Manifest.lock */,
+				64E94261C7CFA6C27F7A8EC3 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				5B5CA11EBAAD4ACF5BC69043 /* [CP] Embed Pods Frameworks */,
-				3A22901B94C5DC845C1A0EF2 /* [CP] Copy Pods Resources */,
+				32FE5F00E9362B50376FD406 /* [CP] Embed Pods Frameworks */,
+				F2A582E5283B5C79133161F7 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -290,7 +290,7 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"../node_modules/react-native/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"../node_modules/react-native/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
-		2864F0A1BE40B680B441DCCB /* [CP] Copy Pods Resources */ = {
+		1C3CC914E46FCA5BD6F379E2 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -307,24 +307,24 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-EttaLN-EttaLNTests/Pods-EttaLN-EttaLNTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		3A22901B94C5DC845C1A0EF2 /* [CP] Copy Pods Resources */ = {
+		219452335F944A663EE195ED /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-EttaLN/Pods-EttaLN-resources-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-EttaLN-EttaLNTests/Pods-EttaLN-EttaLNTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			name = "[CP] Copy Pods Resources";
+			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-EttaLN/Pods-EttaLN-resources-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-EttaLN-EttaLNTests/Pods-EttaLN-EttaLNTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-EttaLN/Pods-EttaLN-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-EttaLN-EttaLNTests/Pods-EttaLN-EttaLNTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		5B5CA11EBAAD4ACF5BC69043 /* [CP] Embed Pods Frameworks */ = {
+		32FE5F00E9362B50376FD406 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -341,7 +341,29 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-EttaLN/Pods-EttaLN-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		72D4BAB3B39B6A34D805C7F8 /* [CP] Check Pods Manifest.lock */ = {
+		403BAE0C78B89B6AB5E9495A /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-EttaLN-EttaLNTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		64E94261C7CFA6C27F7A8EC3 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -363,43 +385,21 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		985F4A1BE73228EAEF73F808 /* [CP] Embed Pods Frameworks */ = {
+		F2A582E5283B5C79133161F7 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-EttaLN-EttaLNTests/Pods-EttaLN-EttaLNTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-EttaLN/Pods-EttaLN-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			name = "[CP] Embed Pods Frameworks";
+			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-EttaLN-EttaLNTests/Pods-EttaLN-EttaLNTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-EttaLN/Pods-EttaLN-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-EttaLN-EttaLNTests/Pods-EttaLN-EttaLNTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		9F7F2E644D731CF09FFA4B23 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-EttaLN-EttaLNTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-EttaLN/Pods-EttaLN-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
@@ -454,7 +454,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D8057973EFFA0419B0A5F808 /* Pods-EttaLN-EttaLNTests.debug.xcconfig */;
+			baseConfigurationReference = C595EA78997A16AE8F35F64F /* Pods-EttaLN-EttaLNTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -481,7 +481,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 101C391EEE41529DCA42D29C /* Pods-EttaLN-EttaLNTests.release.xcconfig */;
+			baseConfigurationReference = 5CD0FF544A899B68022A705A /* Pods-EttaLN-EttaLNTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
@@ -505,7 +505,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7D1B5C5B319CC2207A14576F /* Pods-EttaLN.debug.xcconfig */;
+			baseConfigurationReference = 6FB8A4B80ED2F6F06112E10E /* Pods-EttaLN.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -537,7 +537,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B73EA66155D1035430E4E6F4 /* Pods-EttaLN.release.xcconfig */;
+			baseConfigurationReference = 064B9071D18A454604E423B6 /* Pods-EttaLN.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;

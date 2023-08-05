@@ -12,7 +12,6 @@ export enum Screens {
   OnboardingSlidesScreen = 'OnboardingSlidesScreen',
   Main = 'Main',
   AnimatedModal = 'AnimatedModal',
-  DrawerNavigator = 'DrawerNavigator',
   ManualBackupScreen = 'ManualBackupScreen',
   ManualBackupQuizScreen = 'ManualBackupQuizScreen',
   GeneralSettingsScreen = 'GeneralSettingsScreen',

@@ -73,6 +73,7 @@ const useSendBottomSheet = (sendProps: Props) => {
     // sendOptionsBottomSheetRef.current?.close();
     const result = await processInputData({
       data: clipboardData,
+      showErrors: true,
     });
 
     if (result.isErr()) {

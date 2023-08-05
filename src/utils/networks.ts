@@ -1,7 +1,7 @@
 import { ENetworks } from '@synonymdev/react-native-ldk';
 import * as bitcoinJS from 'bitcoinjs-lib';
 
-export type TAvailableNetworks = 'bitcoin' | 'bitcoinTestnet' | 'bitcoinRegtest';
+export type TAvailableNetworks = 'bitcoin' | 'bitcoinSignet' | 'bitcoinTestnet' | 'bitcoinRegtest';
 
 export enum EAvailableNetworks {
   bitcoin = 'bitcoin',
@@ -78,6 +78,8 @@ export const getLdkNetwork = (network: TAvailableNetworks): ENetworks => {
   switch (network) {
     case 'bitcoinRegtest':
       return ENetworks.regtest;
+    case 'bitcoinSignet':
+      return ENetworks.signet;
     case 'bitcoinTestnet':
       return ENetworks.testnet;
     case 'bitcoin':

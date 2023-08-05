@@ -55,7 +55,7 @@ const ReceiveScreen = ({ navigation, route }: Props) => {
   const feesPayable = route.params?.feesPayable || 0;
 
   const onPressCancel = () => {
-    navigate(Screens.DrawerNavigator);
+    navigate(Screens.WalletHomeScreen);
   };
 
   useLayoutEffect(() => {

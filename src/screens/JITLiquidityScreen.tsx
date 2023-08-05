@@ -36,11 +36,11 @@ const JITLiquidityScreen = ({ navigation, route }: Props) => {
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
 
   const onPressCancel = () => {
-    navigate(Screens.DrawerNavigator);
+    navigate(Screens.WalletHomeScreen);
   };
 
   const onPressContinue = () => {
-    navigate(Screens.DrawerNavigator);
+    navigate(Screens.WalletHomeScreen);
   };
 
   useLayoutEffect(() => {

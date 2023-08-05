@@ -73,7 +73,7 @@ const SetPinScreen = ({ route }: ScreenProps) => {
       // proceed to launch LDK node
       navigate(Screens.StartLdkScreen);
     } else {
-      navigateClearingStack(Screens.DrawerNavigator);
+      navigateClearingStack(Screens.WalletHomeScreen);
     }
   };
 

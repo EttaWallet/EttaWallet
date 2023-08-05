@@ -2,9 +2,11 @@ import lm, {
   TAccount,
   TAvailableNetworks,
   TChannel,
+  TChannelManagerClaim,
   TChannelManagerPaymentSent,
   TCreatePaymentReq,
   TInvoice,
+  TPaymentReq,
 } from '@synonymdev/react-native-ldk';
 import {
   EPaymentType,
@@ -40,7 +42,6 @@ import { reduceValue, sleep } from '../helpers';
 import { timeDeltaInDays } from '../time';
 import { transactionFeedHeader } from '../time';
 import i18n from '../../i18n';
-import { decodeLightningInvoice } from './decode';
 import { showWarningBanner } from '../alerts';
 import { VOLTAGE_LSP_API_TESTNET } from '../../../config';
 import Logger from '../logger';
@@ -52,8 +53,20 @@ export const DEFAULT_LIGHTNING_PEERS: IWalletItem<string[]> = {
   bitcoin: [],
   bitcoinRegtest: [],
   bitcoinTestnet: [
+    // Etta-tn
+    '02c1b1cba5a07d77aad88f8e798b87e4fc32b74fbab018685b37a7a14a349822d7@uhfatc2mrlrvl5p6fw2yebb5j3ayc5vfjn2wrj4vlqoqaclu444yfrad.onion:9735',
     // voltage lsp for zero-conf channel
     '025804d4431ad05b06a1a1ee41f22fefeb8ce800b0be3a92ff3b9f594a263da34e@44.228.24.253:9735',
+    // Voltage-test
+    '02cf71da3f277c2a30a348dfced77a9b7d81fb578c2b9117967100352051626b84@ymhwxsj37m6sflcjmxmv3aqkrhcpjt6xyhkaqcluad2dvdqrubrtqnid.onion:9735',
+    // aranguren.org
+    '038863cf8ab91046230f561cd5b386cbff8309fa02e3f0c3ed161a3aeb64a643b9@203.132.94.196:9735',
+    // Cyclopes
+    '028ec70462207b57e3d4d9332d9e0aee676c92d89b7c9fb0850fc2a24814d4d83c@71.171.123.161:9735',
+    // Mordhaus
+    '0286383ed513fef6ffd277abf2091971d0f4ac61cc078381aee4eb71b4acd2bc86@64.44.166.123:9736',
+    // Open Node
+    '02eadbd9e7557375161df8b646776a547c5cbc2e95b3071ec81553f8ec2cea3b8c@18.191.253.246:9735',
   ],
 };
 
@@ -320,13 +333,28 @@ export const createLightningInvoice = async ({
   return ok(invoice.value);
 };
 
+export const decodeLightningInvoice = ({
+  paymentRequest,
+}: TPaymentReq): Promise<Result<TInvoice>> => {
+  paymentRequest = paymentRequest.replace('lightning:', '').trim();
+  return ldk.decode({ paymentRequest });
+};
+
+export const getClaimedPaymentsFromNode = async (): Promise<TChannelManagerClaim[]> =>
+  lm.getLdkPaymentsClaimed();
+
+export const getSentPaymentsFromNode = async (): Promise<TChannelManagerPaymentSent[]> =>
+  lm.getLdkPaymentsSent();
+
 /**
  * Attempts to pay a bolt11 invoice.
+ * @param {number} amount_in_sats
  * @param {string} paymentRequest
  * @returns {Promise<Result<string>>}
  */
 export const payInvoice = async (
-  paymentRequest: string
+  paymentRequest: string,
+  amount_in_sats?: number
 ): Promise<Result<TChannelManagerPaymentSent>> => {
   try {
     const addPeersResponse = await addPeers().then();
@@ -342,18 +370,19 @@ export const payInvoice = async (
 
     const payResponse = await lm.payWithTimeout({
       paymentRequest: paymentRequest,
+      amountSats: amount_in_sats ?? 0,
       timeout: 60000,
     });
     if (payResponse.isErr()) {
       return err(payResponse.error.message);
     }
-    // Log payment in state once successful
-    const addLightningPaymentResponse = addPayment({
-      invoice: decodedInvoice.value,
-    });
-    if (addLightningPaymentResponse.isErr()) {
-      return err(addLightningPaymentResponse.error.message);
-    }
+    // // Log payment in state once successful
+    // const addLightningPaymentResponse = addPayment({
+    //   payment: decodedInvoice.value,
+    // });
+    // if (addLightningPaymentResponse.isErr()) {
+    //   return err(addLightningPaymentResponse.error.message);
+    // }
 
     refreshLdk({}).then();
     return ok(payResponse.value);
@@ -876,19 +905,22 @@ export const removeInvoice = async ({
 
 /**
  * Adds a paid lightning invoice to the payments object for future reference.
- * @param {TInvoice} invoice
+ * @param {TChannelManagerClaim} payment
+ * @param {EPaymentType} paymentType
  * @param {TAvailableNetworks} [selectedNetwork]
  * @returns {Result<string>}
  */
 export const addPayment = ({
-  invoice,
+  payment,
+  paymentType,
   selectedNetwork,
 }: {
-  invoice: TInvoice;
+  payment: TChannelManagerClaim | TChannelManagerPaymentSent;
+  paymentType: EPaymentType;
   selectedNetwork?: TAvailableNetworks;
 }): Result<string> => {
-  if (!invoice) {
-    return err('No payment invoice provided.');
+  if (!payment) {
+    return err('No payment provided.');
   }
   if (!selectedNetwork) {
     selectedNetwork = getSelectedNetwork();
@@ -897,21 +929,18 @@ export const addPayment = ({
 
   // It's possible ldk.pay returned true for an invoice we already paid.
   // Run another check here.
-  if (invoice.payment_hash in lightningPayments) {
+  if (payment.payment_hash in lightningPayments) {
     return err('Lightning invoice has already been paid.');
   }
 
-  const nodeId = getLightningStore().nodeId;
-
   const payload: TLightningPayment = {
-    invoice: invoice,
-    type: invoice.payee_pub_key === nodeId ? EPaymentType.sent : EPaymentType.received,
-    timestamp: Date.now(),
+    ...payment,
+    type: paymentType,
   };
   // add payment to store once confirmed
   store.dispatch.lightning.addPayment(payload);
   // and remove associated invoice from store via matching payment_hash
-  store.dispatch.lightning.removeInvoice(invoice.payment_hash);
+  store.dispatch.lightning.removeInvoice(payment.payment_hash);
   return ok('Successfully added lightning payment.');
 };
 
@@ -932,11 +961,11 @@ export function groupActivityInSections<T extends { timestamp: number }>(
   } = {};
 
   items.reduce((sections, item) => {
-    const daysSinceTransaction = timeDeltaInDays(Date.now(), item.invoice.timestamp);
+    const daysSinceTransaction = timeDeltaInDays(Date.now(), item.unix_timestamp!);
     const key =
       daysSinceTransaction <= 7
         ? i18n.t('Last 7 days')
-        : transactionFeedHeader(item.invoice.timestamp, i18n);
+        : transactionFeedHeader(item.unix_timestamp!, i18n);
     sections[key] = sections[key] || {
       daysSinceTransaction,
       data: [],
@@ -962,10 +991,10 @@ export function countRecentTransactions(payments: TLightningPayment[]): number {
   let count = 0;
 
   for (const paymentKey in payments) {
-    const payment = payments[paymentKey];
-    const { invoice } = payment;
+    const item = payments[paymentKey];
+    const { unix_timestamp } = item;
 
-    if (invoice.timestamp >= sevenDaysAgo && invoice.timestamp <= now) {
+    if (unix_timestamp && unix_timestamp >= sevenDaysAgo && unix_timestamp <= now) {
       count++;
     }
   }

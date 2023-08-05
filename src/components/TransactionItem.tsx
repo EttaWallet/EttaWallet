@@ -1,6 +1,5 @@
 import React from 'react';
-import { TInvoice } from '@synonymdev/react-native-ldk';
-import { EPaymentType, TContact } from '../utils/types';
+import { EPaymentType, TLightningPayment } from '../utils/types';
 import { humanizeTimestamp } from '../utils/time';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -14,17 +13,13 @@ import i18n from '../i18n';
 import { capitalize } from 'lodash';
 
 interface TransactionItemProps {
-  invoice: TInvoice;
-  txType: EPaymentType;
-  memo?: string;
-  contact?: TContact;
-  txTimestamp?: number;
+  payment: TLightningPayment;
 }
 
-const TransactionItem = ({ invoice, txType, memo, contact, txTimestamp }: TransactionItemProps) => {
-  const transactionSubText = memo
-    ? memo
-    : humanizeTimestamp(txTimestamp || invoice.timestamp, i18n);
+const TransactionItem = ({ payment }: TransactionItemProps) => {
+  const transactionSubText = payment.note
+    ? payment.note
+    : humanizeTimestamp(payment.unix_timestamp!, i18n);
 
   const transactionPrefix = (type: EPaymentType) => {
     let prefix: string;
@@ -38,18 +33,17 @@ const TransactionItem = ({ invoice, txType, memo, contact, txTimestamp }: Transa
 
   return (
     <TouchableOpacity
-      disabled={false}
       onPress={() => {
         cueInformativeHaptic();
         navigate(Screens.ActivityDetailsScreen, {
-          transaction: { invoice: invoice, type: txType },
+          transaction: payment,
         });
       }}
     >
       <View style={styles.container}>
-        {contact ? (
-          <ContactAvatar contact={contact} />
-        ) : txType === EPaymentType.sent ? (
+        {payment.contact ? (
+          <ContactAvatar contact={payment.contact} />
+        ) : payment.type === EPaymentType.sent ? (
           <View style={[styles.iconContainer, { backgroundColor: 'rgba(45, 156, 219, 0.1)' }]}>
             <Icon name="icon-arrow-up" style={styles.sentIcon} />
           </View>
@@ -60,11 +54,9 @@ const TransactionItem = ({ invoice, txType, memo, contact, txTimestamp }: Transa
         )}
         <View style={styles.transactionContent}>
           <Text style={styles.transactionTitle}>
-            {contact
-              ? `${transactionPrefix(txType)} ${contact.alias}`
-              : invoice.description
-              ? invoice.description
-              : `${capitalize(txType)} (no description)`}
+            {payment.contact
+              ? `${transactionPrefix(payment?.type!)} ${payment.contact.alias}`
+              : `${capitalize(payment.type)}`}
           </Text>
           <Text style={styles.transactionSubtitle} numberOfLines={1}>
             {transactionSubText}
@@ -72,9 +64,9 @@ const TransactionItem = ({ invoice, txType, memo, contact, txTimestamp }: Transa
         </View>
         <View style={styles.transactionAmountContainer}>
           <TransactionAmount
-            totalAmount={invoice.amount_satoshis!}
+            totalAmount={payment.amount_sat!}
             usingLocalCurrency={false}
-            transactionType={txType}
+            transactionType={payment.type!}
           />
         </View>
       </View>

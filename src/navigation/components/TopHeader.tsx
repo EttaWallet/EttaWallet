@@ -13,7 +13,7 @@ interface Props {
   onPressLogo?: () => void;
 }
 
-function DrawerHeader({ middleElement, leftElement, scrollPosition, onPressLogo }: Props) {
+function TopHeader({ middleElement, leftElement, scrollPosition, onPressLogo }: Props) {
   const viewStyle = React.useMemo(
     () => ({
       ...styles.container,
@@ -69,4 +69,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DrawerHeader;
+export default TopHeader;

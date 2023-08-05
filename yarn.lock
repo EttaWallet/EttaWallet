@@ -1632,10 +1632,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@synonymdev/react-native-ldk@^0.0.97":
-  version "0.0.97"
-  resolved "https://registry.yarnpkg.com/@synonymdev/react-native-ldk/-/react-native-ldk-0.0.97.tgz#b2dd1cc066599ea167ffd49a65669b57c0dceea0"
-  integrity sha512-2mQiumWerAh8+9bDnBB1n0rstfmz7wGISYJvw6BsFydwKQrBaH4E9MfRWOcKB6cf9nW4CD7uzRyH0QlqOvnbdQ==
+"@synonymdev/react-native-ldk@^0.0.103":
+  version "0.0.103"
+  resolved "https://registry.yarnpkg.com/@synonymdev/react-native-ldk/-/react-native-ldk-0.0.103.tgz#6dbb4b517c5f054956428e9262e8ff91608d7242"
+  integrity sha512-A88huuIRIxn0CTnEUis1wpWPW+vWBx9MmjrP/5ghqU/9InLtRpwYoqJpznNJMLRPKEuGQq40Lo7B9WfKFHADkQ==
   dependencies:
     bitcoinjs-lib "^6.0.2"
 

@@ -13,6 +13,10 @@ import lm, {
   TChannel,
   TChannelManagerClaim,
   TChannelManagerOpenChannelRequest,
+  TChannelManagerPaymentFailed,
+  TChannelManagerPaymentPathFailed,
+  TChannelManagerPaymentPathSuccessful,
+  TChannelManagerPaymentSent,
   TChannelUpdate,
   TInvoice,
   TTransactionData,
@@ -32,13 +36,13 @@ import {
   updateMaxReceivableAmount,
   removeExpiredInvoices,
 } from '../utils/lightning/helpers';
-import { TLightningNodeVersion } from '../utils/types';
+import { EPaymentType, TLightningNodeVersion } from '../utils/types';
 import { EmitterSubscription, InteractionManager } from 'react-native';
 import { promiseTimeout, sleep, tryNTimes } from '../utils/helpers';
 import { getBestBlock, getTransactionMerkle } from '../utils/electrum/helpers';
 import { getLdkNetwork, TAvailableNetworks } from '../utils/networks';
 import { getReceiveAddress, getSelectedNetwork, getWalletStore } from '../utils/wallet';
-import { showSuccessBanner, showToast } from '../utils/alerts';
+import { showSuccessBanner, showToast, showWarningBanner } from '../utils/alerts';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { showErrorBanner } from '../utils/alerts';
@@ -46,12 +50,13 @@ import { showErrorBanner } from '../utils/alerts';
 let LDKIsStayingSynced = false;
 
 // Subscribe to LDK module events
-let paymentSubscription: EmitterSubscription | undefined;
+let onPaymentClaimedSubscription: EmitterSubscription | undefined;
+let onPaymentSentSubscription: EmitterSubscription | undefined;
+let onPaymentFailedSubscription: EmitterSubscription | undefined;
 let onOpenChannelSubscription: EmitterSubscription | undefined;
 let onChannelSubscription: EmitterSubscription | undefined;
-let onPaymentFailedSubscription: EmitterSubscription | undefined;
 let onPaymentPathSuccessSubscription: EmitterSubscription | undefined;
-let onPaymentSuccessfulSubscription: EmitterSubscription | undefined;
+let onPaymentPathFailedSubscription: EmitterSubscription | undefined;
 
 /**
  * Syncs LDK to the current height.
@@ -496,7 +501,7 @@ export const getAllPendingChannels = async ({
   return ok(pendingChannels);
 };
 
-export const handlePaymentSubscription = async ({
+export const handleReceivedPayment = async ({
   payment,
   selectedNetwork,
 }: {
@@ -516,7 +521,8 @@ export const handlePaymentSubscription = async ({
   if (invoice.isOk()) {
     // add payment
     addPayment({
-      invoice: invoice.value,
+      payment: payment,
+      paymentType: EPaymentType.received,
       selectedNetwork,
     });
     // showSuccessBanner({
@@ -529,8 +535,39 @@ export const handlePaymentSubscription = async ({
     await refreshLdk({ selectedNetwork });
 
     navigate(Screens.TransactionSuccessScreen, {
-      txId: invoice.value.payment_hash,
-      amountInSats: invoice.value.amount_satoshis,
+      txId: payment.payment_hash,
+      amountInSats: payment.amount_sat,
+    });
+  }
+};
+
+export const handleSentPayment = async ({
+  payment,
+  selectedNetwork,
+}: {
+  payment: TChannelManagerPaymentSent;
+  selectedNetwork?: TAvailableNetworks;
+}): Promise<void> => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+  const invoice = getPendingInvoice({
+    paymentHash: payment.payment_hash,
+    selectedNetwork,
+  });
+  if (invoice.isOk()) {
+    // add payment
+    addPayment({
+      payment: payment,
+      paymentType: EPaymentType.sent,
+      selectedNetwork,
+    });
+
+    await refreshLdk({ selectedNetwork });
+
+    showSuccessBanner({
+      message: 'Payment sent',
+      dismissAfter: 5000,
     });
   }
 };
@@ -593,14 +630,60 @@ export const subscribeToPayments = ({
   if (!selectedNetwork) {
     selectedNetwork = getSelectedNetwork();
   }
-  if (!paymentSubscription) {
-    paymentSubscription = ldk.onEvent(
+  /***
+   * Handle received payments.
+   */
+  if (!onPaymentClaimedSubscription) {
+    onPaymentClaimedSubscription = ldk.onEvent(
       EEventTypes.channel_manager_payment_claimed,
       (res: TChannelManagerClaim) => {
-        handlePaymentSubscription({
+        handleReceivedPayment({
           payment: res,
           selectedNetwork,
         }).then();
+      }
+    );
+  }
+  /***
+   * Handle sent payments.
+   */
+  if (!onPaymentSentSubscription) {
+    onPaymentSentSubscription = ldk.onEvent(
+      EEventTypes.channel_manager_payment_sent,
+      (res: TChannelManagerPaymentSent) => {
+        handleSentPayment({
+          payment: res,
+          selectedNetwork,
+        }).then();
+      }
+    );
+  }
+  /***
+   * Handle failed payments.
+   */
+  if (!onPaymentFailedSubscription) {
+    onPaymentFailedSubscription = ldk.onEvent(
+      EEventTypes.channel_manager_payment_failed,
+      (res: TChannelManagerPaymentFailed) => {
+        showWarningBanner({
+          title: `Payment ${res.payment_id} failed`,
+          message: `payment hash: ${res.payment_hash}`,
+        });
+      }
+    );
+  }
+  /***
+   * Handle failed payments path
+   */
+  if (!onPaymentPathFailedSubscription) {
+    onPaymentPathFailedSubscription = ldk.onEvent(
+      EEventTypes.channel_manager_payment_path_failed,
+      (res: TChannelManagerPaymentPathFailed) => {
+        showWarningBanner({
+          title: `Payment ${res.payment_id} failed`,
+          message: `payment hash: ${res.payment_hash}`,
+        });
+        console.log('path: ', res.path_hops);
       }
     );
   }
@@ -640,21 +723,9 @@ export const subscribeToPayments = ({
   if (!onPaymentPathSuccessSubscription) {
     onPaymentPathSuccessSubscription = ldk.onEvent(
       EEventTypes.channel_manager_payment_path_successful,
-      (_res: TChannelUpdate) => {
+      (_res: TChannelManagerPaymentPathSuccessful) => {
         showSuccessBanner({
           message: 'Your payment is on the way',
-        });
-        refreshLdk({ selectedNetwork }).then();
-      }
-    );
-  }
-  if (!onPaymentSuccessfulSubscription) {
-    onPaymentSuccessfulSubscription = ldk.onEvent(
-      EEventTypes.channel_manager_payment_sent,
-      (_res: TChannelUpdate) => {
-        showSuccessBanner({
-          message: 'Payment sent!',
-          dismissAfter: 5000,
         });
         refreshLdk({ selectedNetwork }).then();
       }
@@ -663,7 +734,7 @@ export const subscribeToPayments = ({
   if (!onPaymentFailedSubscription) {
     onPaymentFailedSubscription = ldk.onEvent(
       EEventTypes.channel_manager_payment_path_failed,
-      (_res: TChannelUpdate) => {
+      (_res: TChannelManagerPaymentPathFailed) => {
         showErrorBanner({
           title: 'Payment failed',
           message: "Couldn't find a route to the payee",
@@ -676,9 +747,10 @@ export const subscribeToPayments = ({
 };
 
 export const unsubscribeFromLDKSubscriptions = (): void => {
-  paymentSubscription?.remove();
+  onPaymentClaimedSubscription?.remove();
+  onPaymentFailedSubscription?.remove();
+  onPaymentSentSubscription?.remove();
   onChannelSubscription?.remove();
   onPaymentPathSuccessSubscription?.remove();
-  onPaymentFailedSubscription?.remove();
-  onPaymentSuccessfulSubscription?.remove();
+  onPaymentPathFailedSubscription?.remove();
 };

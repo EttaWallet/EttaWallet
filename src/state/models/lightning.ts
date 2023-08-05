@@ -1,6 +1,5 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import {
-  EPaymentType,
   NodeState,
   TContact,
   TLightningNodeVersion,
@@ -24,7 +23,7 @@ export interface LightningNodeModelType {
   channels: { [key: string]: TChannel };
   openChannelIds: string[];
   invoices: TInvoice[];
-  payments: { [key: string]: TLightningPayment };
+  payments: TLightningPayment[];
   peers: string[];
   contacts: TContact[];
   claimableBalance: number;
@@ -65,7 +64,7 @@ export const lightningModel: LightningNodeModelType = {
   },
   channels: {},
   invoices: [],
-  payments: {},
+  payments: [],
   peers: [],
   contacts: [],
   openChannelIds: [],
@@ -153,31 +152,13 @@ export const lightningModel: LightningNodeModelType = {
     state.maxReceivable = payload;
   }),
   addPayment: action((state, payload) => {
-    state.payments = {
-      ...state.payments,
-      [payload?.invoice.payment_hash]: {
-        invoice: payload?.invoice,
-        type:
-          // if payee_pubkey matches the nodeId, save as received payment
-          payload?.invoice.payee_pub_key === state.nodeId
-            ? EPaymentType.received
-            : EPaymentType.sent,
-        timestamp: payload?.timestamp,
-      },
-    };
+    state.payments.push(payload);
   }),
   updatePayment: action((state, payload) => {
     // updates invoice, usually tags, notes or contacts
-    try {
-      const payment = Object.values(state.payments).filter(
-        (p) => p.invoice.payment_hash === payload.invoice.payment_hash
-      )[0];
-      if (payment) {
-        Object.assign(payment, payload);
-      }
-    } catch (e) {
-      console.log(e.message);
-    }
+    state.payments = state.payments.map((payment) =>
+      payment.payment_hash === payload?.payment_hash ? { ...payment, payload } : payment
+    );
   }),
   addPeer: action((state, payload) => {
     state.peers.push(payload);

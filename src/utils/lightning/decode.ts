@@ -1,10 +1,15 @@
-import { TInvoice, TPaymentReq } from '@synonymdev/react-native-ldk';
+import { TInvoice } from '@synonymdev/react-native-ldk';
 import { TAvailableNetworks } from '../networks';
 import { Result, err, ok } from '../result';
 import { EIdentifierType, ELightningDataType, IDecodedData, TDecodedInput } from '../types';
 import { getSelectedNetwork } from '../wallet';
-import ldk from '@synonymdev/react-native-ldk/dist/ldk';
-import { addPeer, getLightningStore, getTotalBalance, savePeer } from './helpers';
+import {
+  addPeer,
+  decodeLightningInvoice,
+  getLightningStore,
+  getTotalBalance,
+  savePeer,
+} from './helpers';
 import { navigate } from '../../navigation/NavigationService';
 import { Screens } from '../../navigation/Screens';
 import { showErrorBanner, showSuccessBanner, showToast, showWarningBanner } from '../alerts';
@@ -19,13 +24,6 @@ const LIGHTNING_SCHEME = 'lightning';
 const BOLT11_SCHEME_MAINNET = 'lnbc';
 const BOLT11_SCHEME_TESTNET = 'lntb';
 const LNURL_SCHEME = 'lnurl';
-
-export const decodeLightningInvoice = ({
-  paymentRequest,
-}: TPaymentReq): Promise<Result<TInvoice>> => {
-  paymentRequest = paymentRequest.replace('lightning:', '').trim();
-  return ldk.decode({ paymentRequest });
-};
 
 /**
  * @param {QRData[]} data
@@ -320,6 +318,13 @@ export const handleProcessedData = async ({
         paymentRequest: paymentRequest,
       });
       if (decodedInvoice.isErr()) {
+        if (decodedInvoice.error.message === 'decode_invoice_fail') {
+          showWarningBanner({
+            title: "Can't decode this invoice",
+            message: 'Invoice is either malformed or unsupported.',
+            dismissAfter: 3000,
+          });
+        }
         showErrorBanner({
           message: "Can't decode this invoice",
           title: decodedInvoice.error.message,

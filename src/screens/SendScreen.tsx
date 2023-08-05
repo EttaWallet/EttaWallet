@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { SafeAreaView, StyleSheet, View, Platform, Text, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Platform, Text, ActivityIndicator } from 'react-native';
 import { headerWithBackButton } from '../navigation/Headers';
 import { Button, Colors, Icon, TypographyPresets } from 'etta-ui';
 import { StackParamList } from '../navigation/types';
@@ -8,9 +8,8 @@ import { Screens } from '../navigation/Screens';
 import { useTranslation } from 'react-i18next';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import { InfoListItem } from '../components/InfoListItem';
-import { decodeLightningInvoice } from '../utils/lightning/decode';
 import { TInvoice } from '@synonymdev/react-native-ldk';
-import { payInvoice, startLightning } from '../utils/lightning/helpers';
+import { decodeLightningInvoice, payInvoice, startLightning } from '../utils/lightning/helpers';
 import { refreshWallet } from '../utils/wallet';
 import { navigate, navigateHome } from '../navigation/NavigationService';
 import { showWarningBanner } from '../utils/alerts';
@@ -18,9 +17,7 @@ import LottieView from 'lottie-react-native';
 import { humanizeTimestamp } from '../utils/time';
 import i18n from '../i18n';
 import { isLdkRunning, waitForLdk } from '../ldk';
-import { TextInput } from 'react-native-gesture-handler';
-import store from '../state/store';
-import { EPaymentType } from '../utils/types';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.SendScreen>;
 type Props = RouteProps;
@@ -50,7 +47,6 @@ const getReadableSendingError = (errorFound) => {
 };
 
 const SendScreen = ({ route }: Props) => {
-  const [userNote, setUserNote] = useState('');
   const amount = route.params?.amount || '0';
   const paymentRequest = route.params?.paymentRequest || '';
   const [decodedInvoice, setDecodedInvoice] = useState<TInvoice>();
@@ -131,7 +127,6 @@ const SendScreen = ({ route }: Props) => {
       console.log(payInvoiceResponse.value.fee_sat);
       // navigate to success page
       console.log('show success page here');
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     } catch (e) {
       console.log('handleTransaction', '@Payinvoice: ', e.message);
     }
@@ -147,23 +142,6 @@ const SendScreen = ({ route }: Props) => {
     cueInformativeHaptic();
     navigateHome();
   };
-
-  const onBlur = () => {
-    const trimmedComment = userNote?.trim();
-    setUserNote(trimmedComment);
-  };
-
-  useEffect(() => {
-    // update payment note if changed by user
-    if (decodedInvoice) {
-      store.dispatch.lightning.updatePayment({
-        invoice: decodedInvoice,
-        type: EPaymentType.sent,
-        note: userNote,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userNote]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -211,24 +189,6 @@ const SendScreen = ({ route }: Props) => {
       )}
 
       {/* @TODO: Meta data like notes and tagging goes here */}
-      {paymentSuccessful ? (
-        <>
-          <TextInput
-            style={styles.inputContainer}
-            autoFocus={false}
-            multiline={true}
-            numberOfLines={3}
-            maxLength={140}
-            onChangeText={setUserNote}
-            value={userNote}
-            placeholder="Leave a short memo"
-            placeholderTextColor={Colors.neutrals.light.neutral6}
-            returnKeyType={'done'}
-            onBlur={onBlur}
-            blurOnSubmit={true}
-          />
-        </>
-      ) : null}
       <Button
         title={isLoading ? 'Sending payment...' : paymentSuccessful ? 'Done' : 'Send payment'}
         onPress={paymentSuccessful ? onPressOkay : onPressSend}

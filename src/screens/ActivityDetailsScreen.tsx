@@ -37,7 +37,7 @@ const ActivityDetailsScreen = ({ route }: Props) => {
   const { transaction } = route.params;
   // get transaction in question from payments object in lightning store
   const payment = Object.values(getLightningStore().payments).filter(
-    (p) => p.invoice.payment_hash === transaction.invoice.payment_hash
+    (p) => p.payment_hash === transaction.payment_hash
   )[0];
   const [userNote, setUserNote] = useState(payment.note!);
   const [selectedContact, setSelectedContact] = useState<TContact>(payment?.contact!);
@@ -75,7 +75,7 @@ const ActivityDetailsScreen = ({ route }: Props) => {
   useEffect(() => {
     // update payment note if changed by user
     store.dispatch.lightning.updatePayment({
-      invoice: transaction.invoice,
+      payment_hash: transaction.payment_hash,
       type: transaction.type,
       note: userNote,
     });
@@ -84,7 +84,7 @@ const ActivityDetailsScreen = ({ route }: Props) => {
   useEffect(() => {
     // update payment note if changed by user
     store.dispatch.lightning.updatePayment({
-      invoice: transaction.invoice,
+      payment_hash: transaction.payment_hash,
       type: transaction.type,
       contact: selectedContact,
     });
@@ -222,7 +222,7 @@ const ActivityDetailsScreen = ({ route }: Props) => {
         <Text style={styles.text}>You {transaction.type}</Text>
         <ScrollView>
           <AmountDisplay
-            inputAmount={transaction.invoice.amount_satoshis?.toString()!}
+            inputAmount={transaction.amount_sat?.toString()!}
             usingLocalCurrency={false}
             receivedPayment={true}
           />
@@ -274,15 +274,12 @@ const ActivityDetailsScreen = ({ route }: Props) => {
               highlightValue={true}
             />
           )} */}
-        <InfoListItem
-          title="When"
-          value={humanizeTimestamp(transaction.timestamp || transaction.invoice.timestamp, i18n)}
-        />
-        <DetailedActivityDrawer
+        <InfoListItem title="When" value={humanizeTimestamp(transaction.unix_timestamp!, i18n)} />
+        {/* <DetailedActivityDrawer
           invoice={transaction.invoice.to_str}
           pre_image={transaction.invoice.payment_hash}
           node={transaction.invoice.payee_pub_key}
-        />
+        /> */}
       </View>
       {PickContactBottomSheet}
       {NewContactBottomSheet}

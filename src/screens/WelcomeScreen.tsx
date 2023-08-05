@@ -47,7 +47,7 @@ const WelcomeScreen = () => {
     } else if (nodeIsUp === false || nodeId === '') {
       navigate(Screens.StartLdkScreen);
     } else {
-      navigate(Screens.DrawerNavigator);
+      navigate(Screens.WalletHomeScreen);
     }
   };
 

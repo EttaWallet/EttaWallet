@@ -122,12 +122,12 @@ export const sortContacts = (contacts: TContact[]) => {
 };
 
 export const txCompare = (a: TLightningPayment, b: TLightningPayment) => {
-  const txA = a.invoice.timestamp ?? null;
-  const txB = b.invoice.timestamp ?? null;
+  const txA = a.unix_timestamp ?? null;
+  const txB = b.unix_timestamp ?? null;
 
-  if (txA < txB) {
+  if (txA! < txB!) {
     return 1;
-  } else if (txA > txB) {
+  } else if (txA! > txB!) {
     return -1;
   }
   return 0;
@@ -140,9 +140,6 @@ export const sortTxs = (transactions: TLightningPayment[]) => {
 export function navigateToURI(uri: string, backupUri?: string) {
   Logger.debug('Navigating to URI', uri);
 
-  // We're NOT using `Linking.canOpenURL` here because we would need
-  // the scheme to be added to LSApplicationQueriesSchemes on iOS
-  // which is not possible for DappKit callbacks
   Linking.openURL(uri).catch((reason) => {
     Logger.debug('URI not supported', uri);
     if (backupUri) {

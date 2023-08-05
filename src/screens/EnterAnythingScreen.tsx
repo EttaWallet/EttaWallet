@@ -8,7 +8,6 @@ import KeyboardSpacer from '../components/keyboard/KeyboardSpacer';
 import CancelButton from '../navigation/components/CancelButton';
 import InputAnything, { InputStatus } from '../components/InputAnything';
 import {
-  decodeLightningInvoice,
   formatLightningId,
   isValidLightningId,
   parseInputAddress,
@@ -19,6 +18,7 @@ import { err } from '../utils/result';
 import { navigate, navigateHome } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { sleep } from '../utils/helpers';
+import { decodeLightningInvoice } from '../utils/lightning/helpers';
 
 // type RouteProps = NativeStackScreenProps<StackParamList, Screens.EnterAnythingScreen>;
 
@@ -85,7 +85,7 @@ const EnterAnythingScreen = ({ navigation }) => {
       const invoiceAmount = decodedInvoice.value.amount_satoshis;
       const invoiceString = decodedInvoice.value.to_str || inputString;
 
-      await sleep(3000); // wait 3 seconds
+      await sleep(2000); // wait 2 seconds
 
       requestAnimationFrame(() => {
         navigate(Screens.SendScreen, {

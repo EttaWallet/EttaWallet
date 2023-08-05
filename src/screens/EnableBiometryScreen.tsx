@@ -52,7 +52,7 @@ export const EnableBiometry = ({ navigation }: Props) => {
       // proceed to launch LDK node
       navigate(Screens.StartLdkScreen);
     } else {
-      navigate(Screens.DrawerNavigator);
+      navigate(Screens.WalletHomeScreen);
     }
     return;
   };

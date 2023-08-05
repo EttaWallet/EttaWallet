@@ -1,7 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import {
   StyleSheet,
-  SafeAreaView,
   RefreshControl,
   RefreshControlProps,
   SectionList,
@@ -12,7 +11,7 @@ import {
 import Animated from 'react-native-reanimated';
 import { noHeader } from '../navigation/Headers';
 import { useStoreState } from '../state/hooks';
-import DrawerHeader from '../navigation/components/DrawerHeader';
+import TopHeader from '../navigation/components/TopHeader';
 import HomeActionsBar from '../components/HomeActionsBar';
 import { Colors, Icon, TypographyPresets } from 'etta-ui';
 import ContactsButton from '../navigation/components/ContactsButton';
@@ -27,6 +26,7 @@ import AmountDisplay from '../components/amount/AmountDisplay';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import useContactsBottomSheet from '../components/useContactsBottomSheet';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
@@ -145,8 +145,8 @@ const WalletHomeScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <DrawerHeader
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <TopHeader
         middleElement={<NodeStatus />}
         leftElement={<ContactsButton />}
         scrollPosition={scrollPosition}

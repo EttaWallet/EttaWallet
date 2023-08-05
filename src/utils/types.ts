@@ -285,10 +285,16 @@ export type TCreateLightningInvoice = TCreatePaymentReq & {
 };
 
 export type TLightningPayment = {
-  invoice: TInvoice;
-  type: EPaymentType;
-  timestamp?: number;
-  fee?: number; // if necessitated channel open
+  payment_id?: string;
+  payment_hash?: string;
+  amount_sat?: number;
+  payment_preimage?: string;
+  payment_secret?: string;
+  spontaneous_payment_preimage?: string;
+  unix_timestamp?: number;
+  state?: string;
+  type?: EPaymentType;
+  fee_paid_sat?: number;
   tags?: {};
   note?: string;
   contact?: TContact; // if assigned to contact

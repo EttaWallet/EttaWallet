@@ -86,14 +86,7 @@ const ActivityScreen = ({}: Props) => {
   function renderItem({ item: tx }: { item: TLightningPayment; index: number }) {
     return (
       <>
-        <TransactionItem
-          key={tx.invoice.payment_hash}
-          invoice={tx.invoice}
-          txType={tx.type}
-          memo={tx?.note}
-          contact={tx?.contact}
-          txTimestamp={tx?.timestamp}
-        />
+        <TransactionItem payment={tx} />
         <View style={styles.separator} />
       </>
     );
@@ -118,7 +111,7 @@ const ActivityScreen = ({}: Props) => {
           renderSectionHeader={(item) => <FeedHeader text={item.section.title} />}
           //@ts-ignore TODO: check data object and types
           sections={sections}
-          keyExtractor={(item) => `${item.invoice.payment_hash}`}
+          keyExtractor={(item) => `${item.payment_hash}`}
           keyboardShouldPersistTaps="always"
           onEndReached={handleRefresh}
           refreshControl={refresh}
