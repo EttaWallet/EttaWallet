@@ -59,7 +59,7 @@ const LightningSettingsScreen = ({ navigation }) => {
           withChevron={true}
           onPress={openUpdateExpirySheet}
         />
-        <SectionTitle title="Advanced" style={styles.sectionHeading} />
+        <SectionTitle title="Node Information" style={styles.sectionHeading} />
         <SettingsItemWithTextValue
           title="Node ID"
           value={maskedNodeId}
