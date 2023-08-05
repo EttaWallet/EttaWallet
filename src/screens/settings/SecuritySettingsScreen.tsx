@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { PinType } from '../../utils/types';
 import { removeStoredPin, setPincodeWithBiometry } from '../../utils/pin/auth';
 import { cueInformativeHaptic } from '../../utils/accessibility/haptics';
+import SectionTitle from '../../components/SectionTitle';
 
 const SecuritySettingsScreen = ({ navigation }) => {
   useLayoutEffect(() => {
@@ -49,7 +50,9 @@ const SecuritySettingsScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
+      <SectionTitle title="PIN" style={styles.sectionHeading} />
       <SettingsItemWithTextValue title="Change PIN" onPress={onPressChangePin} withChevron={true} />
+      <SectionTitle title="Biometrics" style={styles.sectionHeading} />
       {supportedBiometryType && (
         <SettingsItemSwitch
           title={t('biometry.title', {
@@ -77,6 +80,9 @@ const styles = StyleSheet.create({
   },
   text: {
     textAlign: 'center',
+  },
+  sectionHeading: {
+    marginTop: 20,
   },
 });
 
