@@ -48,7 +48,7 @@ const useContactsBottomSheet = (addressProps: Props) => {
 
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const initialSnapPoints = useMemo(() => ['45%', 'CONTENT_HEIGHT'], []);
+  const initialSnapPoints = useMemo(() => ['30%', 'CONTENT_HEIGHT'], []);
   const pickContactSnapPoints = useMemo(() => ['40%', '75%'], []);
   const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
     useBottomSheetDynamicSnapPoints(initialSnapPoints);
@@ -372,7 +372,7 @@ const useContactsBottomSheet = (addressProps: Props) => {
               !newAddress || !newAddressLabel || isLoading || !isValidLightningId(newAddress)
             }
           />
-          <KeyboardSpacer topSpacing={16} />
+          <KeyboardSpacer topSpacing={8} />
         </KeyboardAwareScrollView>
       </BottomSheet>
     );

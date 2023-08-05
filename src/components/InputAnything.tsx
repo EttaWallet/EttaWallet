@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import {
   ActivityIndicator,
   LayoutAnimation,
@@ -75,6 +75,8 @@ const InputAnything = ({
   const showError = status === InputStatus.Error;
   const showStatus = showCheckmark || showSpinner || showError;
 
+  const refInput = useRef(null);
+
   return (
     <Card
       rounded={true}
@@ -84,7 +86,17 @@ const InputAnything = ({
       <View style={styles.containRadius}>
         <View style={[showInput ? styles.content : styles.contentLong]}>
           <View style={styles.innerContent}>
-            {label && <Text style={showInput ? styles.label : styles.labelLong}>{label}</Text>}
+            {label && (
+              <Text
+                style={showInput ? styles.label : styles.labelLong}
+                onPress={() => {
+                  //@ts-ignore
+                  refInput.current?.focus();
+                }}
+              >
+                {label}
+              </Text>
+            )}
 
             {showInput ? (
               <TextInput
@@ -108,6 +120,7 @@ const InputAnything = ({
                 }}
                 autoCapitalize="none"
                 autoFocus={autoFocus}
+                ref={refInput}
               />
             ) : (
               <Text style={styles.longInput} numberOfLines={1}>
