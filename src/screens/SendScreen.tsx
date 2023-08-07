@@ -48,7 +48,7 @@ const getReadableSendingError = (errorFound) => {
     return SendingErrorEnum[errorFound];
   }
 
-  return 'Sorry, the problem could not be identified. Your funds remain securely in your wallet.';
+  return 'Sorry, the receiving party could not be reached. Your funds remain securely in your wallet.';
 };
 
 const SendScreen = ({ route }: Props) => {
