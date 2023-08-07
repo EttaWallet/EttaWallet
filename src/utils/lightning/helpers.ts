@@ -53,20 +53,16 @@ export const DEFAULT_LIGHTNING_PEERS: IWalletItem<string[]> = {
   bitcoin: [],
   bitcoinRegtest: [],
   bitcoinTestnet: [
-    // Etta-tn
-    '02c1b1cba5a07d77aad88f8e798b87e4fc32b74fbab018685b37a7a14a349822d7@uhfatc2mrlrvl5p6fw2yebb5j3ayc5vfjn2wrj4vlqoqaclu444yfrad.onion:9735',
     // voltage lsp for zero-conf channel
     '025804d4431ad05b06a1a1ee41f22fefeb8ce800b0be3a92ff3b9f594a263da34e@44.228.24.253:9735',
-    // Voltage-test
-    '02cf71da3f277c2a30a348dfced77a9b7d81fb578c2b9117967100352051626b84@ymhwxsj37m6sflcjmxmv3aqkrhcpjt6xyhkaqcluad2dvdqrubrtqnid.onion:9735',
-    // aranguren.org
-    '038863cf8ab91046230f561cd5b386cbff8309fa02e3f0c3ed161a3aeb64a643b9@203.132.94.196:9735',
-    // Cyclopes
-    '028ec70462207b57e3d4d9332d9e0aee676c92d89b7c9fb0850fc2a24814d4d83c@71.171.123.161:9735',
-    // Mordhaus
-    '0286383ed513fef6ffd277abf2091971d0f4ac61cc078381aee4eb71b4acd2bc86@64.44.166.123:9736',
-    // Open Node
-    '02eadbd9e7557375161df8b646776a547c5cbc2e95b3071ec81553f8ec2cea3b8c@18.191.253.246:9735',
+    // // aranguren.org
+    // '038863cf8ab91046230f561cd5b386cbff8309fa02e3f0c3ed161a3aeb64a643b9@203.132.94.196:9735',
+    // // Cyclopes
+    // '028ec70462207b57e3d4d9332d9e0aee676c92d89b7c9fb0850fc2a24814d4d83c@71.171.123.161:9735',
+    // // Mordhaus
+    // '0286383ed513fef6ffd277abf2091971d0f4ac61cc078381aee4eb71b4acd2bc86@64.44.166.123:9736',
+    // // Open Node
+    // '02eadbd9e7557375161df8b646776a547c5cbc2e95b3071ec81553f8ec2cea3b8c@18.191.253.246:9735',
   ],
 };
 
@@ -152,7 +148,7 @@ export const updateLdkVersion = async (): Promise<Result<TLightningNodeVersion>>
  * @returns {Promise<Result<TInvoice>>}
  */
 export const createPaymentRequest = (req: TCreatePaymentReq): Promise<Result<TInvoice>> =>
-  ldk.createPaymentRequest(req);
+  lm.createAndStorePaymentRequest(req);
 
 /**
  * Returns whether the user(checks state object) has any open lightning channels.
@@ -346,6 +342,50 @@ export const getClaimedPaymentsFromNode = async (): Promise<TChannelManagerClaim
 export const getSentPaymentsFromNode = async (): Promise<TChannelManagerPaymentSent[]> =>
   lm.getLdkPaymentsSent();
 
+export const getBolt11FromHash = async ({
+  paymentHash,
+}: {
+  paymentHash: string;
+}): Promise<TInvoice | undefined> => lm.getInvoiceFromPaymentHash(paymentHash);
+
+export const syncPaymentsWithStore = async (): Promise<Result<string>> => {
+  let payments: TLightningPayment[] = [];
+  const receivedTxs = await getClaimedPaymentsFromNode();
+  for (const tx of receivedTxs) {
+    // get bolt11
+    const invoice = await getBolt11FromHash({ paymentHash: tx.payment_hash });
+
+    payments.push({
+      payment_hash: tx.payment_hash,
+      amount_sat: tx.amount_sat,
+      payment_preimage: tx.payment_preimage,
+      payment_secret: tx.payment_secret,
+      spontaneous_payment_preimage: tx.spontaneous_payment_preimage,
+      unix_timestamp: tx.unix_timestamp,
+      state: tx.state,
+      type: EPaymentType.received,
+      invoice: invoice?.to_str ?? '',
+    });
+  }
+
+  const sentTxs = await getSentPaymentsFromNode();
+  for (const tx of sentTxs) {
+    // @todo: store bolt11 for paid tx
+    payments.push({
+      payment_hash: tx.payment_hash,
+      amount_sat: tx.amount_sat,
+      payment_preimage: tx.payment_preimage,
+      fee_paid_sat: tx.fee_paid_sat,
+      unix_timestamp: tx.unix_timestamp,
+      state: tx.state,
+      type: EPaymentType.sent,
+    });
+  }
+
+  // push to payments store
+  store.dispatch.lightning.addPayments(payments);
+};
+
 /**
  * Attempts to pay a bolt11 invoice.
  * @param {number} amount_in_sats
@@ -374,15 +414,9 @@ export const payInvoice = async (
       timeout: 60000,
     });
     if (payResponse.isErr()) {
+      console.log('payResponse/error: ', payResponse);
       return err(payResponse.error.message);
     }
-    // // Log payment in state once successful
-    // const addLightningPaymentResponse = addPayment({
-    //   payment: decodedInvoice.value,
-    // });
-    // if (addLightningPaymentResponse.isErr()) {
-    //   return err(addLightningPaymentResponse.error.message);
-    // }
 
     refreshLdk({}).then();
     return ok(payResponse.value);
@@ -901,47 +935,6 @@ export const removeInvoice = async ({
   store.dispatch.lightning.removeInvoice(paymentHash);
 
   return ok('Successfully removed lightning invoice.');
-};
-
-/**
- * Adds a paid lightning invoice to the payments object for future reference.
- * @param {TChannelManagerClaim} payment
- * @param {EPaymentType} paymentType
- * @param {TAvailableNetworks} [selectedNetwork]
- * @returns {Result<string>}
- */
-export const addPayment = ({
-  payment,
-  paymentType,
-  selectedNetwork,
-}: {
-  payment: TChannelManagerClaim | TChannelManagerPaymentSent;
-  paymentType: EPaymentType;
-  selectedNetwork?: TAvailableNetworks;
-}): Result<string> => {
-  if (!payment) {
-    return err('No payment provided.');
-  }
-  if (!selectedNetwork) {
-    selectedNetwork = getSelectedNetwork();
-  }
-  const lightningPayments = getLightningStore().payments;
-
-  // It's possible ldk.pay returned true for an invoice we already paid.
-  // Run another check here.
-  if (payment.payment_hash in lightningPayments) {
-    return err('Lightning invoice has already been paid.');
-  }
-
-  const payload: TLightningPayment = {
-    ...payment,
-    type: paymentType,
-  };
-  // add payment to store once confirmed
-  store.dispatch.lightning.addPayment(payload);
-  // and remove associated invoice from store via matching payment_hash
-  store.dispatch.lightning.removeInvoice(payment.payment_hash);
-  return ok('Successfully added lightning payment.');
 };
 
 // Groupings:

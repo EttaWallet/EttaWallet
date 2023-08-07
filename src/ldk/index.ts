@@ -32,20 +32,22 @@ import {
   updateLightningChannels,
   updateClaimableBalance,
   getLightningStore,
-  addPayment,
   updateMaxReceivableAmount,
   removeExpiredInvoices,
+  syncPaymentsWithStore,
+  addPeers,
 } from '../utils/lightning/helpers';
-import { EPaymentType, TLightningNodeVersion } from '../utils/types';
+import { TLightningNodeVersion } from '../utils/types';
 import { EmitterSubscription, InteractionManager } from 'react-native';
 import { promiseTimeout, sleep, tryNTimes } from '../utils/helpers';
 import { getBestBlock, getTransactionMerkle } from '../utils/electrum/helpers';
 import { getLdkNetwork, TAvailableNetworks } from '../utils/networks';
 import { getReceiveAddress, getSelectedNetwork, getWalletStore } from '../utils/wallet';
-import { showSuccessBanner, showToast, showWarningBanner } from '../utils/alerts';
+import { showSuccessBanner, showToast } from '../utils/alerts';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { showErrorBanner } from '../utils/alerts';
+import store from '../state/store';
 
 let LDKIsStayingSynced = false;
 
@@ -88,18 +90,24 @@ export const refreshLdk = async ({
       keepLdkSynced({}).then();
     }
     const syncResponse = await lm.syncLdk();
+    await lm.setFees();
     if (syncResponse.isErr()) {
       return err(syncResponse.error.message);
     }
 
     // update channels
     await updateLightningChannels();
+    await Promise.all([addPeers({ selectedNetwork }), await updateLightningChannels()]);
     // update balance
     await updateClaimableBalance({ selectedNetwork });
     // update maximum receivable amount
     await updateMaxReceivableAmount();
+
     // remove invoices that have surpassed expiry time from state
     await removeExpiredInvoices();
+
+    // sync ldk payments activity with payments store object
+    await syncPaymentsWithStore();
 
     return ok('');
   } catch (e) {
@@ -518,56 +526,16 @@ export const handleReceivedPayment = async ({
     paymentHash: payment.payment_hash,
     selectedNetwork,
   });
+
   if (invoice.isOk()) {
-    // add payment
-    addPayment({
-      payment: payment,
-      paymentType: EPaymentType.received,
-      selectedNetwork,
-    });
-    // showSuccessBanner({
-    //   title: 'Received',
-    //   message: `You received ${invoice.value.amount_satoshis} sats`,
-    //   dismissAfter: 5000,
-    // });
-    // console.info('new payment received', invoice.value.payment_hash);
+    // and remove associated invoice from store via matching payment_hash
+    store.dispatch.lightning.removeInvoice(payment.payment_hash);
 
     await refreshLdk({ selectedNetwork });
 
     navigate(Screens.TransactionSuccessScreen, {
       txId: payment.payment_hash,
       amountInSats: payment.amount_sat,
-    });
-  }
-};
-
-export const handleSentPayment = async ({
-  payment,
-  selectedNetwork,
-}: {
-  payment: TChannelManagerPaymentSent;
-  selectedNetwork?: TAvailableNetworks;
-}): Promise<void> => {
-  if (!selectedNetwork) {
-    selectedNetwork = getSelectedNetwork();
-  }
-  const invoice = getPendingInvoice({
-    paymentHash: payment.payment_hash,
-    selectedNetwork,
-  });
-  if (invoice.isOk()) {
-    // add payment
-    addPayment({
-      payment: payment,
-      paymentType: EPaymentType.sent,
-      selectedNetwork,
-    });
-
-    await refreshLdk({ selectedNetwork });
-
-    showSuccessBanner({
-      message: 'Payment sent',
-      dismissAfter: 5000,
     });
   }
 };
@@ -651,10 +619,13 @@ export const subscribeToPayments = ({
     onPaymentSentSubscription = ldk.onEvent(
       EEventTypes.channel_manager_payment_sent,
       (res: TChannelManagerPaymentSent) => {
-        handleSentPayment({
-          payment: res,
-          selectedNetwork,
-        }).then();
+        showSuccessBanner({
+          title: 'Sent!',
+          message: 'Payment is on the way',
+          dismissAfter: 3000,
+        });
+        console.log('onPaymentSentSubscription: ', res);
+        refreshLdk({ selectedNetwork }).then();
       }
     );
   }
@@ -665,10 +636,7 @@ export const subscribeToPayments = ({
     onPaymentFailedSubscription = ldk.onEvent(
       EEventTypes.channel_manager_payment_failed,
       (res: TChannelManagerPaymentFailed) => {
-        showWarningBanner({
-          title: `Payment ${res.payment_id} failed`,
-          message: `payment hash: ${res.payment_hash}`,
-        });
+        console.log('onPaymentFailedSubscription: ', res);
       }
     );
   }
@@ -679,11 +647,7 @@ export const subscribeToPayments = ({
     onPaymentPathFailedSubscription = ldk.onEvent(
       EEventTypes.channel_manager_payment_path_failed,
       (res: TChannelManagerPaymentPathFailed) => {
-        showWarningBanner({
-          title: `Payment ${res.payment_id} failed`,
-          message: `payment hash: ${res.payment_hash}`,
-        });
-        console.log('path: ', res.path_hops);
+        console.log('onPaymentPathFailedSubscription: ', res);
       }
     );
   }
@@ -724,8 +688,13 @@ export const subscribeToPayments = ({
     onPaymentPathSuccessSubscription = ldk.onEvent(
       EEventTypes.channel_manager_payment_path_successful,
       (_res: TChannelManagerPaymentPathSuccessful) => {
-        showSuccessBanner({
-          message: 'Your payment is on the way',
+        // update payment object that matches payment hash
+        console.log('onPaymentPathSuccessSubscription: ', _res);
+        store.dispatch.lightning.updatePayment({
+          payment_hash: _res.payment_hash,
+          updates: {
+            pathData: _res.path_hops,
+          },
         });
         refreshLdk({ selectedNetwork }).then();
       }
@@ -738,7 +707,7 @@ export const subscribeToPayments = ({
         showErrorBanner({
           title: 'Payment failed',
           message: "Couldn't find a route to the payee",
-          dismissAfter: 5000,
+          dismissAfter: 3000,
         });
         refreshLdk({ selectedNetwork }).then();
       }
@@ -753,4 +722,5 @@ export const unsubscribeFromLDKSubscriptions = (): void => {
   onChannelSubscription?.remove();
   onPaymentPathSuccessSubscription?.remove();
   onPaymentPathFailedSubscription?.remove();
+  console.info('unsubscribing from all emitters');
 };

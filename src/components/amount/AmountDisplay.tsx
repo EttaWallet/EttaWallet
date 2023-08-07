@@ -2,7 +2,7 @@ import { Colors, Icon, TypographyPresets } from 'etta-ui';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { useStoreState } from '../../state/hooks';
-import { ELocalCurrencySymbol } from '../../utils/types';
+import { ELocalCurrencySymbol, EPaymentType } from '../../utils/types';
 import { convertLocalAmountToSats, convertSatsToLocalAmount } from '../../utils/hooks';
 import BigNumber from 'bignumber.js';
 import * as RNLocalize from 'react-native-localize';
@@ -10,10 +10,10 @@ import * as RNLocalize from 'react-native-localize';
 interface Props {
   inputAmount: string;
   usingLocalCurrency: boolean;
-  receivedPayment?: boolean;
+  paymentType?: EPaymentType;
 }
 
-const AmountDisplay = ({ inputAmount, usingLocalCurrency, receivedPayment }: Props) => {
+const AmountDisplay = ({ inputAmount, usingLocalCurrency, paymentType }: Props) => {
   const [valueInLocalCurrency, setValueInLocalCurrency] = useState(new BigNumber(0));
   const [valueInSats, setValueInSats] = useState(new BigNumber(0));
   const preferredCurrencyCode = useStoreState((state) => state.nuxt.localCurrency);
@@ -69,7 +69,14 @@ const AmountDisplay = ({ inputAmount, usingLocalCurrency, receivedPayment }: Pro
                   name="icon-satoshi-v2"
                   style={[
                     styles.btcIcon,
-                    receivedPayment ? { color: Colors.green.base } : { color: Colors.orange.base },
+                    {
+                      color:
+                        paymentType === EPaymentType.received
+                          ? Colors.green.base
+                          : paymentType === EPaymentType.sent
+                          ? Colors.red.base
+                          : Colors.orange.base,
+                    },
                   ]}
                 />
               </View>
@@ -83,7 +90,13 @@ const AmountDisplay = ({ inputAmount, usingLocalCurrency, receivedPayment }: Pro
                 minimumFontScale={0.4}
                 selectable={true}
                 ellipsizeMode="tail"
-                style={receivedPayment ? styles.receivedPayment : styles.mainAmount}
+                style={
+                  paymentType === EPaymentType.received
+                    ? styles.receivedPayment
+                    : paymentType === EPaymentType.sent
+                    ? styles.sentPayment
+                    : styles.mainAmount
+                }
               >
                 {inputAmount ? formatStringToLocale(inputAmount) : 0}
               </Text>
@@ -161,6 +174,11 @@ const styles = StyleSheet.create({
     ...TypographyPresets.Header1,
     width: '100%',
     color: Colors.green.base,
+  },
+  sentPayment: {
+    ...TypographyPresets.Header1,
+    width: '100%',
+    color: Colors.red.base,
   },
   btcIcon: {
     fontSize: 32,

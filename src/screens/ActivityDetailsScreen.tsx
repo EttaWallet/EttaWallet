@@ -29,17 +29,17 @@ import { sortContacts } from '../utils/helpers';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import FormLabel from '../components/form/Label';
+import { useStoreState } from '../state/hooks';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ActivityDetailsScreen>;
 type Props = RouteProps;
 
 const ActivityDetailsScreen = ({ route }: Props) => {
   const { transaction } = route.params;
+  const storedPayments = useStoreState((state) => state.lightning.payments);
   // get transaction in question from payments object in lightning store
-  const payment = Object.values(getLightningStore().payments).filter(
-    (p) => p.payment_hash === transaction.payment_hash
-  )[0];
-  const [userNote, setUserNote] = useState(payment.note!);
+  const payment = storedPayments.filter((p) => p.payment_hash === transaction.payment_hash)[0];
+  const [userNote, setUserNote] = useState(payment?.note || '');
   const [selectedContact, setSelectedContact] = useState<TContact>(payment?.contact!);
 
   const [searchText, setSearchText] = useState('');
@@ -75,18 +75,22 @@ const ActivityDetailsScreen = ({ route }: Props) => {
   useEffect(() => {
     // update payment note if changed by user
     store.dispatch.lightning.updatePayment({
-      payment_hash: transaction.payment_hash,
-      type: transaction.type,
-      note: userNote,
+      payment_hash: transaction.payment_hash!,
+      updates: {
+        type: transaction.type,
+        note: userNote,
+      },
     });
   }, [userNote]);
 
   useEffect(() => {
     // update payment note if changed by user
     store.dispatch.lightning.updatePayment({
-      payment_hash: transaction.payment_hash,
-      type: transaction.type,
-      contact: selectedContact,
+      payment_hash: transaction.payment_hash!,
+      updates: {
+        type: transaction.type,
+        contact: selectedContact,
+      },
     });
   }, [selectedContact]);
 
@@ -224,7 +228,7 @@ const ActivityDetailsScreen = ({ route }: Props) => {
           <AmountDisplay
             inputAmount={transaction.amount_sat?.toString()!}
             usingLocalCurrency={false}
-            receivedPayment={true}
+            paymentType={transaction.type}
           />
         </ScrollView>
       </View>
@@ -240,7 +244,7 @@ const ActivityDetailsScreen = ({ route }: Props) => {
           </>
         ) : (
           <InfoListItem
-            title="👤 Link to contact"
+            title="Link to contact"
             value="Choose"
             onPress={openPickContactSheet}
             highlightValue={true}
@@ -261,25 +265,15 @@ const ActivityDetailsScreen = ({ route }: Props) => {
           onBlur={onBlur}
           blurOnSubmit={true}
         />
-        {/* {hasTags ? (
-            <>
-              <ContactItem contact={fakeContact} prefix="From" />
-              <ActivitySeparator />
-            </>
-          ) : (
-            <InfoListItem
-              title="🏷️ Tags"
-              value="Add"
-              onPress={openPickContactSheet}
-              highlightValue={true}
-            />
-          )} */}
+        {transaction.type === EPaymentType.sent ? (
+          <InfoListItem
+            title="Fees paid"
+            value={`${transaction.fee_paid_sat}`}
+            valueIsNumeric={true}
+          />
+        ) : null}
         <InfoListItem title="When" value={humanizeTimestamp(transaction.unix_timestamp!, i18n)} />
-        {/* <DetailedActivityDrawer
-          invoice={transaction.invoice.to_str}
-          pre_image={transaction.invoice.payment_hash}
-          node={transaction.invoice.payee_pub_key}
-        /> */}
+        <DetailedActivityDrawer transaction={transaction} />
       </View>
       {PickContactBottomSheet}
       {NewContactBottomSheet}
@@ -300,7 +294,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   header: {
-    paddingVertical: 32,
+    paddingVertical: 16,
     justifyContent: 'center',
   },
   text: {
@@ -316,12 +310,13 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.neutrals.light.neutral4,
   },
   inputContainer: {
-    height: 80,
+    height: 60,
     textAlignVertical: 'top',
     alignSelf: 'stretch',
     ...TypographyPresets.Body4,
     color: Colors.common.black,
     paddingTop: 8,
+    marginLeft: 3,
   },
   btnContainer: {
     flexDirection: 'row',
@@ -338,6 +333,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     color: Colors.common.black,
     ...TypographyPresets.Body4,
+    paddingLeft: 3,
   },
   emptyView: {
     paddingHorizontal: 24,

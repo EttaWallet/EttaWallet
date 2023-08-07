@@ -25,7 +25,7 @@ const ListItem = ({ children, onPress, disabled }: Props) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.neutrals.light.neutral2,
+    backgroundColor: Colors.neutrals.light.neutral1,
     marginVertical: 5,
     borderRadius: 5,
     justifyContent: 'center',

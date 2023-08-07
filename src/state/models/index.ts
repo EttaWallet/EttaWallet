@@ -32,6 +32,7 @@ const rootModel: RootModelType = {
     const biometry = await Keychain.getSupportedBiometryType();
     actions.app.setSupportedBiometryType(biometry);
     actions.app.setAppReady(true);
+    // unsubscribeFromLDKSubscriptions();
     Logger.info(TAG, 'Finished initialization process');
     return true;
   }),

@@ -1,5 +1,6 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import {
+  EPaymentType,
   NodeState,
   TContact,
   TLightningNodeVersion,
@@ -13,7 +14,48 @@ import { isLdkRunning, waitForLdk } from '../../ldk';
 
 const TAG = 'LightningStore';
 
-// @TODO: add translatable strings to error and success messages
+/**
+ * Appends any new payments while leaving known ones
+ * @param {TLightningPayment[]} oldPayments
+ * @param {TLightningPayment[]} newPayments
+ * @returns {TLightningPayment[]}
+ */
+export const mergePaymentActivity = (
+  oldPayments: TLightningPayment[],
+  newPayments: TLightningPayment[]
+): TLightningPayment[] => {
+  let sortedItems;
+  try {
+    const newIds = new Map(newPayments.map((item) => [`${item.payment_hash}`, item]));
+    const reduced = oldPayments.filter((item) => !newIds.has(`${item.payment_hash}`));
+    const mergedItems = reduced.concat(newPayments);
+
+    // Check if sorting is necessary (This is faster than performing the sort every time)
+    let needsSorting = false;
+    for (let i = 1; i < mergedItems.length; i++) {
+      if (mergedItems[i].unix_timestamp! > mergedItems[i - 1].unix_timestamp!) {
+        needsSorting = true;
+        break;
+      }
+    }
+
+    if (!needsSorting) {
+      return mergedItems;
+    }
+
+    // 'Received' should be before 'Sent' if they have same timestamp
+    const sortOrder = [EPaymentType.received, EPaymentType.sent];
+    sortedItems = mergedItems.sort(
+      (a, b) =>
+        b.unix_timestamp! - a.unix_timestamp! ||
+        sortOrder.indexOf(b.type!) - sortOrder.indexOf(a.type!)
+    );
+  } catch (e) {
+    console.log('errorMergingPaymentActivity: ', e.message);
+  }
+
+  return sortedItems;
+};
 
 export interface LightningNodeModelType {
   ldkState: NodeState;
@@ -46,7 +88,11 @@ export interface LightningNodeModelType {
   setMaxReceivable: Action<LightningNodeModelType, number>;
   removeExpiredInvoices: Action<LightningNodeModelType, TInvoice[]>;
   addPayment: Action<LightningNodeModelType, TLightningPayment>;
-  updatePayment: Action<LightningNodeModelType, TLightningPayment>;
+  addPayments: Action<LightningNodeModelType, TLightningPayment[]>;
+  updatePayment: Action<
+    LightningNodeModelType,
+    { payment_hash: string; updates: Partial<TLightningPayment> }
+  >;
   addPeer: Action<LightningNodeModelType, string>;
   addContact: Action<LightningNodeModelType, TContact>;
   updateContact: Action<LightningNodeModelType, { contactId: string; updatedContact: TContact }>;
@@ -154,11 +200,36 @@ export const lightningModel: LightningNodeModelType = {
   addPayment: action((state, payload) => {
     state.payments.push(payload);
   }),
+  addPayments: action((state, payload) => {
+    const mergedItems = mergePaymentActivity(state.payments, payload);
+    // Loop through the new payments
+    mergedItems.forEach((newPayment) => {
+      // Find an existing payment with matching txId
+      const existingPaymentIndex = state.payments.findIndex(
+        (payment) => payment.payment_hash === newPayment.payment_hash
+      );
+
+      if (existingPaymentIndex !== -1) {
+        // If an existing payment with matching txId is found, update its properties
+        state.payments[existingPaymentIndex] = {
+          ...state.payments[existingPaymentIndex],
+          ...newPayment,
+        };
+      } else {
+        // If no match is found, add the new payment to the array
+        state.payments.push(newPayment);
+      }
+    });
+  }),
   updatePayment: action((state, payload) => {
-    // updates invoice, usually tags, notes or contacts
-    state.payments = state.payments.map((payment) =>
-      payment.payment_hash === payload?.payment_hash ? { ...payment, payload } : payment
-    );
+    const { payment_hash, updates } = payload;
+    // Find the payment by txid
+    const paymentToUpdate = state.payments.find((payment) => payment.payment_hash === payment_hash);
+
+    // If the payment is found, update its properties
+    if (paymentToUpdate) {
+      Object.assign(paymentToUpdate, updates);
+    }
   }),
   addPeer: action((state, payload) => {
     state.peers.push(payload);

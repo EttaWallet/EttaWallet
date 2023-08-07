@@ -9,7 +9,12 @@ import { useTranslation } from 'react-i18next';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 import { InfoListItem } from '../components/InfoListItem';
 import { TInvoice } from '@synonymdev/react-native-ldk';
-import { decodeLightningInvoice, payInvoice, startLightning } from '../utils/lightning/helpers';
+import {
+  decodeLightningInvoice,
+  payInvoice,
+  startLightning,
+  syncPaymentsWithStore,
+} from '../utils/lightning/helpers';
 import { refreshWallet } from '../utils/wallet';
 import { navigate, navigateHome } from '../navigation/NavigationService';
 import { showWarningBanner } from '../utils/alerts';
@@ -32,7 +37,7 @@ const getReadableSendingError = (errorFound) => {
     invoice_payment_fail_path_parameter_error:
       'Sorry, the payment failed but it is not permanent. We will keep trying to settle it.',
     invoice_payment_fail_sending:
-      'Sorry, the problem could not be identified. Your funds remain securely in your wallet.',
+      'Your funds remain securely in your wallet. Is your balance sufficient to pay this invoice?',
     invoice_payment_fail_unknown:
       'Sorry, the problem could not be identified. Your funds remain securely in your wallet.',
     invoice_payment_fail_must_specify_amount: 'The payment request does not have an amount',
@@ -122,13 +127,11 @@ const SendScreen = ({ route }: Props) => {
       }
 
       refreshWallet({}).then();
+      await syncPaymentsWithStore().then();
       setIsLoading(false);
       setPaymentSuccessful(true);
-      console.log(payInvoiceResponse.value.fee_sat);
-      // navigate to success page
-      console.log('show success page here');
     } catch (e) {
-      console.log('handleTransaction', '@Payinvoice: ', e.message);
+      console.log('handleTransactionError', '@Payinvoice: ', e.message);
     }
   }, [paymentRequest]);
 
@@ -137,6 +140,13 @@ const SendScreen = ({ route }: Props) => {
     setIsLoading(true);
     handleTransaction().then();
   }, [handleTransaction]);
+
+  // const onPressDetails = () => {
+  //   cueInformativeHaptic();
+  //   navigate(Screens.ActivityDetailsScreen, {
+  //     transaction: sentPayment!,
+  //   });
+  // };
 
   const onPressOkay = () => {
     cueInformativeHaptic();
@@ -188,7 +198,14 @@ const SendScreen = ({ route }: Props) => {
         </View>
       )}
 
-      {/* @TODO: Meta data like notes and tagging goes here */}
+      {/* {paymentSuccessful ? (
+        <Button
+          title="Details"
+          onPress={onPressDetails}
+          appearance="outline"
+          style={styles.detailsButton}
+        />
+      ) : null} */}
       <Button
         title={isLoading ? 'Sending payment...' : paymentSuccessful ? 'Done' : 'Send payment'}
         onPress={paymentSuccessful ? onPressOkay : onPressSend}
@@ -226,7 +243,7 @@ const styles = StyleSheet.create({
   amount: {
     marginVertical: 5,
   },
-  receiptButton: {
+  detailsButton: {
     justifyContent: 'center',
     marginBottom: 10,
   },

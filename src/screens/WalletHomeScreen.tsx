@@ -145,7 +145,7 @@ const WalletHomeScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container}>
       <TopHeader
         middleElement={<NodeStatus />}
         leftElement={<ContactsButton />}

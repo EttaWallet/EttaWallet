@@ -87,7 +87,7 @@ export const InfoListItem = ({
                   name="icon-caret-right"
                   style={{
                     fontSize: 20,
-                    color: highlightValue ? '#F7931A' : undefined,
+                    color: highlightValue ? Colors.orange.base : undefined,
                   }}
                 />
               ) : null}
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
   },
   highlightValue: {
     ...TypographyPresets.Body4,
-    color: Colors.orange.base,
+    color: Colors.green.base,
     marginRight: 8,
   },
   numeric: {

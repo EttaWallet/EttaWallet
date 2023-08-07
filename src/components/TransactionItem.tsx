@@ -44,7 +44,7 @@ const TransactionItem = ({ payment }: TransactionItemProps) => {
         {payment.contact ? (
           <ContactAvatar contact={payment.contact} />
         ) : payment.type === EPaymentType.sent ? (
-          <View style={[styles.iconContainer, { backgroundColor: 'rgba(45, 156, 219, 0.1)' }]}>
+          <View style={[styles.iconContainer, { backgroundColor: 'rgba(235, 87, 87, 0.1)' }]}>
             <Icon name="icon-arrow-up" style={styles.sentIcon} />
           </View>
         ) : (
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     fontSize: 20,
-    color: Colors.blue.base,
+    color: Colors.red.base,
   },
   receivedIcon: {
     alignSelf: 'center',

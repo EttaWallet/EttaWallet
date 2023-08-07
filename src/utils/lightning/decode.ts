@@ -45,7 +45,7 @@ export const processTransactionData = async ({
     let error: { title: string; message: string } | undefined;
     let requestedAmount = 0;
 
-    let { lightningBalance } = getTotalBalance({});
+    let { spendableBalance } = getTotalBalance({});
 
     const openLightningChannels = getLightningStore().openChannelIds;
 
@@ -63,8 +63,8 @@ export const processTransactionData = async ({
         requestedAmount = decodedLightningInvoice?.amount_satoshis ?? 0;
         if (decodedLightningInvoice?.is_expired) {
           error = {
-            title: 'Lightning Invoice Expired',
-            message: 'Unfortunately, this lightning invoice has expired',
+            title: 'Expired',
+            message: 'Unfortunately, this lightning invoice expired',
           };
         }
       }
@@ -74,16 +74,16 @@ export const processTransactionData = async ({
       decodedLightningInvoice &&
       !decodedLightningInvoice.is_expired &&
       openLightningChannels.length &&
-      lightningBalance
+      spendableBalance
     ) {
       // Check if invoice is payable
-      if (lightningBalance >= requestedAmount) {
+      if (spendableBalance >= requestedAmount) {
         response = filteredLightningInvoice;
       } else {
-        const diff = requestedAmount - lightningBalance;
+        const diff = requestedAmount - spendableBalance;
         error = {
-          title: 'Unable to afford the lightning invoice',
-          message: `(${diff} more sats needed.)`,
+          title: 'You cannot afford this invoice',
+          message: `You would need ${diff.toLocaleString()} more sats`,
         };
       }
     }
@@ -96,24 +96,24 @@ export const processTransactionData = async ({
       showErrorBanner({
         message: error.message,
         title: error.title,
-        dismissAfter: 5000,
+        dismissAfter: 3000,
       });
     } else {
       if (requestedAmount) {
         error = {
           title: `${requestedAmount} more sats needed`,
-          message: `Unable to pay the provided invoice. You have ${lightningBalance} `,
+          message: `You can't afford this invoice. You have ${spendableBalance} only`,
         };
       } else {
         error = {
-          title: 'Unable to pay the provided invoice',
-          message: 'Please add more sats to process payments.',
+          title: 'You cannot afford this invoice',
+          message: 'Please add more sats to process payments',
         };
       }
       showErrorBanner({
         message: error.message,
         title: error.title,
-        dismissAfter: 5000,
+        dismissAfter: 3000,
       });
     }
     return err(error.title);
@@ -240,7 +240,7 @@ export const processInputData = async ({
         showErrorBanner({
           message: message,
           title: 'Error',
-          dismissAfter: 5000,
+          dismissAfter: 3000,
         });
       }
       return err(message);
@@ -304,7 +304,7 @@ export const handleProcessedData = async ({
     showErrorBanner({
       message: message,
       title: 'Failed to intepret',
-      dismissAfter: 5000,
+      dismissAfter: 3000,
     });
     return err(`Etta is currently set to ${selectedNetwork} but data is for ${data.network}.`);
   }

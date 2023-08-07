@@ -1,4 +1,9 @@
-import { TCreatePaymentReq, TInvoice } from '@synonymdev/react-native-ldk';
+import {
+  TChannelManagerPaymentPathFailed,
+  TChannelManagerPaymentPathSuccessful,
+  TCreatePaymentReq,
+  TInvoice,
+} from '@synonymdev/react-native-ldk';
 import { TAvailableNetworks } from './networks';
 
 export enum AppState {
@@ -285,7 +290,6 @@ export type TCreateLightningInvoice = TCreatePaymentReq & {
 };
 
 export type TLightningPayment = {
-  payment_id?: string;
   payment_hash?: string;
   amount_sat?: number;
   payment_preimage?: string;
@@ -295,9 +299,13 @@ export type TLightningPayment = {
   state?: string;
   type?: EPaymentType;
   fee_paid_sat?: number;
+  invoice?: string;
   tags?: {};
   note?: string;
   contact?: TContact; // if assigned to contact
+  pathData?:
+    | TChannelManagerPaymentPathFailed['path_hops']
+    | TChannelManagerPaymentPathSuccessful['path_hops'];
 };
 
 export type TLightningNodeVersion = {

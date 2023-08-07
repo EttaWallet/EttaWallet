@@ -4,16 +4,16 @@ import { LayoutAnimation, StyleProp, StyleSheet, Text, View, ViewStyle } from 'r
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Expandable from './Expandable';
 import { InfoListItem } from './InfoListItem';
+import { TLightningPayment } from '../utils/types';
+import PathDrawer from './PathDrawer';
 
 interface Props {
   buttonTitle?: string;
-  invoice?: string;
-  pre_image?: string;
-  node?: string;
+  transaction: TLightningPayment;
   style?: StyleProp<ViewStyle>;
 }
 
-const DetailedActivityDrawer = ({ invoice, pre_image, node, buttonTitle }: Props) => {
+const DetailedActivityDrawer = ({ transaction, buttonTitle }: Props) => {
   const [expanded, setExpanded] = useState(false);
 
   const toggleExpanded = () => {
@@ -34,31 +34,34 @@ const DetailedActivityDrawer = ({ invoice, pre_image, node, buttonTitle }: Props
       </TouchableWithoutFeedback>
       {expanded && (
         <View>
-          {invoice && (
+          {transaction.invoice && (
             <InfoListItem
-              title="From node"
-              value={node}
-              valueIsNumeric={false}
+              title="BOLT11 invoice"
+              value={transaction.invoice}
               canCopy={true}
               maskValue={true}
             />
           )}
-          {invoice && (
-            <InfoListItem
-              title="Lightning invoice"
-              value={invoice}
-              canCopy={true}
-              maskValue={true}
-            />
-          )}
-          {pre_image && (
+          {transaction.payment_hash && (
             <InfoListItem
               title="Payment hash"
-              value={pre_image}
+              value={transaction.payment_hash}
               valueIsNumeric={false}
               canCopy={true}
               maskValue={true}
             />
+          )}
+          {transaction.payment_preimage && (
+            <InfoListItem
+              title="Payment preimage"
+              value={transaction.payment_preimage}
+              valueIsNumeric={false}
+              canCopy={true}
+              maskValue={true}
+            />
+          )}
+          {transaction.pathData && transaction.pathData.length > 0 && (
+            <PathDrawer path={transaction.pathData} buttonTitle="Path" />
           )}
         </View>
       )}
@@ -71,7 +74,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 10,
-    paddingHorizontal: 16,
+    paddingLeft: 3,
   },
   title: {
     ...TypographyPresets.Body4,

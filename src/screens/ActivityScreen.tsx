@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   StyleSheet,
@@ -15,7 +15,7 @@ import { headerWithBackButton } from '../navigation/Headers';
 import { Colors, TypographyPresets } from 'etta-ui';
 import { StackParamList } from '../navigation/types';
 import { Screens } from '../navigation/Screens';
-import { groupActivityInSections } from '../utils/lightning/helpers';
+import { groupActivityInSections, syncPaymentsWithStore } from '../utils/lightning/helpers';
 import { TLightningPayment } from '../utils/types';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -60,16 +60,16 @@ const ActivityScreen = ({}: Props) => {
 
   const transactions = sortTxs(Object.values(paymentsStore));
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(async (): Promise<void> => {
     setIsRefreshing(true);
-    // maybe do something?
-    setIsRefreshing(false);
-    return 0;
-  };
+    await syncPaymentsWithStore();
 
-  useEffect(() => {
-    handleRefresh();
-  }, [paymentsStore]);
+    setIsRefreshing(false);
+  }, []);
+
+  // useEffect(() => {
+  //   handleRefresh();
+  // }, [paymentsStore]);
 
   const sections = useMemo(() => {
     if (transactions.length === 0) {
@@ -163,11 +163,11 @@ const styles = StyleSheet.create({
   },
   // Humanized time header
   feedHeaderContainer: {
-    backgroundColor: Colors.common.white,
     paddingVertical: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: Colors.common.white,
   },
   feedHeaderText: {
     ...TypographyPresets.Body4,
