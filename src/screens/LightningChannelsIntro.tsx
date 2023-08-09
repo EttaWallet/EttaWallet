@@ -1,39 +1,19 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, View, Platform } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { noHeader } from '../navigation/Headers';
-import { navigate } from '../navigation/NavigationService';
+import { headerWithBackButton } from '../navigation/Headers';
+import { navigateBack } from '../navigation/NavigationService';
 
-import { Button, Chip, Colors, Icon, TypographyPresets } from 'etta-ui';
-import { Screens } from '../navigation/Screens';
-import useLiquidityOptionBottomSheet from '../components/useLiquidityOptionBottomSheet';
-import CancelButton from '../navigation/components/CancelButton';
-
-const onPressLearnMore = () => {
-  // @TODO: should open webView with appropiate URL
-  navigate(Screens.TestScreen);
-};
-
-function Header() {
-  const { t } = useTranslation();
-
-  return (
-    <View style={styles.headerContainer}>
-      <CancelButton />
-      <Chip onPress={onPressLearnMore} selected={true}>
-        {t('Learn more')}
-      </Chip>
-    </View>
-  );
-}
+import { Button, Colors, Icon, TypographyPresets } from 'etta-ui';
+import { modalScreenOptions } from '../navigation/Navigator';
 
 export const LightningInstructions = () => {
   const { t } = useTranslation();
 
   return (
     <>
-      <Text style={styles.title}>{t('You need a payment channel to send or receive')}</Text>
+      <Text style={styles.title}>{t('You need a payment channel')}</Text>
       <Text style={styles.description}>{t('Here`s the TLDR:')}</Text>
       <View style={styles.section}>
         <Icon name="icon-arrow-right" style={styles.sectionIcon} />
@@ -62,31 +42,31 @@ export const LightningInstructions = () => {
 };
 
 const LightningChannelsIntroScreen = () => {
-  const { openSheet, SelectLiquidityOptionBottomSheet } = useLiquidityOptionBottomSheet();
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-        <Header />
         <LightningInstructions />
       </ScrollView>
       <View style={styles.buttonContainer}>
-        <Button title="Get started" size="default" onPress={openSheet} style={styles.button} />
+        <Button
+          title="Got it"
+          size="default"
+          onPress={() => navigateBack()}
+          style={styles.button}
+        />
       </View>
-      {SelectLiquidityOptionBottomSheet}
     </SafeAreaView>
   );
 };
 
-LightningChannelsIntroScreen.navigationOptions = {
-  ...noHeader,
-  ...Platform.select({
-    ios: { animation: 'slide_from_bottom' },
-  }),
-};
+LightningChannelsIntroScreen.navigationOptions = () => ({
+  ...modalScreenOptions(),
+  ...headerWithBackButton,
+  gestureEnabled: false,
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -106,8 +86,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    ...TypographyPresets.Header3,
-    marginTop: 32,
+    ...TypographyPresets.Header5,
     textAlign: 'center',
   },
   description: {

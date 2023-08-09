@@ -77,11 +77,6 @@ const commonScreens = (Navigator: typeof Stack) => {
         options={TransactionSuccessScreen.navigationOptions as NativeStackNavigationOptions}
       />
       <Navigator.Screen
-        name={Screens.ChannelStatusScreen}
-        component={ChannelStatusScreen}
-        options={ChannelStatusScreen.navOptions as NativeStackNavigationOptions}
-      />
-      <Navigator.Screen
         name={Screens.ContactsScreen}
         component={ContactsScreen}
         options={ContactsScreen.navigationOptions as NativeStackNavigationOptions}
@@ -102,11 +97,6 @@ const walletScreens = (Navigator: typeof Stack) => {
         name={Screens.WalletHomeScreen}
         component={WalletHomeScreen}
         options={WalletHomeScreen.navigationOptions as NativeStackNavigationOptions}
-      />
-      <Navigator.Screen
-        name={Screens.LightningChannelsIntroScreen}
-        component={LightningChannelsIntroScreen}
-        options={LightningChannelsIntroScreen.navigationOptions as NativeStackNavigationOptions}
       />
       <Navigator.Screen
         name={Screens.JITLiquidityScreen}
@@ -304,6 +294,16 @@ const modalAnimatedScreens = (Navigator: typeof Stack) => (
       name={Screens.CurrencyChooserScreen}
       component={CurrencyChooserScreen}
       options={CurrencyChooserScreen.navigationOptions as NativeStackNavigationOptions}
+    />
+    <Navigator.Screen
+      name={Screens.ChannelStatusScreen}
+      component={ChannelStatusScreen}
+      options={ChannelStatusScreen.navigationOptions as NativeStackNavigationOptions}
+    />
+    <Navigator.Screen
+      name={Screens.LightningChannelsIntroScreen}
+      component={LightningChannelsIntroScreen}
+      options={LightningChannelsIntroScreen.navigationOptions as NativeStackNavigationOptions}
     />
   </>
 );

@@ -1,28 +1,38 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ActivityIndicator, BackHandler, ScrollView, StyleSheet, Text } from 'react-native';
-import { noHeader } from '../navigation/Headers';
-import { navigateHome } from '../navigation/NavigationService';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { headerWithBackButton } from '../navigation/Headers';
+import { navigate, navigateHome } from '../navigation/NavigationService';
 import LottieView from 'lottie-react-native';
-import { Colors, TypographyPresets } from 'etta-ui';
+import { Button, Colors, Icon, TypographyPresets } from 'etta-ui';
 import { cueSuccessHaptic } from '../utils/accessibility/haptics';
-import { verticalScale } from '../utils/sizing';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { StackParamList } from '../navigation/types';
 import { Screens } from '../navigation/Screens';
-import { sleep } from '../utils/helpers';
+import { navigateToURI, pressableHitSlop, sleep } from '../utils/helpers';
+import { modalScreenOptions } from '../navigation/Navigator';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ChannelStatusScreen>;
 
 export function ChannelStatusScreen(props: RouteProps) {
-  const channel = props.route.params.channel;
+  useLayoutEffect(() => {
+    props.navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => {
+            navigate(Screens.LightningChannelsIntroScreen);
+          }}
+          hitSlop={pressableHitSlop}
+          style={styles.navIconContainer}
+        >
+          <Icon name="icon-question" style={styles.helpNavIcon} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [props.navigation]);
 
-  // Prevent back button on Android
-  useEffect(() => {
-    const backPressListener = () => true;
-    BackHandler.addEventListener('hardwareBackPress', backPressListener);
-    return () => BackHandler.removeEventListener('hardwareBackPress', backPressListener);
-  }, []);
+  const channel = props.route.params.channel;
 
   useEffect(() => {
     if (channel?.is_channel_ready) {
@@ -37,7 +47,7 @@ export function ChannelStatusScreen(props: RouteProps) {
 
   return channel?.is_channel_ready ? (
     // show channel is ready and redirect back home
-    <SafeAreaView style={styles.safeAreaView}>
+    <SafeAreaView style={styles.safeAreaView} edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <LottieView
           style={styles.lottieIcon}
@@ -50,37 +60,78 @@ export function ChannelStatusScreen(props: RouteProps) {
     </SafeAreaView>
   ) : (
     // show activity indicator and text about pending open
-    <SafeAreaView style={styles.safeAreaView}>
-      <ScrollView contentContainerStyle={styles.contentContainer}>
-        <ActivityIndicator color={Colors.orange.light} size="large" />
-        <Text style={styles.text}>Negotiating receiving capacity with liquidity provider</Text>
-        <Text style={styles.subText}>This will only take a few minutes ...</Text>
+    <SafeAreaView style={styles.safeAreaView} edges={['bottom']}>
+      <ScrollView style={styles.contentContainer}>
+        <View style={styles.section}>
+          <View style={styles.sectionIconContainer}>
+            <Icon name="icon-check" style={styles.sectionIcon} />
+          </View>
+          <Text style={styles.sectionText}>New channel requested</Text>
+        </View>
+        <View style={styles.section}>
+          <View style={styles.sectionIconContainer}>
+            <Icon name="icon-check" style={styles.sectionIcon} />
+          </View>
+          <Text style={styles.sectionText}>Invoice paid</Text>
+        </View>
+        <View style={styles.section}>
+          <View style={styles.sectionIconContainer}>
+            <Icon name="icon-check" style={styles.sectionIcon} />
+          </View>
+          <Text style={styles.sectionText}>Channel request approved</Text>
+        </View>
+        <View style={styles.section}>
+          <View style={styles.sectionIconContainer}>
+            <Icon name="icon-check" style={styles.sectionIcon} />
+          </View>
+          <Text style={styles.sectionText}>Funding transaction broadcast</Text>
+        </View>
+        <View style={styles.section}>
+          <View style={styles.pendingContainer}>
+            <ActivityIndicator color={Colors.orange.light} size="small" />
+          </View>
+          <Text style={styles.sectionText}>Waiting for one confirmation...</Text>
+          <Button
+            title="Check"
+            size="small"
+            appearance="outline"
+            icon="icon-confirmations-1"
+            iconPosition="left"
+            onPress={async () => {
+              navigateToURI(`https://mempool.space/testnet/tx/${channel?.funding_txid}`);
+            }}
+          />
+        </View>
+        <View style={styles.section}>
+          <View style={styles.pendingContainer}>
+            <ActivityIndicator color={Colors.orange.light} size="small" />
+          </View>
+          <Text style={styles.sectionText}>Provisioning liquidity</Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+ChannelStatusScreen.navigationOptions = () => ({
+  ...modalScreenOptions(),
+  ...headerWithBackButton,
+  gestureEnabled: false,
+});
+
 const styles = StyleSheet.create({
   safeAreaView: {
     flex: 1,
-    marginBottom: verticalScale(24),
+    paddingHorizontal: 16,
+    justifyContent: 'center',
   },
   contentContainer: {
-    paddingHorizontal: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
     flexGrow: 1,
   },
   text: {
     ...TypographyPresets.Header4,
     marginBottom: 16,
     textAlign: 'center',
-  },
-  subText: {
-    ...TypographyPresets.Body4,
-    paddingHorizontal: 16,
-    textAlign: 'center',
-    paddingBottom: 10,
   },
   button: {
     marginBottom: 16,
@@ -89,21 +140,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'column',
     paddingHorizontal: 32,
-  },
-  icon: {
-    alignSelf: 'center',
-    justifyContent: 'center',
-    fontSize: 52,
-    color: Colors.common.white,
-  },
-  iconContainer: {
-    alignSelf: 'center',
-    justifyContent: 'center',
-    width: 80,
-    height: 80,
-    borderRadius: 50,
-    backgroundColor: Colors.purple.base,
-    marginBottom: 20,
   },
   errorIconContainer: {
     alignSelf: 'center',
@@ -117,25 +153,69 @@ const styles = StyleSheet.create({
   lottieIcon: {
     width: '40%',
     aspectRatio: 1,
+    alignSelf: 'center',
   },
-  nodeIdBox: {
-    borderRadius: 4,
+  navIconContainer: {
+    justifyContent: 'center',
+    width: 30,
+    height: 30,
+    borderRadius: 50,
+    alignItems: 'center',
     backgroundColor: Colors.neutrals.light.neutral3,
-    padding: 16,
   },
-  copy: {
+  helpNavIcon: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    fontSize: 20,
+    color: Colors.common.black,
+  },
+  section: {
+    width: '100%',
+    flex: 1,
+    flexDirection: 'row',
+    marginVertical: 5,
+  },
+  sectionText: {
+    ...TypographyPresets.Body4,
+    flex: 1,
+    flexGrow: 1,
+    alignSelf: 'center',
+  },
+  closeIcon: {
+    fontSize: 20,
+  },
+  sectionIcon: {
+    fontSize: 24,
+    color: Colors.green.base,
+  },
+  sectionIconContainer: {
+    justifyContent: 'center',
+    width: 30,
+    height: 30,
+    borderRadius: 50,
+    alignItems: 'center',
+    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+    marginRight: 12,
+  },
+  pendingContainer: {
+    justifyContent: 'center',
+    width: 30,
+    height: 30,
+    borderRadius: 50,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 157, 0, 0.1)',
+    marginRight: 12,
+  },
+  statusCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.neutrals.light.neutral2,
+  },
+  statusText: {
     ...TypographyPresets.Body5,
-    paddingTop: 10,
-    textDecorationLine: 'underline',
-    color: Colors.neutrals.light.neutral7,
-    textAlign: 'center',
+    color: Colors.common.black,
+    marginHorizontal: 12,
   },
 });
-
-ChannelStatusScreen.navOptions = {
-  ...noHeader,
-  // Prevent swiping back on iOS
-  gestureEnabled: false,
-};
 
 export default ChannelStatusScreen;

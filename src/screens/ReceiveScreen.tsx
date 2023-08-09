@@ -179,7 +179,7 @@ const ReceiveScreen = ({ navigation, route }: Props) => {
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.headerContainer}>
-        <AmountDisplay inputAmount={amount} usingLocalCurrency={false} receivedPayment={false} />
+        <AmountDisplay inputAmount={amount} usingLocalCurrency={false} />
       </View>
       <View style={styles.qrContainer}>
         {isLoading ? (
