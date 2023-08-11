@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useState } from 'react';
-import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
-import { Keyboard, Platform, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Platform, StyleSheet } from 'react-native';
 import { HeaderTitleWithSubtitle, headerWithBackButton } from '../navigation/Headers';
 import { Button, TypographyPresets } from 'etta-ui';
 import KeyboardAwareScrollView from '../components/keyboard/KeyboardInScrollView';
@@ -13,12 +13,14 @@ import {
   parseInputAddress,
 } from '../utils/lightning/decode';
 import { EIdentifierType } from '../utils/types';
-import { showErrorBanner, showWarningBanner } from '../utils/alerts';
+import { showErrorBanner } from '../utils/alerts';
 import { err } from '../utils/result';
 import { navigate, navigateHome } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { sleep } from '../utils/helpers';
 import { decodeLightningInvoice } from '../utils/lightning/helpers';
+import { getLNURLParams } from '../utils/lnurl/decode';
+import { LNURLPayParams } from 'js-lnurl';
 
 // type RouteProps = NativeStackScreenProps<StackParamList, Screens.EnterAnythingScreen>;
 
@@ -29,13 +31,8 @@ const EnterAnythingScreen = ({ navigation }) => {
       headerRight: () => <CancelButton onCancel={() => navigateHome()} />,
     });
   }, [navigation]);
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [inputString, setInputString] = useState('');
-
-  const onToggleKeyboard = (visible: boolean) => {
-    setKeyboardVisible(visible);
-  };
 
   const shouldShowClipboard = (clipboardContent: string): boolean => {
     return isValidLightningId(clipboardContent);
@@ -53,7 +50,6 @@ const EnterAnythingScreen = ({ navigation }) => {
   }
 
   const onPressContinue = async () => {
-    Keyboard.dismiss();
     setIsProcessing(true);
     // format input
 
@@ -61,12 +57,23 @@ const EnterAnythingScreen = ({ navigation }) => {
     const parsedInput = await parseInputAddress(inputString);
 
     if (parsedInput?.data === EIdentifierType.LNURL && parsedInput.isLNURL) {
-      // if LNURL, go to amount screen and then proceed to SendScreen
-      // for now show banner saying LNURL unavaiable
-      await sleep(2000);
-      showWarningBanner({
-        message: 'Lightning address support is still in development',
-      });
+      await sleep(1000);
+      const [username, domain] = inputString.split('@');
+      const url = `https://${domain}/.well-known/lnurlp/${username.toLowerCase()}`;
+      const paramsRes = await getLNURLParams(url);
+      const errorMessage = `Either user ${username} doesn't exist at ${domain} or this lightning address is invalid`;
+      if (paramsRes.isErr()) {
+        showErrorBanner({
+          message: errorMessage,
+        });
+        return err(errorMessage);
+      }
+      if (paramsRes.isOk()) {
+        navigate(Screens.LNURLPayScreen, {
+          data: paramsRes.value as LNURLPayParams,
+        });
+        console.log('paramsRes: ', paramsRes);
+      }
     } else if (parsedInput?.data === EIdentifierType.BOLT11_INVOICE && !parsedInput.isLNURL) {
       // if BOLT 11, get the decoded invoiceString and amount and proceed to SendScreen
       const decodedInvoice = await decodeLightningInvoice({
@@ -98,37 +105,31 @@ const EnterAnythingScreen = ({ navigation }) => {
 
   return (
     // show activity indicator and text about pending open
-    <SafeAreaInsetsContext.Consumer>
-      {(insets) => (
-        <View style={styles.container}>
-          <KeyboardAwareScrollView
-            contentContainerStyle={[
-              styles.scrollContainer,
-              !keyboardVisible && insets && { marginBottom: insets.bottom },
-            ]}
-            keyboardShouldPersistTaps={'always'}
-          >
-            <InputAnything
-              label={'Enter BOLT11 invoice or Lightning address'}
-              status={inputStatus}
-              inputValue={inputString}
-              inputPlaceholder={''}
-              multiline={true}
-              onInputChange={setLightningIdentifier}
-              shouldShowClipboard={shouldShowClipboard}
-            />
-            <Button
-              style={styles.button}
-              onPress={onPressContinue}
-              title="Continue"
-              disabled={isProcessing || !isValidLightningId(inputString)}
-            />
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={[styles.scrollContainer]}
+        keyboardShouldPersistTaps={'always'}
+      >
+        <InputAnything
+          label={'Enter BOLT11 invoice or Lightning address'}
+          status={inputStatus}
+          inputValue={inputString}
+          inputPlaceholder={''}
+          multiline={true}
+          autoFocus={true}
+          onInputChange={setLightningIdentifier}
+          shouldShowClipboard={shouldShowClipboard}
+        />
+      </KeyboardAwareScrollView>
+      <Button
+        style={styles.button}
+        onPress={onPressContinue}
+        title="Continue"
+        disabled={isProcessing || !isValidLightningId(inputString)}
+      />
 
-            <KeyboardSpacer onToggle={onToggleKeyboard} />
-          </KeyboardAwareScrollView>
-        </View>
-      )}
-    </SafeAreaInsetsContext.Consumer>
+      <KeyboardSpacer />
+    </SafeAreaView>
   );
 };
 
@@ -142,7 +143,8 @@ const styles = StyleSheet.create({
   },
   button: {
     justifyContent: 'center',
-    marginVertical: 16,
+    marginBottom: 16,
+    marginHorizontal: 24,
   },
   title: {
     textAlign: 'center',

@@ -5,18 +5,17 @@
 
 import * as React from 'react';
 import {
-  EmitterSubscription,
+  Dimensions,
   Keyboard,
   KeyboardEvent,
   LayoutAnimation,
   LayoutAnimationConfig,
-  LayoutRectangle,
   Platform,
-  ScreenRect,
   StyleSheet,
   View,
   ViewStyle,
 } from 'react-native';
+import { deviceIsIos14OrNewer } from '../../utils/hooks';
 
 const styles = StyleSheet.create({
   container: {
@@ -42,23 +41,31 @@ const defaultAnimation: LayoutAnimationConfig = {
 
 interface Props {
   topSpacing: number;
-  onToggle: (visible: boolean, keyboardSpace?: number) => void;
+  onToggle?: (open: boolean, space: number) => () => void;
   style?: ViewStyle;
 }
 
-export default class KeyboardSpacer extends React.Component<Props> {
+class KeyboardSpacer extends React.Component<Props> {
   static defaultProps = {
-    topSpacing: 0,
-    onToggle: (visible: boolean, keyboardSpace: number) => {},
+    topSpacing: deviceIsIos14OrNewer() ? -34 : 0,
   };
 
-  _listeners: EmitterSubscription[] = [];
-  _viewRef = React.createRef<View>();
-  _currentMeasureToken: object | null = null;
+  _listeners: Array<any> = [];
 
   state = {
     keyboardSpace: 0,
+    isKeyboardOpened: false,
   };
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      keyboardSpace: 0,
+      isKeyboardOpened: false,
+    };
+    this.updateKeyboardSpace = this.updateKeyboardSpace.bind(this);
+    this.resetKeyboardSpace = this.resetKeyboardSpace.bind(this);
+  }
 
   componentDidMount() {
     const updateListener = Platform.OS === 'android' ? 'keyboardDidShow' : 'keyboardWillShow';
@@ -73,94 +80,62 @@ export default class KeyboardSpacer extends React.Component<Props> {
     this._listeners.forEach((listener) => listener.remove());
   }
 
-  relativeKeyboardHeight(viewFrame: LayoutRectangle, keyboardFrame: ScreenRect): number {
-    if (
-      !viewFrame ||
-      // On Android these can be undefined for unfocused screens
-      viewFrame.y === undefined ||
-      viewFrame.height === undefined ||
-      !keyboardFrame
-    ) {
-      return 0;
-    }
-
-    const keyboardY = keyboardFrame.screenY - this.props.topSpacing;
-
-    // Calculate the displacement needed for the view such that it
-    // no longer overlaps with the keyboard
-    return Math.max(viewFrame.y + viewFrame.height - keyboardY, 0);
-  }
-
-  updateKeyboardSpace = (event: KeyboardEvent) => {
+  updateKeyboardSpace(event: KeyboardEvent) {
     if (!event.endCoordinates) {
-      this.props.onToggle(true);
       return;
     }
-
-    if (!this._viewRef.current) {
-      this.props.onToggle(true);
-      return;
-    }
-
-    // Create a new token to cancel the async measureInWindow
-    // This is needed as both keyboardWillShow and keyboardWillHide are triggered sequentially
-    // when toggling the keyboard visibility on iOS (command + K on simulator)
-    const measureToken = (this._currentMeasureToken = {});
-
-    // Use measure and NOT measureInWindow because it's incorrect with a transparent status bar on Android
-    // see https://github.com/facebook/react-native/issues/19497
-    this._viewRef.current.measure((_x, _y, width, height, x, y) => {
-      if (this._currentMeasureToken !== measureToken) {
-        // Skip action as token is different (i.e. cancelled)
-        return;
-      }
-      let animationConfig = defaultAnimation;
-      if (event.duration) {
-        animationConfig = LayoutAnimation.create(
-          event.duration,
-          LayoutAnimation.Types[event.easing],
-          LayoutAnimation.Properties.opacity
-        );
-      }
-      LayoutAnimation.configureNext(animationConfig);
-
-      const viewFrame = { x, y, width, height };
-      const keyboardFrame = event.endCoordinates;
-      const keyboardSpace = this.relativeKeyboardHeight(viewFrame, keyboardFrame);
-
-      this.setState({ keyboardSpace });
-      this.props.onToggle(true, keyboardSpace);
-    });
-  };
-
-  resetKeyboardSpace = (event: KeyboardEvent) => {
-    // This cancels measureInWindow
-    this._currentMeasureToken = null;
 
     let animationConfig = defaultAnimation;
-    if (event && event.duration) {
+    if (Platform.OS === 'ios') {
       animationConfig = LayoutAnimation.create(
-        event.duration,
+        0, //event.duration,
         LayoutAnimation.Types[event.easing],
         LayoutAnimation.Properties.opacity
       );
     }
     LayoutAnimation.configureNext(animationConfig);
 
-    this.setState({ keyboardSpace: 0 });
-    this.props.onToggle(false, 0);
-  };
+    // get updated on rotation
+    const screenHeight = Dimensions.get('window').height;
+    // when external physical keyboard is connected
+    // event.endCoordinates.height still equals virtual keyboard height
+    // however only the keyboard toolbar is showing if there should be one
+    const keyboardSpace = screenHeight - event.endCoordinates.screenY + this.props.topSpacing;
+    this.setState(
+      {
+        keyboardSpace,
+        isKeyboardOpened: true,
+      },
+      this.props.onToggle?.(true, keyboardSpace)
+    );
+  }
+
+  resetKeyboardSpace(event: KeyboardEvent) {
+    let animationConfig = defaultAnimation;
+    if (Platform.OS === 'ios') {
+      animationConfig = LayoutAnimation.create(
+        0, //event.duration,
+        LayoutAnimation.Types[event.easing],
+        LayoutAnimation.Properties.opacity
+      );
+    }
+    LayoutAnimation.configureNext(animationConfig);
+
+    this.setState(
+      {
+        keyboardSpace: 0,
+        isKeyboardOpened: false,
+      },
+      this.props.onToggle?.(false, 0)
+    );
+  }
 
   render() {
-    // On Android with windowSoftInputMode set to adjustResize we don't need the spacer
-    // unless it's using fullscreen layout (which is the case with a transparent status bar)
-
     return (
-      <View
-        ref={this._viewRef}
-        style={[styles.container, { height: this.state.keyboardSpace }, this.props.style]}
-        collapsable={false}
-      />
+      <View style={[styles.container, { height: this.state.keyboardSpace }, this.props.style]} />
     );
   }
 }
+
+export default ({ ios = true, ...props }) =>
+  !ios || Platform.OS === 'ios' ? <KeyboardSpacer {...props} /> : null;

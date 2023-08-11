@@ -177,7 +177,9 @@ const SendScreen = ({ route }: Props) => {
         <InfoListItem title="Amount" value={amount} valueIsNumeric={true} canCopy />
         {decodedInvoice && (
           <>
-            <InfoListItem title="Description" value={decodedInvoice?.description} canCopy />
+            {decodedInvoice?.description ?? (
+              <InfoListItem title="Description" value={decodedInvoice?.description} canCopy />
+            )}
             <InfoListItem
               title="Expires"
               value={humanizeTimestamp(decodedInvoice?.timestamp, i18n)}

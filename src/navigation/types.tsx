@@ -1,6 +1,7 @@
 import { TChannel } from '@synonymdev/react-native-ldk';
 import { TContact, TLightningPayment } from '../utils/types';
 import { Screens } from './Screens';
+import { LNURLPayParams, LNURLWithdrawParams } from 'js-lnurl';
 
 export type StackParamList = {
   [Screens.GenericErrorScreen]: {
@@ -99,4 +100,10 @@ export type StackParamList = {
     contact?: TContact;
   };
   [Screens.EnterAnythingScreen]: undefined;
+  [Screens.LNURLPayScreen]: {
+    data: LNURLPayParams;
+  };
+  [Screens.LNURLWithdrawScreen]: {
+    data: LNURLWithdrawParams;
+  };
 };

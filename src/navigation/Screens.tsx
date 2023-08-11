@@ -41,4 +41,6 @@ export enum Screens {
   ContactsScreen = 'ContactsScreen',
   ContactDetailScreen = 'ContactDetailScreen',
   EnterAnythingScreen = 'EnterAnythingScreen',
+  LNURLPayScreen = 'LNURLPayScreen',
+  LNURLWithdrawScreen = 'LNURLWithdrawScreen',
 }

@@ -5,6 +5,7 @@ import {
   TInvoice,
 } from '@synonymdev/react-native-ldk';
 import { TAvailableNetworks } from './networks';
+import { LNURLAuthParams, LNURLPayParams, LNURLResponse, LNURLWithdrawParams } from 'js-lnurl';
 
 export enum AppState {
   Background = 'Background',
@@ -334,6 +335,9 @@ export type TLightningActivityItem = {
 export enum ELightningDataType {
   paymentRequest = 'paymentRequest',
   nodeId = 'nodeId',
+  lnurlPay = 'lnurlPay',
+  lnurlAuth = 'lnurlAuth',
+  lnurlWithdraw = 'lnurlWithdraw',
 }
 
 export type TDecodedInput = {
@@ -349,6 +353,7 @@ export interface IDecodedData {
   paymentRequest?: string;
   message?: string;
   url?: string; // possibly node URI
+  lnUrlParams?: LNURLAuthParams | LNURLWithdrawParams | LNURLPayParams | LNURLResponse;
 }
 
 // Wallets
@@ -473,3 +478,15 @@ export interface IContactSection {
   key: string;
   data: TContact[];
 }
+
+export type TLNURLPayCallback = {
+  params: LNURLPayParams;
+  milliSats: number;
+  fromNodes?: string[];
+  comment: string;
+};
+
+export type TLNURLWithdrawCallback = {
+  params: LNURLWithdrawParams;
+  paymentRequest: string;
+};

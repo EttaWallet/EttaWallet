@@ -49,6 +49,8 @@ import ContactsScreen from '../screens/ContactsScreen';
 import ContactDetailScreen from '../screens/ContactDetailsScreen';
 import EnterAnythingScreen from '../screens/EnterAnythingScreen';
 import WalletHomeScreen from '../screens/WalletHomeScreen';
+import LNURLPayScreen from '../screens/LNURLPayScreen';
+import LNURLWithdrawScreen from '../screens/LNURLWithdrawScreen';
 
 const TAG = 'Navigator';
 
@@ -137,6 +139,16 @@ const walletScreens = (Navigator: typeof Stack) => {
         name={Screens.EnterAnythingScreen}
         component={EnterAnythingScreen}
         options={EnterAnythingScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.LNURLPayScreen}
+        component={LNURLPayScreen}
+        options={LNURLPayScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.LNURLWithdrawScreen}
+        component={LNURLWithdrawScreen}
+        options={LNURLWithdrawScreen.navigationOptions as NativeStackNavigationOptions}
       />
     </>
   );

@@ -15,7 +15,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { processInputData } from '../utils/lightning/decode';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
-import { showErrorBanner } from '../utils/alerts';
+import { showErrorBanner, showInfoBanner, showWarningBanner } from '../utils/alerts';
 import RNQRGenerator from 'rn-qr-generator';
 import { launchImageLibrary } from 'react-native-image-picker';
 
@@ -51,7 +51,7 @@ const useSendBottomSheet = (sendProps: Props) => {
 
   const renderBackdrop = useCallback(
     (props) => (
-      // added opacity here, default is 0.5
+      // reduced opacity here, default is 0.5
       <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} opacity={0.2} />
     ),
     []
@@ -64,21 +64,23 @@ const useSendBottomSheet = (sendProps: Props) => {
     }
     if (!clipboardData) {
       // should be a public toast error
-      console.log('There is nothing on your clipboard!');
-      sendOptionsBottomSheetRef.current?.expand();
-      //   sendBottomSheetRef.current?.expand();
+      showInfoBanner({
+        message: 'There is nothing on your clipboard!',
+        dismissAfter: 2000,
+      });
+      sendOptionsBottomSheetRef.current?.close();
       return;
     }
-    // close bottom sheet
-    // sendOptionsBottomSheetRef.current?.close();
     const result = await processInputData({
       data: clipboardData,
       showErrors: true,
     });
 
     if (result.isErr()) {
-      // should be a public toast errorr
-      console.log("we couldn't process your clipboard");
+      showWarningBanner({
+        title: 'Invalid input',
+        message: "Can't process clipboard data. Please verify that it's valid",
+      });
     }
   }, []);
 
@@ -115,7 +117,6 @@ const useSendBottomSheet = (sendProps: Props) => {
         }
       }
     } catch (err) {
-      console.error('Failed to open image file: ', err);
       showErrorBanner({ message: 'Sorry. An error occured when trying to open this image file.' });
     } finally {
       setIsChoosingMedia(false);
@@ -125,12 +126,8 @@ const useSendBottomSheet = (sendProps: Props) => {
   const sendOptionsBottomSheet = useMemo(() => {
     const onPressPaste = () => {
       cueInformativeHaptic();
-      // get pasted string from clipboard
-      // process that input
-      // if valid lighting address, proceed to detail screen
+      sendOptionsBottomSheetRef.current?.close();
       handlePaste('').then();
-      console.info('@SendOptions: chose paste');
-      //   sendOptionsBottomSheetRef.current?.close();
     };
 
     const onPressManual = () => {

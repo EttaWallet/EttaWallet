@@ -3,17 +3,14 @@ import { TAvailableNetworks } from '../networks';
 import { Result, err, ok } from '../result';
 import { EIdentifierType, ELightningDataType, IDecodedData, TDecodedInput } from '../types';
 import { getSelectedNetwork } from '../wallet';
-import {
-  addPeer,
-  decodeLightningInvoice,
-  getLightningStore,
-  getTotalBalance,
-  savePeer,
-} from './helpers';
+import { decodeLightningInvoice, getLightningStore, getTotalBalance } from './helpers';
 import { navigate } from '../../navigation/NavigationService';
 import { Screens } from '../../navigation/Screens';
-import { showErrorBanner, showSuccessBanner, showToast, showWarningBanner } from '../alerts';
+import { showErrorBanner, showWarningBanner } from '../alerts';
 import { cueErrorHaptic } from '../accessibility/haptics';
+import { LNURLPayParams, LNURLWithdrawParams } from 'js-lnurl';
+import { getLNURLParams } from '../lnurl/decode';
+import { sleep } from '../helpers';
 
 export const validateInternetIdentifier = (internetIdentifier) => {
   var re = /\S+@\S+\.\S+/;
@@ -64,7 +61,7 @@ export const processTransactionData = async ({
         if (decodedLightningInvoice?.is_expired) {
           error = {
             title: 'Expired',
-            message: 'Unfortunately, this lightning invoice expired',
+            message: 'This invoice expired and is no longer valid for payment',
           };
         }
       }
@@ -124,13 +121,14 @@ export const processTransactionData = async ({
 };
 
 /**
- * Return all networks and their payment request details if found in QR data.
- * Can also be used to read clipboard data for any addresses or payment requests.
+ * Read clipboard data, make sense of scanned QRcodes or images or any input that might
+ * contain a lightning network instrument: LNURL, Lightning addresses, Node URI, BOLT11
+ * invoices & BOLT12 offers, etc.
  * @param data
  * @param {TAvailableNetworks} [selectedNetwork]
  * @returns {string}
  */
-export const decodeQRData = async (
+export const decodeLNData = async (
   data: string,
   selectedNetwork?: TAvailableNetworks
 ): Promise<Result<IDecodedData[]>> => {
@@ -140,25 +138,63 @@ export const decodeQRData = async (
 
   let foundNetworksInQR: IDecodedData[] = [];
   let lightningInvoice = '';
+  let lightningAddress = '';
   let error = '';
 
   //Lightning URI or plain lightning payment request
-  if (
-    data.toLowerCase().indexOf('lightning:') > -1 ||
-    data.toLowerCase().startsWith(BOLT11_SCHEME_TESTNET) ||
-    data.toLowerCase().startsWith(BOLT11_SCHEME_MAINNET)
-  ) {
+  if (isValidLightningId(data)) {
     //If it's a lightning URI, remove "lightning:", everything to the left of it.
     let invoice = data
       .replace(/^.*?(lightning:)/i, '')
       .trim()
       .toLowerCase();
-    //Assume invoice
-    //Ignore params if there are any, all details can be derived from invoice
-    if (invoice.indexOf('?') > -1) {
-      invoice = invoice.split('?')[0];
+    //Attempt to handle any lnurl request.
+    if (invoice.startsWith(LNURL_SCHEME)) {
+      const res = await getLNURLParams(invoice);
+      if (res.isOk()) {
+        const params = res.value;
+        let tag = '';
+        if ('tag' in params) {
+          tag = params.tag;
+        }
+
+        let dataType: ELightningDataType | undefined;
+
+        switch (tag) {
+          case 'login': {
+            dataType = ELightningDataType.lnurlAuth;
+            break;
+          }
+          case 'withdrawRequest': {
+            dataType = ELightningDataType.lnurlWithdraw;
+            break;
+          }
+          case 'payRequest': {
+            dataType = ELightningDataType.lnurlPay;
+            break;
+          }
+        }
+
+        if (dataType) {
+          foundNetworksInQR.push({
+            dataType,
+            network: selectedNetwork,
+            lnUrlParams: params,
+          });
+        }
+      } else {
+        error += `${res.error.message} `;
+      }
+    } else if (validateInternetIdentifier(invoice)) {
+      lightningAddress = invoice;
+    } else {
+      //Assume invoice
+      //Ignore params if there are any, all details can be derived from invoice
+      if (invoice.indexOf('?') > -1) {
+        invoice = invoice.split('?')[0];
+      }
+      lightningInvoice = invoice;
     }
-    lightningInvoice = invoice;
   }
 
   if (lightningInvoice) {
@@ -175,6 +211,22 @@ export const decodeQRData = async (
       });
     } else {
       error += `${decodedInvoice.error.message} `;
+    }
+  }
+
+  if (lightningAddress) {
+    await sleep(1000);
+    const [username, domain] = lightningAddress.split('@');
+    const url = `https://${domain}/.well-known/lnurlp/${username.toLowerCase()}`;
+    const paramsRes = await getLNURLParams(url);
+    if (paramsRes.isOk()) {
+      foundNetworksInQR.push({
+        dataType: ELightningDataType.lnurlPay,
+        network: selectedNetwork,
+        lnUrlParams: paramsRes.value,
+      });
+    } else {
+      error += `${paramsRes.error.message} `;
     }
   }
 
@@ -218,8 +270,8 @@ export const processInputData = async ({
     if (!selectedNetwork) {
       selectedNetwork = getSelectedNetwork();
     }
-    const decodeRes = await decodeQRData(data, selectedNetwork);
-    console.log('decodeRes: ', decodeRes);
+    const decodeRes = await decodeLNData(data, selectedNetwork);
+    console.log('decodeRes: ', JSON.stringify(decodeRes));
     if (decodeRes.isErr()) {
       const message = 'Etta could not decode that. Copy the invoice and try again';
       if (showErrors) {
@@ -228,7 +280,6 @@ export const processInputData = async ({
           title: 'Try again',
           dismissAfter: 5000,
         });
-        // console.error('Etta could not decode that. Copy the invoice and retry');
       }
       return err('Decoding Error');
     }
@@ -259,6 +310,13 @@ export const processInputData = async ({
         return err(processTxResponse.error.message);
       }
       dataToHandle = processTxResponse.value;
+      // } else if (decodeRes.value.length > 1 || decodeRes.value[0].dataType === 'lnurlPay') {
+      //   const meh = await handleLnurlPay({
+      //     params: decodeRes.value[0].lnUrlParams,
+      //     amountSats: 2000,
+      //     selectedNetwork: 'bitcoinTestnet',
+      //   });
+      //   console.log('meh: ', meh);
     } else {
       dataToHandle = decodeRes.value[0];
     }
@@ -356,44 +414,22 @@ export const handleProcessedData = async ({
         amount: invoiceAmount,
       });
     }
-    case ELightningDataType.nodeId: {
-      const peer = data?.url;
-      if (!peer) {
-        return err('Unable to interpret peer information.');
-      }
-      if (peer.includes('onion')) {
-        showToast({
-          message: 'Unable to add tor nodes at this time.',
-        });
-        return err('Unable to add tor nodes at this time.');
-      }
-      const addPeerRes = await addPeer({
-        peer,
-        timeout: 5000,
-      });
-      if (addPeerRes.isErr()) {
-        showToast({
-          message: 'Unable to add lightning peer.',
-        });
-        console.log('processedNodeURI: ', 'Unable to add lightning peer.');
-        return err('Unable to add lightning peer.');
-      }
-      const savePeerRes = savePeer({ selectedNetwork, peer });
-      if (savePeerRes.isErr()) {
-        showToast({
-          message: savePeerRes.error.message,
-        });
-        console.log('savePeerRes: ', savePeerRes.error.message);
-        return err(savePeerRes.error.message);
-      }
+    case ELightningDataType.lnurlPay: {
+      const params = data.lnUrlParams! as LNURLPayParams;
 
-      // should be a public toast
-      showSuccessBanner({
-        message: 'Lightning peer saved successfully',
-        title: 'Saved successfully',
+      navigate(Screens.LNURLPayScreen, {
+        data: params,
       });
-      console.log('lightning peer saved successfully');
-      return ok({ type: ELightningDataType.nodeId });
+      return ok({ type: ELightningDataType.lnurlPay });
+    }
+
+    case ELightningDataType.lnurlWithdraw: {
+      const params = data.lnUrlParams! as LNURLWithdrawParams;
+
+      navigate(Screens.LNURLWithdrawScreen, {
+        data: params,
+      });
+      return ok({ type: ELightningDataType.lnurlWithdraw });
     }
 
     default:
