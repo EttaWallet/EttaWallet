@@ -2,7 +2,7 @@ import * as Keychain from 'react-native-keychain';
 import { PinType } from '../types';
 import { navigate, navigateBack } from '../../navigation/NavigationService';
 import { Screens } from '../../navigation/Screens';
-import { SecretCache, clearPasswordCaches, getCachedPin, setCachedPin } from './PasswordCache';
+import { SecretCache, clearSecretCaches, getCachedPin, setCachedPin } from './PasswordCache';
 import {
   isUserCancelledError,
   removeStoredItem,
@@ -16,15 +16,23 @@ import { useStoreState } from '../../state/hooks';
 import mmkvStorage, { StorageItem } from '../../storage/disk';
 import store from '../../state/store';
 import { ok } from '../result';
+import * as bitcoin from 'bitcoinjs-lib';
+import { generateSecureRandom } from 'react-native-securerandom';
 
 const TAG = 'pincode/authentication';
 
 const PIN_STORAGE_KEY = 'PIN';
 
 export const PIN_LENGTH = 6;
+export const PEPPER_LENGTH = 64;
 export const DEFAULT_CACHE_ACCOUNT = 'etta';
 export const CANCELLED_PIN_INPUT = 'CANCELLED_PIN_INPUT';
 export const BIOMETRY_VERIFICATION_DELAY = 800;
+
+enum STORAGE_KEYS {
+  PEPPER = 'PEPPER',
+  PIN = 'PIN',
+}
 
 const PIN_BLOCKLIST = [
   '000000',
@@ -43,6 +51,27 @@ const PIN_BLOCKLIST = [
 
 export function isPinValid(pin: string) {
   return /^\d{6}$/.test(pin) && !PIN_BLOCKLIST.includes(pin);
+}
+
+export async function retrieveOrGeneratePepper() {
+  let storedPepper = await retrieveStoredKeychainItem(STORAGE_KEYS.PEPPER);
+  if (!storedPepper) {
+    const randomBytes = await generateSecureRandom(PEPPER_LENGTH);
+    const pepper = Buffer.from(randomBytes).toString('hex');
+    await storeKeychainItem({ key: STORAGE_KEYS.PEPPER, value: pepper });
+    storedPepper = pepper;
+  }
+  return storedPepper;
+}
+
+export async function getPasswordHashForPin(pin: string) {
+  const pepper = await retrieveOrGeneratePepper();
+  const password = `${pepper}${pin}`;
+  return getPasswordHash(password);
+}
+
+function getPasswordHash(password: string) {
+  return bitcoin.crypto.sha256(Buffer.from(password, 'hex')).toString('hex');
 }
 
 function storePinWithBiometry(pin: string) {
@@ -168,15 +197,16 @@ export async function requestPincodeInput(
 
 // Confirm pin is correct by checking it against the stored password hash
 export async function checkPin(pin: string, account: string) {
+  const hashForPin = await getPasswordHashForPin(pin);
   const secretCache: SecretCache = await mmkvStorage.getItem(StorageItem.pinCache);
   const cachedSecret = secretCache[account]?.secret;
-
-  return cachedSecret === pin;
+  // compare hash in cache with hash of entered pin
+  return cachedSecret === hashForPin;
 }
 
 export const updatePin = async (newPin: string) => {
   try {
-    clearPasswordCaches();
+    clearSecretCaches();
     setCachedPin(DEFAULT_CACHE_ACCOUNT, newPin);
     const pincodeType = store.getState().nuxt.pincodeType;
     // see if biometrics are enabled
@@ -191,6 +221,6 @@ export const updatePin = async (newPin: string) => {
 };
 
 export async function removeAccountLocally() {
-  clearPasswordCaches();
+  clearSecretCaches();
   return Promise.all([removeStoredItem(PIN_STORAGE_KEY)]);
 }

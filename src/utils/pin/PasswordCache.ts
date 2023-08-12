@@ -1,4 +1,5 @@
 import mmkvStorage, { StorageItem } from '../../storage/disk';
+import { getPasswordHashForPin } from './auth';
 
 const CACHE_TIMEOUT = 300000; // 5 minutes
 
@@ -9,9 +10,6 @@ export interface SecretCache {
   };
 }
 let pinCache: SecretCache = {};
-let pepperCache: SecretCache = {};
-let passwordHashCache: SecretCache = {};
-let passwordCache: SecretCache = {};
 
 function getCachedValue(cache: SecretCache, account: string) {
   const value = cache[account];
@@ -24,12 +22,13 @@ function getCachedValue(cache: SecretCache, account: string) {
   }
 }
 
-function setCachedValue(cache: SecretCache, account: string, secret: string | null) {
+async function setCachedValue(cache: SecretCache, account: string, secret: string | null) {
   if (!cache[account]) {
     cache[account] = { timestamp: null, secret: null };
   }
+  const hashedSecret = await getPasswordHashForPin(secret!);
   cache[account].timestamp = Date.now();
-  cache[account].secret = secret;
+  cache[account].secret = hashedSecret;
   // attempt to save on disk
   mmkvStorage.setItem(StorageItem.pinCache, cache);
 }
@@ -42,33 +41,6 @@ export function setCachedPin(account: string, pin: string | null) {
   setCachedValue(pinCache, account, pin);
 }
 
-export function getCachedPepper(account: string) {
-  return getCachedValue(pepperCache, account);
-}
-
-export function setCachedPepper(account: string, pepper: string | null) {
-  setCachedValue(pepperCache, account, pepper);
-}
-
-export function getCachedPasswordHash(account: string) {
-  return getCachedValue(passwordHashCache, account);
-}
-
-export function setCachedPasswordHash(account: string, passwordHash: string) {
-  setCachedValue(passwordHashCache, account, passwordHash);
-}
-
-export function getCachedPassword(account: string) {
-  return getCachedValue(passwordCache, account);
-}
-
-export function setCachedPassword(account: string, password: string | null) {
-  setCachedValue(passwordCache, account, password);
-}
-
-export function clearPasswordCaches() {
+export function clearSecretCaches() {
   pinCache = {};
-  pepperCache = {};
-  passwordHashCache = {};
-  passwordCache = {};
 }
