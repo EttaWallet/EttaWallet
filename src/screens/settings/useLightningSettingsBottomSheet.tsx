@@ -11,8 +11,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { cueInformativeHaptic } from '../../utils/accessibility/haptics';
 import { useStoreDispatch, useStoreState } from '../../state/hooks';
 import RadioCardOption from '../../components/RadioCardOption';
-import KeyboardAwareScrollView from '../../components/keyboard/KeyboardInScrollView';
-import KeyboardSpacer from '../../components/keyboard/KeyboardSpacer';
 
 const useLightningSettingsBottomSheet = () => {
   const { t } = useTranslation();
@@ -30,7 +28,7 @@ const useLightningSettingsBottomSheet = () => {
 
   const dispatch = useStoreDispatch();
 
-  const initialSnapPoints = useMemo(() => ['30%', 'CONTENT_HEIGHT'], []);
+  const initialSnapPoints = useMemo(() => ['30%'], []);
   const pickexpirySnapPoints = useMemo(() => ['55%'], []);
   const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
     useBottomSheetDynamicSnapPoints(initialSnapPoints);
@@ -62,23 +60,19 @@ const useLightningSettingsBottomSheet = () => {
         ref={updateDescriptionBottomSheetRef}
         index={-1}
         snapPoints={animatedSnapPoints}
-        handleHeight={animatedHandleHeight}
-        contentHeight={animatedContentHeight}
-        enablePanDownToClose
+        enablePanDownToClose={true}
         backdropComponent={renderBackdrop}
         handleIndicatorStyle={styles.handle}
+        keyboardBehavior="interactive"
+        keyboardBlurBehavior="restore"
       >
-        <KeyboardAwareScrollView
-          style={[styles.container, { paddingBottom }]}
-          onLayout={handleContentLayout}
-        >
-          <Text style={styles.title}>{t('Default description (max 25char)')}</Text>
+        <View style={styles.container}>
+          <Text style={styles.title}>{t('Default invoice description')}</Text>
           <BottomSheetTextInput
             onChangeText={setNewDescription}
             value={newDescription}
             enablesReturnKeyAutomatically={true}
             returnKeyLabel="done"
-            maxLength={25}
             multiline={false}
             placeholderTextColor={Colors.neutrals.light.neutral7}
             style={styles.textInput}
@@ -90,21 +84,10 @@ const useLightningSettingsBottomSheet = () => {
             appearance="filled"
             style={styles.button}
           />
-          <KeyboardSpacer topSpacing={16} />
-        </KeyboardAwareScrollView>
+        </View>
       </BottomSheet>
     );
-  }, [
-    animatedSnapPoints,
-    animatedHandleHeight,
-    animatedContentHeight,
-    renderBackdrop,
-    paddingBottom,
-    handleContentLayout,
-    t,
-    newDescription,
-    dispatch.lightning,
-  ]);
+  }, [animatedSnapPoints, renderBackdrop, t, newDescription, dispatch.lightning]);
 
   const updateExpiryBottomSheet = useMemo(() => {
     const onPressUpdate = () => {
@@ -130,7 +113,7 @@ const useLightningSettingsBottomSheet = () => {
         handleIndicatorStyle={styles.handle}
       >
         <View style={[styles.container, { paddingBottom }]} onLayout={handleContentLayout}>
-          <Text style={styles.title}>{t('Choose default expiry')}</Text>
+          <Text style={styles.title}>{t('Choose default invoice expiry period')}</Text>
           <RadioCardOption
             hideRadio={!true}
             title="1 week"
@@ -195,13 +178,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.orange.base,
   },
   container: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
+    padding: 16,
   },
   title: {
-    ...TypographyPresets.Header5,
-    marginBottom: 5,
-    textAlign: 'center',
+    ...TypographyPresets.Body4,
   },
   subtitle: {
     ...TypographyPresets.Body4,
@@ -214,7 +194,6 @@ const styles = StyleSheet.create({
   button: {
     justifyContent: 'center',
     marginTop: 16,
-    marginBottom: 24,
   },
   cancelBtn: {
     marginBottom: 5,
@@ -228,7 +207,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderWidth: 1.5,
     color: Colors.common.black,
-    width: '100%',
   },
 });
 

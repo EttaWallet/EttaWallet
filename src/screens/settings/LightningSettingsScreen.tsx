@@ -50,7 +50,7 @@ const LightningSettingsScreen = ({ navigation }) => {
       <ScrollView bounces={true}>
         <SectionTitle title="Defaults" style={styles.sectionHeading} />
         <SettingsItemWithTextValue
-          title="Default payment description"
+          title="Default invoice description"
           withChevron={true}
           onPress={openUpdateDescriptionSheet}
         />
