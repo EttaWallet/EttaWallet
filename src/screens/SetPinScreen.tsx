@@ -97,6 +97,7 @@ const SetPinScreen = ({ route }: ScreenProps) => {
 
   const onCompletePin1 = () => {
     if (isPin1Valid(pin1)) {
+      setErrorText('');
       setIsVerifying(true);
     } else {
       setPin1('');
