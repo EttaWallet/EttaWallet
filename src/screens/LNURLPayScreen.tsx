@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HeaderTitleWithSubtitle, headerWithBackButton } from '../navigation/Headers';
 import { Button, Colors, TypographyPresets } from 'etta-ui';
@@ -10,7 +10,6 @@ import KeyboardAwareScrollView from '../components/keyboard/KeyboardInScrollView
 import { TextInput } from 'react-native-gesture-handler';
 import FormLabel from '../components/form/Label';
 import KeyboardSpacer from '../components/keyboard/KeyboardSpacer';
-import { InfoListItem } from '../components/InfoListItem';
 import { getTotalBalance } from '../utils/lightning/helpers';
 import BigNumber from 'bignumber.js';
 import { showErrorBanner } from '../utils/alerts';
@@ -18,6 +17,8 @@ import { navigate, navigateHome } from '../navigation/NavigationService';
 import CancelButton from '../navigation/components/CancelButton';
 import { lnurlPay } from '../utils/lnurl';
 import { err } from '../utils/result';
+import JSONArrayRenderer from '../components/JSONArrayRenderer';
+import { InfoListItem } from '../components/InfoListItem';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.LNURLPayScreen>;
 type Props = RouteProps;
@@ -31,6 +32,7 @@ const LNURLPayScreen = ({ route, navigation }: Props) => {
   const amountPayable = new BigNumber(inputAmount).toNumber();
   const [hasBalanceError, setHasBalanceError] = useState(false);
   const [hasLimitError, setHasLimitError] = useState(false);
+  const [userComment, setUserComment] = useState('');
 
   const amountInputRef = useRef(null);
 
@@ -71,7 +73,7 @@ const LNURLPayScreen = ({ route, navigation }: Props) => {
       const callbackRes = await lnurlPay({
         params: metadata,
         milliSats,
-        comment: 'Paid with EttaWallet',
+        comment: userComment,
       });
 
       if (callbackRes.isErr()) {
@@ -96,42 +98,37 @@ const LNURLPayScreen = ({ route, navigation }: Props) => {
     }
   };
 
+  const onBlur = () => {
+    const trimmedComment = userComment?.trim();
+    setUserComment(trimmedComment);
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <View style={styles.metaContainer}>
-        {metadata.metadata && (
-          <>
-            <InfoListItem
-              title="Min/max you can send"
-              value={`${minSendable.toLocaleString()}/${maxSendable.toLocaleString()}`}
-              valueIsNumeric={true}
-            />
-            {metadata?.metadata[0][1] && (
-              <InfoListItem
-                title="Receipient"
-                value={JSON.parse(metadata?.metadata)[0][1]}
-                canCopy={true}
-              />
-            )}
-            {metadata?.metadata[1][1] && (
-              <View style={styles.descContainer}>
-                <FormLabel>Description</FormLabel>
-                <Text style={styles.desc} selectable={true}>
-                  {JSON.parse(metadata?.metadata)[1][1]}
-                </Text>
-              </View>
-            )}
-          </>
-        )}
-      </View>
       <KeyboardAwareScrollView
         keyboardShouldPersistTaps={'always'}
         contentContainerStyle={styles.contentContainer}
       >
+        {metadata?.metadata && (
+          <View style={styles.metaContainer}>
+            <JSONArrayRenderer decodedMetadata={metadata.decodedMetadata} />
+            <View style={styles.metaContainer}>
+              <InfoListItem
+                title="Min/max you can send"
+                value={`${minSendable.toLocaleString()}/${maxSendable.toLocaleString()}`}
+                valueIsNumeric={true}
+              />
+            </View>
+          </View>
+        )}
         <View style={styles.amountInputContainer}>
           <FormLabel
             // @ts-ignore
             style={[styles.label, inputAmount === '' ? styles.labelError : styles.labelSuccess]}
+            onPress={() => {
+              //@ts-ignore
+              amountInputRef.current?.focus();
+            }}
           >
             Enter amount in sats
           </FormLabel>
@@ -163,6 +160,22 @@ const LNURLPayScreen = ({ route, navigation }: Props) => {
             </FormLabel>
           ) : null}
         </View>
+        {metadata.commentAllowed > 0 && (
+          <TextInput
+            style={styles.inputContainer}
+            autoFocus={false}
+            multiline={true}
+            numberOfLines={3}
+            maxLength={metadata.commentAllowed}
+            onChangeText={setUserComment}
+            value={userComment}
+            placeholder={`Add a comment (max ${metadata.commentAllowed} chars)`}
+            placeholderTextColor={Colors.neutrals.light.neutral6}
+            returnKeyType={'done'}
+            onBlur={onBlur}
+            blurOnSubmit={true}
+          />
+        )}
       </KeyboardAwareScrollView>
       <Button
         title={amountPayable ? `Send ${amountPayable.toLocaleString()} sats` : 'Send'}
@@ -194,17 +207,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
+    marginBottom: 5,
   },
   metaContainer: {
-    marginVertical: 10,
-    marginHorizontal: 16,
+    marginTop: 5,
   },
   amountInput: {
-    paddingTop: Platform.OS === 'android' ? 22 : 3,
-    marginLeft: 10,
+    marginLeft: 16,
     flex: 1,
     textAlign: 'right',
-    ...TypographyPresets.Body3,
+    ...TypographyPresets.Body2,
   },
   fiatCurrencyColor: {
     color: Colors.green.base,
@@ -215,10 +227,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
   label: {
-    paddingTop: 9,
     color: Colors.common.black,
     ...TypographyPresets.Body4,
     paddingLeft: 3,
+    paddingTop: Platform.OS === 'ios' ? 8 : 0,
   },
   labelSuccess: {
     color: Colors.green.light,
@@ -241,6 +253,14 @@ const styles = StyleSheet.create({
     ...TypographyPresets.Body5,
     color: Colors.neutrals.light.neutral7,
     paddingTop: 10,
+  },
+  inputContainer: {
+    height: 60,
+    textAlignVertical: 'top',
+    alignSelf: 'stretch',
+    ...TypographyPresets.Body5,
+    color: Colors.neutrals.light.neutral7,
+    paddingTop: 8,
   },
 });
 

@@ -162,6 +162,10 @@ const LNURLWithdrawScreen = ({ route, navigation }: Props) => {
           <FormLabel
             // @ts-ignore
             style={[styles.label, inputAmount === '' ? styles.labelError : styles.labelSuccess]}
+            onPress={() => {
+              //@ts-ignore
+              amountInputRef.current?.focus();
+            }}
           >
             Enter amount in sats
           </FormLabel>
