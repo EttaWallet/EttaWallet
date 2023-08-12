@@ -30,7 +30,8 @@ const useLightningSettingsBottomSheet = () => {
 
   const dispatch = useStoreDispatch();
 
-  const initialSnapPoints = useMemo(() => ['50%', 'CONTENT_HEIGHT'], []);
+  const initialSnapPoints = useMemo(() => ['30%', 'CONTENT_HEIGHT'], []);
+  const pickexpirySnapPoints = useMemo(() => ['55%'], []);
   const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
     useBottomSheetDynamicSnapPoints(initialSnapPoints);
 
@@ -121,7 +122,7 @@ const useLightningSettingsBottomSheet = () => {
       <BottomSheet
         ref={updateExpiryBottomSheetRef}
         index={-1}
-        snapPoints={animatedSnapPoints}
+        snapPoints={pickexpirySnapPoints}
         handleHeight={animatedHandleHeight}
         contentHeight={animatedContentHeight}
         enablePanDownToClose
@@ -170,7 +171,7 @@ const useLightningSettingsBottomSheet = () => {
       </BottomSheet>
     );
   }, [
-    animatedSnapPoints,
+    pickexpirySnapPoints,
     animatedHandleHeight,
     animatedContentHeight,
     renderBackdrop,
