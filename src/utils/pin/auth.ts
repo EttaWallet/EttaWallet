@@ -99,16 +99,11 @@ type PinCallback = (pin: string) => void;
 
 export async function setPincodeWithBiometry() {
   let pin = getCachedPin(DEFAULT_CACHE_ACCOUNT);
-  // let pinCache: any = mmkvStorage.getItem(StorageItem.pinCache);
-  // let pin = pinCache[DEFAULT_CACHE_ACCOUNT].secret;
   if (!pin) {
     pin = await requestPincodeInput(true, true);
   }
 
   try {
-    // storeItem can be called multiple times with the same key, so stale keys
-    // from previous app installs/failed save attempts will be overwritten
-    // safely here
     await storePinWithBiometry(pin);
     // allow native biometry verification animation to run fully
     await sleep(BIOMETRY_VERIFICATION_DELAY);
@@ -169,17 +164,12 @@ export const getPincode = async (withVerification = true) => {
 };
 
 // Navigate to the pincode enter screen and check pin
-export async function requestPincodeInput(
-  withVerification = true,
-  shouldNavigateBack = true,
-  account?: string
-) {
+export async function requestPincodeInput(withVerification = true, shouldNavigateBack = true) {
   const pin = await new Promise((resolve: PinCallback, reject: (error: string) => void) => {
     navigate(Screens.EnterPinScreen, {
       onSuccess: resolve,
       onCancel: () => reject(CANCELLED_PIN_INPUT),
       withVerification,
-      account,
     });
   });
 

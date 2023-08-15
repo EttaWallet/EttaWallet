@@ -10,7 +10,7 @@ import type { StackParamList } from '../navigation/types';
 import { DEFAULT_CACHE_ACCOUNT, checkPin } from '../utils/pin/auth';
 import { Pincode } from '../components/pincode';
 import { showErrorBanner } from '../utils/alerts';
-import { cueErrorHaptic, cueSuccessHaptic } from '../utils/accessibility/haptics';
+import { cueErrorHaptic, cueInformativeHaptic } from '../utils/accessibility/haptics';
 
 type Props = NativeStackScreenProps<StackParamList, Screens.EnterPinScreen>;
 
@@ -36,7 +36,7 @@ export const EnterPin = ({ route }: Props) => {
   };
 
   const onCorrectPin = (pin: string) => {
-    cueSuccessHaptic();
+    cueInformativeHaptic();
     setPinIsCorrect(true);
     const onSuccess = route.params.onSuccess;
     if (onSuccess) {
@@ -55,7 +55,7 @@ export const EnterPin = ({ route }: Props) => {
   };
 
   const onPressConfirm = async () => {
-    const account = route.params.account || DEFAULT_CACHE_ACCOUNT;
+    const account = DEFAULT_CACHE_ACCOUNT;
     if (await checkPin(pinEntered, account)) {
       console.log('checking..', await checkPin(pinEntered, account));
       onCorrectPin(pinEntered);

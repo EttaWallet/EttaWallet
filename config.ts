@@ -18,7 +18,7 @@ export const VOLTAGE_LSP_PUBKEY =
 export const VOLTAGE_LSP_API_TESTNET = 'https://testnet-lsp.voltageapi.com/api/v1/proposal';
 export const VOLTAGE_LSP_FEE_ESTIMATE_API = 'https://testnet-lsp.voltageapi.com/api/v1/fee';
 
-export const ALERTS_DURATION = 5000;
+export const ALERTS_DURATION = 2000;
 
 export const EXCHANGE_RATE_UPDATE_INTERVAL = 12 * 3600 * 1000; // 12 hours
 

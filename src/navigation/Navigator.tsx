@@ -39,7 +39,6 @@ import WalletBackupScreen from '../screens/settings/WalletBackupScreen';
 import LightningSettingsScreen from '../screens/settings/LightningSettingsScreen';
 import ChannelsScreen from '../screens/ChannelsScreen';
 import LogsScreen from '../screens/LogsScreen';
-import { getLightningStore } from '../utils/lightning/helpers';
 import EnterAmountScreen from '../screens/EnterAmountScreen';
 import CurrencyChooserScreen from '../screens/CurrencyChooserScreen';
 import ReviewRequestScreen from '../screens/ReviewRequestScreen';
@@ -158,24 +157,29 @@ const onboardingScreens = (Navigator: typeof Stack) => {
   return (
     <>
       <Navigator.Screen
+        name={Screens.WelcomeScreen}
+        component={WelcomeScreen}
+        options={WelcomeScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.Disclaimer}
+        component={DisclaimerScreen}
+        options={DisclaimerScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
         name={Screens.SetPinScreen}
         component={SetPinScreen}
-        options={SetPinScreen.navigationOptions}
+        options={SetPinScreen.navigationOptions as NativeStackNavigationOptions}
       />
       <Navigator.Screen
         name={Screens.EnableBiometryScreen}
         component={EnableBiometry}
-        options={EnableBiometry.navigationOptions}
+        options={EnableBiometry.navigationOptions as NativeStackNavigationOptions}
       />
       <Navigator.Screen
         name={Screens.StartLdkScreen}
         component={StartLdkScreen}
-        options={StartLdkScreen.navOptions}
-      />
-      <Navigator.Screen
-        name={Screens.WelcomeScreen}
-        component={WelcomeScreen}
-        options={WelcomeScreen.navigationOptions}
+        options={StartLdkScreen.navOptions as NativeStackNavigationOptions}
       />
     </>
   );
@@ -220,18 +224,12 @@ const settingsScreens = (Navigator: typeof Stack) => {
 
 export const MainStackScreen = () => {
   const [initialRouteName, setInitialRoute] = useState<InitialRouteName>(undefined);
-  // @todo: updated state via thunk not being rehydrated on app reload. Look into this
-  const choseRestoreWallet = useStoreState((state) => state.nuxt.choseRestoreWallet);
   const acknowledgedDisclaimer = useStoreState((state) => state.nuxt.acknowledgedDisclaimer);
   const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType);
   const skippedBiometrics = useStoreState((state) => state.app.skippedBiometrics);
   const enabledBiometrics = useStoreState((state) => state.app.biometricsEnabled);
   const pinType = useStoreState((state) => state.nuxt.pincodeType);
-  const slidesSeen = useStoreState((state) => state.nuxt.seenSlides);
   const nodeIsUp = useStoreState((state) => state.lightning.nodeStarted);
-
-  // check if channels set up
-  const channels = getLightningStore().channels;
 
   useEffect(() => {
     let initialRoute: InitialRouteName;
@@ -254,17 +252,8 @@ export const MainStackScreen = () => {
 
     // Wait for next frame to avoid slight gap when hiding the splash
     requestAnimationFrame(() => SplashScreen.hide());
-  }, [
-    acknowledgedDisclaimer,
-    choseRestoreWallet,
-    slidesSeen,
-    pinType,
-    nodeIsUp,
-    supportedBiometryType,
-    skippedBiometrics,
-    enabledBiometrics,
-    channels,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!initialRouteName) {
     return <AppLoading />;
@@ -282,11 +271,6 @@ export const MainStackScreen = () => {
 
 const modalAnimatedScreens = (Navigator: typeof Stack) => (
   <>
-    <Navigator.Screen
-      name={Screens.Disclaimer}
-      component={DisclaimerScreen}
-      options={DisclaimerScreen.navigationOptions as NativeStackNavigationOptions}
-    />
     <Navigator.Screen
       name={Screens.LanguageModal}
       component={LanguageChooser}
@@ -335,7 +319,13 @@ const mainScreenNavOptions = () => ({
 
 function AnimatedStackScreen() {
   return (
-    <AnimatedStack.Navigator>
+    <AnimatedStack.Navigator
+      screenOptions={Platform.select({
+        ios: {
+          presentation: 'modal',
+        },
+      })}
+    >
       <AnimatedStack.Screen
         name={Screens.Main}
         component={MainStackScreen}

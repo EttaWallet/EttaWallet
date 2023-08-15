@@ -14,7 +14,7 @@ import {
   TWalletName,
 } from './types';
 import store from '../state/store';
-import { getKeychainValue, setKeychainValue } from './keychain';
+import { retrieveStoredKeychainItem, storeKeychainItem } from './keychain';
 import { Result, err, ok } from './result';
 import * as bip39 from 'bip39';
 import { getDefaultWalletShape, walletModel } from '../state/models/wallet';
@@ -81,9 +81,9 @@ export const getBip39Passphrase = async (selectedWallet?: TWalletName): Promise<
       selectedWallet = getSelectedWallet();
     }
     const key = `${selectedWallet}passphrase`;
-    const bip39PassphraseResult = await getKeychainValue({ key });
-    if (!bip39PassphraseResult.error && bip39PassphraseResult.data) {
-      return bip39PassphraseResult.data;
+    const bip39PassphraseResult = await retrieveStoredKeychainItem(key);
+    if (!bip39PassphraseResult) {
+      return bip39PassphraseResult!;
     }
     return '';
   } catch {
@@ -442,9 +442,9 @@ export const createDefaultWallet = async ({
     }
 
     // store mnemonic in device keychain
-    await setKeychainValue({ key: walletName, value: mnemonic });
+    await storeKeychainItem({ key: walletName, value: mnemonic });
     // store bip39passphrase too in device keychain
-    await setKeychainValue({
+    await storeKeychainItem({
       key: `${walletName}passphrase`,
       value: bip39Passphrase,
     });

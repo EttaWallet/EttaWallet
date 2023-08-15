@@ -10,9 +10,7 @@ export interface AppModelType {
   appReady: boolean;
   appState: AppState;
   requirePinOnOpen: boolean;
-  authenticated: boolean; // with PIN
   locked: boolean;
-  sessionId: string;
   activeScreen: Screens;
   supportedBiometryType: BIOMETRY_TYPE | null;
   skippedBiometrics: boolean;
@@ -25,9 +23,7 @@ export interface AppModelType {
   setAppReady: Action<AppModelType, boolean>;
   setAppState: Action<AppModelType, AppState>;
   setRequirePinOnOpen: Action<AppModelType, boolean>;
-  setAuthenticated: Action<AppModelType, boolean>;
   setLocked: Action<AppModelType, boolean>;
-  setSessionId: Action<AppModelType, string>;
   setActiveScreen: Action<AppModelType, Screens>;
   setMinAppVersion: Action<AppModelType, string | null>;
   setSupportedBiometryType: Action<AppModelType, BIOMETRY_TYPE | null>;
@@ -43,9 +39,7 @@ export const appModel: AppModelType = {
   appReady: false,
   appState: AppState.Active,
   requirePinOnOpen: false,
-  authenticated: false,
   locked: false,
-  sessionId: '',
   activeScreen: Screens.Main,
   supportedBiometryType: null,
   skippedBiometrics: false,
@@ -80,17 +74,11 @@ export const appModel: AppModelType = {
       appState,
     };
   }),
-  setAuthenticated: action((state, authenticated) => {
-    state.authenticated = authenticated;
-  }),
   setRequirePinOnOpen: action((state, requirePinOnOpen) => {
     state.requirePinOnOpen = requirePinOnOpen;
   }),
   setLocked: action((state, locked) => {
     state.locked = locked;
-  }),
-  setSessionId: action((state, sessionId) => {
-    state.sessionId = sessionId;
   }),
   setActiveScreen: action((state, activeScreen) => {
     state.activeScreen = activeScreen;

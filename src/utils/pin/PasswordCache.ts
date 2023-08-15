@@ -29,7 +29,6 @@ async function setCachedValue(cache: SecretCache, account: string, secret: strin
   const hashedSecret = await getPasswordHashForPin(secret!);
   cache[account].timestamp = Date.now();
   cache[account].secret = hashedSecret;
-  // attempt to save on disk
   mmkvStorage.setItem(StorageItem.pinCache, cache);
 }
 

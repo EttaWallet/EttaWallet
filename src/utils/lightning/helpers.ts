@@ -32,7 +32,7 @@ import {
   refreshWallet,
   updateFeeEstimates,
 } from '../wallet';
-import { getKeychainValue } from '../keychain';
+import { retrieveStoredKeychainItem } from '../keychain';
 import { InteractionManager } from 'react-native';
 import { connectToElectrum, subscribeToHeader } from '../electrum';
 import ldk from '@synonymdev/react-native-ldk/dist/ldk';
@@ -88,11 +88,11 @@ export const getMnemonicPhrase = async (selectedWallet?: TWalletName): Promise<R
     if (!selectedWallet) {
       selectedWallet = getSelectedWallet();
     }
-    const response = await getKeychainValue({ key: selectedWallet });
-    if (response.error) {
-      return err(response.data);
+    const response = await retrieveStoredKeychainItem(selectedWallet);
+    if (!response) {
+      return err('mnemonic not found');
     }
-    return ok(response.data);
+    return ok(response);
   } catch (e) {
     return err(e);
   }

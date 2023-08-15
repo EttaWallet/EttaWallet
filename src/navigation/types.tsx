@@ -13,7 +13,6 @@ export type StackParamList = {
     withVerification?: boolean;
     onSuccess: (pin: string) => void;
     onCancel: () => void;
-    account?: string;
   };
   [Screens.SetPinScreen]:
     | {

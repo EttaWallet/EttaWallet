@@ -6,7 +6,7 @@ import { err, ok, Result } from './result';
 import store from '../state/store';
 import { TContact, TLightningPayment } from './types';
 import { showErrorBanner, showSuccessBanner } from './alerts';
-import { removePinFromKeyChain, wipeEntireKeychain } from './keychain';
+import { wipeEntireKeychain } from './keychain';
 import { wipeLdkStorage } from './lightning/helpers';
 import mmkvStorage from '../storage/disk';
 import RNRestart from 'react-native-restart';
@@ -296,7 +296,7 @@ export const wipeEttaWallet = async ({
 } = {}): Promise<Result<string>> => {
   try {
     // Reset everything else
-    await Promise.all([removePinFromKeyChain(), wipeEntireKeychain(), wipeLdkStorage({})]);
+    await Promise.all([wipeEntireKeychain(), wipeLdkStorage({})]);
 
     // Reset stores & persisted storage
     mmkvStorage.clearStorage();

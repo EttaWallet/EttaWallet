@@ -36,7 +36,9 @@ const SecuritySettingsScreen = ({ navigation }) => {
         await removeStoredPin();
         dispatch.nuxt.setPincodeType(PinType.Custom);
       }
-    } catch (e) {}
+    } catch (e) {
+      console.log('Error toggling biometric security');
+    }
   };
 
   const onPressChangePin = () => {

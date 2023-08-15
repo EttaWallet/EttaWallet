@@ -37,8 +37,8 @@ export const styles = StyleSheet.create({
 export const initNavigationOptions: NativeStackNavigationOptions = {
   headerShown: true,
   headerTransparent: true,
-  // Prevents double back button on Android
-  headerBackTitleVisible: false,
+  // // Prevents double back button on Android
+  // headerBackTitleVisible: false,
   headerBackVisible: false,
   headerLeft: ({ canGoBack }) => (canGoBack ? <BackButton /> : <View />),
   headerRight: () => <View />,

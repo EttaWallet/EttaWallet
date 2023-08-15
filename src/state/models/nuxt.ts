@@ -50,8 +50,8 @@ export const nuxtModel: NuxtModelType = {
       lastUpdated: updated,
     };
   }),
-  setPincodeType: action((state, pincodeType) => {
-    state.pincodeType = pincodeType;
+  setPincodeType: action((state, payload) => {
+    state.pincodeType = payload;
   }),
   setBackupCompleted: action((state, backupCompleted) => {
     state.backupCompleted = backupCompleted;

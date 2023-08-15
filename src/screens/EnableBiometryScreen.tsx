@@ -9,15 +9,13 @@ import { Screens } from '../navigation/Screens';
 import type { StackParamList } from '../navigation/types';
 import { setPincodeWithBiometry } from '../utils/pin/auth';
 import { isUserCancelledError } from '../utils/keychain';
-import Logger from '../utils/logger';
 import { Button, Colors, TypographyPresets } from 'etta-ui';
 import { useStoreDispatch, useStoreState } from '../state/hooks';
 import SkipButton from '../navigation/components/SkipButton';
-import { PinType } from '../utils/types';
 import { BIOMETRY_TYPE } from 'react-native-keychain';
 import { Face, FaceID, Fingerprint } from '../icons';
-
-const TAG = 'EnableBiometry';
+import { showErrorBanner } from '../utils/alerts';
+import { PinType } from '../utils/types';
 
 type Props = NativeStackScreenProps<StackParamList, Screens.EnableBiometryScreen>;
 
@@ -49,27 +47,26 @@ export const EnableBiometry = ({ navigation }: Props) => {
     if (choseRestoreWallet) {
       navigate(Screens.RestoreWalletScreen);
     } else if (nodeIsUp === false) {
-      // proceed to launch LDK node
       navigate(Screens.StartLdkScreen);
     } else {
       navigate(Screens.WalletHomeScreen);
     }
-    return;
   };
 
   const onPressUseBiometry = async () => {
     try {
-      const response = await setPincodeWithBiometry();
-      if (response.isOk()) {
-        dispatch.nuxt.setPincodeType(PinType.Device);
-        // @issue: state keeps reverting to false on reload
-        dispatch.app.setEnabledBiometrics(true);
-      }
+      dispatch.app.setEnabledBiometrics(true);
+      await setPincodeWithBiometry();
+      dispatch.nuxt.setPincodeType(PinType.Device);
       handleNavigateToNextScreen();
     } catch (error: any) {
       if (!isUserCancelledError(error)) {
-        Logger.error(TAG, 'Error enabling biometry', error);
+        showErrorBanner({
+          title: 'Biometry error',
+          message: error,
+        });
       }
+      console.log('@EnableBiometryScreenError: ', error.message);
     }
   };
 

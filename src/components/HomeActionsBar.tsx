@@ -19,7 +19,7 @@ export default function HomeActionsBar(props: Props) {
     if (props.onPressSend) {
       props.onPressSend?.();
     } else {
-      navigate(Screens.LightningChannelsIntroScreen);
+      navigate(Screens.EnterAnythingScreen);
     }
   };
 

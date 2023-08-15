@@ -75,7 +75,6 @@ export interface LightningNodeModelType {
   setDefaultPRDescription: Action<LightningNodeModelType, string>;
   setDefaultPRExpiry: Action<LightningNodeModelType, number>;
   setNodeId: Action<LightningNodeModelType, string>;
-  setNodeStarted: Action<LightningNodeModelType, boolean>;
   startLdk: Thunk<LightningNodeModelType>;
   setLdkState: Action<LightningNodeModelType, NodeState>;
   setLdkVersion: Action<LightningNodeModelType, TLightningNodeVersion>;
@@ -149,9 +148,6 @@ export const lightningModel: LightningNodeModelType = {
     if (payload === NodeState.COMPLETE) {
       state.nodeStarted = true;
     }
-  }),
-  setNodeStarted: action((state, payload) => {
-    state.nodeStarted = payload;
   }),
   addInvoice: action((state, payload) => {
     state.invoices.push(payload);

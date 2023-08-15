@@ -1,35 +1,31 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PinType } from '../utils/types';
 import i18n from '../i18n';
 import {
   HeaderTitleWithSubtitle,
   initNavigationOptions,
   initOnboardingNavigationOptions,
 } from '../navigation/Headers';
-import { navigate, navigateClearingStack, popToScreen } from '../navigation/NavigationService';
+import { navigate, popToScreen } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import type { StackParamList } from '../navigation/types';
 import { DEFAULT_CACHE_ACCOUNT, isPinValid, updatePin } from '../utils/pin/auth';
 import { getCachedPin, setCachedPin } from '../utils/pin/PasswordCache';
-import Logger from '../utils/logger';
-import { useStoreState } from '../state/hooks';
+import { useStoreDispatch, useStoreState } from '../state/hooks';
 import { Colors } from 'etta-ui';
 import type { RouteProp } from '@react-navigation/core';
-import { Pincode } from '../components/pincode'; // revert to etta component after merging changes
-import { setPinInKeyChain } from '../utils/keychain';
-import { useStoreDispatch } from '../state/hooks';
+import { Pincode } from '../components/pincode';
 import { showErrorBanner, showSuccessBanner } from '../utils/alerts';
 import { cueErrorHaptic, cueSuccessHaptic } from '../utils/accessibility/haptics';
+import { PinType } from '../utils/types';
 
 type ScreenProps = NativeStackScreenProps<StackParamList, Screens.SetPinScreen>;
 
-const SetPinScreen = ({ route }: ScreenProps) => {
+const SetPinScreen = ({ route, navigation }: ScreenProps) => {
   const { t } = useTranslation();
-  const dispatch = useStoreDispatch();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [oldPin, setOldPin] = useState<string>('');
   const [pin1, setPin1] = useState<string>('');
@@ -42,9 +38,29 @@ const SetPinScreen = ({ route }: ScreenProps) => {
   const supportedBiometryType = useStoreState((state) => state.app.supportedBiometryType);
   const skippedBiometrics = useStoreState((state) => state.app.skippedBiometrics);
   const enabledBiometrics = useStoreState((state) => state.app.biometricsEnabled);
-  // dispatch action from rootState
-  const setPinType = dispatch.nuxt.setPincodeType;
   const nodeIsUp = useStoreState((state) => state.lightning.nodeStarted);
+  const pincodeType = useStoreState((state) => state.nuxt.pincodeType);
+
+  const changePin = route.params?.changePin;
+
+  const dispatch = useStoreDispatch();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => {
+        let title = i18n.t('pincode.create');
+        if (changePin) {
+          title = i18n.t('pincode.changePIN');
+        }
+        return <HeaderTitleWithSubtitle title={title} />;
+      },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const isChangingPin = () => {
+    return changePin;
+  };
 
   useEffect(() => {
     if (isChangingPin()) {
@@ -52,10 +68,6 @@ const SetPinScreen = ({ route }: ScreenProps) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const isChangingPin = () => {
-    return route.params?.changePin;
-  };
 
   const navigateToNextScreen = () => {
     if (isChangingPin()) {
@@ -72,8 +84,6 @@ const SetPinScreen = ({ route }: ScreenProps) => {
     } else if (nodeIsUp === false) {
       // proceed to launch LDK node
       navigate(Screens.StartLdkScreen);
-    } else {
-      navigateClearingStack(Screens.WalletHomeScreen);
     }
   };
 
@@ -113,7 +123,6 @@ const SetPinScreen = ({ route }: ScreenProps) => {
       if (isChangingPin()) {
         const updated = await updatePin(pin2);
         if (updated) {
-          Logger.showMessage(t('pinChanged'));
           cueSuccessHaptic();
           showSuccessBanner({
             message: 'PIN changed successfully',
@@ -123,17 +132,17 @@ const SetPinScreen = ({ route }: ScreenProps) => {
           showErrorBanner({
             message: 'Could not change your PIN',
           });
-          Logger.showMessage(t('pinChangeFailed'));
         }
       } else {
-        setPinType(PinType.Custom);
         setCachedPin(DEFAULT_CACHE_ACCOUNT, pin1);
-        await setPinInKeyChain(pin1);
+        // temporary fix for weird bug that keeps returning to change state to custom
+        if (pincodeType === PinType.Unset) {
+          dispatch.nuxt.setPincodeType(PinType.Custom);
+          console.log('@setpinscreen: set pintype to custom');
+        }
       }
       navigateToNextScreen();
     } else {
-      if (isChangingPin()) {
-      }
       setIsVerifying(false);
       setPin1('');
       setPin2('');
@@ -144,7 +153,7 @@ const SetPinScreen = ({ route }: ScreenProps) => {
   const changingPin = isChangingPin();
 
   return (
-    <SafeAreaView style={changingPin ? styles.changePinContainer : styles.container}>
+    <SafeAreaView style={styles.container}>
       {isVerifying ? (
         <Pincode
           title={changingPin ? undefined : t('pincode.guideConfirm')!}
@@ -174,16 +183,7 @@ SetPinScreen.navigationOptions = ({
   route: RouteProp<StackParamList, Screens.SetPinScreen>;
 }) => {
   const changePin = route.params?.changePin;
-  return {
-    ...(changePin ? initNavigationOptions : initOnboardingNavigationOptions),
-    headerTitle: () => {
-      let title = i18n.t('pincode.create');
-      if (changePin) {
-        title = i18n.t('pincode.changePIN');
-      }
-      return <HeaderTitleWithSubtitle title={title} />;
-    },
-  };
+  changePin ? initNavigationOptions : initOnboardingNavigationOptions;
 };
 
 const styles = StyleSheet.create({
@@ -192,11 +192,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.common.white,
     justifyContent: 'center',
     marginBottom: 40,
-  },
-  changePinContainer: {
-    flex: 1,
-    backgroundColor: Colors.common.white,
-    justifyContent: 'space-between',
   },
 });
 

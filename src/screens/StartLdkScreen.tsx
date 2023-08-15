@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { noHeader } from '../navigation/Headers';
-import { navigateHome } from '../navigation/NavigationService';
+import { navigate } from '../navigation/NavigationService';
 import LottieView from 'lottie-react-native';
 import { NodeState } from '../utils/types';
 import { Button, Colors, Icon, TypographyPresets } from 'etta-ui';
@@ -22,6 +22,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { showToast } from '../utils/alerts';
 import { pressableHitSlop } from '../utils/helpers';
 import { verticalScale } from '../utils/sizing';
+import { Screens } from '../navigation/Screens';
 
 export function StartLdkScreen() {
   const ldkState = useStoreState((state) => state.lightning.ldkState);
@@ -32,16 +33,15 @@ export function StartLdkScreen() {
   const onPressStart = useCallback(() => {
     cueInformativeHaptic();
     if (!nodeStarted) {
-      startNode().then();
+      startNode();
+    } else {
+      cueSuccessHaptic();
     }
-    return;
+    // return;
   }, [nodeStarted]);
 
   const onPressDone = () => {
-    cueSuccessHaptic();
-    requestAnimationFrame(() => {
-      navigateHome();
-    });
+    navigate(Screens.WalletHomeScreen);
   };
 
   const onPressCopy = () => {
@@ -121,7 +121,7 @@ export function StartLdkScreen() {
             <Text style={styles.subText}>Node ID</Text>
             <TouchableOpacity onPress={onPressCopy} hitSlop={pressableHitSlop}>
               <View style={styles.nodeIdBox}>
-                <Text>{nodeId}</Text>
+                <Text style={styles.nodeId}>{nodeId}</Text>
                 <Text style={styles.copy}>Tap to copy</Text>
               </View>
             </TouchableOpacity>
@@ -239,6 +239,9 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: Colors.neutrals.light.neutral3,
     padding: 16,
+  },
+  nodeId: {
+    textAlign: 'center',
   },
   copy: {
     ...TypographyPresets.Body5,
