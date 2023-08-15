@@ -352,7 +352,7 @@ const useContactsBottomSheet = (addressProps: Props) => {
           />
 
           <InputAnything
-            label={'Enter valid invoice or lightning address'}
+            label={'Enter valid lightning address, lnurlp, lnurlw, BOLT11 invoice'}
             status={inputStatus}
             inputValue={newAddress}
             inputPlaceholder={''}

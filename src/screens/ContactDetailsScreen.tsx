@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { headerWithBackButton } from '../navigation/Headers';
 import { StackParamList } from '../navigation/types';
 import { Screens } from '../navigation/Screens';
@@ -18,6 +18,8 @@ import store from '../state/store';
 import { useStoreState } from '../state/hooks';
 import { SettingsItemWithTextValue } from '../components/InfoListItem';
 import { cueInformativeHaptic } from '../utils/accessibility/haptics';
+import { processInputData } from '../utils/lightning/decode';
+import { showErrorBanner } from '../utils/alerts';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ContactDetailScreen>;
 type Props = RouteProps;
@@ -48,6 +50,7 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
   );
   const [newAvatarUri, setNewAvatarUri] = useState(contact?.avatarUri);
   const [currentAddresses, setCurrentAddresses] = useState<TIdentifier[]>([]);
+  const [isValidating, setIsValidating] = useState(null);
 
   const {
     openAddAddressSheet,
@@ -98,22 +101,6 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
     setCurrentAddresses(allAddresses);
   }, [contact]);
 
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     async function validateAddress() {
-  //       const parsedInput = await parseInputAddress(newAddress);
-  //       if (parsedInput?.data === 'Lightning address') {
-  //         setValidationMsg('Lightning address');
-  //       }
-  //     }
-  //     setIsValidating(true);
-  //     validateAddress();
-  //     setIsValidating(false);
-  //   }, 1500); // Set the desired delay in milliseconds (e.g., 500ms)
-
-  //   return () => clearTimeout(timer);
-  // }, [newAddress]);
-
   /**
    * This method takes the address string from the identifier and masks
    * it if necessary. Useful if string too long to fit <Text>
@@ -127,8 +114,24 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
     return address;
   };
 
-  const onPressSend = (identifier: string) => {
-    console.log(`pressed send for ${identifier}`);
+  const onPressSend = async (identifier) => {
+    setIsValidating(identifier);
+    const result = await processInputData({
+      data: identifier,
+      showErrors: true,
+    });
+
+    if (result.isOk()) {
+      setIsValidating(null);
+    }
+
+    if (result.isErr()) {
+      showErrorBanner({
+        title: 'Invalid input',
+        message: "Can't process this address. Please verify that it's valid",
+      });
+      setIsValidating(null);
+    }
   };
 
   const IdentifiersList = ({ addresses }) => (
@@ -140,6 +143,14 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
             <Text style={styles.identifier}>{formatAddress(identifier.address)}</Text>
           </View>
           <View style={styles.row}>
+            {isValidating === identifier.address && (
+              <ActivityIndicator
+                key={index}
+                size="small"
+                color={Colors.orange.base}
+                style={{ paddingRight: 5 }}
+              />
+            )}
             <TouchableOpacity
               style={styles.sendIconContainer}
               hitSlop={pressableHitSlop}
@@ -304,8 +315,8 @@ const styles = StyleSheet.create({
   sendIconContainer: {
     alignSelf: 'center',
     justifyContent: 'center',
-    width: 36,
-    height: 36,
+    width: 30,
+    height: 30,
     borderRadius: 50,
     backgroundColor: Colors.blue.base,
   },
