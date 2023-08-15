@@ -28,13 +28,13 @@ function TopHeader({ middleElement, leftElement, scrollPosition, onPressLogo }: 
     [scrollPosition]
   );
 
-  // const onPressHamburger = () => {
-  //   console.log('pressed etta logo');
-  // };
-
   return (
     <Animated.View style={viewStyle}>
-      <TouchableOpacity style={styles.hamburger} onPress={onPressLogo} hitSlop={pressableHitSlop}>
+      <TouchableOpacity
+        style={styles.rightElement}
+        onPress={onPressLogo}
+        hitSlop={pressableHitSlop}
+      >
         {/* <Hamburger /> */}
         <Logo height={32} />
       </TouchableOpacity>
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexShrink: 1,
   },
-  hamburger: {
+  rightElement: {
     position: 'absolute',
     right: 0,
     padding: 0,

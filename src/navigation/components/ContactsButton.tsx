@@ -28,7 +28,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   icon: {
-    paddingRight: 8,
     fontSize: 36,
   },
 });
