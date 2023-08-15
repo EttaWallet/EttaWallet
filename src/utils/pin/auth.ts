@@ -90,7 +90,7 @@ function storePinWithBiometry(pin: string) {
 export const removeStoredPin = async (): Promise<void> => {
   // remove PIN in storage
   removeStoredItem(PIN_STORAGE_KEY);
-  resetKeychainValue({ key: 'pin' });
+  resetKeychainValue({ key: PIN_STORAGE_KEY });
   // mark Pin unset
   store.dispatch.nuxt.setPincodeType(PinType.Unset);
 };
