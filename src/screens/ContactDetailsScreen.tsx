@@ -11,8 +11,12 @@ import { Button, Colors, Icon, TypographyPresets } from 'etta-ui';
 import SectionTitle from '../components/SectionTitle';
 import { TContact, TIdentifier } from '../utils/types';
 import FormLabel from '../components/form/Label';
-import { maskString, pressableHitSlop } from '../utils/helpers';
-import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import { maskString } from '../utils/helpers';
+import {
+  ScrollView,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+} from 'react-native-gesture-handler';
 import useContactsBottomSheet from '../components/useContactsBottomSheet';
 import store from '../state/store';
 import { useStoreState } from '../state/hooks';
@@ -114,7 +118,7 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
     return address;
   };
 
-  const onPressSend = async (identifier) => {
+  const onPressIdentifier = async (identifier) => {
     setIsValidating(identifier);
     const result = await processInputData({
       data: identifier,
@@ -137,29 +141,26 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
   const IdentifiersList = ({ addresses }) => (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       {addresses.map((identifier: TIdentifier, index) => (
-        <View key={index} style={styles.addressRow}>
-          <View>
-            <FormLabel style={styles.identifierLabel}>{identifier.label}</FormLabel>
-            <Text style={styles.identifier}>{formatAddress(identifier.address)}</Text>
+        <TouchableWithoutFeedback key={index} onPress={() => onPressIdentifier(identifier.address)}>
+          <View style={styles.addressRow}>
+            <View>
+              <FormLabel style={styles.identifierLabel}>{identifier.label}</FormLabel>
+              <Text style={styles.identifier}>{formatAddress(identifier.address)}</Text>
+            </View>
+            <View style={styles.row}>
+              {isValidating === identifier.address && (
+                <ActivityIndicator
+                  size="small"
+                  color={Colors.orange.base}
+                  style={{ paddingRight: 5 }}
+                />
+              )}
+              <View style={styles.sendIconContainer}>
+                <Icon name="icon-arrow-up" style={styles.icon} />
+              </View>
+            </View>
           </View>
-          <View style={styles.row}>
-            {isValidating === identifier.address && (
-              <ActivityIndicator
-                key={index}
-                size="small"
-                color={Colors.orange.base}
-                style={{ paddingRight: 5 }}
-              />
-            )}
-            <TouchableOpacity
-              style={styles.sendIconContainer}
-              hitSlop={pressableHitSlop}
-              onPress={() => onPressSend(identifier.address)}
-            >
-              <Icon name="icon-arrow-up" style={styles.icon} />
-            </TouchableOpacity>
-          </View>
-        </View>
+        </TouchableWithoutFeedback>
       ))}
     </ScrollView>
   );
