@@ -180,12 +180,21 @@ export const lightningModel: LightningNodeModelType = {
   updateChannels: action((state, payload) => {
     state.channels = {
       ...state.channels,
-      ...(payload?.channels ?? {}),
+      ...(payload.channels ?? {}),
     };
-    // check if channel already exists in openChannelIDs array
-    const newChannelIds = payload?.openChannelIds ?? [];
-    const uniqueIds = newChannelIds.filter((id) => !state.openChannelIds.includes(id));
+
+    const newChannelIds = payload.openChannelIds ?? [];
+    const existingIdsSet = new Set(state.openChannelIds);
+    const uniqueIds = newChannelIds.filter((id) => !existingIdsSet.has(id));
     state.openChannelIds = [...state.openChannelIds, ...uniqueIds];
+
+    if (payload.channels && Object.keys(payload.channels).length === 0) {
+      state.channels = {};
+    }
+
+    if (payload.openChannelIds && payload.openChannelIds.length === 0) {
+      state.openChannelIds = [];
+    }
   }),
   updateClaimableBalance: action((state, payload) => {
     state.claimableBalance = payload;
