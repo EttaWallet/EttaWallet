@@ -47,6 +47,7 @@ const EnterAnythingScreen = ({ navigation }) => {
     });
 
     if (result.isOk()) {
+      inputStatus = InputStatus.Accepted;
       setIsProcessing(false);
     }
 
@@ -55,6 +56,7 @@ const EnterAnythingScreen = ({ navigation }) => {
         title: 'Error',
         message: result.error.message,
       });
+      inputStatus = InputStatus.Error;
       setIsProcessing(false);
     }
   };

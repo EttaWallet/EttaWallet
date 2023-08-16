@@ -99,7 +99,7 @@ export const processTransactionData = async ({
       if (requestedAmount) {
         error = {
           title: `${requestedAmount} more sats needed`,
-          message: `You can't afford this invoice. You have ${spendableBalance} only`,
+          message: `You can't afford this invoice. You have ${spendableBalance} sats only`,
         };
       } else {
         error = {
