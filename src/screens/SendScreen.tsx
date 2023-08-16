@@ -42,6 +42,7 @@ const getReadableSendingError = (errorFound) => {
       'Sorry, the problem could not be identified. Your funds remain securely in your wallet.',
     invoice_payment_fail_must_specify_amount: 'The payment request does not have an amount',
     invoice_payment_fail_routing: 'No route hints were found in the payment request',
+    'No usable channels found': 'No usable channels found',
   };
 
   if (Object.prototype.hasOwnProperty.call(SendingErrorEnum, errorFound)) {
@@ -67,6 +68,7 @@ const SendScreen = ({ route }: Props) => {
         return;
       }
       const decodeResponse = await decodeLightningInvoice({ paymentRequest: paymentRequest });
+      console.log('decodeResponse: ', decodeResponse);
       if (decodeResponse.isErr()) {
         return;
       }
@@ -115,6 +117,12 @@ const SendScreen = ({ route }: Props) => {
           navigate(Screens.TransactionErrorScreen, {
             errorMessage: getReadableSendingError(payInvoiceResponse.error.message),
             canRetry: false,
+            showSuggestions: true,
+          });
+        } else if (payInvoiceResponse.error.message === 'No usable channels found') {
+          navigate(Screens.TransactionErrorScreen, {
+            errorMessage: getReadableSendingError(payInvoiceResponse.error.message),
+            canRetry: true,
             showSuggestions: true,
           });
         } else {
@@ -182,7 +190,10 @@ const SendScreen = ({ route }: Props) => {
             ) : null}
             <InfoListItem
               title="Expires"
-              value={humanizeTimestamp(decodedInvoice?.timestamp, i18n)}
+              value={humanizeTimestamp(
+                decodedInvoice?.timestamp + decodedInvoice?.expiry_time,
+                i18n
+              )}
             />
           </>
         )}
