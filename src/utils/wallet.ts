@@ -83,9 +83,9 @@ export const getBip39Passphrase = async (selectedWallet?: TWalletName): Promise<
     const key = `${selectedWallet}passphrase`;
     const bip39PassphraseResult = await retrieveStoredKeychainItem(key);
     if (!bip39PassphraseResult) {
-      return bip39PassphraseResult!;
+      return '';
     }
-    return '';
+    return bip39PassphraseResult;
   } catch {
     return '';
   }
