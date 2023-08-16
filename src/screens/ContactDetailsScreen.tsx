@@ -119,6 +119,7 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
   };
 
   const onPressIdentifier = async (identifier) => {
+    cueInformativeHaptic();
     setIsValidating(identifier);
     const result = await processInputData({
       data: identifier,
@@ -131,8 +132,8 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
 
     if (result.isErr()) {
       showErrorBanner({
-        title: 'Invalid input',
-        message: "Can't process this address. Please verify that it's valid",
+        title: 'Unsupported',
+        message: "Can't process this identifier. Verify that it's valid",
       });
       setIsValidating(null);
     }
