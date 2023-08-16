@@ -52,8 +52,8 @@ const EnterAnythingScreen = ({ navigation }) => {
 
     if (result.isErr()) {
       showErrorBanner({
-        title: 'Invalid input',
-        message: "Can't process this identifier. Verify that it's valid",
+        title: 'Error',
+        message: result.error.message,
       });
       setIsProcessing(false);
     }

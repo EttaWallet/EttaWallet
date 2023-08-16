@@ -15,7 +15,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { processInputData } from '../utils/lightning/decode';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
-import { showErrorBanner, showInfoBanner, showWarningBanner } from '../utils/alerts';
+import { showErrorBanner, showInfoBanner } from '../utils/alerts';
 import RNQRGenerator from 'rn-qr-generator';
 import { launchImageLibrary } from 'react-native-image-picker';
 
@@ -77,9 +77,9 @@ const useSendBottomSheet = (sendProps: Props) => {
     });
 
     if (result.isErr()) {
-      showWarningBanner({
-        title: 'Invalid input',
-        message: "Can't process clipboard data. Please verify that it's valid",
+      showErrorBanner({
+        title: 'Error',
+        message: result.error.message,
       });
     }
   }, []);

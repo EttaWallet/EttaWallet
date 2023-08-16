@@ -767,7 +767,8 @@ export const getLightningChannels = (): Promise<Result<TChannel[]>> => {
 
 /**
  * Attempts to update the lightning channels for the given wallet and network.
- * This method will save all channels (both pending, open & closed) to redux and update openChannelIds to reference channels that are currently open.
+ * This method will save all channels (both pending, open & closed) to the local state store
+ * and update openChannelIds to reference channels that are currently open.
  * @param {TAvailableNetworks} [selectedNetwork]
  */
 export const updateLightningChannels = async (): Promise<Result<TChannel[]>> => {

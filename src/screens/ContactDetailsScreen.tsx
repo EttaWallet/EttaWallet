@@ -132,8 +132,8 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
 
     if (result.isErr()) {
       showErrorBanner({
-        title: 'Unsupported',
-        message: "Can't process this identifier. Verify that it's valid",
+        title: 'Error',
+        message: result.error.message,
       });
       setIsValidating(null);
     }
