@@ -88,9 +88,9 @@ const FullScreenBanner = ({
   const suggestions = {
     0: "Are you trying to pay an invoice you created? That won't work",
     1: 'Are you trying to pay an invoice that was already settled?',
-    2: 'Are you connected to the internet?',
-    3: 'Wait 2 minutes and try again',
-    4: 'Ask for support on Discord',
+    2: 'Ensure your internet connection is stable',
+    3: 'Wait 5 minutes and try again',
+    4: 'Ask for support in our Telegram channel',
   };
 
   return (

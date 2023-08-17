@@ -3,7 +3,12 @@ import { TAvailableNetworks } from '../networks';
 import { Result, err, ok } from '../result';
 import { EIdentifierType, ELightningDataType, IDecodedData, TDecodedInput } from '../types';
 import { getSelectedNetwork } from '../wallet';
-import { decodeLightningInvoice, getLightningStore, getTotalBalance } from './helpers';
+import {
+  decodeLightningInvoice,
+  getLightningStore,
+  getTotalBalance,
+  hasOpenLightningChannels,
+} from './helpers';
 import { navigate } from '../../navigation/NavigationService';
 import { Screens } from '../../navigation/Screens';
 import { showErrorBanner, showWarningBanner } from '../alerts';
@@ -41,6 +46,15 @@ export const processTransactionData = async ({
     let response;
     let error: { title: string; message: string } | undefined;
     let requestedAmount = 0;
+
+    if (!hasOpenLightningChannels()) {
+      navigate(Screens.TransactionErrorScreen, {
+        errorMessage: 'You have no receving or sending capacity',
+        canRetry: false,
+        showSuggestions: true,
+      });
+      return err('You have no receving or sending capacity');
+    }
 
     let { spendableBalance } = getTotalBalance({});
 
