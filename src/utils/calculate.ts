@@ -1,4 +1,4 @@
-import { VOLTAGE_LSP_FEE_ESTIMATE_API, VOLTAGE_LSP_PUBKEY } from '../../config';
+import { LSP_FEE_ESTIMATE_API, LSP_PUBKEY } from '../../config';
 import { showWarningBanner } from './alerts';
 import { getLightningStore, hasEnoughRemoteBalance } from './lightning/helpers';
 
@@ -11,14 +11,14 @@ export const estimateInvoiceFees = async (amountSats: number): Promise<number> =
 
   if (!hasEnoughRemoteBalance({ amountSats })) {
     try {
-      await fetch(VOLTAGE_LSP_FEE_ESTIMATE_API, {
+      await fetch(LSP_FEE_ESTIMATE_API, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           amount_msat: amountSats * 1000, // get amount in msats
-          pubkey: VOLTAGE_LSP_PUBKEY,
+          pubkey: LSP_PUBKEY,
         }),
       })
         .then((fees) => fees.json())

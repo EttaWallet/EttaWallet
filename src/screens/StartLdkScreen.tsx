@@ -23,7 +23,6 @@ import { showToast } from '../utils/alerts';
 import { pressableHitSlop } from '../utils/helpers';
 import { verticalScale } from '../utils/sizing';
 import { Screens } from '../navigation/Screens';
-
 export function StartLdkScreen() {
   const ldkState = useStoreState((state) => state.lightning.ldkState);
   const nodeStarted = useStoreState((state) => state.lightning.nodeStarted);
@@ -52,7 +51,20 @@ export function StartLdkScreen() {
     });
   };
 
-  const navigationButtons = useMemo(() => {
+  const update = useMemo(() => {
+    switch (ldkState) {
+      case NodeState.ERROR:
+        return null;
+      case NodeState.START:
+        return 'Starting your node ...';
+      case NodeState.COMPLETE:
+        return 'All set';
+      default:
+        return null;
+    }
+  }, [ldkState]);
+
+  const actionButtons = useMemo(() => {
     switch (ldkState) {
       case NodeState.OFFLINE:
         return (
@@ -63,12 +75,24 @@ export function StartLdkScreen() {
       case NodeState.ERROR:
         return (
           <View style={styles.buttonContainer}>
-            <Button title="Try again" onPress={() => 0} style={styles.button} />
+            <Button title="Try again" onPress={onPressStart} style={styles.button} />
             <Button
-              title="Restart EttaLN"
+              title="Restart EttaWallet"
               onPress={restartApp}
               appearance="outline"
               style={styles.button}
+            />
+          </View>
+        );
+      case NodeState.START:
+        return (
+          <View style={styles.buttonContainer}>
+            <Button
+              title="Proceed to wallet"
+              onPress={onPressDone}
+              appearance="filled"
+              style={styles.button}
+              disabled={!nodeStarted}
             />
           </View>
         );
@@ -100,10 +124,12 @@ export function StartLdkScreen() {
         );
       case NodeState.START:
         return (
-          <>
-            <Text style={styles.text}>Initializing</Text>
-            <Text style={styles.subText}>Starting your lightning node ...</Text>
-          </>
+          <View style={styles.section}>
+            <View style={styles.pendingContainer}>
+              <ActivityIndicator color={Colors.orange.light} size="small" />
+            </View>
+            <Text style={styles.sectionText}>{update}</Text>
+          </View>
         );
       case NodeState.ERROR:
         return (
@@ -117,10 +143,10 @@ export function StartLdkScreen() {
       case NodeState.COMPLETE:
         return (
           <>
-            <Text style={styles.text}>Your node is ready</Text>
-            <Text style={styles.subText}>Node ID</Text>
+            <Text style={styles.text}>All set!</Text>
             <TouchableOpacity onPress={onPressCopy} hitSlop={pressableHitSlop}>
               <View style={styles.nodeIdBox}>
+                <Text style={styles.subText}>Node ID</Text>
                 <Text style={styles.nodeId}>{nodeId}</Text>
                 <Text style={styles.copy}>Tap to copy</Text>
               </View>
@@ -140,7 +166,16 @@ export function StartLdkScreen() {
           </View>
         );
       case NodeState.START:
-        return <ActivityIndicator color={Colors.orange.light} size="large" />;
+        return (
+          <View style={styles.lottieContainer}>
+            <LottieView
+              style={styles.lottieIcon}
+              source={require('../../assets/lottie/starting.json')}
+              autoPlay={true}
+              loop={true}
+            />
+          </View>
+        );
       case NodeState.ERROR:
         return (
           <View style={styles.errorIconContainer}>
@@ -167,12 +202,12 @@ export function StartLdkScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.safeAreaView}>
+    <SafeAreaView style={styles.safeAreaView} edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <View>{stateIcon}</View>
         {stateDisplay}
       </ScrollView>
-      {navigationButtons}
+      {actionButtons}
     </SafeAreaView>
   );
 }
@@ -190,7 +225,6 @@ const styles = StyleSheet.create({
   },
   text: {
     ...TypographyPresets.Header4,
-    marginBottom: 16,
     textAlign: 'center',
   },
   subText: {
@@ -231,6 +265,15 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.red.base,
     marginBottom: 20,
   },
+  lottieContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 200,
+    height: 200,
+    borderRadius: 50,
+    backgroundColor: Colors.neutrals.light.neutral1,
+    marginBottom: 20,
+  },
   lottieIcon: {
     width: '40%',
     aspectRatio: 1,
@@ -239,6 +282,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: Colors.neutrals.light.neutral3,
     padding: 16,
+    marginTop: 24,
   },
   nodeId: {
     textAlign: 'center',
@@ -249,6 +293,40 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     color: Colors.neutrals.light.neutral7,
     textAlign: 'center',
+  },
+  section: {
+    flexDirection: 'row',
+    marginVertical: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sectionText: {
+    ...TypographyPresets.Body4,
+  },
+  closeIcon: {
+    fontSize: 20,
+  },
+  sectionIcon: {
+    fontSize: 24,
+    color: Colors.green.base,
+  },
+  sectionIconContainer: {
+    justifyContent: 'center',
+    width: 30,
+    height: 30,
+    borderRadius: 50,
+    alignItems: 'center',
+    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+    marginRight: 12,
+  },
+  pendingContainer: {
+    justifyContent: 'center',
+    width: 30,
+    height: 30,
+    borderRadius: 50,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 157, 0, 0.1)',
+    marginRight: 5,
   },
 });
 

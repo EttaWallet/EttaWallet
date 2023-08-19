@@ -7,7 +7,7 @@ import { Button, Colors, TypographyPresets } from 'etta-ui';
 import QRCode from 'react-native-qrcode-svg';
 import KeyboardAwareScrollView from '../components/keyboard/KeyboardInScrollView';
 import KeyboardSpacer from '../components/keyboard/KeyboardSpacer';
-import { VOLTAGE_LSP_API_TESTNET, VOLTAGE_LSP_FEE_ESTIMATE_API } from '../../config';
+import { LSP_API, LSP_FEE_ESTIMATE_API } from '../../config';
 import InvoiceActionsBar from '../components/InvoiceActionsBar';
 import { Screens } from '../navigation/Screens';
 import { StackParamList } from '../navigation/types';
@@ -57,7 +57,7 @@ const JITLiquidityScreen = ({ navigation, route }: Props) => {
     // get wrapped invoice
     setIsLoading(true);
     try {
-      await fetch(VOLTAGE_LSP_API_TESTNET, {
+      await fetch(LSP_API, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ const JITLiquidityScreen = ({ navigation, route }: Props) => {
 
   const estimateFees = async () => {
     try {
-      await fetch(VOLTAGE_LSP_FEE_ESTIMATE_API, {
+      await fetch(LSP_FEE_ESTIMATE_API, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

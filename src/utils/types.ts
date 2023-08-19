@@ -268,6 +268,7 @@ export enum NodeState {
   OFFLINE = 'offline',
   ERROR = 'error',
   START = 'start',
+  NO_CHANNEL = 'no channel',
   COMPLETE = 'complete',
 }
 

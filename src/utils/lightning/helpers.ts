@@ -22,7 +22,14 @@ import Keychain from 'react-native-keychain';
 import { err, ok, Result } from '../result';
 import RNFS from 'react-native-fs';
 import mmkvStorage, { StorageItem } from '../../storage/disk';
-import { getNodeVersion, isLdkRunning, keepLdkSynced, refreshLdk, setupLdk } from '../../ldk';
+import {
+  getAllPendingChannels,
+  getNodeVersion,
+  isLdkRunning,
+  keepLdkSynced,
+  refreshLdk,
+  setupLdk,
+} from '../../ldk';
 import store from '../../state/store';
 import {
   createDefaultWallet,
@@ -42,8 +49,8 @@ import { reduceValue, sleep } from '../helpers';
 import { timeDeltaInDays } from '../time';
 import { transactionFeedHeader } from '../time';
 import i18n from '../../i18n';
-import { showWarningBanner } from '../alerts';
-import { VOLTAGE_LSP_API_TESTNET } from '../../../config';
+import { showErrorBanner, showWarningBanner } from '../alerts';
+import { CHANNEL_OPEN_DEPOSIT_SATS, FAUCET_API, FAUCET_MACAROON, LSP_API } from '../../../config';
 import Logger from '../logger';
 import { getMaxRemoteBalance } from '../calculate';
 
@@ -239,7 +246,7 @@ export const createLightningInvoice = async ({
     // dispath action to add invoice to state object
     Logger.info('No open lightning channels found');
     await sleep(1000);
-    await fetch(VOLTAGE_LSP_API_TESTNET, {
+    await fetch(LSP_API!, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -284,7 +291,7 @@ export const createLightningInvoice = async ({
     // if no, generate normal invoice, send to LSP, calculate fees and return wrapped invoice + fees
     // dispath action to add invoice to state object
     await sleep(1000);
-    await fetch(VOLTAGE_LSP_API_TESTNET, {
+    await fetch(LSP_API!, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1044,4 +1051,92 @@ export const getContact = ({ contactId }: { contactId: string }): Result<TContac
   } catch (e) {
     return err(e.message);
   }
+};
+
+/**
+ * Automatically open channel for user.
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<string>}
+ */
+export const openLightningChannel = async ({
+  selectedNetwork,
+}: {
+  selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string>> => {
+  if (!selectedNetwork) {
+    selectedNetwork = getSelectedNetwork();
+  }
+
+  try {
+    const invoice = await createLightningInvoice({
+      amountSats: CHANNEL_OPEN_DEPOSIT_SATS,
+      description: '',
+      expiryDeltaSeconds: 3600,
+    });
+
+    if (invoice.isErr()) {
+      console.log(invoice.error.message);
+      // return err(invoice.error.message);
+    }
+    await sleep(5000);
+    // attempt paying invoice via faucet
+    payInvoiceWithFaucet({
+      bolt11: invoice.value.to_str,
+    })
+      .then(async (paymentHash) => {
+        console.log('Payment successful:', paymentHash);
+        // check if channel exists or retry
+        const pendingChannels = await getAllPendingChannels({ fromStorage: false });
+        if (pendingChannels.isErr()) {
+          return err('No pending channels');
+        }
+        return ok('new channel created');
+      })
+      .catch((error) => {
+        return err(error.message);
+      });
+  } catch (e) {
+    showErrorBanner({
+      title: 'Channel creation failed',
+      message: e.message,
+    });
+  }
+};
+
+export const payInvoiceWithFaucet = async ({
+  bolt11,
+}: {
+  bolt11?: string;
+}): Promise<Result<string>> => {
+  const headers = {
+    'Grpc-Metadata-macaroon': FAUCET_MACAROON!,
+    'Content-Type': 'application/json',
+  };
+
+  interface PayInvoiceResponse {
+    payment_error: string;
+    payment_hash: string;
+  }
+
+  const body = JSON.stringify({
+    payment_request: bolt11,
+  });
+
+  const response = await fetch(`${FAUCET_API}/v1/channels/transactions`, {
+    method: 'POST',
+    headers: headers,
+    body: body,
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Payment failed with status ${response.status}: ${text}`);
+  }
+
+  const data: PayInvoiceResponse = await response.json();
+  if (data.payment_error) {
+    throw new Error(`Payment failed with error: ${data.payment_error}`);
+  }
+
+  return data.payment_hash;
 };
