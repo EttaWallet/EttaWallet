@@ -70,10 +70,10 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: 40,
-    paddingHorizontal: 16,
+    marginHorizontal: 24,
   },
   title: {
-    ...TypographyPresets.Header1,
+    ...TypographyPresets.Header3,
     marginTop: topMargin,
   },
   disclaimer: {
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: MARGIN,
-    marginHorizontal: 16,
+    marginHorizontal: 24,
     justifyContent: 'center',
   },
 });
