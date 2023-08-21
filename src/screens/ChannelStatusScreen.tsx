@@ -13,6 +13,7 @@ import { TChannel } from '@synonymdev/react-native-ldk';
 import {
   addPeers,
   createLightningInvoice,
+  decodeLightningInvoice,
   getLightningChannels,
   getLightningStore,
   hasOpenLightningChannels,
@@ -143,20 +144,27 @@ export function ChannelStatusScreen(props: RouteProps) {
             // this finds the new invoice object
             await sleep(3000);
             const invoiceStore = getLightningStore().invoices;
-            // @todo: this complex function will always return an invoice, either from the LSP
+            // this complex function will always return an invoice, either from the LSP
             // or from the mobile node. 'generate' needs to fail in the event that the mobile node
             // returns the invoice instead of the LSP
             const newInvoice = invoiceStore.filter(
-              (inv) =>
-                inv.payment_hash === invoiceRes.value.payment_hash &&
-                inv.payee_pub_key === LSP_PUBKEY
+              (inv) => inv.payment_hash === invoiceRes.value.payment_hash
             );
             if (newInvoice.length > 0) {
-              setInvoice(newInvoice[0].to_str);
-              updateIsSuccess('generate', true);
-              updateIsLoading('generate', false);
-              if (isMountedRef.current) {
-                await payLSPInvoice({ bolt11: newInvoice[0].to_str });
+              const decodeResponse = await decodeLightningInvoice({
+                paymentRequest: newInvoice[0].to_str,
+              });
+              if (decodeResponse.isErr()) {
+                return;
+              }
+              if (decodeResponse.value.payee_pub_key === LSP_PUBKEY) {
+                setInvoice(decodeResponse.value.to_str);
+                updateIsSuccess('generate', true);
+                updateIsLoading('generate', false);
+                await sleep(3000);
+                if (isMountedRef.current) {
+                  await payLSPInvoice({ bolt11: decodeResponse.value.to_str });
+                }
               }
             } else {
               updateIsLoading('generate', false);
