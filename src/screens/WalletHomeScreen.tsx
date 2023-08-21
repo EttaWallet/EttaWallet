@@ -17,7 +17,11 @@ import { Colors, Icon, TypographyPresets } from 'etta-ui';
 import ContactsButton from '../navigation/components/ContactsButton';
 import { moderateScale, scale, verticalScale } from '../utils/sizing';
 import { isLdkRunning, refreshLdk, waitForLdk } from '../ldk';
-import { countRecentTransactions, startLightning } from '../utils/lightning/helpers';
+import {
+  countRecentTransactions,
+  hasOpenLightningChannels,
+  startLightning,
+} from '../utils/lightning/helpers';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import useSendBottomSheet from '../components/useSendBottomSheet';
@@ -141,7 +145,13 @@ const WalletHomeScreen = () => {
 
   const onPressRequest = () => {
     cueInformativeHaptic();
-    navigate(Screens.EnterAmountScreen);
+    // check if open channels exist, if yes, proceed,
+    // if no, start channel opening process
+    if (hasOpenLightningChannels()) {
+      navigate(Screens.EnterAmountScreen);
+    } else {
+      navigate(Screens.LightningChannelsIntroScreen);
+    }
   };
 
   return (

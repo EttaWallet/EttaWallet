@@ -92,14 +92,12 @@ const WelcomeScreen = () => {
           appearance="filled"
           onPress={createWalletHandler}
           disabled={creatingWallet}
-          size="large"
         />
         <Button
           style={[styles.button, { marginTop: 5 }]}
           title={t('welcome.restoreWallet')}
           appearance="transparent"
           onPress={restoreWalletHandler}
-          size="large"
         />
       </View>
       <View style={styles.footer}>
@@ -124,18 +122,19 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     justifyContent: 'center',
     marginBottom: 20,
+    marginHorizontal: 16,
   },
   appName: {
-    ...TypographyPresets.Header1,
+    ...TypographyPresets.Header2,
     textAlign: 'center',
     color: Colors.common.black,
-    marginTop: 30,
-    marginBottom: 15,
+    marginTop: 20,
   },
   subtitle: {
-    ...TypographyPresets.Body2,
+    ...TypographyPresets.Body3,
     textAlign: 'center',
     color: Colors.neutrals.light.neutral7,
+    width: '80%',
   },
   button: {
     justifyContent: 'center',

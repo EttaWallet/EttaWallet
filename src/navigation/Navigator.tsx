@@ -125,6 +125,16 @@ const walletScreens = (Navigator: typeof Stack) => {
         options={ScanQRCodeScreen.navigationOptions as NativeStackNavigationOptions}
       />
       <Navigator.Screen
+        name={Screens.ChannelStatusScreen}
+        component={ChannelStatusScreen}
+        options={ChannelStatusScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
+        name={Screens.LightningChannelsIntroScreen}
+        component={LightningChannelsIntroScreen}
+        options={LightningChannelsIntroScreen.navigationOptions as NativeStackNavigationOptions}
+      />
+      <Navigator.Screen
         name={Screens.ActivityScreen}
         component={ActivityScreen}
         options={ActivityScreen.navigationOptions as NativeStackNavigationOptions}
@@ -291,7 +301,7 @@ const modalAnimatedScreens = (Navigator: typeof Stack) => (
       component={CurrencyChooserScreen}
       options={CurrencyChooserScreen.navigationOptions as NativeStackNavigationOptions}
     />
-    <Navigator.Screen
+    {/* <Navigator.Screen
       name={Screens.ChannelStatusScreen}
       component={ChannelStatusScreen}
       options={ChannelStatusScreen.navigationOptions as NativeStackNavigationOptions}
@@ -300,7 +310,7 @@ const modalAnimatedScreens = (Navigator: typeof Stack) => (
       name={Screens.LightningChannelsIntroScreen}
       component={LightningChannelsIntroScreen}
       options={LightningChannelsIntroScreen.navigationOptions as NativeStackNavigationOptions}
-    />
+    /> */}
   </>
 );
 

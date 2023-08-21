@@ -1,5 +1,5 @@
 import { LSP_FEE_ESTIMATE_API, LSP_PUBKEY } from '../../config';
-import { showWarningBanner } from './alerts';
+import { showErrorBanner } from './alerts';
 import { getLightningStore, hasEnoughRemoteBalance } from './lightning/helpers';
 
 /**
@@ -11,7 +11,7 @@ export const estimateInvoiceFees = async (amountSats: number): Promise<number> =
 
   if (!hasEnoughRemoteBalance({ amountSats })) {
     try {
-      await fetch(LSP_FEE_ESTIMATE_API, {
+      await fetch(LSP_FEE_ESTIMATE_API!, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,13 +26,12 @@ export const estimateInvoiceFees = async (amountSats: number): Promise<number> =
           feeInSats = data.fee_amount_msat / 1000; // get fee in sats from msats
         })
         .catch((error) => {
-          showWarningBanner({
+          showErrorBanner({
             message: error.message,
           });
         });
     } catch (e) {
-      // console.error(e.message);
-      showWarningBanner({
+      showErrorBanner({
         message: e.message,
       });
     }

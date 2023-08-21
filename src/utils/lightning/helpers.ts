@@ -217,7 +217,7 @@ export const createLightningInvoice = async ({
 
   description =
     !hasOpenLightningChannels() || !hasEnoughRemoteBalance({ amountSats })
-      ? 'Invoice + Channel open'
+      ? 'Welcome to the lightning network'
       : getLightningStore().defaultPRDescription;
   // LSP requires a max expiry period of 3600 so if conditions to use LSP return false, expiryDeltaSeconds should be 3600
   expiryDeltaSeconds =
@@ -280,7 +280,7 @@ export const createLightningInvoice = async ({
       })
       .catch((error) => {
         showWarningBanner({
-          title: "There's a problem!",
+          title: 'Error fetching invoice',
           message: error.message,
         });
       });
@@ -325,7 +325,7 @@ export const createLightningInvoice = async ({
       })
       .catch((error) => {
         showWarningBanner({
-          title: "There's a problem!",
+          title: 'Error fetching invoice',
           message: error.message,
         });
       });
@@ -1108,6 +1108,10 @@ export const payInvoiceWithFaucet = async ({
 }: {
   bolt11?: string;
 }): Promise<Result<string>> => {
+  if (!bolt11) {
+    return err('No bolt11 provided');
+  }
+
   const headers = {
     'Grpc-Metadata-macaroon': FAUCET_MACAROON!,
     'Content-Type': 'application/json',
@@ -1122,21 +1126,68 @@ export const payInvoiceWithFaucet = async ({
     payment_request: bolt11,
   });
 
-  const response = await fetch(`${FAUCET_API}/v1/channels/transactions`, {
-    method: 'POST',
-    headers: headers,
-    body: body,
-  });
+  try {
+    const response = await fetch(`${FAUCET_API}/v1/channels/transactions`, {
+      method: 'POST',
+      headers: headers,
+      body: body,
+    });
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Payment failed with status ${response.status}: ${text}`);
+    // is fetch ok(200)?
+    if (!response.ok) {
+      const text = await response.text();
+      return err(`Payment failed with status ${response.status}: ${text}`);
+    }
+    // did our request return an error?
+    const data: PayInvoiceResponse = await response.json();
+    // if (data.payment_error) {
+    //   throw new Error(`Payment failed with error: ${data.payment_error}`);
+    // }
+
+    return data;
+  } catch (e) {
+    console.log('error@payInvoiceWithFaucet: ', e.message);
+    return err(e.message);
+  }
+};
+
+export const wasInvoiceSettled = async ({
+  r_hash,
+}: {
+  r_hash?: string;
+}): Promise<Result<boolean>> => {
+  if (!r_hash) {
+    return err('No bolt11 provided');
   }
 
-  const data: PayInvoiceResponse = await response.json();
-  if (data.payment_error) {
-    throw new Error(`Payment failed with error: ${data.payment_error}`);
-  }
+  const headers = {
+    'Grpc-Metadata-macaroon': FAUCET_MACAROON!,
+    'Content-Type': 'application/json',
+  };
 
-  return data.payment_hash;
+  try {
+    const response = await fetch(`${FAUCET_API}/v1/invoice/${r_hash}`, {
+      method: 'GET',
+      headers: headers,
+    });
+
+    // is fetch ok(200)?
+    if (!response.ok) {
+      const text = await response.text();
+      return err(`Lookup failed with status ${response.status}: ${text}`);
+    }
+    // did our request return an error?
+    const data = await response.json();
+    // if (data.payment_error) {
+    //   throw new Error(`Payment failed with error: ${data.payment_error}`);
+    let status = false;
+    if (data.status === 1) {
+      status = true;
+    }
+
+    return status;
+  } catch (e) {
+    console.log('error@wasInvoiceSettled: ', e.message);
+    return err(e.message);
+  }
 };

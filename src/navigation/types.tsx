@@ -91,9 +91,11 @@ export type StackParamList = {
     amountInSats?: number;
     txId?: string;
   };
-  [Screens.ChannelStatusScreen]: {
-    channel?: TChannel;
-  };
+  [Screens.ChannelStatusScreen]:
+    | {
+        channel?: TChannel;
+      }
+    | undefined;
   [Screens.ContactsScreen]: undefined;
   [Screens.ContactDetailScreen]: {
     contact?: TContact;

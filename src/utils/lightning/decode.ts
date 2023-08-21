@@ -48,12 +48,12 @@ export const processTransactionData = async ({
     let requestedAmount = 0;
 
     if (!hasOpenLightningChannels()) {
-      navigate(Screens.TransactionErrorScreen, {
-        errorMessage: 'You have no receving or sending capacity',
-        canRetry: false,
-        showSuggestions: true,
+      showWarningBanner({
+        title: 'No channel found!',
+        message: 'You need a payment channel to send or receive',
       });
-      return err('You have no receving or sending capacity');
+      await sleep(2000);
+      navigate(Screens.LightningChannelsIntroScreen);
     }
 
     let { spendableBalance } = getTotalBalance({});
@@ -74,7 +74,7 @@ export const processTransactionData = async ({
         requestedAmount = decodedLightningInvoice?.amount_satoshis ?? 0;
         if (decodedLightningInvoice?.is_expired) {
           error = {
-            title: 'Expired',
+            title: 'This invoice expired and is no longer valid for payment',
             message: 'This invoice expired and is no longer valid for payment',
           };
         }
@@ -105,8 +105,8 @@ export const processTransactionData = async ({
 
     if (error) {
       showErrorBanner({
-        message: error.message,
         title: error.title,
+        message: error.message,
         dismissAfter: 3000,
       });
     } else {
@@ -122,8 +122,8 @@ export const processTransactionData = async ({
         };
       }
       showErrorBanner({
-        message: error.message,
         title: error.title,
+        message: error.message,
         dismissAfter: 3000,
       });
     }
