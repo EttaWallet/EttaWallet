@@ -22,7 +22,7 @@ const Capsule = ({ index, word }) => {
   return (
     <View key={index} style={styles.phraseContainer}>
       <View style={styles.indexContainer}>
-        <Text style={styles.index}>{index + 1}</Text>
+        <Text style={styles.index}>{index}</Text>
       </View>
       <View style={styles.border} />
       <View style={styles.wordContainer}>
@@ -67,7 +67,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   index: {
-    ...TypographyPresets.Header5,
+    ...TypographyPresets.Body4,
+    fontWeight: '700',
     color: Colors.common.black,
   },
   wordContainer: {
