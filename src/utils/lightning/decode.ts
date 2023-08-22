@@ -287,7 +287,7 @@ export const processInputData = async ({
     const decodeRes = await decodeLNData(data, selectedNetwork);
     console.log('decodeRes: ', JSON.stringify(decodeRes));
     if (decodeRes.isErr()) {
-      const message = 'Etta could not decode that. Copy the invoice and try again';
+      const message = 'EttaWallet could not decode that';
       if (showErrors) {
         showWarningBanner({
           message: message,
@@ -295,7 +295,7 @@ export const processInputData = async ({
           dismissAfter: 5000,
         });
       }
-      return err('Decoding Error');
+      return err('EttaWallet could not decode that');
     }
 
     // Unable to interpret any of the provided data.

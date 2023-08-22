@@ -109,6 +109,7 @@ const LNURLWithdrawScreen = ({ route, navigation }: Props) => {
       }
 
       const channelStatusRes = await fetch(callbackRes.value);
+      console.log('channelStatusRes: ', JSON.stringify(channelStatusRes));
       if (channelStatusRes.status !== 200) {
         showErrorBanner({
           title: 'LNURL-Withdraw Error',
@@ -133,7 +134,7 @@ const LNURLWithdrawScreen = ({ route, navigation }: Props) => {
       return ok({ type: ELightningDataType.lnurlWithdraw });
     } catch (e) {
       showErrorBanner({
-        title: 'LNURL Error',
+        title: 'LNURL-Withdraw Error',
         message: e.message,
       });
     }

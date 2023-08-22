@@ -30,26 +30,29 @@ type Props = RouteProps;
 const getReadableSendingError = (errorFound) => {
   const SendingErrorEnum = {
     invoice_payment_fail_resend_safe:
-      'Sorry, the payment failed but it is not permanent. We will keep trying to settle it.',
+      'Sorry, the payment failed but it is not permanent. We will keep trying to settle it',
     invoice_payment_fail_parameter_error:
-      'Sorry, the payment failed but it is not permanent. We will keep trying to settle it.',
-    invoice_payment_fail_partial: 'Sorry, the payment failed but we will keep trying to settle it.',
+      'Sorry, the payment failed but it is not permanent. We will keep trying to settle it',
+    invoice_payment_fail_partial: 'Sorry, the payment failed but we will keep trying to settle it',
     invoice_payment_fail_path_parameter_error:
-      'Sorry, the payment failed but it is not permanent. We will keep trying to settle it.',
+      'Sorry, the payment failed but it is not permanent. We will keep trying to settle it',
     invoice_payment_fail_sending:
-      'Your funds remain securely in your wallet. Is your balance sufficient to pay this invoice?',
+      'Sorry, the payment failed. This can happen if there is no route to the receiver or enough liquidity on the available route. Your funds remain securely in your wallet',
     invoice_payment_fail_unknown:
-      'Sorry, the problem could not be identified. Your funds remain securely in your wallet.',
-    invoice_payment_fail_must_specify_amount: 'The payment request does not have an amount',
-    invoice_payment_fail_routing: 'No route hints were found in the payment request',
-    'No usable channels found': 'No usable channels found',
+      'Sorry, the payment failed and the problem could not be identified. Your funds remain securely in your wallet',
+    invoice_payment_fail_must_specify_amount:
+      'This payment request does not specify an amount. Request for an invoice with an amount',
+    invoice_payment_fail_routing:
+      'No route hints were found in the payment request which makes it difficult to send the funds. Try again later',
+    'No usable channels found':
+      'No usable channels found. This means there is no path to the receiving node at this time. Try again later',
   };
 
   if (Object.prototype.hasOwnProperty.call(SendingErrorEnum, errorFound)) {
     return SendingErrorEnum[errorFound];
   }
 
-  return 'Sorry, the receiving party could not be reached. Your funds remain securely in your wallet.';
+  return 'The receiving node could not be reached. Confirm that they are online. Your funds remain securely in your wallet.';
 };
 
 const SendScreen = ({ route }: Props) => {
