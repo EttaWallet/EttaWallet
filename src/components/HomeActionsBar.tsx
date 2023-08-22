@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { HomeButton, Colors } from 'etta-ui';
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: moderateScale(10),
     paddingTop: verticalScale(20),
-    paddingBottom: verticalScale(30),
+    paddingBottom: Platform.OS === 'android' ? verticalScale(30) : verticalScale(15),
     borderTopColor: Colors.neutrals.light.neutral4,
     borderTopWidth: 1,
   },
