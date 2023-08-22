@@ -108,7 +108,7 @@ const WalletHomeScreen = () => {
 
   const onPressStatus = () => {
     Alert.alert(
-      'Status',
+      'Sync your node',
       'Pull down to sync your node to the latest block tip and refresh your activity',
       [
         {

@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { HeaderTitleWithSubtitle, headerWithBackButton } from '../navigation/Headers';
 import { navigateHome } from '../navigation/NavigationService';
 import { Button, Colors, Icon, TypographyPresets } from 'etta-ui';
@@ -24,6 +24,7 @@ import { CHANNEL_OPEN_DEPOSIT_SATS, LSP_PUBKEY } from '../../config';
 import { isLdkRunning, waitForLdk } from '../ldk';
 import { showErrorBanner, showInfoBanner } from '../utils/alerts';
 import base64Utils from '../utils/base64';
+import { cueInformativeHaptic } from '../utils/accessibility/haptics';
 
 type RouteProps = NativeStackScreenProps<StackParamList, Screens.ChannelStatusScreen>;
 
@@ -232,6 +233,26 @@ export function ChannelStatusScreen(props: RouteProps) {
     startChannelOpen();
   };
 
+  const onPressProceed = () => {
+    cueInformativeHaptic();
+    if (!paymentId) {
+      Alert.alert('Quick Heads-up!', 'Please allow up to 10 minutes for the process to complete', [
+        {
+          text: "Ok, I'll wait",
+          style: 'cancel',
+        },
+        {
+          text: 'Go to wallet',
+          onPress: () => {
+            navigateHome();
+          },
+        },
+      ]);
+    } else {
+      navigateHome();
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeAreaView} edges={['bottom']}>
       <ScrollView style={styles.contentContainer}>
@@ -265,12 +286,14 @@ export function ChannelStatusScreen(props: RouteProps) {
                 value={channel?.channel_value_satoshis.toLocaleString()}
                 valueIsNumeric={true}
               />
-              <InfoListItem
-                title="Funding transaction"
-                value={channel?.funding_txid}
-                maskValue={true}
-                canCopy={true}
-              />
+              {channel.funding_txid && (
+                <InfoListItem
+                  title="Funding transaction"
+                  value={channel?.funding_txid}
+                  maskValue={true}
+                  canCopy={true}
+                />
+              )}
             </>
           )}
         </View>
@@ -296,7 +319,7 @@ export function ChannelStatusScreen(props: RouteProps) {
         )}
         <Button
           title="Proceed to wallet"
-          onPress={() => navigateHome()}
+          onPress={onPressProceed}
           style={styles.button}
           disabled={!channel}
         />

@@ -7,7 +7,7 @@
   "selectLanguage": "Select Language",
   "welcome": {
     "subtitle": "A simple lightning wallet for your day to day spending",
-    "createNewWallet": "Create new wallet",
+    "createNewWallet": "Create a wallet",
     "restoreWallet": "Restore wallet",
     "iAlreadyHaveAWallet": "I already have a wallet",
     "footer": "Your wallet, your coins \n 100% open-source & open-design"

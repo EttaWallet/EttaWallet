@@ -25,7 +25,6 @@ import EnableBiometry from '../screens/EnableBiometryScreen';
 import EnterPin from '../shared/EnterPinScreen';
 import ReceiveScreen from '../screens/ReceiveScreen';
 import LightningChannelsIntroScreen from '../screens/LightningChannelsIntro';
-import JITLiquidityScreen from '../screens/JITLiquidityScreen';
 import ActivityScreen from '../screens/ActivityScreen';
 import ActivityDetailsScreen from '../screens/ActivityDetailsScreen';
 import SendScreen from '../screens/SendScreen';
@@ -37,7 +36,6 @@ import GeneralSettingsScreen from '../screens/settings/GeneralSettingsScreen';
 import SecuritySettingsScreen from '../screens/settings/SecuritySettingsScreen';
 import WalletBackupScreen from '../screens/settings/WalletBackupScreen';
 import LightningSettingsScreen from '../screens/settings/LightningSettingsScreen';
-import ChannelsScreen from '../screens/ChannelsScreen';
 import LogsScreen from '../screens/LogsScreen';
 import EnterAmountScreen from '../screens/EnterAmountScreen';
 import CurrencyChooserScreen from '../screens/CurrencyChooserScreen';
@@ -98,11 +96,6 @@ const walletScreens = (Navigator: typeof Stack) => {
         name={Screens.WalletHomeScreen}
         component={WalletHomeScreen}
         options={WalletHomeScreen.navigationOptions as NativeStackNavigationOptions}
-      />
-      <Navigator.Screen
-        name={Screens.JITLiquidityScreen}
-        component={JITLiquidityScreen}
-        options={JITLiquidityScreen.navigationOptions as NativeStackNavigationOptions}
       />
       <Navigator.Screen
         name={Screens.ReviewRequestScreen}
@@ -217,11 +210,6 @@ const settingsScreens = (Navigator: typeof Stack) => {
         name={Screens.LightningSettingsScreen}
         component={LightningSettingsScreen}
         options={LightningSettingsScreen.navigationOptions as NativeStackNavigationOptions}
-      />
-      <Navigator.Screen
-        name={Screens.ChannelsScreen}
-        component={ChannelsScreen}
-        options={ChannelsScreen.navigationOptions as NativeStackNavigationOptions}
       />
       <Navigator.Screen
         name={Screens.LogsScreen}

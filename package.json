@@ -17,7 +17,9 @@
     "clean:android": "cd android && rimraf build app/build && ./gradlew clean",
     "clean:ios": "cd ios && rimraf Pods Podfile.lock build && pod deintegrate && arch -x86_64 pod install",
     "bundle:ios": "node ./node_modules/react-native/local-cli/cli.js bundle --platform ios --entry-file index.js --bundle-output ios/ettaln/main.jsbundle --dev=false --verbose",
-    "release:android": "cd android && ./gradlew bundleRelease",
+    "postversion:android": "react-native-version --target android --never-amend",
+    "postversion:ios": "react-native-version --target ios --never-amend",
+    "release:android": "yarn postversion:android && cd android && ./gradlew bundleRelease",
     "ios-permissions": "react-native setup-ios-permissions",
     "postinstall": "yarn ios-permissions && node postinstall.js"
   },

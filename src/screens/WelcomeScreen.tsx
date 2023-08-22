@@ -81,7 +81,7 @@ const WelcomeScreen = () => {
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.logoContainer}>
-        <Logo height={100} />
+        <Logo height={80} />
         <Text style={styles.appName}>{APP_NAME}</Text>
         <Text style={styles.subtitle}>{t('welcome.subtitle')}</Text>
       </View>
@@ -110,18 +110,18 @@ const WelcomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     marginBottom: 20,
     paddingHorizontal: 24,
   },
   logoContainer: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
   },
   buttonsContainer: {
+    flex: 1,
     justifyContent: 'center',
-    marginBottom: 20,
     marginHorizontal: 16,
   },
   appName: {
