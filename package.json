@@ -179,7 +179,13 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn enforce-commit-message"
+      "pre-commit": "lint-staged"
     }
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+      "yarn commitlint --edit $1",
+      "git add"
+    ]
   }
 }
