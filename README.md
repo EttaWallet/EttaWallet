@@ -39,6 +39,7 @@ The project is strongly inspired by [Bitcoin Design Community's daily spending w
 ## Current Limitations
 
 - Ships in testnet for now
+- Zero-conf channels are still incomplete pending more testing. New channels will be usable once the funding transaction has **one** confirmation.
 - Translations are outdated.
 - Accessibility features are outdated for most components.
 
