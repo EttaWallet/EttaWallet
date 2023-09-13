@@ -2,7 +2,6 @@ import * as electrum from 'rn-electrum-client/helpers';
 import { TAvailableNetworks, networks } from '../networks';
 import { Result, err } from '../result';
 import {
-  ICustomElectrumPeer,
   IElectrumPeerData,
   IFormattedPeerData,
   IHeader,
@@ -16,24 +15,20 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { THeader } from '@synonymdev/react-native-ldk';
 import { header as defaultHeader } from '../types';
 
-export const CHUNK_LIMIT = 15; // control # requests to electrum
-export const GAP_LIMIT = 20;
-
 export const hardcodedPeers = {
   bitcoin: [
-    { host: 'electrum.aantonop.com', ssl: 50002, tcp: 50001 },
+    { host: 'mainnet.foundationdevices.com', ssl: 50002 },
     { host: 'bitcoin.lukechilds.co', ssl: 50002, tcp: 50001 },
-    { host: 'electrum.hodlister.co', ssl: 50002, tcp: 50001 },
-    { host: 'electrum3.hodlister.co', ssl: 50002, tcp: 50001 },
-    { host: 'ecdsa.net', ssl: 110, tcp: 50001 },
+    { host: 'electrum.jochen-hoenicke.de', ssl: 50006 },
+    { host: 'electrum1.bluewallet.io', ssl: 443 },
     { host: 'kirsche.emzy.de', ssl: 50002, tcp: 50001 },
   ],
   bitcoinTestnet: [
-    { host: 'testnet.hsmiths.com', ssl: 53012, tcp: 53011 },
-    { host: 'tn.not.fyi', ssl: 55002, tcp: 55001 },
     { host: 'testnet.aranguren.org', ssl: 51002, tcp: 51001 },
+    { host: 'electrum.blockstream.info', ssl: 60002, tcp: 60001 },
+    { host: 'testnet.qtornado.com', ssl: 51002, tcp: 51001 },
   ],
-  bitcoinRegtest: [{ host: '35.233.47.252', ssl: 18482, tcp: 18483 }],
+  bitcoinRegtest: [{ host: '35.233.47.252', ssl: 18484, tcp: 18483 }],
 };
 
 /**
@@ -105,18 +100,6 @@ export const getPeers = async ({
     console.log(e);
     return err(e);
   }
-};
-
-export const getCustomElectrumPeers = ({
-  selectedNetwork,
-}: {
-  selectedNetwork?: TAvailableNetworks;
-}): ICustomElectrumPeer[] => {
-  if (!selectedNetwork) {
-    selectedNetwork = getSelectedNetwork();
-  }
-
-  return store.getState().settings.customElectrumPeers[selectedNetwork];
 };
 
 /**

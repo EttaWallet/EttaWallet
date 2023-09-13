@@ -36,6 +36,7 @@ import {
   removeExpiredInvoices,
   syncPaymentsWithStore,
   addPeers,
+  DEFAULT_LIGHTNING_PEERS,
 } from '../utils/lightning/helpers';
 import { TLightningNodeVersion } from '../utils/types';
 import { EmitterSubscription, InteractionManager } from 'react-native';
@@ -211,11 +212,14 @@ const defaultUserConfig: TUserConfig = {
   channel_handshake_config: {
     announced_channel: false,
     max_htlc_value_in_flight_percent_of_channel: 100,
-    minimum_depth: 0, // changed from one for zero-conf
+    minimum_depth: 0,
+    negotiate_anchors_zero_fee_htlc_tx: true, //Required for zero conf
   },
-  manually_accept_inbound_channels: false,
+  manually_accept_inbound_channels: true,
   accept_inbound_channels: true, // to allow zero conf
   accept_intercept_htlcs: true, // required by Voltage LSP Flow2.0? // LDK versions prior to 0.0.113 not supported
+  accept_mpp_keysend: true,
+  accept_forwards_to_priv_channels: true,
 };
 
 /**
@@ -294,6 +298,7 @@ export const setupLdk = async ({
         return getTransactionPosition({ ...params, selectedNetwork });
       },
       userConfig: defaultUserConfig,
+      trustedZeroConfPeers: [DEFAULT_LIGHTNING_PEERS[selectedNetwork]],
     });
     if (lmStart.isErr()) {
       return err(`@lmStart: ${lmStart.error.message}`);
@@ -578,11 +583,18 @@ export const handleOpenZeroConfChannel = async ({
     selectedNetwork = getSelectedNetwork();
   }
 
-  const { counterparty_node_id, temp_channel_id, channel_type, push_sat, funding_satoshis } =
-    newChannel;
+  const {
+    counterparty_node_id,
+    temp_channel_id,
+    push_sat,
+    funding_satoshis,
+    requires_zero_conf,
+    supports_zero_conf,
+    requires_anchors_zero_fee_htlc_tx,
+  } = newChannel;
 
   console.log(
-    `new zero conf inbound channel ${temp_channel_id} from ${counterparty_node_id} of type ${channel_type} and capacity ${funding_satoshis} pushing ${push_sat} sats to Etta`
+    `new inbound channel: ${temp_channel_id} from: ${counterparty_node_id}; requires zero conf: ${requires_zero_conf}; supports zero conf: ${supports_zero_conf}; requires anchors: ${requires_anchors_zero_fee_htlc_tx} and capacity ${funding_satoshis} pushing ${push_sat} sats to Etta`
   );
 };
 

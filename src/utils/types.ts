@@ -85,8 +85,8 @@ export type TProtocol = 'ssl' | 'tcp';
 
 export interface ICustomElectrumPeer {
   host: string;
-  ssl: number; //ssl port
-  tcp: number; //tcp port
+  ssl?: number; //ssl port
+  tcp?: number; //tcp port
   protocol: TProtocol;
 }
 
@@ -210,8 +210,6 @@ export interface IWallet {
   lastUpdated: number;
   hasBackedUpWallet: boolean;
   walletBackupTimestamp: string;
-  keyDerivationPath: IKeyDerivationPath;
-  networkTypePath: string;
   addressType: EAddressType;
 }
 

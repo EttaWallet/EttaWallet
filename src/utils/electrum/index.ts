@@ -13,7 +13,7 @@ import {
 import { TAvailableNetworks } from '../networks';
 import { getSelectedNetwork } from '../wallet';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { getCustomElectrumPeers, hardcodedPeers } from './helpers';
+import { hardcodedPeers } from './helpers';
 import store from '../../state/store';
 import { getBitcoinScriptHash } from '../bitcoin';
 
@@ -23,7 +23,7 @@ type TCustomElectrumPeerOptionalProtocol = PartialBy<ICustomElectrumPeer, 'proto
 const tempElectrumServers: IWalletItem<TCustomElectrumPeerOptionalProtocol[]> = {
   bitcoin: hardcodedPeers.bitcoin,
   bitcoinTestnet: hardcodedPeers.bitcoinTestnet,
-  bitcoinRegtest: [],
+  bitcoinRegtest: hardcodedPeers.bitcoinRegtest,
 };
 /**
  * Returns the block hash given a block hex.
@@ -116,7 +116,6 @@ export const connectToElectrum = async ({
   selectedNetwork,
   retryAttempts = 2,
   customPeers,
-  options = { net: undefined, tls: undefined },
 }: {
   selectedNetwork?: TAvailableNetworks;
   retryAttempts?: number;
@@ -126,29 +125,21 @@ export const connectToElectrum = async ({
   if (!selectedNetwork) {
     selectedNetwork = getSelectedNetwork();
   }
-  const net = options.net ?? global?.net;
-  // const _tls = options.tls ?? tls;
-  const _tls = options.tls ?? global?.tls;
+
+  if (!customPeers) {
+    customPeers = tempElectrumServers[selectedNetwork];
+  }
 
   //Attempt to disconnect from any old/lingering connections
   await electrum.stop({ network: selectedNetwork });
-
-  // // Fetch any stored custom peers.
-  // if (!customPeers) {
-  //   customPeers = getCustomElectrumPeers({ selectedNetwork });
-  // }
-  // // if no custom peers, use default peers from state
-  // if (customPeers.length < 1) {
-  //   customPeers = tempElectrumServers[selectedNetwork];
-  // }
 
   let startResponse = { error: true, data: '' };
   for (let i = 0; i < retryAttempts; i++) {
     startResponse = await electrum.start({
       network: selectedNetwork,
-      customPeers: tempElectrumServers[selectedNetwork],
-      net,
-      tls: _tls,
+      customPeers,
+      net: global?.net,
+      tls: global?.tls,
     });
     if (!startResponse.error) {
       break;
@@ -160,8 +151,8 @@ export const connectToElectrum = async ({
     const { error, data } = await electrum.start({
       network: selectedNetwork,
       customPeers,
-      net,
-      tls: _tls,
+      net: global?.net,
+      tls: global?.tls,
     });
     if (error) {
       const msg = data || 'An unknown error occurred.';

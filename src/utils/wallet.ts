@@ -12,6 +12,7 @@ import {
   TKeyDerivationCoinType,
   TKeyDerivationPurpose,
   TWalletName,
+  addressTypes,
 } from './types';
 import store from '../state/store';
 import { retrieveStoredKeychainItem, storeKeychainItem } from './keychain';
@@ -386,7 +387,6 @@ export const getKeyDerivationPath = ({
     if (!selectedNetwork) {
       selectedNetwork = getSelectedNetwork();
     }
-    const addressTypes = getWalletStore().addressTypes;
     const keyDerivationPathResponse = getKeyDerivationPathObject({
       selectedNetwork,
       path: addressTypes[addressType].path,
@@ -410,17 +410,11 @@ export const getKeyDerivationPath = ({
 export const createDefaultWallet = async ({
   walletName = getDefaultWalletShape().id,
   bip39Passphrase = '',
-  addressTypes,
   selectedNetwork,
 }: ICreateWallet): Promise<Result<IWallet>> => {
   try {
     if (!selectedNetwork) {
       selectedNetwork = getSelectedNetwork();
-    }
-
-    if (!addressTypes) {
-      // using native segwit by default
-      addressTypes = { p2wpkh: getWalletStore().addressTypes.p2wpkh };
     }
 
     const selectedAddressType = getSelectedAddressType();

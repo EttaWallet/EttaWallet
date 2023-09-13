@@ -317,7 +317,7 @@ PODS:
     - React-Core
   - react-native-image-picker (4.10.3):
     - React-Core
-  - react-native-ldk (0.0.103):
+  - react-native-ldk (0.0.105):
     - React
   - react-native-mmkv (2.5.1):
     - MMKV (>= 1.2.13)
@@ -774,7 +774,7 @@ SPEC CHECKSUMS:
   react-native-config: 86038147314e2e6d10ea9972022aa171e6b1d4d8
   react-native-flipper: 457f5d70546cdd4281e748ff3726385ffa06ba41
   react-native-image-picker: 60f4246eb5bb7187fc15638a8c1f13abd3820695
-  react-native-ldk: e31bd28e7e29fb4dd99b86bceed14025f8bf53eb
+  react-native-ldk: a52fd92b755b8f9f1da6b4e59102e20076392c20
   react-native-mmkv: 69b9c003f10afdd01addf7c6ee784ce42ee2eff3
   react-native-netinfo: fefd4e98d75cbdd6e85fc530f7111a8afdf2b0c5
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846

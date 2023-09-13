@@ -35,7 +35,7 @@
     "@react-navigation/native": "^6.1.3",
     "@react-navigation/native-stack": "^6.9.9",
     "@react-navigation/stack": "^6.3.12",
-    "@synonymdev/react-native-ldk": "^0.0.103",
+    "@synonymdev/react-native-ldk": "^0.0.105",
     "@th3rdwave/react-navigation-bottom-sheet": "^0.2.2",
     "add": "^2.0.6",
     "assert": "^1.1.1",

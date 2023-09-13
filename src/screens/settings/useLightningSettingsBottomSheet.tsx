@@ -131,7 +131,6 @@ const useLightningSettingsBottomSheet = () => {
             onSelect={onSelect}
             isSelected={newExpiry === 2.592e6}
             data={2.592e6}
-            disabled={true}
           />
           <RadioCardOption
             hideRadio={!true}
@@ -141,7 +140,6 @@ const useLightningSettingsBottomSheet = () => {
             onSelect={onSelect}
             isSelected={newExpiry === 5.184e6}
             data={5.184e6}
-            disabled={true}
           />
           <Button
             title="Update"
@@ -182,6 +180,8 @@ const styles = StyleSheet.create({
   },
   title: {
     ...TypographyPresets.Body4,
+    fontWeight: '600',
+    marginBottom: 10,
   },
   subtitle: {
     ...TypographyPresets.Body4,

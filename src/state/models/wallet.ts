@@ -1,19 +1,9 @@
 import { Action, action } from 'easy-peasy';
 import { TAvailableNetworks } from '../../utils/networks';
-import {
-  EAddressType,
-  IAddressTypes,
-  IHeader,
-  IKeyDerivationPath,
-  IOnchainFees,
-  IWallet,
-  TWalletName,
-  addressTypes,
-  defaultKeyDerivationPath,
-} from '../../utils/types';
-import { EAvailableNetworks } from '../../utils/networks';
+import { EAddressType, IHeader, IOnchainFees, IWallet, TWalletName } from '../../utils/types';
 import { header as headerShape } from '../../utils/types';
 import { cloneDeep } from 'lodash';
+import Config from 'react-native-config';
 
 // @TODO: add translatable strings to error and success messages
 
@@ -22,7 +12,6 @@ export interface WalletModelType {
   selectedNetwork: TAvailableNetworks;
   defaultWallet: TWalletName;
   header: IHeader;
-  addressTypes: IAddressTypes;
   walletinfo: {
     id: TWalletName;
     name: string;
@@ -32,8 +21,6 @@ export interface WalletModelType {
     lastUpdated: number;
     hasBackedUpWallet: boolean;
     walletBackupTimestamp: string;
-    keyDerivationPath: IKeyDerivationPath;
-    networkTypePath: string;
     addressType: EAddressType;
   };
   setWalletExists: Action<WalletModelType, boolean>;
@@ -46,10 +33,9 @@ export interface WalletModelType {
 
 export const walletModel: WalletModelType = {
   walletExists: false,
-  selectedNetwork: EAvailableNetworks.bitcoinTestnet,
+  selectedNetwork: Config.DEFAULT_NETWORK,
   defaultWallet: 'wallet0',
   header: headerShape,
-  addressTypes: addressTypes,
   walletinfo: {
     id: 'wallet0',
     name: '',
@@ -59,8 +45,6 @@ export const walletModel: WalletModelType = {
     lastUpdated: 0,
     hasBackedUpWallet: false,
     walletBackupTimestamp: '',
-    keyDerivationPath: defaultKeyDerivationPath,
-    networkTypePath: '1', // bitcoinTestnet
     addressType: EAddressType.p2wpkh,
   },
   fees: {

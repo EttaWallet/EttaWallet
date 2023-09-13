@@ -50,7 +50,13 @@ import { timeDeltaInDays } from '../time';
 import { transactionFeedHeader } from '../time';
 import i18n from '../../i18n';
 import { showErrorBanner, showWarningBanner } from '../alerts';
-import { CHANNEL_OPEN_DEPOSIT_SATS, FAUCET_API, FAUCET_MACAROON, LSP_API } from '../../../config';
+import {
+  CHANNEL_OPEN_DEPOSIT_SATS,
+  FAUCET_API,
+  FAUCET_MACAROON,
+  LSP_API,
+  LSP_NODE_URI,
+} from '../../../config';
 import Logger from '../logger';
 import { getMaxRemoteBalance } from '../calculate';
 
@@ -58,18 +64,17 @@ const LDK_ACCOUNT_SUFFIX = 'ldkaccount';
 
 export const DEFAULT_LIGHTNING_PEERS: IWalletItem<string[]> = {
   bitcoin: [],
-  bitcoinRegtest: [],
+  bitcoinRegtest: [
+    //lnd1
+    '027372e6d29f0870946632579a501585cede4e9de029c196299c388fa60f6be021@127.0.0.1:9735',
+    //lnd2
+    '03741a6c756345277561d0328131c40ea48bd0100f9a1a0304ec4ab29492278bf2@127.0.0.1:9737',
+    //cln
+    '02617fc86d4d379d25cdd03acb33f767ae8cfa3a0531f6dafa36c1bc92af8563ac@127.0.0.1:9836',
+  ],
   bitcoinTestnet: [
     // voltage lsp for zero-conf channel
-    '025804d4431ad05b06a1a1ee41f22fefeb8ce800b0be3a92ff3b9f594a263da34e@44.228.24.253:9735',
-    // // aranguren.org
-    // '038863cf8ab91046230f561cd5b386cbff8309fa02e3f0c3ed161a3aeb64a643b9@203.132.94.196:9735',
-    // // Cyclopes
-    // '028ec70462207b57e3d4d9332d9e0aee676c92d89b7c9fb0850fc2a24814d4d83c@71.171.123.161:9735',
-    // // Mordhaus
-    // '0286383ed513fef6ffd277abf2091971d0f4ac61cc078381aee4eb71b4acd2bc86@64.44.166.123:9736',
-    // // Open Node
-    // '02eadbd9e7557375161df8b646776a547c5cbc2e95b3071ec81553f8ec2cea3b8c@18.191.253.246:9735',
+    LSP_NODE_URI,
   ],
 };
 

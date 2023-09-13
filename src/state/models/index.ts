@@ -5,7 +5,6 @@ import { InternetModelType, internetModel } from './internet';
 import { thunk, Thunk } from 'easy-peasy';
 import Logger from '../../utils/logger';
 import { WalletModelType, walletModel } from './wallet';
-import { SettingsModelType, settingsModel } from './settings';
 import { AccessibilityModelType, accessibilityModel } from './accessibility';
 import * as Keychain from 'react-native-keychain';
 import { collectAppVersion, collectBuildNumber } from '../../utils/helpers';
@@ -19,7 +18,6 @@ export interface RootModelType {
   app: AppModelType;
   accessibility: AccessibilityModelType;
   lightning: LightningNodeModelType;
-  settings: SettingsModelType;
   wallet: WalletModelType;
 }
 
@@ -41,7 +39,6 @@ const rootModel: RootModelType = {
   accessibility: accessibilityModel,
   nuxt: nuxtModel,
   lightning: lightningModel,
-  settings: settingsModel,
   wallet: walletModel,
 };
 
