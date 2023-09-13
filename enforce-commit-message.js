@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+// This file ensures each commit has a meaningful commit.
 const { execSync } = require('child_process');
 
 try {
