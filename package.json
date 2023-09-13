@@ -103,6 +103,8 @@
   "devDependencies": {
     "@babel/core": "^7.12.9",
     "@babel/runtime": "^7.12.5",
+    "@commitlint/cli": "^17.7.1",
+    "@commitlint/config-conventional": "^17.7.0",
     "@react-native-community/eslint-config": "^2.0.0",
     "@tsconfig/react-native": "^2.0.2",
     "@types/hoist-non-react-statics": "^3.3.1",
@@ -119,7 +121,9 @@
     "babel-plugin-module-resolver": "^5.0.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "eslint": "^7.32.0",
+    "husky": "^8.0.3",
     "jest": "^26.6.3",
+    "lint-staged": "^14.0.1",
     "metro-react-native-babel-preset": "0.76.5",
     "pod-install": "^0.1.0",
     "query-string": "^8.1.0",
@@ -172,5 +176,10 @@
   ],
   "resolutions": {
     "@babel/traverse": "7.22.8"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn enforce-commit-message"
+    }
   }
 }
