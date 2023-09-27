@@ -49,6 +49,10 @@ EttaWallet is still in beta and only works on testnet for now but it would be ni
 
 <a href="https://testflight.apple.com/join/vZaHZIi4"><img src="./app_store.svg" height="50" ></a>  <a href="https://play.google.com/store/apps/details?id=com.ettaln"><img src="./play.svg" height="50" ></a>
 
+### Note on Performance
+
+Expect a few performance hits, maybe a crash here and there. Bare with me, working to get this to be as stable as possible. If you see something is wrong, especially if your node doesn't seem to start, you can ping me [@rukundo__](https://twitter.com/rukundo__)
+
 ## Reproducible Build (**Don't trust, verify**)
 
 > **Note**
@@ -129,4 +133,7 @@ Special thanks to the following open-source projects that help make EttaWallet p
 - All design tokens and primitives are inspired by [Bitcoin Design Guide](https://bicoin.design/)'s daily spending wallet
 - Icons are courtesy of [Bitcoin Icons](https://bitcoinicons.com)
 - Non-custodial lightning is courtesy of [Lightning Dev Kit(LDK)](https://lightningdevkit.org) and made possible through Synonym's [react-native-ldk](https://github.com/synonymdev/react-native-ldk)
-  
+
+## 🙏 Supporters
+
+If you would like to support the project, you can do that here: [https://ettawallet.app/donate](https://ettawallet.app/donate)
