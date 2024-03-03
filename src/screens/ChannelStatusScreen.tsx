@@ -137,7 +137,7 @@ export function ChannelStatusScreen(props: RouteProps) {
         try {
           const invoiceRes = await createLightningInvoice({
             amountSats: CHANNEL_OPEN_DEPOSIT_SATS,
-            description: '',
+            description: '', // no memo for wrappable invoice
             expiryDeltaSeconds: 3600,
           });
           if (invoiceRes.isOk()) {
@@ -230,6 +230,11 @@ export function ChannelStatusScreen(props: RouteProps) {
 
   const handleRetry = () => {
     setRetryNeeded(false);
+    setErrors({
+      check: null,
+      generate: null,
+      pay: null,
+    });
     startChannelOpen();
   };
 
@@ -299,9 +304,6 @@ export function ChannelStatusScreen(props: RouteProps) {
         </View>
         <View style={styles.eventContainer}>
           {renderEvent(channel ? 'Waiting for confirmation ...' : 'Paying invoice ...', 'pay')}
-          {channel && (
-            <Text style={styles.warningText}>This might take a few minutes. Hang on ...</Text>
-          )}
           {paymentId && (
             <InfoListItem
               title="Transaction ref"

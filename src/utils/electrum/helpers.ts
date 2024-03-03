@@ -6,6 +6,8 @@ import {
   IFormattedPeerData,
   IHeader,
   ISubscribeToAddress,
+  ITransaction,
+  IUtxo,
   TWalletName,
 } from '../types';
 import { ok } from 'assert';
@@ -238,4 +240,24 @@ export const getConnectedElectrumPeer = async (
   } catch (e) {
     return err(e);
   }
+};
+
+export const transactionExists = (txData: ITransaction<IUtxo>): boolean => {
+  if (
+    //TODO: Update types for electrum response.
+    // @ts-ignore
+    txData?.error &&
+    //TODO: Update types for electrum response.
+    // @ts-ignore
+    txData?.error?.message &&
+    /No such mempool or blockchain transaction|Invalid tx hash/.test(
+      //TODO: Update types for electrum response.
+      // @ts-ignore
+      txData?.error?.message
+    )
+  ) {
+    //Transaction was removed/bumped from the mempool or potentially reorg'd out.
+    return false;
+  }
+  return true;
 };

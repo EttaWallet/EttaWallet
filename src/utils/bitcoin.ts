@@ -113,7 +113,7 @@ export const getBitcoinAddress = async ({ path, selectedNetwork, type }: IGetAdd
       publicKey: keyPair.publicKey.toString('hex'),
     };
     console.info('getBitcoinAddress: ', value.address);
-    return value.address;
+    return value;
   } catch (e) {
     return err(e);
   }

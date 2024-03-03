@@ -213,6 +213,19 @@ export interface IWallet {
   addressType: EAddressType;
 }
 
+export interface IVout {
+  n: number; //0
+  scriptPubKey: {
+    addresses?: string[];
+    address?: string;
+    asm: string;
+    hex: string;
+    reqSigs?: number;
+    type?: string;
+  };
+  value: number;
+}
+
 export interface IVin {
   scriptSig: {
     asm: string;
@@ -237,6 +250,29 @@ export interface IUtxo {
   tx_hash: string;
   tx_pos: number;
   value: number;
+}
+
+export interface ITransaction<T> {
+  id: number;
+  jsonrpc: string;
+  param: string;
+  data: T;
+  result: {
+    blockhash: string;
+    confirmations: number;
+    hash: string;
+    hex: string;
+    locktime: number;
+    size: number;
+    txid: string;
+    version: number;
+    vin: IVin[];
+    vout: IVout[];
+    vsize: number;
+    weight: number;
+    blocktime?: number;
+    time?: number;
+  };
 }
 
 export type TKeyDerivationAccountType = 'onchain';
@@ -488,4 +524,23 @@ export type TLNURLPayCallback = {
 export type TLNURLWithdrawCallback = {
   params: LNURLWithdrawParams;
   paymentRequest: string;
+};
+
+export type LspFeeRequest = {
+  amount_msat: number;
+  pubkey: string;
+};
+
+export type LspFeeResponse = {
+  amount_msat: number;
+  id: string;
+};
+
+export type LspWrappedRequest = {
+  bolt11: number;
+  fee_id: string;
+};
+
+export type LspWrappedResponse = {
+  jit_bolt11: string;
 };

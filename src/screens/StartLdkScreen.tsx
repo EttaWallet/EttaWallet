@@ -1,15 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  ActivityIndicator,
-  BackHandler,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { BackHandler, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { noHeader } from '../navigation/Headers';
 import { navigate } from '../navigation/NavigationService';
 import LottieView from 'lottie-react-native';
@@ -18,16 +10,61 @@ import { Button, Colors, Icon, TypographyPresets } from 'etta-ui';
 import { useStoreActions, useStoreState } from '../state/hooks';
 import { cueInformativeHaptic, cueSuccessHaptic } from '../utils/accessibility/haptics';
 import { restartApp } from '../utils/restart';
-import Clipboard from '@react-native-clipboard/clipboard';
-import { showToast } from '../utils/alerts';
-import { pressableHitSlop } from '../utils/helpers';
+import { showErrorBanner } from '../utils/alerts';
+import { sleep } from '../utils/helpers';
 import { verticalScale } from '../utils/sizing';
 import { Screens } from '../navigation/Screens';
+import { createPaymentRequest, hasOpenLightningChannels } from '../utils/lightning/helpers';
+import { Result, ok } from '../utils/result';
+import { LSP_API } from '../../config';
+
 export function StartLdkScreen() {
   const ldkState = useStoreState((state) => state.lightning.ldkState);
   const nodeStarted = useStoreState((state) => state.lightning.nodeStarted);
   const nodeId = useStoreState((state) => state.lightning.nodeId);
   const startNode = useStoreActions((actions) => actions.lightning.startLdk);
+  const setLdkState = useStoreActions((actions) => actions.lightning.setLdkState);
+  const [giftinvoice, setGiftInvoice] = useState('');
+  const [errorFound, setErrorFound] = useState<string | null>(null);
+
+  const handleApiErrors = (errorMessage: string) => {
+    setErrorFound(errorMessage);
+  };
+
+  /**
+   * Attempts to open a free lightning channel
+   * @returns {string}
+   */
+  const payGiftInvoice = async (): Promise<Result<string>> => {
+    if (!giftinvoice) {
+      showErrorBanner({
+        message: 'Gift invoice not found',
+      });
+      return;
+    }
+    const attemptGiftPayment = await fetch(`${LSP_API}/pay`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        bolt_11: giftinvoice,
+      }),
+    });
+
+    if (attemptGiftPayment.ok) {
+      const payResponse = await attemptGiftPayment.json();
+      if (payResponse.confirmed_at) {
+        console.log(`Gift invoice paid successfully at ${payResponse.confirmed_at}`);
+      }
+    } else {
+      const errorMsg = await attemptGiftPayment.text();
+      handleApiErrors(errorMsg);
+    }
+
+    return ok('Gift is en-route...');
+  };
 
   const onPressStart = useCallback(() => {
     cueInformativeHaptic();
@@ -39,16 +76,95 @@ export function StartLdkScreen() {
     // return;
   }, [nodeStarted]);
 
-  const onPressDone = () => {
-    navigate(Screens.WalletHomeScreen);
-  };
-
-  const onPressCopy = () => {
-    Clipboard.setString(nodeId || '');
+  const onPressRetry = useCallback(() => {
+    setLdkState(NodeState.OFFLINE);
     cueInformativeHaptic();
-    showToast({
-      message: 'Copied to your clipboard',
+    if (!nodeStarted) {
+      startNode();
+    } else {
+      cueSuccessHaptic();
+    }
+    // return;
+  }, [nodeStarted]);
+
+  useEffect(() => {
+    if (!nodeStarted) {
+      startNode();
+    }
+    cueSuccessHaptic();
+  }, [nodeStarted]);
+
+  useEffect(() => {
+    // /**
+    //  * Attempts to open a free lightning channel
+    //  * @returns {TChannel}
+    //  */
+    // const openFreeLightningChannel = async (): Promise<Result<TChannel>> => {
+    //   try {
+    //     const InvoiceRes = await createPaymentRequest({
+    //       amountSats: 5000,
+    //       description: 'Welcome to the lightning network',
+    //       expiryDeltaSeconds: 3600,
+    //     });
+    //     if (InvoiceRes.isErr()) {
+    //       console.log(InvoiceRes.error.message);
+    //       return;
+    //     }
+    //     if (InvoiceRes.isOk()) {
+    //       const LspChannelRequest = await fetch(`${LSP_API}/proposal`, {
+    //         method: 'POST',
+    //         headers: {
+    //           Accept: 'application/json',
+    //           'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({
+    //           bolt11: InvoiceRes.value.to_str,
+    //         }),
+    //       });
+
+    //       let channelTx: string;
+    //       let freshChannel: TChannel;
+    //       if (LspChannelRequest.ok) {
+    //         const openChannelRes = await freeChannelOpen.json();
+    //         if (openChannelRes) {
+    //           channelTx = openChannelRes.transaction_id;
+    //           freshChannel = channels.filter((ch) => ch.funding_txid === channelTx)[0];
+
+    //           return ok(freshChannel);
+    //         }
+    //       } else {
+    //         const errorMsg = await freeChannelOpen.text();
+    //         handleApiErrors(errorMsg);
+    //       }
+    //     }
+    //   } catch (error: any) {
+    //     console.error(error.message);
+    //   }
+    // };
+    // check that node started and for the existence of least one open channel, if none open a free channel.
+    if (nodeStarted && !hasOpenLightningChannels()) {
+      console.log('node is ready: ');
+    }
+  }, [nodeStarted]);
+
+  const onPressProceed = async () => {
+    cueInformativeHaptic();
+    // create first invoice for this fresh node
+    const InvoiceRes = await createPaymentRequest({
+      amountSats: 5000,
+      description: 'Welcome to the lightning network',
+      expiryDeltaSeconds: 3600,
     });
+    if (InvoiceRes.isErr()) {
+      console.log(InvoiceRes.error.message);
+      return;
+    }
+    if (InvoiceRes.isOk()) {
+      setGiftInvoice(InvoiceRes.value.to_str);
+      await sleep(2000);
+      await payGiftInvoice();
+      navigate(Screens.WalletHomeScreen);
+    }
   };
 
   const update = useMemo(() => {
@@ -56,7 +172,7 @@ export function StartLdkScreen() {
       case NodeState.ERROR:
         return null;
       case NodeState.START:
-        return 'Starting your node ...';
+        return 'Getting things ready ...';
       case NodeState.COMPLETE:
         return 'All set';
       default:
@@ -75,7 +191,7 @@ export function StartLdkScreen() {
       case NodeState.ERROR:
         return (
           <View style={styles.buttonContainer}>
-            <Button title="Try again" onPress={onPressStart} style={styles.button} />
+            <Button title="Try again" onPress={onPressRetry} style={styles.button} />
             <Button
               title="Restart EttaWallet"
               onPress={restartApp}
@@ -89,7 +205,7 @@ export function StartLdkScreen() {
           <View style={styles.buttonContainer}>
             <Button
               title="Proceed to wallet"
-              onPress={onPressDone}
+              onPress={onPressProceed}
               appearance="filled"
               style={styles.button}
               disabled={!nodeStarted}
@@ -101,7 +217,7 @@ export function StartLdkScreen() {
           <View style={styles.buttonContainer}>
             <Button
               title="Proceed to wallet"
-              onPress={onPressDone}
+              onPress={onPressProceed}
               appearance="filled"
               style={styles.button}
             />
@@ -125,10 +241,8 @@ export function StartLdkScreen() {
       case NodeState.START:
         return (
           <View style={styles.section}>
-            <View style={styles.pendingContainer}>
-              <ActivityIndicator color={Colors.orange.light} size="small" />
-            </View>
             <Text style={styles.sectionText}>{update}</Text>
+            {errorFound !== null ? <Text style={styles.sectionText}>{errorFound}</Text> : null}
           </View>
         );
       case NodeState.ERROR:
@@ -144,13 +258,7 @@ export function StartLdkScreen() {
         return (
           <>
             <Text style={styles.text}>All set!</Text>
-            <TouchableOpacity onPress={onPressCopy} hitSlop={pressableHitSlop}>
-              <View style={styles.nodeIdBox}>
-                <Text style={styles.subText}>Node ID</Text>
-                <Text style={styles.nodeId}>{nodeId}</Text>
-                <Text style={styles.copy}>Tap to copy</Text>
-              </View>
-            </TouchableOpacity>
+            <Text style={styles.subText}>Welcome to the Lightning Network</Text>
           </>
         );
     }
@@ -169,7 +277,7 @@ export function StartLdkScreen() {
         return (
           <View style={styles.lottieContainer}>
             <LottieView
-              style={styles.lottieIcon}
+              style={[styles.lottieIcon, { width: '80%' }]}
               source={require('../../assets/lottie/starting.json')}
               autoPlay={true}
               loop={true}
@@ -185,7 +293,7 @@ export function StartLdkScreen() {
       case NodeState.COMPLETE:
         return (
           <LottieView
-            style={styles.lottieIcon}
+            style={[styles.lottieIcon, { width: '50%' }]}
             source={require('../../assets/lottie/success-check.json')}
             autoPlay={true}
             loop={false}
@@ -231,7 +339,6 @@ const styles = StyleSheet.create({
     ...TypographyPresets.Body4,
     paddingHorizontal: 16,
     textAlign: 'center',
-    paddingBottom: 10,
   },
   button: {
     marginBottom: 16,
@@ -268,14 +375,8 @@ const styles = StyleSheet.create({
   lottieContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 200,
-    height: 200,
-    borderRadius: 50,
-    backgroundColor: Colors.neutrals.light.neutral1,
-    marginBottom: 20,
   },
   lottieIcon: {
-    width: '40%',
     aspectRatio: 1,
   },
   nodeIdBox: {
@@ -296,7 +397,6 @@ const styles = StyleSheet.create({
   },
   section: {
     flexDirection: 'row',
-    marginVertical: 5,
     alignItems: 'center',
     justifyContent: 'center',
   },

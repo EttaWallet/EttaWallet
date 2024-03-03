@@ -55,7 +55,7 @@ const ReviewRequestScreen = ({ navigation, route }: Props) => {
       setLoading(true);
       let feeRequired: number = 0;
       if (totalReceivable < amountRequested) {
-        feeRequired = await estimateInvoiceFees(amountRequested);
+        feeRequired = 2500;
         setInvoiceFees(feeRequired);
       } else {
         setInvoiceFees(feeRequired);

@@ -21,7 +21,7 @@ target 'EttaLN' do
     #
     # Note that if you have use_frameworks! enabled, Flipper will not work and
     # you should disable the next line.
-    :flipper_configuration => FlipperConfiguration.enabled(["Debug", "Release"]),
+    :flipper_configuration => FlipperConfiguration.enabled(["Debug", "Release"], { 'Flipper' => '0.212.0' }),
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
@@ -45,6 +45,9 @@ target 'EttaLN' do
         config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ""
         config.build_settings['CODE_SIGNING_REQUIRED'] = "NO"
         config.build_settings['CODE_SIGNING_ALLOWED'] = "NO"
+        # NOTE: Add _LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION to fix build error on Xcode 12.5 M1.
+        # https://github.com/facebook/react-native/issues/37748#issuecomment-1580589448
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', '_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION']
       end
     end
     __apply_Xcode_12_5_M1_post_install_workaround(installer)

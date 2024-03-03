@@ -6,12 +6,16 @@ import { getLightningStore, hasEnoughRemoteBalance } from './lightning/helpers';
  * Attempts to estimate fees payable if LSP involvement is deemed necessary
  * @returns {number}
  */
-export const estimateInvoiceFees = async (amountSats: number): Promise<number> => {
-  let feeInSats: number = 0;
-
+export const estimateInvoiceFees = async (
+  amountSats: number
+): Promise<{
+  amount_msat: number;
+  id: string;
+}> => {
+  let feeData;
   if (!hasEnoughRemoteBalance({ amountSats })) {
     try {
-      await fetch(LSP_FEE_ESTIMATE_API!, {
+      const response = await fetch(`${LSP_FEE_ESTIMATE_API}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -20,24 +24,19 @@ export const estimateInvoiceFees = async (amountSats: number): Promise<number> =
           amount_msat: amountSats * 1000, // get amount in msats
           pubkey: LSP_PUBKEY,
         }),
-      })
-        .then((fees) => fees.json())
-        .then((data) => {
-          feeInSats = data.fee_amount_msat / 1000; // get fee in sats from msats
-        })
-        .catch((error) => {
-          showErrorBanner({
-            message: error.message,
-          });
-        });
+      });
+
+      feeData = await response.json();
     } catch (e) {
       showErrorBanner({
         message: e.message,
       });
     }
   }
-
-  return feeInSats;
+  return {
+    amount_msat: feeData.amount_msat,
+    id: feeData.id,
+  };
 };
 
 /**

@@ -518,7 +518,7 @@ export const getFeeEstimates = async (
       return walletModel.fees;
     }
 
-    const urlModifier = selectedNetwork === 'bitcoin' ? '' : 'testnet/';
+    const urlModifier = selectedNetwork === EAvailableNetworks.bitcoin ? '' : 'testnet/';
     const response = await fetch(`https://mempool.space/${urlModifier}api/v1/fees/recommended`);
     const res: IGetFeeEstimatesResponse = await response.json();
     return {

@@ -1,7 +1,7 @@
-import { Platform, Linking } from 'react-native';
+import { Linking } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import Logger from './logger';
-import { APP_STORE_ID, EXCHANGE_RATE_UPDATE_INTERVAL } from '../../config';
+import { EXCHANGE_RATE_UPDATE_INTERVAL } from '../../config';
 import { err, ok, Result } from './result';
 import store from '../state/store';
 import { TContact, TLightningPayment } from './types';
@@ -149,14 +149,6 @@ export function navigateToURI(uri: string, backupUri?: string) {
       Logger.error('Error navigating to URI', reason);
     }
   });
-}
-
-export function navigateAppStore() {
-  if (Platform.OS === 'android') {
-    navigateToURI(`market://details?id=${DeviceInfo.getBundleId()}`);
-  } else {
-    navigateToURI(`https://apps.apple.com/app/id${APP_STORE_ID}`);
-  }
 }
 
 export const collectBuildNumber: string = DeviceInfo.getBuildNumber();

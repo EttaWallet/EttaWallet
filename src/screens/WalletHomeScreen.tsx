@@ -143,7 +143,7 @@ const WalletHomeScreen = () => {
     navigate(Screens.ActivityScreen);
   };
 
-  const onPressRequest = () => {
+  const onPressRequest = async () => {
     cueInformativeHaptic();
     // check if open channels exist, if yes, proceed,
     // if no, start channel opening process

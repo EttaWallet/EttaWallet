@@ -15,7 +15,8 @@ export const SELECTED_BITCOIN_NETWORK = Config.DEFAULT_NETWORK;
 export const LSP_NODE_URI =
   Config.LSP_TESTNET_NODE_URI ||
   '025804d4431ad05b06a1a1ee41f22fefeb8ce800b0be3a92ff3b9f594a263da34e@44.228.24.253:9735';
-export const LSP_PUBKEY = Config.LSP_TESTNET_PUBKEY;
+export const LSP_PUBKEY =
+  Config.LSP_TESTNET_PUBKEY || '025804d4431ad05b06a1a1ee41f22fefeb8ce800b0be3a92ff3b9f594a263da34e';
 export const LSP_API = Config.LSP_API_TESTNET;
 export const LSP_FEE_ESTIMATE_API = Config.LSP_FEE_API_TESTNET;
 

@@ -54,11 +54,11 @@ import {
   CHANNEL_OPEN_DEPOSIT_SATS,
   FAUCET_API,
   FAUCET_MACAROON,
-  LSP_API,
   LSP_NODE_URI,
 } from '../../../config';
 import Logger from '../logger';
 import { getMaxRemoteBalance } from '../calculate';
+import { getLspFeeEstimate, getLspWrappedInvoice } from '../lsp/helpers';
 
 const LDK_ACCOUNT_SUFFIX = 'ldkaccount';
 
@@ -74,7 +74,7 @@ export const DEFAULT_LIGHTNING_PEERS: IWalletItem<string[]> = {
   ],
   bitcoinTestnet: [
     // voltage lsp for zero-conf channel
-    LSP_NODE_URI,
+    '02c1b1cba5a07d77aad88f8e798b87e4fc32b74fbab018685b37a7a14a349822d7@44.238.195.48:9735',
   ],
 };
 
@@ -222,7 +222,7 @@ export const createLightningInvoice = async ({
 
   description =
     !hasOpenLightningChannels() || !hasEnoughRemoteBalance({ amountSats })
-      ? 'Welcome to the lightning network'
+      ? ''
       : getLightningStore().defaultPRDescription;
   // LSP requires a max expiry period of 3600 so if conditions to use LSP return false, expiryDeltaSeconds should be 3600
   expiryDeltaSeconds =
@@ -251,89 +251,52 @@ export const createLightningInvoice = async ({
     // dispath action to add invoice to state object
     Logger.info('No open lightning channels found');
     await sleep(1000);
-    await fetch(LSP_API!, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        bolt11: invoice.value.to_str,
-      }),
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          // Handle error response
-          throw new Error('The LSP is unavailable to fulfill this order');
-        }
-      })
-      .then((data) => {
-        // update the invoice in state object's to_str value with data.jit_bolt11;
+    try {
+      const fees = await getLspFeeEstimate(invoice.value.amount_satoshis);
+
+      if (fees.isOk()) {
+        // get wrapped invoice from LSP
+        const wrappedInvoice = await getLspWrappedInvoice({
+          bolt11: invoice.value.to_str,
+          fee_id: fees.value.id,
+        });
+
         const payload = {
           payment_hash: invoice.value.payment_hash,
-          modified_request: data.jit_bolt11,
+          modified_request: wrappedInvoice.value,
         };
-        console.log('payload: ', payload);
-        try {
-          store.dispatch.lightning.updateInvoice(payload);
-        } catch (e) {
-          showWarningBanner({
-            message: e.message,
-          });
-        }
-      })
-      .catch((error) => {
-        showWarningBanner({
-          title: 'Error fetching invoice',
-          message: error.message,
-        });
+        store.dispatch.lightning.updateInvoice(payload);
+      }
+    } catch (error) {
+      showWarningBanner({
+        title: 'Error fetching invoice',
+        message: error.message,
       });
+    }
   } else if (hasOpenLightningChannels() && !hasEnoughRemoteBalance({ amountSats })) {
-    Logger.info('Found open lightning channels but remote balance too low to receive');
-    // also has open channels, check if remoteBalance can handle amount requested,
-    // if yes, generate normal invoice and return
-    // if no, generate normal invoice, send to LSP, calculate fees and return wrapped invoice + fees
-    // dispath action to add invoice to state object
-    await sleep(1000);
-    await fetch(LSP_API!, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        bolt11: invoice.value.to_str,
-      }),
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          // Handle error response
-          throw new Error('The LSP is unavailable to fulfill this order');
-        }
-      })
-      .then((data) => {
-        // update the invoice in state object's to_str value with data.jit_bolt11;
+    try {
+      const fees = await getLspFeeEstimate(invoice.value.amount_satoshis);
+
+      if (fees.isOk()) {
+        // get wrapped invoice from LSP
+        const wrappedInvoice = await getLspWrappedInvoice({
+          bolt11: invoice.value.to_str,
+          fee_id: fees.value.id,
+        });
+
         const payload = {
           payment_hash: invoice.value.payment_hash,
-          modified_request: data.jit_bolt11,
+          modified_request: wrappedInvoice.value,
         };
         console.log('payload: ', payload);
-        try {
-          store.dispatch.lightning.updateInvoice(payload);
-        } catch (e) {
-          showWarningBanner({
-            message: e.message,
-          });
-        }
-      })
-      .catch((error) => {
-        showWarningBanner({
-          title: 'Error fetching invoice',
-          message: error.message,
-        });
+        store.dispatch.lightning.updateInvoice(payload);
+      }
+    } catch (error) {
+      showWarningBanner({
+        title: 'Error fetching invoice',
+        message: error.message,
       });
+    }
   } else {
     Logger.info('Got open channels and enough inbound liquidity to receive this amount');
   }
@@ -524,7 +487,10 @@ export const addPeers = async ({
     if (!selectedNetwork) {
       selectedNetwork = getSelectedNetwork();
     }
-    const defaultLightningPeers = DEFAULT_LIGHTNING_PEERS[selectedNetwork];
+
+    // defaulting to LSP_NODE_URI for now. We will rely on the LSP to open channels and route payments
+
+    const defaultLightningPeers = [LSP_NODE_URI];
     // @TODO: Create user UI for adding custom peers in Lightning settings.
     // Defaulting to LSP and a few other well connected peers.
     // const customLightningPeers = getCustomLightningPeers({

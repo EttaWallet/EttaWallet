@@ -1793,11 +1793,12 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@synonymdev/react-native-ldk@^0.0.105":
-  version "0.0.105"
-  resolved "https://registry.yarnpkg.com/@synonymdev/react-native-ldk/-/react-native-ldk-0.0.105.tgz#f0832f975c3c6ef2bb1e82a02b2a7b52233f452f"
-  integrity sha512-yRv4RL+bjKXstkZy8AEIn1HfWzEU91EHddKFxMuojOD5ymcbPMo8kMHmPEcnzu9Snf1PHid5E8KvGqbVLV2ZiQ==
+"@synonymdev/react-native-ldk@^0.0.129":
+  version "0.0.129"
+  resolved "https://registry.yarnpkg.com/@synonymdev/react-native-ldk/-/react-native-ldk-0.0.129.tgz#77b30fbf268afe01e753ba8ff54ef3966ac96365"
+  integrity sha512-xpAHIBiphmbe8niuIcRCZ+XVrdV/leBJOmpN9W5eHNMIbT9SYEHS7Tgyzh+vzQ+xM9/AEfKmSWEgA+MkVFqpNg==
   dependencies:
+    bech32 "^2.0.0"
     bitcoinjs-lib "^6.0.2"
 
 "@th3rdwave/react-navigation-bottom-sheet@^0.2.2":
@@ -8184,10 +8185,10 @@ react-native-flipper@^0.164.0:
   resolved "https://registry.yarnpkg.com/react-native-flipper/-/react-native-flipper-0.164.0.tgz#64f6269a86a13a72e30f53ba9f5281d2073a7697"
   integrity sha512-iJhIe3rqx6okuzBp4AJsTa2b8VRAOGzoLRFx/4HGbaGvu8AurZjz8TTQkhJsRma8dsHN2b6KKZPvGGW3wdWzvA==
 
-react-native-flipper@^0.207.0:
-  version "0.207.0"
-  resolved "https://registry.yarnpkg.com/react-native-flipper/-/react-native-flipper-0.207.0.tgz#a0e5576c2f80fac002dda678dfa431184a3348be"
-  integrity sha512-KG+uy74nCRHiK7t/sxn0oKlJTy7SkaJPnWK8WDaOBv98qRWFPdSlUtxki0guoPjmO7gAV+nZsiGDd+98oZSohg==
+react-native-flipper@^0.212.0:
+  version "0.212.0"
+  resolved "https://registry.yarnpkg.com/react-native-flipper/-/react-native-flipper-0.212.0.tgz#b3fdd47676ecd09a25edd77a1466acace6276762"
+  integrity sha512-bDRfIgE3v/jjEEdnvGP0T6maDD+bXhDAQ/SZUYTKd/CQ6YIU1c0EF+e0urU62LNMv6XEFQKz226McdddyVhYZA==
 
 react-native-fs@^2.20.0:
   version "2.20.0"
@@ -8792,9 +8793,10 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^3.0.0"
     inherits "^2.0.1"
 
-"rn-electrum-client@github:synonymdev/react-native-electrum-client#a32a292d4e4918a04d280137e24e5961c74c543f":
-  version "0.0.8"
-  resolved "https://codeload.github.com/synonymdev/react-native-electrum-client/tar.gz/a32a292d4e4918a04d280137e24e5961c74c543f"
+rn-electrum-client@^0.0.12:
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/rn-electrum-client/-/rn-electrum-client-0.0.12.tgz#f4857471d558f0db8b34c5c62488b41afef2b022"
+  integrity sha512-vaRcZR9zxPo66MhSZcjlnEFmb3FqTMj/OrQpvA+eW2xMpmINoLGUd/jLX+MiHxbci5haom5c6NYVvzK9Ongxdw==
 
 rn-host-detect@1.2.0:
   version "1.2.0"

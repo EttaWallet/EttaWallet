@@ -10,6 +10,7 @@ import {
 import lm, {
   DefaultTransactionDataShape,
   EEventTypes,
+  IAddress,
   TChannel,
   TChannelManagerClaim,
   TChannelManagerOpenChannelRequest,
@@ -36,12 +37,11 @@ import {
   removeExpiredInvoices,
   syncPaymentsWithStore,
   addPeers,
-  DEFAULT_LIGHTNING_PEERS,
 } from '../utils/lightning/helpers';
 import { TLightningNodeVersion } from '../utils/types';
 import { EmitterSubscription, InteractionManager } from 'react-native';
 import { promiseTimeout, sleep, tryNTimes } from '../utils/helpers';
-import { getBestBlock, getTransactionMerkle } from '../utils/electrum/helpers';
+import { getBestBlock, getTransactionMerkle, transactionExists } from '../utils/electrum/helpers';
 import { getLdkNetwork, TAvailableNetworks } from '../utils/networks';
 import { getReceiveAddress, getSelectedNetwork, getWalletStore } from '../utils/wallet';
 import { showSuccessBanner, showToast } from '../utils/alerts';
@@ -49,6 +49,7 @@ import { navigate } from '../navigation/NavigationService';
 import { Screens } from '../navigation/Screens';
 import { showErrorBanner } from '../utils/alerts';
 import store from '../state/store';
+import { LSP_PUBKEY } from '../../config';
 
 let LDKIsStayingSynced = false;
 
@@ -213,7 +214,7 @@ const defaultUserConfig: TUserConfig = {
     announced_channel: false,
     max_htlc_value_in_flight_percent_of_channel: 100,
     minimum_depth: 0,
-    negotiate_anchors_zero_fee_htlc_tx: true, //Required for zero conf
+    negotiate_anchors_zero_fee_htlc_tx: true,
   },
   manually_accept_inbound_channels: true,
   accept_inbound_channels: true, // to allow zero conf
@@ -249,13 +250,16 @@ export const setupLdk = async ({
       return err(account.error.message);
     }
 
-    const _getAddress = async (): Promise<string> => {
+    const _getAddress = async (): Promise<IAddress> => {
       // return a valid receive address for the selected network
       const res = await getReceiveAddress({ selectedNetwork });
       if (res) {
         return res;
       }
-      return '';
+      return {
+        address: res.address,
+        publicKey: res.publicKey,
+      };
     };
 
     const _broadcastTransaction = async (rawTx: string): Promise<string> => {
@@ -282,23 +286,33 @@ export const setupLdk = async ({
       account: account.value,
       getFees: () =>
         Promise.resolve({
-          highPriority: feesStore.fast,
-          normal: feesStore.normal,
-          background: feesStore.slow,
+          onChainSweep: feesStore.fast,
+          maxAllowedNonAnchorChannelRemoteFee: Math.max(25, feesStore.fast * 10),
+          minAllowedAnchorChannelRemoteFee: feesStore.minimum,
+          minAllowedNonAnchorChannelRemoteFee: Math.max(feesStore.minimum - 1, 0),
+          anchorChannelFee: feesStore.slow,
+          nonAnchorChannelFee: feesStore.normal,
+          channelCloseMinimum: feesStore.minimum,
         }),
       network: getLdkNetwork(selectedNetwork),
       getBestBlock,
       getAddress: _getAddress,
       broadcastTransaction: _broadcastTransaction,
-      getTransactionData: (txId) => _getTransactionData(txId, selectedNetwork),
+      getTransactionData: _getTransactionData,
       getScriptPubKeyHistory: (scriptPubkey) => {
         return getScriptPubKeyHistory(scriptPubkey, selectedNetwork);
       },
       getTransactionPosition: (params) => {
         return getTransactionPosition({ ...params, selectedNetwork });
       },
+      forceCloseOnStartup: {
+        forceClose: false,
+        broadcastLatestTx: false,
+      },
       userConfig: defaultUserConfig,
-      trustedZeroConfPeers: [DEFAULT_LIGHTNING_PEERS[selectedNetwork]],
+      trustedZeroConfPeers: [LSP_PUBKEY],
+      skipRemoteBackups: true,
+      skipParamCheck: true, //Switch off for debugging LDK networking issues
     });
     if (lmStart.isErr()) {
       return err(`@lmStart: ${lmStart.error.message}`);
@@ -340,19 +354,12 @@ export const setupLdk = async ({
 export const _getTransactionData = async (
   txId: string = '',
   selectedNetwork?: TAvailableNetworks
-): Promise<TTransactionData> => {
+): Promise<TTransactionData | undefined> => {
   let transactionData = DefaultTransactionDataShape;
   try {
-    const data = {
-      key: 'tx_hash',
-      data: [
-        {
-          tx_hash: txId,
-        },
-      ],
-    };
+    const data = [{ tx_hash: txId }];
 
-    if (selectedNetwork) {
+    if (!selectedNetwork) {
       selectedNetwork = getSelectedNetwork();
     }
 
@@ -361,30 +368,39 @@ export const _getTransactionData = async (
       network: selectedNetwork,
     });
 
-    if (response.error || !response.data || response.data[0].error) {
-      console.log(
-        `@getTransactions: something ain't right: ${JSON.stringify(response.data[0].error.message)}`
-      );
+    if (response.isErr()) {
       return transactionData;
+    }
+
+    const txData = response.value.data[0];
+
+    if (!transactionExists(txData)) {
+      //Transaction was removed from the mempool or potentially reorg'd out of the chain.
+      return undefined;
     }
 
     const { confirmations, hex: hex_encoded_tx, vout } = response.data[0].result;
     const header = getBlockHeader();
     const currentHeight = header.height;
     let confirmedHeight = 0;
+
     if (confirmations) {
       confirmedHeight = currentHeight - confirmations + 1;
     }
+
     const hexEncodedHeader = await getBlockHex({
       height: confirmedHeight,
       selectedNetwork,
     });
+
     if (hexEncodedHeader.isErr()) {
       return transactionData;
     }
+
     const voutData = vout.map(({ n, value, scriptPubKey: { hex } }) => {
       return { n, hex, value };
     });
+
     return {
       header: hexEncodedHeader.value,
       height: confirmedHeight,
